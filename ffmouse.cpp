@@ -59,7 +59,6 @@ void detect_window_below_cursor()
                             pid = window_lst[i].pid;
                             GetProcessForPID(pid, &psn);
                         }
-                        SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
                     }
                     break;
                 }
