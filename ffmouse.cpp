@@ -17,7 +17,7 @@ void detect_window_below_cursor()
         {
             CFDictionaryRef elem = (CFDictionaryRef)CFArrayGetValueAtIndex(osx_window_list, i);
             window_lst.push_back(app_info());
-            CFDictionaryApplyFunction(elem, print_keys, NULL);
+            CFDictionaryApplyFunction(elem, get_window_info, NULL);
         }
 
         CGEventRef event = CGEventCreate(NULL);
@@ -89,11 +89,10 @@ CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
     return event;
 }
 
-void print_keys(const void *key, const void *value, void *context)
+void get_window_info(const void *key, const void *value, void *context)
 {
     CFStringRef k = (CFStringRef)key;
     std::string key_str = CFStringGetCStringPtr(k, kCFStringEncodingMacRoman);
-    std::string value_str;
 
     CFTypeID id = CFGetTypeID(value);
     if(id == CFStringGetTypeID())
@@ -101,7 +100,7 @@ void print_keys(const void *key, const void *value, void *context)
         CFStringRef v = (CFStringRef)value;
         if(CFStringGetCStringPtr(v, kCFStringEncodingMacRoman))
         {
-            value_str = CFStringGetCStringPtr(v, kCFStringEncodingMacRoman);
+            std::string value_str = CFStringGetCStringPtr(v, kCFStringEncodingMacRoman);
             if(key_str == "kCGWindowName")
                 window_lst[window_lst.size()-1].name = value_str;
             else if(key_str == "kCGWindowOwnerName")
@@ -110,10 +109,9 @@ void print_keys(const void *key, const void *value, void *context)
     }
     else if(id == CFNumberGetTypeID())
     {
-        CFNumberRef v = (CFNumberRef)value;
         int myint;
+        CFNumberRef v = (CFNumberRef)value;
         CFNumberGetValue(v, kCFNumberSInt64Type, &myint);
-        value_str = std::to_string(myint);
         if(key_str == "kCGWindowLayer")
             window_lst[window_lst.size()-1].layer = myint;
         else if(key_str == "kCGWindowOwnerPID")
@@ -130,7 +128,7 @@ void print_keys(const void *key, const void *value, void *context)
     else if(id == CFDictionaryGetTypeID())
     {
         CFDictionaryRef elem = (CFDictionaryRef)value;
-        CFDictionaryApplyFunction(elem, print_keys, NULL);
+        CFDictionaryApplyFunction(elem, get_window_info, NULL);
         CFRelease(elem);
     } 
 }

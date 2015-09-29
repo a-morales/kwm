@@ -22,7 +22,7 @@ struct app_info
 };
 
 CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
-void print_keys(const void *key, const void *value, void *context);
+void get_window_info(const void *key, const void *value, void *context);
 void detect_window_below_cursor();
 void fatal(const std::string &err);
 
