@@ -109,9 +109,6 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
 
 CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
 {
-    if(type != kCGEventKeyDown && type != kCGEventKeyUp && type != kCGEventMouseMoved)
-        return event;
-
     if(type == kCGEventKeyDown)
     {
         CGEventFlags flags = CGEventGetFlags(event);
@@ -150,8 +147,6 @@ CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
         CGEventPostToPSN(&psn, event);
         return NULL;
     }
-    else if(type == kCGEventKeyUp)
-        return event;
     else if(type == kCGEventMouseMoved)
         detect_window_below_cursor();
 
@@ -185,7 +180,11 @@ void detect_window_below_cursor()
                 if(cursor.x >= window_lst[i].x && cursor.x <= window_lst[i].x + window_lst[i].width
                         && cursor.y >= window_lst[i].y && cursor.y <= window_lst[i].y + window_lst[i].height)
                 {
-                    if(window_lst_focus_name != window_lst[i].name || pid != window_lst[i].pid)
+                    ProcessSerialNumber newpsn;
+                    GetProcessForPID(window_lst[i].pid, &newpsn);
+
+                    if(window_lst_focus_name != window_lst[i].name || 
+                            (psn.lowLongOfPSN != newpsn.lowLongOfPSN || psn.highLongOfPSN != newpsn.highLongOfPSN))
                     {
                         window_lst_focus_name = window_lst[i].name;
                         window_lst_focus_index = i;
@@ -205,10 +204,11 @@ void detect_window_below_cursor()
                             system(applescript_cmd.c_str());
                         }
 
-                        if(pid != window_lst[i].pid)
+                        if(pid != window_lst[i].pid ||
+                            (psn.lowLongOfPSN != newpsn.lowLongOfPSN || psn.highLongOfPSN != newpsn.highLongOfPSN))
                         {
                             pid = window_lst[i].pid;
-                            GetProcessForPID(pid, &psn);
+                            psn = newpsn;
                             std::cout << "Keyboard focus: " << pid << std::endl;
                         }
                     }
