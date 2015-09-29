@@ -1,9 +1,14 @@
 #include "ffmouse.h"
 
+static const std::string OSASCRIPT_START = "osascript -e 'tell application \"System Events\" to tell process \"";
+static const std::string OSASCRIPT_MID = "\" to perform action \"AXRaise\" of (first window whose name contains \"";
+static const std::string OSASCRIPT_END = "\")'";
+
 static pid_t pid;
 static ProcessSerialNumber psn;
 static std::vector<app_info> window_lst;
 static int window_lst_focus_index;
+static std::string window_lst_focus_name = "<no focus>";;
 
 void detect_window_below_cursor()
 {
@@ -32,9 +37,30 @@ void detect_window_below_cursor()
                 if(cursor.x >= window_lst[i].x && cursor.x <= window_lst[i].x + window_lst[i].width
                         && cursor.y >= window_lst[i].y && cursor.y <= window_lst[i].y + window_lst[i].height)
                 {
-                    window_lst_focus_index = i;
-                    pid = window_lst[i].pid;
-                    GetProcessForPID(pid, &psn);
+                    if(window_lst_focus_name != window_lst[i].name || pid != window_lst[i].pid)
+                    {
+                        window_lst_focus_name = window_lst[i].name;
+                        window_lst_focus_index = i;
+
+                        // Strip single quotes and remaining part if found,
+                        // because  it breaks applescript syntax
+                        std::string win_title = window_lst[window_lst_focus_index].name;
+                        std::size_t pos = win_title.find("'");
+                        if(pos != std::string::npos)
+                            win_title.erase(pos);
+
+                        std::string applescript_cmd = OSASCRIPT_START +
+                            window_lst[window_lst_focus_index].owner + OSASCRIPT_MID +
+                            win_title + OSASCRIPT_END;
+                        system(applescript_cmd.c_str());
+
+                        if(pid != window_lst[i].pid)
+                        {
+                            pid = window_lst[i].pid;
+                            GetProcessForPID(pid, &psn);
+                        }
+                        SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
+                    }
                     break;
                 }
 
