@@ -2,6 +2,7 @@
 #define FFMOUSE_H
 
 #include <ApplicationServices/ApplicationServices.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <Carbon/Carbon.h>
 
 #include <iostream>
@@ -20,6 +21,32 @@ struct app_info
     int x,y;
     int width, height;
 };
+
+struct screen_info
+{
+    int id;
+    int x, y;
+    int width, height;
+};
+
+struct window_layout
+{
+    std::string name;
+    int x, y;
+    int gap_x, gap_y;
+    int gap_vertical, gap_horizontal;
+    int width, height;
+};
+
+bool check_privileges();
+void request_privileges();
+
+void get_active_displays();
+screen_info *get_display_of_window();
+
+void init_window_layouts();
+window_layout get_window_layout_for_screen(const std::string &name);
+void set_window_dimensions(int x, int y, int width, int height);
 
 bool toggle_tap_hotkey(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
 bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
