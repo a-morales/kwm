@@ -8,11 +8,10 @@ static const CGKeyCode kVK_SPECIAL_Å = 0x21;
 static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
 static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
 
-static pid_t pid;
-static ProcessSerialNumber psn;
 static std::vector<screen_info> display_lst;
 static std::vector<app_info> window_lst;
 static std::vector<window_layout> layout_lst;
+static ProcessSerialNumber psn;
 static app_info focused_window;
 static bool toggle_tap = true;
 
@@ -24,8 +23,10 @@ bool check_privileges()
 {
     if (AXAPIEnabled())
         return true;
+
     if(AXIsProcessTrusted())
         return true;
+
     std::cout << "not trusted" << std::endl;
     return false;
 }
@@ -34,13 +35,13 @@ void request_privileges()
 {
     if(AXMakeProcessTrusted(CFSTR("/usr/bin/accessability")) != kAXErrorSuccess)
         fatal("Could not make trusted!");
+
     std::cout << "is now trusted.." << std::endl;
 }
 
 void get_active_displays()
 {
     CGGetActiveDisplayList(max_display_count, (CGDirectDisplayID*)&active_displays, &active_displays_count);
-
     for(int display_index = 0; display_index < active_displays_count; ++display_index)
     {
         CGRect display_rect = CGDisplayBounds(active_displays[display_index]);
@@ -62,6 +63,7 @@ screen_info *get_display_of_window()
         if(focused_window.x >= screen->x && focused_window.x <= screen->x + screen->width)
             return screen;
     }
+
     return NULL;
 }
 
@@ -69,6 +71,7 @@ window_layout get_window_layout_for_screen(const std::string &name)
 {
     window_layout layout;
     layout.name = "invalid";
+
     screen_info *screen = get_display_of_window();
     if(screen)
     {
@@ -103,6 +106,7 @@ window_layout get_window_layout_for_screen(const std::string &name)
             layout.height = (screen->height - (layout.gap_y * 1.5f));
         }
     }
+
     return layout;
 }
 
@@ -130,8 +134,8 @@ void set_window_dimensions(int x, int y, int width, int height)
     if(app)
     {
         AXUIElementRef app_window = NULL;
-        AXError error = AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute, (CFTypeRef*)&app_window);
 
+        AXError error = AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute, (CFTypeRef*)&app_window);
         if(error == kAXErrorSuccess)
         {
             std::cout << "target window: " << focused_window.name << std::endl;
@@ -151,6 +155,7 @@ void set_window_dimensions(int x, int y, int width, int height)
             CFRelease(new_window_size);
             CFRelease(app_window);
         }
+
         CFRelease(app);
     }
 }
@@ -166,6 +171,7 @@ bool toggle_tap_hotkey(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keyc
             return true;
         }
     }
+
     return false;
 }
 
@@ -219,6 +225,7 @@ bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyC
         if(keycode == kVK_ANSI_1)
             return true;
     }
+
     return false;
 }
 
@@ -265,6 +272,7 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
             return true;
         }
     }
+    
     return false;
 }
 
@@ -318,7 +326,8 @@ void detect_window_below_cursor()
 {
     window_lst.clear();
 
-    CFArrayRef osx_window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+    CGWindowListOption osx_window_list_option = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
+    CFArrayRef osx_window_list = CGWindowListCopyWindowInfo(osx_window_list_option, kCGNullWindowID);
     if(osx_window_list)
     {
         CFIndex osx_window_count = CFArrayGetCount(osx_window_list);
@@ -333,7 +342,6 @@ void detect_window_below_cursor()
         CGPoint cursor = CGEventGetLocation(event);
         CFRelease(event);
         
-        //std::cout << "Mouse Pos: " << cursor.x << ", " << cursor.y << std::endl;
         for(int i = 0; i < window_lst.size(); ++i)
         {
             if(window_lst[i].layer == 0)
@@ -343,7 +351,6 @@ void detect_window_below_cursor()
                 {
                     ProcessSerialNumber newpsn;
                     GetProcessForPID(window_lst[i].pid, &newpsn);
-                    pid = window_lst[i].pid;
                     psn = newpsn;
 
                     if(focused_window.name != window_lst[i].name)
@@ -362,6 +369,7 @@ void detect_window_below_cursor()
                             std::string applescript_cmd = OSASCRIPT_START +
                                 focused_window.owner + OSASCRIPT_MID +
                                 win_title + OSASCRIPT_END;
+
                             system(applescript_cmd.c_str());
                         }
 
@@ -429,11 +437,6 @@ int main(int argc, char **argv)
     if(!check_privileges())
         request_privileges();
 
-    get_active_displays();
-    init_window_layouts();
-
-    detect_window_below_cursor();
-
     CFMachPortRef event_tap;
     CGEventMask event_mask;
     CFRunLoopSourceRef run_loop_source;
@@ -445,6 +448,10 @@ int main(int argc, char **argv)
         std::cout << "tapping keys.." << std::endl;
     else
         fatal("could not tap keys, try running as root");
+
+    get_active_displays();
+    init_window_layouts();
+    detect_window_below_cursor();
 
     run_loop_source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, event_tap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), run_loop_source, kCFRunLoopCommonModes);
