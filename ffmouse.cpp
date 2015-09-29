@@ -10,10 +10,150 @@ static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
 
 static pid_t pid;
 static ProcessSerialNumber psn;
+static std::vector<screen_info> display_lst;
 static std::vector<app_info> window_lst;
-static int window_lst_focus_index;
-static std::string window_lst_focus_name = "<no focus>";;
+static std::vector<window_layout> layout_lst;
+static app_info focused_window;
 static bool toggle_tap = true;
+
+static uint32_t max_display_count = 5;
+static uint32_t active_displays_count;
+static CGDirectDisplayID active_displays[5];
+
+bool check_privileges()
+{
+    if (AXAPIEnabled())
+        return true;
+    if(AXIsProcessTrusted())
+        return true;
+    std::cout << "not trusted" << std::endl;
+    return false;
+}
+
+void request_privileges()
+{
+    if(AXMakeProcessTrusted(CFSTR("/usr/bin/accessability")) != kAXErrorSuccess)
+        fatal("Could not make trusted!");
+    std::cout << "is now trusted.." << std::endl;
+}
+
+void get_active_displays()
+{
+    CGGetActiveDisplayList(max_display_count, (CGDirectDisplayID*)&active_displays, &active_displays_count);
+
+    for(int display_index = 0; display_index < active_displays_count; ++display_index)
+    {
+        CGRect display_rect = CGDisplayBounds(active_displays[display_index]);
+        screen_info screen;
+        screen.id = display_index;
+        screen.x = display_rect.origin.x;
+        screen.y = display_rect.origin.y;
+        screen.width = display_rect.size.width;
+        screen.height = display_rect.size.height;
+        display_lst.push_back(screen);
+    }
+}
+
+screen_info *get_display_of_window()
+{
+    for(int display_index = 0; display_index < active_displays_count; ++display_index)
+    {
+        screen_info *screen = &display_lst[display_index];
+        if(focused_window.x >= screen->x && focused_window.x <= screen->x + screen->width)
+            return screen;
+    }
+    return NULL;
+}
+
+window_layout get_window_layout_for_screen(const std::string &name)
+{
+    window_layout layout;
+    layout.name = "invalid";
+    screen_info *screen = get_display_of_window();
+    if(screen)
+    {
+        for(int layout_index = 0; layout_index < layout_lst.size(); ++layout_index)
+        {
+            if(layout_lst[layout_index].name == name)
+            {
+                layout = layout_lst[layout_index];
+                break;
+            }
+        }
+
+        if(name == "fullscreen")
+        {
+            layout.x = screen->x + layout.gap_x;
+            layout.y = screen->y + layout.gap_y;
+            layout.width = (screen->width - (layout.gap_vertical * 2));
+            layout.height = (screen->height - (layout.gap_y * 1.5f));
+        }
+        else if(name == "left vertical split")
+        {
+            layout.x = screen->x + layout.gap_x;
+            layout.y = screen->y + layout.gap_y;
+            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
+            layout.height = (screen->height - (layout.gap_y * 1.5f));
+        }
+        else if(name == "right vertical split")
+        {
+            layout.x = screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f));
+            layout.y = screen->y + layout.gap_y;
+            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
+            layout.height = (screen->height - (layout.gap_y * 1.5f));
+        }
+    }
+    return layout;
+}
+
+void init_window_layouts()
+{
+    window_layout screen_vertical_split;
+    screen_vertical_split.gap_x = 30;
+    screen_vertical_split.gap_y = 40;
+    screen_vertical_split.gap_vertical = 30;
+    screen_vertical_split.gap_horizontal = 30;
+
+    screen_vertical_split.name = "fullscreen";
+    layout_lst.push_back(screen_vertical_split);
+
+    screen_vertical_split.name = "left vertical split";
+    layout_lst.push_back(screen_vertical_split);
+
+    screen_vertical_split.name = "right vertical split";
+    layout_lst.push_back(screen_vertical_split);
+}
+
+void set_window_dimensions(int x, int y, int width, int height)
+{
+    AXUIElementRef app = AXUIElementCreateApplication(focused_window.pid);
+    if(app)
+    {
+        AXUIElementRef app_window = NULL;
+        AXError error = AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute, (CFTypeRef*)&app_window);
+
+        if(error == kAXErrorSuccess)
+        {
+            std::cout << "target window: " << focused_window.name << std::endl;
+
+            CGPoint window_pos = CGPointMake(x, y);
+            CFTypeRef new_window_pos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&window_pos);
+
+            CGSize window_size = CGSizeMake(width, height);
+            CFTypeRef new_window_size = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&window_size);
+
+            if(AXUIElementSetAttributeValue(app_window, kAXPositionAttribute, new_window_pos) != kAXErrorSuccess)
+                std::cout << "failed to set new window position" << std::endl;
+            if(AXUIElementSetAttributeValue(app_window, kAXSizeAttribute, new_window_size) != kAXErrorSuccess)
+                std::cout << "failed to set new window size" << std::endl;
+
+            CFRelease(new_window_pos);
+            CFRelease(new_window_size);
+            CFRelease(app_window);
+        }
+        CFRelease(app);
+    }
+}
 
 bool toggle_tap_hotkey(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
 {
@@ -40,6 +180,8 @@ bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyC
             std::cout << "tap disabled" << std::endl;
             return true;
         }
+        else if(keycode == kVK_Tab)
+            return true;
     }
 
     if(cmd_key && ctrl_key && !alt_key)
@@ -61,11 +203,8 @@ bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyC
             return true;
 
         // Hammerspoon hotkeys -> window resize
-        if(keycode == kVK_LeftArrow
-            || (keycode == kVK_UpArrow)
+        if(keycode == kVK_UpArrow
             || (keycode == kVK_DownArrow)
-            || (keycode == kVK_RightArrow)
-            || (keycode == kVK_ANSI_M)
             || (keycode == kVK_ANSI_H)
             || (keycode == kVK_ANSI_J)
             || (keycode == kVK_ANSI_K)
@@ -101,6 +240,28 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         if(sys_command != "")
         {
             system(sys_command.c_str());
+            return true;
+        }
+
+        if(keycode == kVK_LeftArrow)
+        {
+            window_layout layout = get_window_layout_for_screen("left vertical split");
+            if(layout.name != "invalid")
+                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
+            return true;
+        }
+        else if(keycode == kVK_RightArrow)
+        {
+            window_layout layout = get_window_layout_for_screen("right vertical split");
+            if(layout.name != "invalid")
+                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
+            return true;
+        }
+        else if(keycode == kVK_ANSI_M)
+        {
+            window_layout layout = get_window_layout_for_screen("fullscreen");
+            if(layout.name != "invalid")
+                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
             return true;
         }
     }
@@ -161,9 +322,9 @@ void detect_window_below_cursor()
     if(osx_window_list)
     {
         CFIndex osx_window_count = CFArrayGetCount(osx_window_list);
-        for(CFIndex i = 0; i < osx_window_count; ++i)
+        for(CFIndex osx_window_index = 0; osx_window_index < osx_window_count; ++osx_window_index)
         {
-            CFDictionaryRef elem = (CFDictionaryRef)CFArrayGetValueAtIndex(osx_window_list, i);
+            CFDictionaryRef elem = (CFDictionaryRef)CFArrayGetValueAtIndex(osx_window_list, osx_window_index);
             window_lst.push_back(app_info());
             CFDictionaryApplyFunction(elem, get_window_info, NULL);
         }
@@ -182,16 +343,16 @@ void detect_window_below_cursor()
                 {
                     ProcessSerialNumber newpsn;
                     GetProcessForPID(window_lst[i].pid, &newpsn);
+                    pid = window_lst[i].pid;
+                    psn = newpsn;
 
-                    if(window_lst_focus_name != window_lst[i].name || 
-                            (psn.lowLongOfPSN != newpsn.lowLongOfPSN || psn.highLongOfPSN != newpsn.highLongOfPSN))
+                    if(focused_window.name != window_lst[i].name)
                     {
-                        window_lst_focus_name = window_lst[i].name;
-                        window_lst_focus_index = i;
+                        focused_window = window_lst[i];
 
                         // Strip single quotes and remaining part if found,
                         // because  it breaks applescript syntax
-                        std::string win_title = window_lst[window_lst_focus_index].name;
+                        std::string win_title = focused_window.name;
                         if(win_title != "")
                         {
                             std::size_t pos = win_title.find("'");
@@ -199,32 +360,15 @@ void detect_window_below_cursor()
                                 win_title.erase(pos);
 
                             std::string applescript_cmd = OSASCRIPT_START +
-                                window_lst[window_lst_focus_index].owner + OSASCRIPT_MID +
+                                focused_window.owner + OSASCRIPT_MID +
                                 win_title + OSASCRIPT_END;
                             system(applescript_cmd.c_str());
                         }
 
-                        if(pid != window_lst[i].pid ||
-                            (psn.lowLongOfPSN != newpsn.lowLongOfPSN || psn.highLongOfPSN != newpsn.highLongOfPSN))
-                        {
-                            pid = window_lst[i].pid;
-                            psn = newpsn;
-                            std::cout << "Keyboard focus: " << pid << std::endl;
-                        }
+                        std::cout << "Keyboard focus: " << focused_window.pid << std::endl;
                     }
                     break;
                 }
-
-                /*
-                std::cout << "Owner: " << window_lst[i].owner << std::endl;
-                std::cout << "Name: " << window_lst[i].name << std::endl;
-                std::cout << "PID: " << window_lst[i].pid << std::endl;
-                std::cout << "Layer: " << window_lst[i].layer << std::endl;
-                std::cout << "X: " << window_lst[i].x << std::endl;
-                std::cout << "Y: " << window_lst[i].y << std::endl;
-                std::cout << "Width: " << window_lst[i].width << std::endl;
-                std::cout << "Height: " << window_lst[i].height << std::endl;
-                */
             }
         }
     }
@@ -282,6 +426,12 @@ void fatal(const std::string &err)
 
 int main(int argc, char **argv)
 {
+    if(!check_privileges())
+        request_privileges();
+
+    get_active_displays();
+    init_window_layouts();
+
     detect_window_below_cursor();
 
     CFMachPortRef event_tap;
