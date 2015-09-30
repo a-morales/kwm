@@ -14,6 +14,7 @@ static std::vector<window_layout> layout_lst;
 static ProcessSerialNumber psn;
 static app_info focused_window;
 static bool toggle_tap = true;
+static bool enable_auto_raise = true;
 
 static uint32_t max_display_count = 5;
 static uint32_t active_displays_count;
@@ -105,6 +106,34 @@ window_layout get_window_layout_for_screen(const std::string &name)
             layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
             layout.height = (screen->height - (layout.gap_y * 1.5f));
         }
+        else if(name == "upper left split")
+        {
+            layout.x = screen->x + layout.gap_x;
+            layout.y = screen->y + layout.gap_y;
+            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
+            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
+        }
+        else if(name == "lower left split")
+        {
+            layout.x = screen->x + layout.gap_x;
+            layout.y = screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8));
+            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
+            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
+        }
+        else if(name == "upper right split")
+        {
+            layout.x = screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f));
+            layout.y = screen->y + layout.gap_y;
+            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
+            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
+        }
+        else if(name == "lower right split")
+        {
+            layout.x = screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f));
+            layout.y = screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8));
+            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
+            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
+        }
     }
 
     return layout;
@@ -125,6 +154,18 @@ void init_window_layouts()
     layout_lst.push_back(screen_vertical_split);
 
     screen_vertical_split.name = "right vertical split";
+    layout_lst.push_back(screen_vertical_split);
+
+    screen_vertical_split.name = "upper left split";
+    layout_lst.push_back(screen_vertical_split);
+
+    screen_vertical_split.name = "lower left split";
+    layout_lst.push_back(screen_vertical_split);
+
+    screen_vertical_split.name = "upper right split";
+    layout_lst.push_back(screen_vertical_split);
+
+    screen_vertical_split.name = "lower right split";
     layout_lst.push_back(screen_vertical_split);
 }
 
@@ -190,42 +231,6 @@ bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyC
             return true;
     }
 
-    if(cmd_key && ctrl_key && !alt_key)
-    {
-        // Hammerspoon hotkeys -> window movement
-        if(keycode == kVK_ANSI_P
-            || (keycode == kVK_ANSI_N)
-            || (keycode == kVK_ANSI_H)
-            || (keycode == kVK_ANSI_J)
-            || (keycode == kVK_ANSI_K)
-            || (keycode == kVK_ANSI_L))
-            return true;
-    }
-
-    if(cmd_key && alt_key && ctrl_key)
-    {
-        // Hammerspoon hotkeys -> config reload
-        if(keycode == kVK_ANSI_R)
-            return true;
-
-        // Hammerspoon hotkeys -> window resize
-        if(keycode == kVK_UpArrow
-            || (keycode == kVK_DownArrow)
-            || (keycode == kVK_ANSI_H)
-            || (keycode == kVK_ANSI_J)
-            || (keycode == kVK_ANSI_K)
-            || (keycode == kVK_ANSI_L)
-            || (keycode == kVK_ANSI_P)
-            || (keycode == kVK_SPECIAL_Å)
-            || (keycode == kVK_SPECIAL_Ø)
-            || (keycode == kVK_SPECIAL_Æ))
-            return true;
-
-        // Hammerspoon hotkeys -> launch app
-        if(keycode == kVK_ANSI_1)
-            return true;
-    }
-
     return false;
 }
 
@@ -233,9 +238,13 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
 {
     if(cmd_key && alt_key && ctrl_key)
     {
-        // YTD - Media Player Controls
+        // Start Applications
         std::string sys_command = "";
-        if(keycode == kVK_ANSI_Z)
+        // New iterm2 Window
+        if(keycode == kVK_ANSI_1)
+            sys_command = "/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window";
+        // YTD - Media Player Controls
+        else if(keycode == kVK_ANSI_Z)
             sys_command = "ytc prev";
         else if(keycode == kVK_ANSI_X)
             sys_command = "ytc play";
@@ -250,7 +259,15 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
             return true;
         }
 
-        if(keycode == kVK_LeftArrow)
+        // Window Layout
+        if(keycode == kVK_ANSI_M)
+        {
+            window_layout layout = get_window_layout_for_screen("fullscreen");
+            if(layout.name != "invalid")
+                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
+            return true;
+        }
+        else if(keycode == kVK_LeftArrow)
         {
             window_layout layout = get_window_layout_for_screen("left vertical split");
             if(layout.name != "invalid")
@@ -264,9 +281,30 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
                 set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
             return true;
         }
-        else if(keycode == kVK_ANSI_M)
+        else if(keycode == kVK_ANSI_P)
         {
-            window_layout layout = get_window_layout_for_screen("fullscreen");
+            window_layout layout = get_window_layout_for_screen("upper left split");
+            if(layout.name != "invalid")
+                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
+            return true;
+        }
+        else if(keycode == kVK_SPECIAL_Ø)
+        {
+            window_layout layout = get_window_layout_for_screen("lower left split");
+            if(layout.name != "invalid")
+                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
+            return true;
+        }
+        else if(keycode == kVK_SPECIAL_Å)
+        {
+            window_layout layout = get_window_layout_for_screen("upper right split");
+            if(layout.name != "invalid")
+                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
+            return true;
+        }
+        else if(keycode == kVK_SPECIAL_Æ)
+        {
+            window_layout layout = get_window_layout_for_screen("lower right split");
             if(layout.name != "invalid")
                 set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
             return true;
@@ -371,6 +409,8 @@ void detect_window_below_cursor()
                                 win_title + OSASCRIPT_END;
 
                             system(applescript_cmd.c_str());
+                            if(enable_auto_raise)
+                                SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
                         }
 
                         std::cout << "Keyboard focus: " << focused_window.pid << std::endl;
