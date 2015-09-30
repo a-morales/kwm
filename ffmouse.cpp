@@ -68,6 +68,14 @@ screen_info *get_display_of_window()
     return NULL;
 }
 
+void set_window_layout_values(window_layout *layout, int x, int y, int width, int height)
+{
+    layout->x = x;
+    layout->y = y;
+    layout->width = width;
+    layout->height = height;
+}
+
 window_layout get_window_layout_for_screen(const std::string &name)
 {
     window_layout layout;
@@ -86,68 +94,32 @@ window_layout get_window_layout_for_screen(const std::string &name)
         }
 
         if(name == "fullscreen")
-        {
-            layout.x = screen->x + layout.gap_x;
-            layout.y = screen->y + layout.gap_y;
-            layout.width = (screen->width - (layout.gap_vertical * 2));
-            layout.height = (screen->height - (layout.gap_y * 1.5f));
-        }
+            set_window_layout_values(&layout, screen->x + layout.gap_x, screen->y + layout.gap_y, 
+                    (screen->width - (layout.gap_vertical * 2)), (screen->height - (layout.gap_y * 1.5f)));
         else if(name == "left vertical split")
-        {
-            layout.x = screen->x + layout.gap_x;
-            layout.y = screen->y + layout.gap_y;
-            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
-            layout.height = (screen->height - (layout.gap_y * 1.5f));
-        }
+            set_window_layout_values(&layout, screen->x + layout.gap_x, screen->y + layout.gap_y, 
+                    ((screen->width / 2) - (layout.gap_vertical * 1.5f)), (screen->height - (layout.gap_y * 1.5f)));
         else if(name == "right vertical split")
-        {
-            layout.x = screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f));
-            layout.y = screen->y + layout.gap_y;
-            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
-            layout.height = (screen->height - (layout.gap_y * 1.5f));
-        }
+            set_window_layout_values(&layout, screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f)), 
+                    screen->y + layout.gap_y, ((screen->width / 2) - (layout.gap_vertical * 1.5f)), (screen->height - (layout.gap_y * 1.5f)));
         else if(name == "upper horizontal split")
-        {
-            layout.x = screen->x + layout.gap_x;
-            layout.y = screen->y + layout.gap_y;
-            layout.width = (screen->width - (layout.gap_vertical * 2));
-            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
-        }
+            set_window_layout_values(&layout, screen->x + layout.gap_x, screen->y + layout.gap_y, 
+                    (screen->width - (layout.gap_vertical * 2)), ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
         else if(name == "lower horizontal split")
-        {
-            layout.x = screen->x + layout.gap_x;
-            layout.y = screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8));
-            layout.width = (screen->width - (layout.gap_vertical * 2));
-            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
-        }
+            set_window_layout_values(&layout, screen->x + layout.gap_x, screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8)), 
+                    (screen->width - (layout.gap_vertical * 2)), ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
         else if(name == "upper left split")
-        {
-            layout.x = screen->x + layout.gap_x;
-            layout.y = screen->y + layout.gap_y;
-            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
-            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
-        }
+            set_window_layout_values(&layout, screen->x + layout.gap_x, screen->y + layout.gap_y, 
+                    ((screen->width / 2) - (layout.gap_vertical * 1.5f)), ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
         else if(name == "lower left split")
-        {
-            layout.x = screen->x + layout.gap_x;
-            layout.y = screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8));
-            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
-            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
-        }
+            set_window_layout_values(&layout, screen->x + layout.gap_x, screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8)), 
+                    ((screen->width / 2) - (layout.gap_vertical * 1.5f)), ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
         else if(name == "upper right split")
-        {
-            layout.x = screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f));
-            layout.y = screen->y + layout.gap_y;
-            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
-            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
-        }
+            set_window_layout_values(&layout, screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f)), 
+                    screen->y + layout.gap_y, ((screen->width / 2) - (layout.gap_vertical * 1.5f)), ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
         else if(name == "lower right split")
-        {
-            layout.x = screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f));
-            layout.y = screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8));
-            layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
-            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
-        }
+            set_window_layout_values(&layout, screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f)), 
+                    screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8)), ((screen->width / 2) - (layout.gap_vertical * 1.5f)), ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
     }
 
     return layout;
