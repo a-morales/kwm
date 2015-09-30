@@ -56,6 +56,30 @@ void get_active_displays()
     }
 }
 
+void send_window_to_prev_screen()
+{
+    screen_info *cur_screen = get_display_of_window();
+    int new_screen_index = (cur_screen->id - 1 < 0) ? active_displays_count - 1 : cur_screen->id - 1;
+
+    screen_info *screen = &display_lst[new_screen_index];
+    set_window_dimensions(screen->x + 10, 
+            screen->y + 10,
+            focused_window.width,
+            focused_window.height);
+}
+
+void send_window_to_next_screen()
+{
+    screen_info *cur_screen = get_display_of_window();
+    int new_screen_index = (cur_screen->id + 1 >= active_displays_count) ? 0 : cur_screen->id + 1;
+
+    screen_info *screen = &display_lst[new_screen_index];
+    set_window_dimensions(screen->x + 10, 
+            screen->y + 10,
+            focused_window.width,
+            focused_window.height);
+}
+
 screen_info *get_display_of_window()
 {
     for(int display_index = 0; display_index < active_displays_count; ++display_index)
@@ -211,6 +235,11 @@ void set_window_dimensions(int x, int y, int width, int height)
             if(AXUIElementSetAttributeValue(app_window, kAXSizeAttribute, new_window_size) != kAXErrorSuccess)
                 std::cout << "failed to set new window size" << std::endl;
 
+            focused_window.x = window_pos.x;
+            focused_window.y = window_pos.y;
+            focused_window.width = window_size.width;
+            focused_window.height = window_size.height;
+
             CFRelease(new_window_pos);
             CFRelease(new_window_size);
             CFRelease(app_window);
@@ -261,7 +290,7 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         std::string sys_command = "";
         // New iterm2 Window
         if(keycode == kVK_ANSI_1)
-            sys_command = "/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window";
+            sys_command = "/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window &";
         // YTD - Media Player Controls
         else if(keycode == kVK_ANSI_Z)
             sys_command = "ytc prev";
@@ -305,6 +334,22 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
             set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
             return true;
         }
+    }
+
+    if(cmd_key && ctrl_key && !alt_key)
+    {
+        // Multiple Screens
+        if(keycode == kVK_ANSI_P || keycode == kVK_ANSI_N)
+        {
+            if(keycode == kVK_ANSI_P)
+                send_window_to_prev_screen();
+
+            if(keycode == kVK_ANSI_N)
+                send_window_to_next_screen();
+
+            return true;
+        }
+    
     }
     
     return false;
