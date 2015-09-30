@@ -9,10 +9,10 @@ static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
 static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
 
 static std::vector<screen_info> display_lst;
-static std::vector<app_info> window_lst;
+static std::vector<window_info> window_lst;
 static std::vector<window_layout> layout_lst;
 static ProcessSerialNumber psn;
-static app_info focused_window;
+static window_info focused_window;
 static bool toggle_tap = true;
 static bool enable_auto_raise = true;
 
@@ -34,7 +34,7 @@ bool check_privileges()
 
 void request_privileges()
 {
-    if(AXMakeProcessTrusted(CFSTR("/usr/bin/accessability")) != kAXErrorSuccess)
+    if(AXMakeProcessTrusted(CFSTR("/usr/local/bin/ffmouse")) != kAXErrorSuccess)
         fatal("Could not make trusted!");
 
     std::cout << "is now trusted.." << std::endl;
@@ -92,12 +92,38 @@ screen_info *get_display_of_window()
     return NULL;
 }
 
+screen_info *get_display_of_window(window_info *window)
+{
+    for(int display_index = 0; display_index < active_displays_count; ++display_index)
+    {
+        screen_info *screen = &display_lst[display_index];
+        if(window->x >= screen->x && window->x <= screen->x + screen->width)
+            return screen;
+    }
+
+    return NULL;
+}
+
 void set_window_layout_values(window_layout *layout, int x, int y, int width, int height)
 {
     layout->x = x;
     layout->y = y;
     layout->width = width;
     layout->height = height;
+}
+
+std::vector<window_info> get_all_windows_on_display(int screen_index)
+{
+    std::vector<window_info> screen_window_lst;
+    for(int window_index = 0; window_index < window_lst.size(); ++window_index)
+    {
+        window_info *window = &window_lst[window_index];
+        screen_info *screen = get_display_of_window(window);
+        if(window->x >= screen->x && window->x <= screen->x + screen->width)
+            screen_window_lst.push_back(*window);
+    }
+
+    return screen_window_lst;
 }
 
 window_layout get_window_layout_for_screen(const std::string &name)
@@ -128,13 +154,13 @@ window_layout get_window_layout_for_screen(const std::string &name)
                     screen->x + layout.gap_x, 
                     screen->y + layout.gap_y, 
                     ((screen->width / 2) - (layout.gap_vertical * 1.5f)), 
-                    (screen->height - (layout.gap_y * 1.5f)));
+                    (screen->height - (layout.gap_y * 1.0f)));
         else if(name == "right vertical split")
             set_window_layout_values(&layout, 
                     screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f)), 
                     screen->y + layout.gap_y, 
                     ((screen->width / 2) - (layout.gap_vertical * 1.5f)), 
-                    (screen->height - (layout.gap_y * 1.5f)));
+                    (screen->height - (layout.gap_y * 1.0f)));
         else if(name == "upper horizontal split")
             set_window_layout_values(&layout, 
                     screen->x + layout.gap_x, 
@@ -334,6 +360,28 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
             set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
             return true;
         }
+
+        // Window Resize
+        if(keycode == kVK_ANSI_H)
+            set_window_dimensions(focused_window.x, 
+                    focused_window.y, 
+                    focused_window.width - 10, 
+                    focused_window.height);
+        else if(keycode == kVK_ANSI_J)
+            set_window_dimensions(focused_window.x, 
+                    focused_window.y, 
+                    focused_window.width, 
+                    focused_window.height + 10);
+        else if(keycode == kVK_ANSI_K)
+            set_window_dimensions(focused_window.x, 
+                    focused_window.y, 
+                    focused_window.width, 
+                    focused_window.height - 10);
+        else if(keycode == kVK_ANSI_L)
+            set_window_dimensions(focused_window.x, 
+                    focused_window.y, 
+                    focused_window.width + 10, 
+                    focused_window.height);
     }
 
     if(cmd_key && ctrl_key && !alt_key)
@@ -349,7 +397,28 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
 
             return true;
         }
-    
+
+        // Move Window
+        if(keycode == kVK_ANSI_H)
+            set_window_dimensions(focused_window.x - 10, 
+                    focused_window.y, 
+                    focused_window.width, 
+                    focused_window.height);
+        else if(keycode == kVK_ANSI_J)
+            set_window_dimensions(focused_window.x, 
+                    focused_window.y + 10, 
+                    focused_window.width, 
+                    focused_window.height);
+        else if(keycode == kVK_ANSI_K)
+            set_window_dimensions(focused_window.x, 
+                    focused_window.y - 10, 
+                    focused_window.width, 
+                    focused_window.height);
+        else if(keycode == kVK_ANSI_L)
+            set_window_dimensions(focused_window.x + 10, 
+                    focused_window.y, 
+                    focused_window.width, 
+                    focused_window.height);
     }
     
     return false;
@@ -413,7 +482,7 @@ void detect_window_below_cursor()
         for(CFIndex osx_window_index = 0; osx_window_index < osx_window_count; ++osx_window_index)
         {
             CFDictionaryRef elem = (CFDictionaryRef)CFArrayGetValueAtIndex(osx_window_list, osx_window_index);
-            window_lst.push_back(app_info());
+            window_lst.push_back(window_info());
             CFDictionaryApplyFunction(elem, get_window_info, NULL);
         }
 
@@ -533,7 +602,7 @@ int main(int argc, char **argv)
     get_active_displays();
     init_window_layouts();
     detect_window_below_cursor();
-
+    
     run_loop_source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, event_tap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), run_loop_source, kCFRunLoopCommonModes);
     CGEventTapEnable(event_tap, true);
