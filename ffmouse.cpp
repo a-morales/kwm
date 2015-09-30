@@ -106,6 +106,20 @@ window_layout get_window_layout_for_screen(const std::string &name)
             layout.width = ((screen->width / 2) - (layout.gap_vertical * 1.5f));
             layout.height = (screen->height - (layout.gap_y * 1.5f));
         }
+        else if(name == "upper horizontal split")
+        {
+            layout.x = screen->x + layout.gap_x;
+            layout.y = screen->y + layout.gap_y;
+            layout.width = (screen->width - (layout.gap_vertical * 2));
+            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
+        }
+        else if(name == "lower horizontal split")
+        {
+            layout.x = screen->x + layout.gap_x;
+            layout.y = screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8));
+            layout.width = (screen->width - (layout.gap_vertical * 2));
+            layout.height = ((screen->height / 2) - (layout.gap_horizontal * 1.0f));
+        }
         else if(name == "upper left split")
         {
             layout.x = screen->x + layout.gap_x;
@@ -154,6 +168,12 @@ void init_window_layouts()
     layout_lst.push_back(screen_vertical_split);
 
     screen_vertical_split.name = "right vertical split";
+    layout_lst.push_back(screen_vertical_split);
+
+    screen_vertical_split.name = "upper horizontal split";
+    layout_lst.push_back(screen_vertical_split);
+
+    screen_vertical_split.name = "lower horizontal split";
     layout_lst.push_back(screen_vertical_split);
 
     screen_vertical_split.name = "upper left split";
@@ -260,53 +280,30 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         }
 
         // Window Layout
+        window_layout layout;
+        layout.name = "invalid";
         if(keycode == kVK_ANSI_M)
-        {
-            window_layout layout = get_window_layout_for_screen("fullscreen");
-            if(layout.name != "invalid")
-                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
-            return true;
-        }
+            layout = get_window_layout_for_screen("fullscreen");
         else if(keycode == kVK_LeftArrow)
-        {
-            window_layout layout = get_window_layout_for_screen("left vertical split");
-            if(layout.name != "invalid")
-                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
-            return true;
-        }
+            layout = get_window_layout_for_screen("left vertical split");
         else if(keycode == kVK_RightArrow)
-        {
-            window_layout layout = get_window_layout_for_screen("right vertical split");
-            if(layout.name != "invalid")
-                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
-            return true;
-        }
+            layout = get_window_layout_for_screen("right vertical split");
+        else if(keycode == kVK_UpArrow)
+            layout = get_window_layout_for_screen("upper horizontal split");
+        else if(keycode == kVK_DownArrow)
+            layout = get_window_layout_for_screen("lower horizontal split");
         else if(keycode == kVK_ANSI_P)
-        {
-            window_layout layout = get_window_layout_for_screen("upper left split");
-            if(layout.name != "invalid")
-                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
-            return true;
-        }
+            layout = get_window_layout_for_screen("upper left split");
         else if(keycode == kVK_SPECIAL_Ø)
-        {
-            window_layout layout = get_window_layout_for_screen("lower left split");
-            if(layout.name != "invalid")
-                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
-            return true;
-        }
+            layout = get_window_layout_for_screen("lower left split");
         else if(keycode == kVK_SPECIAL_Å)
-        {
-            window_layout layout = get_window_layout_for_screen("upper right split");
-            if(layout.name != "invalid")
-                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
-            return true;
-        }
+            layout = get_window_layout_for_screen("upper right split");
         else if(keycode == kVK_SPECIAL_Æ)
+            layout = get_window_layout_for_screen("lower right split");
+
+        if(layout.name != "invalid")
         {
-            window_layout layout = get_window_layout_for_screen("lower right split");
-            if(layout.name != "invalid")
-                set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
+            set_window_dimensions(layout.x, layout.y, layout.width, layout.height);
             return true;
         }
     }
