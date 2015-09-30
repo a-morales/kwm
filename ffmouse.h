@@ -12,7 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct app_info
+struct window_info
 {
     std::string owner;
     std::string name;
@@ -43,6 +43,8 @@ void request_privileges();
 
 void get_active_displays();
 screen_info *get_display_of_window();
+screen_info *get_display_of_window(window_info *window);
+std::vector<window_info> get_all_windows_on_display(int screen_index);
 
 void init_window_layouts();
 void set_window_layout_values(window_layout *layout, int x, int y, int width, int height);
