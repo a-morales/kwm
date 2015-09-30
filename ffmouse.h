@@ -48,6 +48,8 @@ void init_window_layouts();
 void set_window_layout_values(window_layout *layout, int x, int y, int width, int height);
 window_layout get_window_layout_for_screen(const std::string &name);
 void set_window_dimensions(int x, int y, int width, int height);
+void send_window_to_prev_screen();
+void send_window_to_next_screen();
 
 bool toggle_tap_hotkey(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
 bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
