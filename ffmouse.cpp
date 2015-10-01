@@ -1,9 +1,5 @@
 #include "ffmouse.h"
 
-static const std::string OSASCRIPT_START = "osascript -e 'tell application \"System Events\" to tell process \"";
-static const std::string OSASCRIPT_MID = "\" to perform action \"AXRaise\" of (first window whose name contains \"";
-static const std::string OSASCRIPT_END = "\")'";
-
 static const CGKeyCode kVK_SPECIAL_Å = 0x21;
 static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
 static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
@@ -467,7 +463,7 @@ void set_window_dimensions(int pid, int x, int y, int width, int height)
     }
 }
 
-bool toggle_tap_hotkey(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
+bool ffmouse_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
 {
     if(cmd_key && alt_key && ctrl_key)
     {
@@ -475,6 +471,13 @@ bool toggle_tap_hotkey(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keyc
         {
             toggle_tap = !toggle_tap;
             std::cout << (toggle_tap ? "tap enabled" : "tap disabled") << std::endl;
+            return true;
+        }
+
+        if(keycode == kVK_ANSI_R)
+        {
+            enable_auto_raise = !enable_auto_raise;
+            std::cout << (enable_auto_raise ? "autoraise enabled" : "autoraise disabled") << std::endl;
             return true;
         }
     }
@@ -726,6 +729,15 @@ void detect_window_below_cursor()
                     if(focused_window.name != window_lst[i].name)
                     {
                         focused_window = window_lst[i];
+                        AXUIElementRef window_ref;
+                        if(get_window_ref(&focused_window, &window_ref))
+                        {
+                            AXUIElementSetAttributeValue(window_ref, kAXMainAttribute, kCFBooleanTrue);
+                            AXUIElementSetAttributeValue(window_ref, kAXFocusedAttribute, kCFBooleanTrue);
+                            AXUIElementPerformAction (window_ref, kAXRaiseAction);
+                            CFRelease(window_ref);
+                        }
+
 
                         int screen_id = get_display_of_window(&focused_window)->id;
                         int active_layout_index = screen_layout_lst[screen_id].active_layout_index;
@@ -740,23 +752,8 @@ void detect_window_below_cursor()
                             }
                         }
 
-                        // Strip single quotes and remaining part if found,
-                        // because  it breaks applescript syntax
-                        std::string win_title = focused_window.name;
-                        if(win_title != "")
-                        {
-                            std::size_t pos = win_title.find("'");
-                            if(pos != std::string::npos)
-                                win_title.erase(pos);
-
-                            std::string applescript_cmd = OSASCRIPT_START +
-                                focused_window.owner + OSASCRIPT_MID +
-                                win_title + OSASCRIPT_END;
-
-                            system(applescript_cmd.c_str());
-                            if(enable_auto_raise)
-                                SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
-                        }
+                        if(enable_auto_raise)
+                            SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
 
                         std::cout << "Keyboard focus: " << focused_window.pid << std::endl;
                     }
@@ -813,8 +810,8 @@ void get_window_info(const void *key, const void *value, void *context)
 
 bool window_has_layout(window_info *window, window_layout *layout)
 {
-    if(window->x == layout->x &&
-        window->y == layout->y &&
+    if((window->x >= layout->x - 10 && window->x <= layout->x + layout->width + 10) &&
+        (window->y >= layout->y - 10 && window->y <= layout->y + layout->height + 10 ) &&
         (window->width >= layout->width - 10 && window->width <= layout->width + 10) &&
         (window->height >= layout->height - 10 && window->height <= layout->height + 10))
             return true;
