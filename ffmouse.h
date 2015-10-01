@@ -16,10 +16,9 @@ struct window_layout;
 
 struct window_info
 {
-    std::string owner;
     std::string name;
-    int layer;
     int pid;
+    int layer;
     int x,y;
     int width, height;
     window_layout *layout;
@@ -75,9 +74,9 @@ void init_window_layouts();
 void set_window_layout_values(window_layout *layout, int x, int y, int width, int height);
 window_layout get_window_layout_for_screen(int screen_index, const std::string &name);
 bool window_has_layout(window_info *window, window_layout *layout);
+window_layout *get_layout_of_window(window_info *window);
 
 void set_window_dimensions(AXUIElementRef app_window, window_info *window, int x, int y, int width, int height);
-void set_window_dimensions(int pid, int x, int y, int width, int height);
 
 void send_window_to_prev_screen();
 void send_window_to_next_screen();
@@ -87,6 +86,9 @@ bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyC
 bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
 
 void detect_window_below_cursor();
+bool is_window_below_cursor(window_info *window);
+
+window_info get_window_info_from_ref(AXUIElementRef window_ref);
 void get_window_info(const void *key, const void *value, void *context);
 CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
 
