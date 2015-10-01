@@ -8,8 +8,11 @@ static std::vector<screen_info> display_lst;
 static std::vector<window_info> window_lst;
 static std::vector<screen_layout> screen_layout_lst;
 static std::vector<window_layout> layout_lst;
-static ProcessSerialNumber psn;
+
+static ProcessSerialNumber focused_psn;
+static AXUIElementRef focused_window_ref;
 static window_info focused_window;
+
 static bool toggle_tap = true;
 static bool enable_auto_raise = true;
 
@@ -59,7 +62,8 @@ void send_window_to_prev_screen()
     int new_screen_index = (cur_screen->id - 1 < 0) ? active_displays_count - 1 : cur_screen->id - 1;
 
     screen_info *screen = &display_lst[new_screen_index];
-    set_window_dimensions(focused_window.pid,
+    set_window_dimensions(focused_window_ref,
+            &focused_window,
             screen->x + 10, 
             screen->y + 10,
             focused_window.width,
@@ -72,7 +76,8 @@ void send_window_to_next_screen()
     int new_screen_index = (cur_screen->id + 1 >= active_displays_count) ? 0 : cur_screen->id + 1;
 
     screen_info *screen = &display_lst[new_screen_index];
-    set_window_dimensions(focused_window.pid,
+    set_window_dimensions(focused_window_ref,
+            &focused_window,
             screen->x + 10, 
             screen->y + 10,
             focused_window.width,
@@ -202,21 +207,18 @@ void cycle_focused_window_for_screen(int screen_index, int shift)
     std::cout << "focus: " << focused_window_layout->name << std::endl;
     std::cout << "swap: " << swap_with_window_layout->name << std::endl;
 
-    AXUIElementRef window_ref;
-    if(get_window_ref(&focused_window, &window_ref))
-    {
-        set_window_dimensions(window_ref, &focused_window, 
-                swap_with_window_layout->x, 
-                swap_with_window_layout->y, 
-                swap_with_window_layout->width, 
-                swap_with_window_layout->height); 
+    set_window_dimensions(focused_window_ref, &focused_window, 
+            swap_with_window_layout->x, 
+            swap_with_window_layout->y, 
+            swap_with_window_layout->width, 
+            swap_with_window_layout->height); 
 
-        focused_window.layout = swap_with_window_layout;
-        focused_window.layout_index = swap_with_window_layout_index;
-        CFRelease(window_ref);
-    }
+    pid_t old_pid = focused_window.pid;
+    focused_window = get_window_info_from_ref(focused_window_ref);
+    focused_window.pid = old_pid;
 
     window_info *window = screen_window_lst[swap_with_window_index];
+    AXUIElementRef window_ref;
     if(get_window_ref(window, &window_ref))
     {
         set_window_dimensions(window_ref, window, 
@@ -445,24 +447,6 @@ void set_window_dimensions(AXUIElementRef app_window, window_info *window, int x
     CFRelease(new_window_size);
 }
 
-void set_window_dimensions(int pid, int x, int y, int width, int height)
-{
-    AXUIElementRef app = AXUIElementCreateApplication(pid);
-    if(app)
-    {
-        AXUIElementRef app_window = NULL;
-
-        AXError error = AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute, (CFTypeRef*)&app_window);
-        if(error == kAXErrorSuccess)
-        {
-            set_window_dimensions(app_window, &focused_window, x, y, width, height);
-            CFRelease(app_window);
-        }
-
-        CFRelease(app);
-    }
-}
-
 bool ffmouse_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
 {
     if(cmd_key && alt_key && ctrl_key)
@@ -559,31 +543,35 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
 
         if(layout.name != "invalid")
         {
-            set_window_dimensions(focused_window.pid, layout.x, layout.y, layout.width, layout.height);
+            set_window_dimensions(focused_window_ref, &focused_window, layout.x, layout.y, layout.width, layout.height);
             return true;
         }
 
         // Window Resize
         if(keycode == kVK_ANSI_H)
-            set_window_dimensions(focused_window.pid, 
+            set_window_dimensions(focused_window_ref, 
+                    &focused_window, 
                     focused_window.x, 
                     focused_window.y, 
                     focused_window.width - 10, 
                     focused_window.height);
         else if(keycode == kVK_ANSI_J)
-            set_window_dimensions(focused_window.pid, 
+            set_window_dimensions(focused_window_ref, 
+                    &focused_window, 
                     focused_window.x, 
                     focused_window.y, 
                     focused_window.width, 
                     focused_window.height + 10);
         else if(keycode == kVK_ANSI_K)
-            set_window_dimensions(focused_window.pid,
+            set_window_dimensions(focused_window_ref, 
+                    &focused_window, 
                     focused_window.x, 
                     focused_window.y, 
                     focused_window.width, 
                     focused_window.height - 10);
         else if(keycode == kVK_ANSI_L)
-            set_window_dimensions(focused_window.pid,
+            set_window_dimensions(focused_window_ref, 
+                    &focused_window, 
                     focused_window.x, 
                     focused_window.y, 
                     focused_window.width + 10, 
@@ -606,25 +594,29 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
 
         // Move Window
         if(keycode == kVK_ANSI_H)
-            set_window_dimensions(focused_window.pid,
+            set_window_dimensions(focused_window_ref, 
+                    &focused_window, 
                     focused_window.x - 10, 
                     focused_window.y, 
                     focused_window.width, 
                     focused_window.height);
         else if(keycode == kVK_ANSI_J)
-            set_window_dimensions(focused_window.pid,
+            set_window_dimensions(focused_window_ref, 
+                    &focused_window, 
                     focused_window.x, 
                     focused_window.y + 10, 
                     focused_window.width, 
                     focused_window.height);
         else if(keycode == kVK_ANSI_K)
-            set_window_dimensions(focused_window.pid,
+            set_window_dimensions(focused_window_ref, 
+                    &focused_window, 
                     focused_window.x, 
                     focused_window.y - 10, 
                     focused_window.width, 
                     focused_window.height);
         else if(keycode == kVK_ANSI_L)
-            set_window_dimensions(focused_window.pid,
+            set_window_dimensions(focused_window_ref, 
+                    &focused_window, 
                     focused_window.x + 10, 
                     focused_window.y, 
                     focused_window.width, 
@@ -686,7 +678,7 @@ CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
         }
 
         CGEventSetIntegerValueField(event, kCGKeyboardEventAutorepeat, 0);
-        CGEventPostToPSN(&psn, event);
+        CGEventPostToPSN(&focused_psn, event);
         return NULL;
     }
     else if(type == kCGEventMouseMoved)
@@ -711,57 +703,84 @@ void detect_window_below_cursor()
             CFDictionaryApplyFunction(elem, get_window_info, NULL);
         }
 
-        CGEventRef event = CGEventCreate(NULL);
-        CGPoint cursor = CGEventGetLocation(event);
-        CFRelease(event);
-        
         for(int i = 0; i < window_lst.size(); ++i)
         {
-            if(window_lst[i].layer == 0)
+            if(is_window_below_cursor(&window_lst[i]))
             {
-                if(cursor.x >= window_lst[i].x && cursor.x <= window_lst[i].x + window_lst[i].width
-                        && cursor.y >= window_lst[i].y && cursor.y <= window_lst[i].y + window_lst[i].height)
+                if(!windows_are_equal(&focused_window, &window_lst[i]))
                 {
                     ProcessSerialNumber newpsn;
                     GetProcessForPID(window_lst[i].pid, &newpsn);
-                    psn = newpsn;
 
-                    if(focused_window.name != window_lst[i].name)
+                    focused_psn = newpsn;
+                    focused_window = window_lst[i];
+
+                    AXUIElementRef window_ref;
+                    if(get_window_ref(&focused_window, &window_ref))
                     {
-                        focused_window = window_lst[i];
-                        AXUIElementRef window_ref;
-                        if(get_window_ref(&focused_window, &window_ref))
-                        {
-                            AXUIElementSetAttributeValue(window_ref, kAXMainAttribute, kCFBooleanTrue);
-                            AXUIElementSetAttributeValue(window_ref, kAXFocusedAttribute, kCFBooleanTrue);
-                            AXUIElementPerformAction (window_ref, kAXRaiseAction);
-                            CFRelease(window_ref);
-                        }
+                        AXUIElementSetAttributeValue(window_ref, kAXMainAttribute, kCFBooleanTrue);
+                        AXUIElementSetAttributeValue(window_ref, kAXFocusedAttribute, kCFBooleanTrue);
+                        AXUIElementPerformAction (window_ref, kAXRaiseAction);
 
+                        if(focused_window_ref != NULL)
+                            CFRelease(focused_window_ref);
 
-                        int screen_id = get_display_of_window(&focused_window)->id;
-                        int active_layout_index = screen_layout_lst[screen_id].active_layout_index;
-                        for(int layout_index = 0; layout_index < screen_layout_lst[screen_id].layouts[active_layout_index].layouts.size(); ++layout_index)
-                        {
-                            window_layout *layout = &screen_layout_lst[screen_id].layouts[active_layout_index].layouts[layout_index];
-                            if(window_has_layout(&focused_window, layout))
-                            {
-                                focused_window.layout = layout;
-                                focused_window.layout_index = layout_index;
-                                break;
-                            }
-                        }
-
-                        if(enable_auto_raise)
-                            SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
-
-                        std::cout << "Keyboard focus: " << focused_window.pid << std::endl;
+                        focused_window_ref = window_ref;
                     }
-                    break;
+
+                    if(enable_auto_raise)
+                        SetFrontProcessWithOptions(&focused_psn, kSetFrontProcessFrontWindowOnly);
+
+                    std::cout << "Keyboard focus: " << focused_window.pid << std::endl;
                 }
+                break;
             }
         }
     }
+}
+
+bool is_window_below_cursor(window_info *window)
+{
+    CGEventRef event = CGEventCreate(NULL);
+    CGPoint cursor = CGEventGetLocation(event);
+    CFRelease(event);
+    if(cursor.x >= window->x && 
+        cursor.x <= window->x + window->width && 
+        cursor.y >= window->y && 
+        cursor.y <= window->y + window->height)
+            return true;
+        
+    return false;
+}
+
+window_info get_window_info_from_ref(AXUIElementRef window_ref)
+{
+    window_info info;
+
+    CFStringRef window_title;
+    AXValueRef temp;
+    CGSize window_size;
+    CGPoint window_pos;
+
+    AXUIElementCopyAttributeValue(window_ref, kAXTitleAttribute, (CFTypeRef*)&window_title);
+    if(CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman))
+        info.name = CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman);
+
+
+    AXUIElementCopyAttributeValue(window_ref, kAXSizeAttribute, (CFTypeRef*)&temp);
+    AXValueGetValue(temp, kAXValueCGSizeType, &window_size);
+    CFRelease(temp);
+
+    AXUIElementCopyAttributeValue(window_ref, kAXPositionAttribute, (CFTypeRef*)&temp);
+    AXValueGetValue(temp, kAXValueCGPointType, &window_pos);
+    CFRelease(temp);
+
+    info.width = window_size.width;
+    info.height = window_size.height;
+
+    get_layout_of_window(&info);
+
+    return info;
 }
 
 void get_window_info(const void *key, const void *value, void *context)
@@ -778,8 +797,6 @@ void get_window_info(const void *key, const void *value, void *context)
             std::string value_str = CFStringGetCStringPtr(v, kCFStringEncodingMacRoman);
             if(key_str == "kCGWindowName")
                 window_lst[window_lst.size()-1].name = value_str;
-            else if(key_str == "kCGWindowOwnerName")
-                window_lst[window_lst.size()-1].owner = value_str;
         }
     }
     else if(id == CFNumberGetTypeID())
@@ -806,6 +823,25 @@ void get_window_info(const void *key, const void *value, void *context)
         CFDictionaryApplyFunction(elem, get_window_info, NULL);
         CFRelease(elem);
     } 
+}
+
+window_layout *get_layout_of_window(window_info *window)
+{
+    int screen_id = get_display_of_window(window)->id;
+    int active_layout_index = screen_layout_lst[screen_id].active_layout_index;
+    int max_layout_size = screen_layout_lst[screen_id].layouts[active_layout_index].layouts.size();
+    for(int layout_index = 0; layout_index < max_layout_size; ++layout_index)
+    {
+        window_layout *layout = &screen_layout_lst[screen_id].layouts[active_layout_index].layouts[layout_index];
+        if(window_has_layout(window, layout))
+        {
+            window->layout = layout;
+            window->layout_index = layout_index;
+            break;
+        }
+    }
+
+    return window->layout;
 }
 
 bool window_has_layout(window_info *window, window_layout *layout)
