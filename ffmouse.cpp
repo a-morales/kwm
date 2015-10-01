@@ -56,24 +56,17 @@ void get_active_displays()
     }
 }
 
-void send_window_to_prev_screen()
+void cycle_focused_window_screen(int shift)
 {
     screen_info *cur_screen = get_display_of_window(&focused_window);
-    int new_screen_index = (cur_screen->id - 1 < 0) ? active_displays_count - 1 : cur_screen->id - 1;
+    int new_screen_index;
 
-    screen_info *screen = &display_lst[new_screen_index];
-    set_window_dimensions(focused_window_ref,
-            &focused_window,
-            screen->x + 10, 
-            screen->y + 10,
-            focused_window.width,
-            focused_window.height);
-}
-
-void send_window_to_next_screen()
-{
-    screen_info *cur_screen = get_display_of_window(&focused_window);
-    int new_screen_index = (cur_screen->id + 1 >= active_displays_count) ? 0 : cur_screen->id + 1;
+    if(shift == 1)
+        new_screen_index = (cur_screen->id + 1 >= active_displays_count) ? 0 : cur_screen->id + 1;
+    else if(shift == -1)
+        new_screen_index = (cur_screen->id - 1 < 0) ? active_displays_count - 1 : cur_screen->id - 1;
+    else
+        return;
 
     screen_info *screen = &display_lst[new_screen_index];
     set_window_dimensions(focused_window_ref,
@@ -148,7 +141,7 @@ void apply_layout_for_screen(int screen_index)
     }
 }
 
-void cycle_focused_window(int screen_index, int shift)
+void cycle_focused_window_layout(int screen_index, int shift)
 {
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
@@ -556,10 +549,10 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         if(keycode == kVK_ANSI_P || keycode == kVK_ANSI_N)
         {
             if(keycode == kVK_ANSI_P)
-                send_window_to_prev_screen();
+                cycle_focused_window_screen(-1);
 
             if(keycode == kVK_ANSI_N)
-                send_window_to_next_screen();
+                cycle_focused_window_screen(1);
 
             return true;
         }
@@ -601,10 +594,10 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         if(keycode == kVK_ANSI_P || keycode == kVK_ANSI_N)
         {
             if(keycode == kVK_ANSI_P)
-                cycle_focused_window(get_display_of_window(&focused_window)->id, -1);
+                cycle_focused_window_layout(get_display_of_window(&focused_window)->id, -1);
 
             if(keycode == kVK_ANSI_N)
-                cycle_focused_window(get_display_of_window(&focused_window)->id, 1);
+                cycle_focused_window_layout(get_display_of_window(&focused_window)->id, 1);
 
             return true;
         }
