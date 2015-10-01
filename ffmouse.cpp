@@ -148,49 +148,26 @@ void apply_layout_for_screen(int screen_index)
     }
 }
 
-void cycle_focused_window_for_screen_clockwise(int screen_index)
-{
-    cycle_focused_window_for_screen(screen_index, 1);
-}
-
-void cycle_focused_window_for_screen_counter_clockwise(int screen_index)
-{
-    cycle_focused_window_for_screen(screen_index, -1);
-}
-
-void cycle_focused_window_for_screen(int screen_index, int shift)
+void cycle_focused_window(int screen_index, int shift)
 {
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
     int active_layout_index = layout_master->active_layout_index;
 
-    window_layout *focused_window_layout = focused_window.layout;
+    window_layout *focused_window_layout = get_layout_of_window(&focused_window);
     int focused_window_layout_index = focused_window.layout_index;
 
     if(!focused_window_layout)
         return;
 
-    int swap_with_window_layout_index;
-    if(shift == 1)
-    {
-        if(focused_window_layout_index + 1 < layout_master->number_of_layouts)
-            swap_with_window_layout_index = focused_window_layout_index + 1;
-        else
-            swap_with_window_layout_index = 0;
-    }
-    else if(shift == -1)
-    {
-        if(focused_window_layout_index - 1 >= 0)
-            swap_with_window_layout_index = focused_window_layout_index - 1;
-        else
-            swap_with_window_layout_index = layout_master->number_of_layouts - 1;
-    }
+    int swap_with_window_layout_index = focused_window_layout_index + shift;
 
-    std::cout << "focused layout index:" << focused_window_layout_index << std::endl;
-    std::cout << "swap layout index:" << swap_with_window_layout_index << std::endl;
+    if(swap_with_window_layout_index < 0 || 
+        swap_with_window_layout_index >= layout_master->number_of_layouts)
+            return;
 
-    window_layout *swap_with_window_layout = &layout_master->layouts[active_layout_index].layouts[swap_with_window_layout_index];
     int swap_with_window_index = -1;
+    window_layout *swap_with_window_layout = &layout_master->layouts[active_layout_index].layouts[swap_with_window_layout_index];
     for(int window_index = 0; window_index < screen_window_lst.size(); ++window_index)
     {
         window_info *window = screen_window_lst[window_index];
@@ -204,31 +181,24 @@ void cycle_focused_window_for_screen(int screen_index, int shift)
     if(swap_with_window_index == -1)
         return;
 
-    std::cout << "focus: " << focused_window_layout->name << std::endl;
-    std::cout << "swap: " << swap_with_window_layout->name << std::endl;
-
-    set_window_dimensions(focused_window_ref, &focused_window, 
-            swap_with_window_layout->x, 
-            swap_with_window_layout->y, 
-            swap_with_window_layout->width, 
-            swap_with_window_layout->height); 
-
-    pid_t old_pid = focused_window.pid;
-    focused_window = get_window_info_from_ref(focused_window_ref);
-    focused_window.pid = old_pid;
-
-    window_info *window = screen_window_lst[swap_with_window_index];
     AXUIElementRef window_ref;
+    window_info *window = screen_window_lst[swap_with_window_index];
     if(get_window_ref(window, &window_ref))
     {
-        set_window_dimensions(window_ref, window, 
+        set_window_dimensions(window_ref, 
+                window, 
                 focused_window_layout->x, 
                 focused_window_layout->y, 
                 focused_window_layout->width, 
                 focused_window_layout->height); 
 
-        window->layout = focused_window_layout;
-        window->layout_index = focused_window_layout_index;
+        set_window_dimensions(focused_window_ref, 
+                &focused_window, 
+                swap_with_window_layout->x, 
+                swap_with_window_layout->y, 
+                swap_with_window_layout->width, 
+                swap_with_window_layout->height); 
+
         CFRelease(window_ref);
     }
 }
@@ -443,6 +413,8 @@ void set_window_dimensions(AXUIElementRef app_window, window_info *window, int x
     window->width = window_size.width;
     window->height = window_size.height;
 
+    get_layout_of_window(window);
+
     CFRelease(new_window_pos);
     CFRelease(new_window_size);
 }
@@ -629,10 +601,10 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         if(keycode == kVK_ANSI_P || keycode == kVK_ANSI_N)
         {
             if(keycode == kVK_ANSI_P)
-                cycle_focused_window_for_screen_counter_clockwise(get_display_of_window(&focused_window)->id);
+                cycle_focused_window(get_display_of_window(&focused_window)->id, -1);
 
             if(keycode == kVK_ANSI_N)
-                cycle_focused_window_for_screen_clockwise(get_display_of_window(&focused_window)->id);
+                cycle_focused_window(get_display_of_window(&focused_window)->id, 1);
 
             return true;
         }
@@ -714,6 +686,7 @@ void detect_window_below_cursor()
 
                     focused_psn = newpsn;
                     focused_window = window_lst[i];
+                    get_layout_of_window(&focused_window);
 
                     AXUIElementRef window_ref;
                     if(get_window_ref(&focused_window, &window_ref))
@@ -732,6 +705,8 @@ void detect_window_below_cursor()
                         SetFrontProcessWithOptions(&focused_psn, kSetFrontProcessFrontWindowOnly);
 
                     std::cout << "Keyboard focus: " << focused_window.pid << std::endl;
+                    if(focused_window.layout)
+                        std::cout << focused_window.layout->name << std::endl;
                 }
                 break;
             }
@@ -766,7 +741,6 @@ window_info get_window_info_from_ref(AXUIElementRef window_ref)
     if(CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman))
         info.name = CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman);
 
-
     AXUIElementCopyAttributeValue(window_ref, kAXSizeAttribute, (CFTypeRef*)&temp);
     AXValueGetValue(temp, kAXValueCGSizeType, &window_size);
     CFRelease(temp);
@@ -777,8 +751,6 @@ window_info get_window_info_from_ref(AXUIElementRef window_ref)
 
     info.width = window_size.width;
     info.height = window_size.height;
-
-    get_layout_of_window(&info);
 
     return info;
 }
@@ -827,6 +799,8 @@ void get_window_info(const void *key, const void *value, void *context)
 
 window_layout *get_layout_of_window(window_info *window)
 {
+    window_layout *result = NULL;
+
     int screen_id = get_display_of_window(window)->id;
     int active_layout_index = screen_layout_lst[screen_id].active_layout_index;
     int max_layout_size = screen_layout_lst[screen_id].layouts[active_layout_index].layouts.size();
@@ -837,17 +811,18 @@ window_layout *get_layout_of_window(window_info *window)
         {
             window->layout = layout;
             window->layout_index = layout_index;
+            result = layout;
             break;
         }
     }
 
-    return window->layout;
+    return result;
 }
 
 bool window_has_layout(window_info *window, window_layout *layout)
 {
-    if((window->x >= layout->x - 10 && window->x <= layout->x + layout->width + 10) &&
-        (window->y >= layout->y - 10 && window->y <= layout->y + layout->height + 10 ) &&
+    if((window->x >= layout->x - 10 && window->x <= layout->x + 10) &&
+        (window->y >= layout->y - 10 && window->y <= layout->y + 10 ) &&
         (window->width >= layout->width - 10 && window->width <= layout->width + 10) &&
         (window->height >= layout->height - 10 && window->height <= layout->height + 10))
             return true;
