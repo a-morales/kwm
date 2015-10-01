@@ -660,7 +660,7 @@ CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
         CGKeyCode keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 
         // Toggle keytap on | off
-        if(toggle_tap_hotkey(cmd_key, ctrl_key, alt_key, keycode))
+        if(ffmouse_hotkey_commands(cmd_key, ctrl_key, alt_key, keycode))
             return NULL;
 
         if(toggle_tap)
