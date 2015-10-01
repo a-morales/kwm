@@ -63,9 +63,7 @@ screen_info *get_display_of_window(window_info *window);
 std::vector<window_info*> get_all_windows_on_display(int screen_index);
 
 void apply_layout_for_screen(int screen_index);
-void cycle_focused_window_for_screen_clockwise(int screen_index);
-void cycle_focused_window_for_screen_counter_clockwise(int screen_index);
-void cycle_focused_window_for_screen(int screen_index, int shift);
+void cycle_focused_window(int screen_index, int shift);
 
 bool get_window_ref(window_info *window, AXUIElementRef *window_ref);
 bool windows_are_equal(window_info *window, window_info *match);
