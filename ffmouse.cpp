@@ -1,5 +1,8 @@
 #include "ffmouse.h"
 
+static CGWindowListOption osx_window_list_option = kCGWindowListOptionOnScreenOnly | 
+                                                   kCGWindowListExcludeDesktopElements;
+
 static const CGKeyCode kVK_SPECIAL_Å = 0x21;
 static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
 static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
@@ -656,7 +659,6 @@ void detect_window_below_cursor()
 {
     window_lst.clear();
 
-    CGWindowListOption osx_window_list_option = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
     CFArrayRef osx_window_list = CGWindowListCopyWindowInfo(osx_window_list_option, kCGNullWindowID);
     if(osx_window_list)
     {
@@ -667,6 +669,7 @@ void detect_window_below_cursor()
             window_lst.push_back(window_info());
             CFDictionaryApplyFunction(elem, get_window_info, NULL);
         }
+        CFRelease(osx_window_list);
 
         for(int i = 0; i < window_lst.size(); ++i)
         {
@@ -786,7 +789,6 @@ void get_window_info(const void *key, const void *value, void *context)
     {
         CFDictionaryRef elem = (CFDictionaryRef)value;
         CFDictionaryApplyFunction(elem, get_window_info, NULL);
-        CFRelease(elem);
     } 
 }
 
