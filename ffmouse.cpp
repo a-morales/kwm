@@ -210,39 +210,48 @@ bool get_window_ref(window_info *window, AXUIElementRef *window_ref)
         AXError error = AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, (CFTypeRef*)&app_window_lst);
         if(error == kAXErrorSuccess)
         {
+            CFIndex do_not_free = -1;
             CFIndex app_window_count = CFArrayGetCount(app_window_lst);
             for(CFIndex window_index = 0; window_index < app_window_count; ++window_index)
             {
                 AXUIElementRef app_window_ref = (AXUIElementRef)CFArrayGetValueAtIndex(app_window_lst, window_index);
-                AXValueRef temp;
-
-                CFStringRef app_window_title;
-                AXUIElementCopyAttributeValue(app_window_ref, kAXTitleAttribute, (CFTypeRef*)&app_window_title);
-
-                std::string app_window_name;
-                if(CFStringGetCStringPtr(app_window_title, kCFStringEncodingMacRoman))
-                    app_window_name = CFStringGetCStringPtr(app_window_title, kCFStringEncodingMacRoman);
-
-                CGSize app_window_size;
-                AXUIElementCopyAttributeValue(app_window_ref, kAXSizeAttribute, (CFTypeRef*)&temp);
-                AXValueGetValue(temp, kAXValueCGSizeType, &app_window_size);
-                CFRelease(temp);
-
-                CGPoint app_window_pos;
-                AXUIElementCopyAttributeValue(app_window_ref, kAXPositionAttribute, (CFTypeRef*)&temp);
-                AXValueGetValue(temp, kAXValueCGPointType, &app_window_pos);
-                CFRelease(temp);
-
-                if(window->x == app_window_pos.x && 
-                        window->y == app_window_pos.y &&
-                        window->width == app_window_size.width && 
-                        window->height == app_window_size.height &&
-                        window->name == app_window_name)
+                if(!result)
                 {
-                    *window_ref = app_window_ref;
-                    result = true;
-                    break;
+                    AXValueRef temp;
+
+                    CFStringRef app_window_title;
+                    AXUIElementCopyAttributeValue(app_window_ref, kAXTitleAttribute, (CFTypeRef*)&app_window_title);
+
+                    std::string app_window_name;
+                    if(CFStringGetCStringPtr(app_window_title, kCFStringEncodingMacRoman))
+                        app_window_name = CFStringGetCStringPtr(app_window_title, kCFStringEncodingMacRoman);
+                    CFRelease(app_window_title);
+
+                    CGSize app_window_size;
+                    AXUIElementCopyAttributeValue(app_window_ref, kAXSizeAttribute, (CFTypeRef*)&temp);
+                    AXValueGetValue(temp, kAXValueCGSizeType, &app_window_size);
+                    CFRelease(temp);
+
+                    CGPoint app_window_pos;
+                    AXUIElementCopyAttributeValue(app_window_ref, kAXPositionAttribute, (CFTypeRef*)&temp);
+                    AXValueGetValue(temp, kAXValueCGPointType, &app_window_pos);
+                    CFRelease(temp);
+
+                    if(window->x == app_window_pos.x && 
+                            window->y == app_window_pos.y &&
+                            window->width == app_window_size.width && 
+                            window->height == app_window_size.height &&
+                            window->name == app_window_name)
+                    {
+                        *window_ref = app_window_ref;
+                        do_not_free = window_index;
+                        result = true;
+                    }
+
                 }
+
+                if(window_index != do_not_free)
+                    CFRelease(app_window_ref);
             }
         }
         CFRelease(app);
