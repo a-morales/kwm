@@ -201,6 +201,50 @@ void cycle_focused_window_layout(int screen_index, int shift)
     }
 }
 
+void cycle_window_inside_layout(int screen_index)
+{
+    std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
+    screen_layout *layout_master = &screen_layout_lst[screen_index];
+    int active_layout_index = layout_master->active_layout_index;
+
+    window_layout *focused_window_layout = get_layout_of_window(&focused_window);
+    if(!focused_window_layout)
+        return;
+
+    int max_layout_tiles = layout_master->layouts[active_layout_index].layouts.size();
+    if(screen_window_lst.size() <= max_layout_tiles)
+        return;
+
+    AXUIElementRef window_ref;
+    window_info *window = screen_window_lst[screen_window_lst.size()-1];
+
+    if(get_window_ref(window, &window_ref))
+    {
+        set_window_dimensions(window_ref,
+                window,
+                focused_window_layout->x,
+                focused_window_layout->y,
+                focused_window_layout->width,
+                focused_window_layout->height);
+
+            ProcessSerialNumber newpsn;
+            GetProcessForPID(window->pid, &newpsn);
+
+            AXUIElementSetAttributeValue(window_ref, kAXMainAttribute, kCFBooleanTrue);
+            AXUIElementSetAttributeValue(window_ref, kAXFocusedAttribute, kCFBooleanTrue);
+            AXUIElementPerformAction (window_ref, kAXRaiseAction);
+
+            SetFrontProcessWithOptions(&newpsn, kSetFrontProcessFrontWindowOnly);
+
+        if(focused_window_ref != NULL)
+            CFRelease(focused_window_ref);
+        
+        focused_window_ref = window_ref;
+        focused_window = *window;
+        focused_psn = newpsn;
+    }
+}
+
 bool get_window_ref(window_info *window, AXUIElementRef *window_ref)
 {
     AXUIElementRef app = AXUIElementCreateApplication(window->pid);
@@ -614,6 +658,14 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
                 cycle_focused_window_layout(get_display_of_window(&focused_window)->id, 1);
 
             return true;
+        }
+
+        // Bring next window into this layout-tile
+        if(keycode == kVK_Tab)
+        {
+            cycle_window_inside_layout(get_display_of_window(&focused_window)->id);
+            //TODO: current-space-only alt tab effect for a
+            // specific tile in the screen layout
         }
     }
     
