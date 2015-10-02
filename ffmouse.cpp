@@ -138,8 +138,10 @@ void apply_layout_for_screen(int screen_index)
                 window->layout = layout;
                 window->layout_index = window_index;
                 set_window_dimensions(window_ref, window, layout->x, layout->y, layout->width, layout->height); 
-                CFRelease(window_ref);
             }
+
+            if(!windows_are_equal(&focused_window, window))
+                CFRelease(window_ref);
         }
     }
 }
@@ -745,6 +747,7 @@ window_info get_window_info_from_ref(AXUIElementRef window_ref)
     AXUIElementCopyAttributeValue(window_ref, kAXTitleAttribute, (CFTypeRef*)&window_title);
     if(CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman))
         info.name = CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman);
+    CFRelease(window_title);
 
     AXUIElementCopyAttributeValue(window_ref, kAXSizeAttribute, (CFTypeRef*)&temp);
     AXValueGetValue(temp, kAXValueCGSizeType, &window_size);
