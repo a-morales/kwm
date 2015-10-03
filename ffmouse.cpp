@@ -74,8 +74,8 @@ void cycle_focused_window_screen(int shift)
     screen_info *screen = &display_lst[new_screen_index];
     set_window_dimensions(focused_window_ref,
             &focused_window,
-            screen->x + 10, 
-            screen->y + 10,
+            screen->x + 30, 
+            screen->y + 40,
             focused_window.width,
             focused_window.height);
 }
@@ -116,6 +116,8 @@ std::vector<window_info*> get_all_windows_on_display(int screen_index)
 
 void apply_layout_for_screen(int screen_index)
 {
+    detect_window_below_cursor();
+
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
     int active_layout_index = layout_master->next_layout_index;
@@ -152,9 +154,8 @@ void cycle_focused_window_layout(int screen_index, int shift)
     screen_layout *layout_master = &screen_layout_lst[screen_index];
     int active_layout_index = layout_master->active_layout_index;
 
-    window_layout *focused_window_layout = get_layout_of_window(&focused_window);
+    window_layout *focused_window_layout = focused_window.layout;
     int focused_window_layout_index = focused_window.layout_index;
-
     if(!focused_window_layout)
         return;
 
@@ -203,11 +204,13 @@ void cycle_focused_window_layout(int screen_index, int shift)
 
 void cycle_window_inside_layout(int screen_index)
 {
+    detect_window_below_cursor();
+
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
     int active_layout_index = layout_master->active_layout_index;
 
-    window_layout *focused_window_layout = get_layout_of_window(&focused_window);
+    window_layout *focused_window_layout = focused_window.layout;
     if(!focused_window_layout)
         return;
 
@@ -217,7 +220,6 @@ void cycle_window_inside_layout(int screen_index)
 
     AXUIElementRef window_ref;
     window_info *window = screen_window_lst[screen_window_lst.size()-1];
-
     if(get_window_ref(window, &window_ref))
     {
         set_window_dimensions(window_ref,
@@ -227,14 +229,14 @@ void cycle_window_inside_layout(int screen_index)
                 focused_window_layout->width,
                 focused_window_layout->height);
 
-            ProcessSerialNumber newpsn;
-            GetProcessForPID(window->pid, &newpsn);
+        ProcessSerialNumber newpsn;
+        GetProcessForPID(window->pid, &newpsn);
 
-            AXUIElementSetAttributeValue(window_ref, kAXMainAttribute, kCFBooleanTrue);
-            AXUIElementSetAttributeValue(window_ref, kAXFocusedAttribute, kCFBooleanTrue);
-            AXUIElementPerformAction (window_ref, kAXRaiseAction);
+        AXUIElementSetAttributeValue(window_ref, kAXMainAttribute, kCFBooleanTrue);
+        AXUIElementSetAttributeValue(window_ref, kAXFocusedAttribute, kCFBooleanTrue);
+        AXUIElementPerformAction (window_ref, kAXRaiseAction);
 
-            SetFrontProcessWithOptions(&newpsn, kSetFrontProcessFrontWindowOnly);
+        SetFrontProcessWithOptions(&newpsn, kSetFrontProcessFrontWindowOnly);
 
         if(focused_window_ref != NULL)
             CFRelease(focused_window_ref);
@@ -648,7 +650,7 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
 
     if(cmd_key && alt_key && !ctrl_key)
     {
-        // Cycle window in layout
+        // Cycle focused window layout
         if(keycode == kVK_ANSI_P || keycode == kVK_ANSI_N)
         {
             if(keycode == kVK_ANSI_P)
@@ -660,13 +662,9 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
             return true;
         }
 
-        // Bring next window into this layout-tile
+        // Cycle window inside focused layout
         if(keycode == kVK_Tab)
-        {
             cycle_window_inside_layout(get_display_of_window(&focused_window)->id);
-            //TODO: current-space-only alt tab effect for a
-            // specific tile in the screen layout
-        }
     }
     
     return false;
@@ -880,10 +878,10 @@ window_layout *get_layout_of_window(window_info *window)
 
 bool window_has_layout(window_info *window, window_layout *layout)
 {
-    if((window->x >= layout->x - 10 && window->x <= layout->x + 10) &&
-        (window->y >= layout->y - 10 && window->y <= layout->y + 10 ) &&
-        (window->width >= layout->width - 10 && window->width <= layout->width + 10) &&
-        (window->height >= layout->height - 10 && window->height <= layout->height + 10))
+    if((window->x >= layout->x - 15 && window->x <= layout->x + 15) &&
+        (window->y >= layout->y - 15 && window->y <= layout->y + 15 ) &&
+        (window->width >= layout->width - 15 && window->width <= layout->width + 15) &&
+        (window->height >= layout->height - 15 && window->height <= layout->height + 15))
             return true;
 
     return false;
