@@ -102,11 +102,11 @@ void set_window_layout_values(window_layout *layout, int x, int y, int width, in
 
 std::vector<window_info*> get_all_windows_on_display(int screen_index)
 {
+    screen_info *screen = &display_lst[screen_index];
     std::vector<window_info*> screen_window_lst;
     for(int window_index = 0; window_index < window_lst.size(); ++window_index)
     {
         window_info *window = &window_lst[window_index];
-        screen_info *screen = &display_lst[screen_index];
         if(window->x >= screen->x && window->x <= screen->x + screen->width)
             screen_window_lst.push_back(window);
     }
@@ -146,6 +146,8 @@ void apply_layout_for_screen(int screen_index)
                 CFRelease(window_ref);
         }
     }
+
+    detect_window_below_cursor();
 }
 
 void cycle_focused_window_layout(int screen_index, int shift)
@@ -244,6 +246,58 @@ void cycle_window_inside_layout(int screen_index)
         focused_window_ref = window_ref;
         focused_window = *window;
         focused_psn = newpsn;
+    }
+}
+
+bool get_expression_from_shift_direction(window_info *window, const std::string &direction)
+{
+    get_layout_of_window(window);
+    if(!window->layout)
+        return false;
+
+    int shift = 0;
+    if(direction == "prev")
+        shift = -1;
+    else if(direction == "next")
+        shift = 1;
+
+    return (window->layout_index == focused_window.layout_index + shift);
+}
+
+void shift_window_focus(const std::string &direction)
+{
+    window_layout *focused_window_layout = get_layout_of_window(&focused_window);
+    if(!focused_window_layout)
+        return;
+
+    int screen_index = get_display_of_window(&focused_window)->id;
+    std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
+    for(int window_index = 0; window_index < screen_window_lst.size(); ++window_index)
+    {
+        window_info *window = screen_window_lst[window_index];
+        if(get_expression_from_shift_direction(window, direction))
+        {
+            AXUIElementRef window_ref;
+            if(get_window_ref(window, &window_ref))
+            {
+                ProcessSerialNumber newpsn;
+                GetProcessForPID(window->pid, &newpsn);
+
+                AXUIElementSetAttributeValue(window_ref, kAXMainAttribute, kCFBooleanTrue);
+                AXUIElementSetAttributeValue(window_ref, kAXFocusedAttribute, kCFBooleanTrue);
+                AXUIElementPerformAction (window_ref, kAXRaiseAction);
+
+                SetFrontProcessWithOptions(&newpsn, kSetFrontProcessFrontWindowOnly);
+
+                if(focused_window_ref != NULL)
+                    CFRelease(focused_window_ref);
+
+                focused_window_ref = window_ref;
+                focused_window = *window;
+                focused_psn = newpsn;
+            }
+            break;
+        }
     }
 }
 
@@ -426,23 +480,36 @@ void init_window_layouts()
         screen_layout layout_master;
         layout_master.active_layout_index = 0;
         layout_master.next_layout_index = 0;
-        layout_master.number_of_layouts = 3;
 
-        window_group_layout layout_tall;
-        layout_tall.layouts.push_back(get_window_layout_for_screen(screen_index, "left vertical split"));
-        layout_tall.layouts.push_back(get_window_layout_for_screen(screen_index, "upper right split"));
-        layout_tall.layouts.push_back(get_window_layout_for_screen(screen_index, "lower right split"));
-        layout_master.layouts.push_back(layout_tall);
+        window_group_layout layout_tall_left;
+        layout_tall_left.layouts.push_back(get_window_layout_for_screen(screen_index, "left vertical split"));
+        layout_tall_left.layouts.push_back(get_window_layout_for_screen(screen_index, "upper right split"));
+        layout_tall_left.layouts.push_back(get_window_layout_for_screen(screen_index, "lower right split"));
+        layout_master.layouts.push_back(layout_tall_left);
+
+        window_group_layout layout_tall_right;
+        layout_tall_right.layouts.push_back(get_window_layout_for_screen(screen_index, "upper left split"));
+        layout_tall_right.layouts.push_back(get_window_layout_for_screen(screen_index, "lower left split"));
+        layout_tall_right.layouts.push_back(get_window_layout_for_screen(screen_index, "right vertical split"));
+        layout_master.layouts.push_back(layout_tall_right);
 
         window_group_layout layout_vertical_split;
         layout_vertical_split.layouts.push_back(get_window_layout_for_screen(screen_index, "left vertical split"));
         layout_vertical_split.layouts.push_back(get_window_layout_for_screen(screen_index, "right vertical split"));
         layout_master.layouts.push_back(layout_vertical_split);
 
+        window_group_layout layout_quarters;
+        layout_quarters.layouts.push_back(get_window_layout_for_screen(screen_index, "upper left split"));
+        layout_quarters.layouts.push_back(get_window_layout_for_screen(screen_index, "lower left split"));
+        layout_quarters.layouts.push_back(get_window_layout_for_screen(screen_index, "upper right split"));
+        layout_quarters.layouts.push_back(get_window_layout_for_screen(screen_index, "lower right split"));
+        layout_master.layouts.push_back(layout_quarters);
+
         window_group_layout layout_fullscreen;
         layout_fullscreen.layouts.push_back(get_window_layout_for_screen(screen_index, "fullscreen"));
         layout_master.layouts.push_back(layout_fullscreen);
 
+        layout_master.number_of_layouts = layout_master.layouts.size();;
         screen_layout_lst.push_back(layout_master);
     }
 
@@ -664,7 +731,21 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
 
         // Cycle window inside focused layout
         if(keycode == kVK_Tab)
+        {
             cycle_window_inside_layout(get_display_of_window(&focused_window)->id);
+            return true;
+        }
+
+        // Focus a window
+        if(keycode == kVK_ANSI_H || keycode == kVK_ANSI_L)
+        {
+            if(keycode == kVK_ANSI_H)
+                shift_window_focus("prev");
+            else if(keycode == kVK_ANSI_L)
+                shift_window_focus("next");
+        
+            return true;
+        }
     }
     
     return false;
