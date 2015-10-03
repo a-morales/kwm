@@ -66,6 +66,9 @@ void apply_layout_for_screen(int screen_index);
 void cycle_focused_window_layout(int screen_index, int shift);
 void cycle_focused_window_screen(int shift);
 
+bool get_expression_from_shift_direction(window_info *window, const std::string &direction);
+void shift_window_focus(const std::string &direction);
+
 void init_window_layouts();
 void set_window_layout_values(window_layout *layout, int x, int y, int width, int height);
 window_layout get_window_layout_for_screen(int screen_index, const std::string &name);
