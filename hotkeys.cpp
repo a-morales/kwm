@@ -9,7 +9,7 @@ static const CGKeyCode kVK_SPECIAL_Å = 0x21;
 static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
 static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
 
-bool ffmouse_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
+bool kwm_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
 {
     if(cmd_key && alt_key && ctrl_key)
     {

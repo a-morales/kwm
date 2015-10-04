@@ -89,7 +89,7 @@ void set_window_dimensions(AXUIElementRef app_window, window_info *window, int x
 window_layout *get_layout_of_window(window_info *window);
 bool window_has_layout(window_info *window, window_layout *layout);
 
-bool ffmouse_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
+bool kwm_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
 bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
 bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
 
