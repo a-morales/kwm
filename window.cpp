@@ -9,6 +9,18 @@ extern AXUIElementRef focused_window_ref;
 extern window_info focused_window;
 extern bool enable_auto_raise;
 
+bool windows_are_equal(window_info *window, window_info *match)
+{
+    if(window->x == match->x &&
+        window->y == match->y &&
+        window->width == match->width &&
+        window->height == match->height &&
+        window->name == match->name)
+            return true;
+
+    return false;
+}
+
 bool is_window_below_cursor(window_info *window)
 {
     CGEventRef event = CGEventCreate(NULL);
