@@ -201,18 +201,6 @@ bool window_has_layout(window_info *window, window_layout *layout)
     return false;
 }
 
-bool windows_are_equal(window_info *window, window_info *match)
-{
-    if(window->x == match->x &&
-        window->y == match->y &&
-        window->width == match->width &&
-        window->height == match->height &&
-        window->name == match->name)
-            return true;
-
-    return false;
-}
-
 void set_window_layout_values(window_layout *layout, int x, int y, int width, int height)
 {
     layout->x = x;
