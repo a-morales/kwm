@@ -2,7 +2,7 @@
 
 Started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
 
-hotkeys:
+### hotkeys:
     - ctrl+alt+cmd:
         - t: toggle keypress redirect
         - r: toggle auto-raise
