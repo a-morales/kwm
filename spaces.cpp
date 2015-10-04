@@ -40,6 +40,27 @@ int get_space_of_window(window_info *window)
     return -1;
 }
 
+void refresh_active_spaces_info()
+{
+    std::vector<std::pair<int,int> > spaces_cache;
+    for(int space_index = 0; space_index < spaces_lst.size(); ++space_index)
+    {
+        std::pair<int,int> info = std::make_pair(spaces_lst[space_index].active_layout_index,
+                                                 spaces_lst[space_index].next_layout_index);
+        spaces_cache.push_back(info);
+    }
+
+    get_active_spaces();
+    for(int space_index = 0; space_index < spaces_lst.size(); ++space_index)
+    {
+        if(space_index < spaces_cache.size())
+        {
+            spaces_lst[space_index].active_layout_index = spaces_cache[space_index].first;
+            spaces_lst[space_index].next_layout_index = spaces_cache[space_index].second;
+        }
+    }
+}
+
 void get_spaces_info(const void *key, const void *value, void *context)
 {
     CFStringRef k = (CFStringRef)key;
