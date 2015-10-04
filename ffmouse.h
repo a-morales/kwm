@@ -3,6 +3,8 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <CoreServices/CoreServices.h>
+#include <CoreGraphics/CoreGraphics.h>
 #include <Carbon/Carbon.h>
 
 #include <iostream>
@@ -17,8 +19,8 @@ struct window_layout;
 struct window_info
 {
     std::string name;
+    int wid;
     int pid;
-    int layer;
     int x,y;
     int width, height;
     window_layout *layout;
@@ -49,10 +51,15 @@ struct screen_info
 
 struct screen_layout
 {
-    int active_layout_index;
-    int next_layout_index;
     int number_of_layouts;
     std::vector<window_group_layout> layouts;    
+};
+
+struct spaces_info
+{
+    int active_layout_index;
+    int next_layout_index;
+    std::vector<int> windows;
 };
 
 bool check_privileges();
@@ -61,6 +68,10 @@ void request_privileges();
 void get_active_displays();
 screen_info *get_display_of_window(window_info *window);
 std::vector<window_info*> get_all_windows_on_display(int screen_index);
+
+int get_space_of_window(window_info *window);
+void get_spaces_info(const void *key, const void *value, void *context);
+void get_active_spaces();
 
 void apply_layout_for_screen(int screen_index);
 void cycle_focused_window_layout(int screen_index, int shift);
