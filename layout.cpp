@@ -17,7 +17,11 @@ void apply_layout_for_display(int screen_index)
 
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
+
     int space_index = get_space_of_window(&focused_window);
+    if(space_index == -1)
+        return;
+
     int active_layout_index = spaces_lst[space_index].next_layout_index;
     spaces_lst[space_index].active_layout_index = active_layout_index;
 
@@ -52,7 +56,10 @@ void cycle_focused_window_layout(int screen_index, int shift)
 {
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
+
     int space_index = get_space_of_window(&focused_window);
+    if(space_index == -1)
+        return;
 
     int active_layout_index = spaces_lst[space_index].active_layout_index;
 
@@ -110,7 +117,10 @@ void cycle_window_inside_layout(int screen_index)
 
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
+
     int space_index = get_space_of_window(&focused_window);
+    if(space_index == -1)
+        return;
 
     int active_layout_index = spaces_lst[space_index].active_layout_index;
 
@@ -156,7 +166,10 @@ window_layout *get_layout_of_window(window_info *window)
     window_layout *result = NULL;
 
     int screen_id = get_display_of_window(window)->id;
+
     int space_index = get_space_of_window(&focused_window);
+    if(space_index == -1)
+        return result;
 
     int active_layout_index = spaces_lst[space_index].active_layout_index;
     int max_layout_size = screen_layout_lst[screen_id].layouts[active_layout_index].layouts.size();

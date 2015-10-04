@@ -63,7 +63,7 @@ void detect_window_below_cursor()
                             CFRelease(focused_window_ref);
 
                         focused_window_ref = window_ref;
-                        std::cout << get_space_of_window(&focused_window) << std::endl;
+                        std::cout << "current space: " << get_space_of_window(&focused_window) << std::endl;
                     }
 
                     if(enable_auto_raise)
