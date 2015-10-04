@@ -71,6 +71,7 @@ std::vector<window_info*> get_all_windows_on_display(int screen_index);
 
 int get_space_of_window(window_info *window);
 void get_spaces_info(const void *key, const void *value, void *context);
+void refresh_active_spaces_info();
 void get_active_spaces();
 
 void apply_layout_for_display(int screen_index);
