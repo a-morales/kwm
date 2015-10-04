@@ -1,5 +1,5 @@
-#ifndef FFMOUSE_H
-#define FFMOUSE_H
+#ifndef KWM_H
+#define KWM_H
 
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -73,9 +73,10 @@ int get_space_of_window(window_info *window);
 void get_spaces_info(const void *key, const void *value, void *context);
 void get_active_spaces();
 
-void apply_layout_for_screen(int screen_index);
+void apply_layout_for_display(int screen_index);
 void cycle_focused_window_layout(int screen_index, int shift);
-void cycle_focused_window_screen(int shift);
+void cycle_window_inside_layout(int screen_index);
+void cycle_focused_window_display(int shift);
 
 bool get_expression_from_shift_direction(window_info *window, const std::string &direction);
 void shift_window_focus(const std::string &direction);
