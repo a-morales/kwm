@@ -2,6 +2,14 @@
 
 Started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
 
+### Features:
+- Enables focus-follows-mouse
+- Assigning windows to predefined layouts
+- System wide hotkeys
+
+### Requirements:
+- Access to osx accessibility
+
 ### hotkeys:
     - ctrl+alt+cmd:
         - t: toggle keypress redirect
@@ -48,11 +56,3 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
 
         - tab: cycle windows and place them
                in the focused layout
-
-### Features:
-    - Enables focus-follows-mouse
-    - Assigning windows to predefined layouts
-    - System wide hotkeys
-
-### Requirements:
-    - Access to osx accessibility
