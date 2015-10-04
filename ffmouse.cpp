@@ -7,6 +7,7 @@ static const CGKeyCode kVK_SPECIAL_Å = 0x21;
 static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
 static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
 
+static std::vector<spaces_info> spaces_lst;
 static std::vector<screen_info> display_lst;
 static std::vector<window_info> window_lst;
 static std::vector<screen_layout> screen_layout_lst;
@@ -120,13 +121,14 @@ void apply_layout_for_screen(int screen_index)
 
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
-    int active_layout_index = layout_master->next_layout_index;
-    layout_master->active_layout_index = active_layout_index;
+    int space_index = get_space_of_window(&focused_window);
+    int active_layout_index = spaces_lst[space_index].next_layout_index;
+    spaces_lst[space_index].active_layout_index = active_layout_index;
 
     if(active_layout_index + 1 < layout_master->number_of_layouts)
-        layout_master->next_layout_index = active_layout_index + 1; 
+        spaces_lst[space_index].next_layout_index = active_layout_index + 1;
     else
-        layout_master->next_layout_index = 0; 
+        spaces_lst[space_index].next_layout_index = 0;
 
     for(int window_index = 0; window_index < screen_window_lst.size(); ++window_index)
     {
@@ -154,7 +156,9 @@ void cycle_focused_window_layout(int screen_index, int shift)
 {
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
-    int active_layout_index = layout_master->active_layout_index;
+    int space_index = get_space_of_window(&focused_window);
+
+    int active_layout_index = spaces_lst[space_index].active_layout_index;
 
     window_layout *focused_window_layout = focused_window.layout;
     int focused_window_layout_index = focused_window.layout_index;
@@ -210,7 +214,9 @@ void cycle_window_inside_layout(int screen_index)
 
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
-    int active_layout_index = layout_master->active_layout_index;
+    int space_index = get_space_of_window(&focused_window);
+
+    int active_layout_index = spaces_lst[space_index].active_layout_index;
 
     window_layout *focused_window_layout = focused_window.layout;
     if(!focused_window_layout)
@@ -478,8 +484,6 @@ void init_window_layouts()
     for(int screen_index = 0; screen_index < max_display_count; ++screen_index)
     {
         screen_layout layout_master;
-        layout_master.active_layout_index = 0;
-        layout_master.next_layout_index = 0;
 
         window_group_layout layout_tall_left;
         layout_tall_left.layouts.push_back(get_window_layout_for_screen(screen_index, "left vertical split"));
@@ -837,6 +841,7 @@ void detect_window_below_cursor()
                             CFRelease(focused_window_ref);
 
                         focused_window_ref = window_ref;
+                        std::cout << get_space_of_window(&focused_window) << std::endl;
                     }
 
                     if(enable_auto_raise)
@@ -864,6 +869,78 @@ bool is_window_below_cursor(window_info *window)
             return true;
         
     return false;
+}
+
+void get_active_spaces()
+{
+    CFStringRef spaces_plist = CFSTR("com.apple.spaces");
+    CFStringRef spaces_key = CFSTR("SpacesDisplayConfiguration");
+
+    CFArrayRef spaces_prop_list = (CFArrayRef) CFPreferencesCopyAppValue(spaces_key, spaces_plist); 
+    if(spaces_prop_list)
+    {
+        spaces_lst.clear();
+
+        CFIndex spaces_count = CFArrayGetCount(spaces_prop_list);
+        CFDictionaryApplyFunction((CFDictionaryRef)spaces_prop_list, get_spaces_info, NULL);
+        CFRelease(spaces_prop_list);
+
+        for(int space_index = 0; space_index < spaces_lst.size(); ++space_index)
+        {
+            spaces_lst[space_index].active_layout_index = 0;
+            spaces_lst[space_index].next_layout_index = 0;
+        }
+    }
+
+    CFRelease(spaces_key);
+    CFRelease(spaces_plist);
+}
+
+int get_space_of_window(window_info *window)
+{
+    for(int space_index = 0; space_index < spaces_lst.size(); ++space_index)
+    {
+        for(int window_index = 0; window_index < spaces_lst[space_index].windows.size(); ++window_index)
+        {
+            if(window->wid == spaces_lst[space_index].windows[window_index])
+                return space_index;
+        }
+    }
+}
+
+void get_spaces_info(const void *key, const void *value, void *context)
+{
+    CFStringRef k = (CFStringRef)key;
+    std::string key_str = CFStringGetCStringPtr(k, kCFStringEncodingMacRoman);
+
+    if(key_str == "Space Properties" || key_str == "name" || key_str == "windows") 
+    {
+        CFTypeID id = CFGetTypeID(value);
+        if(id == CFArrayGetTypeID())
+        {
+            CFArrayRef v = (CFArrayRef)value;
+            if(v)
+            {
+                CFIndex count = CFArrayGetCount(v);
+                for(CFIndex c = 0; c < count; ++c)
+                {
+                    if(key_str == "windows")
+                    {
+                        CFNumberRef num = (CFNumberRef)CFArrayGetValueAtIndex(v, c);
+                        int myint;
+                        CFNumberGetValue(num, kCFNumberSInt64Type, &myint);
+                        spaces_lst[spaces_lst.size()-1].windows.push_back(myint);
+                    }
+                    else
+                    {
+                        spaces_lst.push_back(spaces_info());
+                        CFDictionaryRef elem = (CFDictionaryRef)CFArrayGetValueAtIndex(v, c);
+                        CFDictionaryApplyFunction(elem, get_spaces_info, NULL);
+                    }
+                }
+            }
+        }
+    }
 }
 
 window_info get_window_info_from_ref(AXUIElementRef window_ref)
@@ -915,8 +992,8 @@ void get_window_info(const void *key, const void *value, void *context)
         int myint;
         CFNumberRef v = (CFNumberRef)value;
         CFNumberGetValue(v, kCFNumberSInt64Type, &myint);
-        if(key_str == "kCGWindowLayer")
-            window_lst[window_lst.size()-1].layer = myint;
+        if(key_str == "kCGWindowNumber")
+            window_lst[window_lst.size()-1].wid = myint;
         else if(key_str == "kCGWindowOwnerPID")
             window_lst[window_lst.size()-1].pid = myint;
         else if(key_str == "X")
@@ -940,8 +1017,11 @@ window_layout *get_layout_of_window(window_info *window)
     window_layout *result = NULL;
 
     int screen_id = get_display_of_window(window)->id;
-    int active_layout_index = screen_layout_lst[screen_id].active_layout_index;
+    int space_index = get_space_of_window(&focused_window);
+
+    int active_layout_index = spaces_lst[space_index].active_layout_index;
     int max_layout_size = screen_layout_lst[screen_id].layouts[active_layout_index].layouts.size();
+
     for(int layout_index = 0; layout_index < max_layout_size; ++layout_index)
     {
         window_layout *layout = &screen_layout_lst[screen_id].layouts[active_layout_index].layouts[layout_index];
@@ -1005,8 +1085,9 @@ int main(int argc, char **argv)
 
     get_active_displays();
     init_window_layouts();
+    get_active_spaces();
     detect_window_below_cursor();
-    
+
     run_loop_source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, event_tap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), run_loop_source, kCFRunLoopCommonModes);
     CGEventTapEnable(event_tap, true);
