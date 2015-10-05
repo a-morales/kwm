@@ -25,13 +25,16 @@ void fatal(const std::string &err)
 
 bool check_privileges()
 {
-    if (AXAPIEnabled())
-        return true;
+    const void * keys[] = { kAXTrustedCheckOptionPrompt };
+    const void * values[] = { kCFBooleanTrue };
 
-    if(AXIsProcessTrusted())
-        return true;
+    CFDictionaryRef options;
+    options = CFDictionaryCreate(kCFAllocatorDefault, 
+            keys, values, sizeof(keys) / sizeof(*keys),
+            &kCFCopyStringDictionaryKeyCallBacks,
+            &kCFTypeDictionaryValueCallBacks);
 
-    return false;
+    return AXIsProcessTrustedWithOptions(options);
 }
 
 CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
