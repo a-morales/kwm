@@ -1,10 +1,6 @@
 #ifndef KWM_H
 #define KWM_H
 
-#include <ApplicationServices/ApplicationServices.h>
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreServices/CoreServices.h>
-#include <CoreGraphics/CoreGraphics.h>
 #include <Carbon/Carbon.h>
 
 #include <iostream>
