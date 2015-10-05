@@ -31,16 +31,7 @@ bool check_privileges()
     if(AXIsProcessTrusted())
         return true;
 
-    std::cout << "not trusted" << std::endl;
     return false;
-}
-
-void request_privileges()
-{
-    if(AXMakeProcessTrusted(CFSTR("/usr/local/bin/ffmouse")) != kAXErrorSuccess)
-        fatal("Could not make trusted!");
-
-    std::cout << "is now trusted.." << std::endl;
 }
 
 CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
@@ -92,7 +83,7 @@ CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 int main(int argc, char **argv)
 {
     if(!check_privileges())
-        request_privileges();
+        fatal("Could not access OSX Accessibility!"); 
 
     CFMachPortRef event_tap;
     CGEventMask event_mask;
