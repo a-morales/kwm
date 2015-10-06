@@ -218,5 +218,15 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         }
     }
     
+    if(cmd_key && !alt_key && !ctrl_key)
+    {
+        // disable retarded hotkey for minimizing an application
+        if(keycode == kVK_ANSI_M)
+            return true;
+        // disable retarded hotkey for hiding an application
+        else if(keycode == kVK_ANSI_H)
+            return true;
+    }
+
     return false;
 }
