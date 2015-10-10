@@ -62,7 +62,6 @@ void detect_window_below_cursor()
 
                     focused_psn = newpsn;
                     focused_window = window_lst[i];
-                    get_layout_of_window(&focused_window);
 
                     AXUIElementRef window_ref;
                     if(get_window_ref(&focused_window, &window_ref))
