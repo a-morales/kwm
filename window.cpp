@@ -27,10 +27,10 @@ bool is_window_below_cursor(window_info *window)
     CGPoint cursor = CGEventGetLocation(event);
     CFRelease(event);
     if(cursor.x >= window->x && 
-        cursor.x <= window->x + window->width && 
-        cursor.y >= window->y && 
-        cursor.y <= window->y + window->height)
-            return true;
+            cursor.x <= window->x + window->width && 
+            cursor.y >= window->y && 
+            cursor.y <= window->y + window->height)
+        return true;
         
     return false;
 }
@@ -145,33 +145,38 @@ void shift_window_focus(const std::string &direction)
 
 void set_window_dimensions(AXUIElementRef app_window, window_info *window, int x, int y, int width, int height)
 {
-    CGPoint window_pos = CGPointMake(x, y);
-    CFTypeRef new_window_pos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&window_pos);
+    if(app_window != NULL)
+    {
+        CGPoint window_pos = CGPointMake(x, y);
+        CFTypeRef new_window_pos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&window_pos);
 
-    CGSize window_size = CGSizeMake(width, height);
-    CFTypeRef new_window_size = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&window_size);
+        CGSize window_size = CGSizeMake(width, height);
+        CFTypeRef new_window_size = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&window_size);
 
-    if(AXUIElementSetAttributeValue(app_window, kAXPositionAttribute, new_window_pos) != kAXErrorSuccess)
-        std::cout << "failed to set new window position" << std::endl;
-    if(AXUIElementSetAttributeValue(app_window, kAXSizeAttribute, new_window_size) != kAXErrorSuccess)
-        std::cout << "failed to set new window size" << std::endl;
+        if(AXUIElementSetAttributeValue(app_window, kAXPositionAttribute, new_window_pos) != kAXErrorSuccess)
+            std::cout << "failed to set new window position" << std::endl;
+        if(AXUIElementSetAttributeValue(app_window, kAXSizeAttribute, new_window_size) != kAXErrorSuccess)
+            std::cout << "failed to set new window size" << std::endl;
 
-    window->x = window_pos.x;
-    window->y = window_pos.y;
-    window->width = window_size.width;
-    window->height = window_size.height;
+        window->x = window_pos.x;
+        window->y = window_pos.y;
+        window->width = window_size.width;
+        window->height = window_size.height;
 
-    get_layout_of_window(window);
+        get_layout_of_window(window);
 
-    CFRelease(new_window_pos);
-    CFRelease(new_window_size);
+        if(new_window_pos != NULL)
+            CFRelease(new_window_pos);
+        if(new_window_size != NULL)
+            CFRelease(new_window_size);
+    }
 }
 
 bool get_window_ref(window_info *window, AXUIElementRef *window_ref)
 {
     AXUIElementRef app = AXUIElementCreateApplication(window->pid);
-    bool result = false;
     CFArrayRef app_window_lst;
+    bool result = false;
     
     if(app)
     {
@@ -183,43 +188,49 @@ bool get_window_ref(window_info *window, AXUIElementRef *window_ref)
             for(CFIndex window_index = 0; window_index < app_window_count; ++window_index)
             {
                 AXUIElementRef app_window_ref = (AXUIElementRef)CFArrayGetValueAtIndex(app_window_lst, window_index);
-                if(!result)
+                if(app_window_ref != NULL)
                 {
-                    AXValueRef temp;
-
-                    CFStringRef app_window_title;
-                    AXUIElementCopyAttributeValue(app_window_ref, kAXTitleAttribute, (CFTypeRef*)&app_window_title);
-
-                    std::string app_window_name;
-                    if(CFStringGetCStringPtr(app_window_title, kCFStringEncodingMacRoman))
-                        app_window_name = CFStringGetCStringPtr(app_window_title, kCFStringEncodingMacRoman);
-                    CFRelease(app_window_title);
-
-                    CGSize app_window_size;
-                    AXUIElementCopyAttributeValue(app_window_ref, kAXSizeAttribute, (CFTypeRef*)&temp);
-                    AXValueGetValue(temp, kAXValueCGSizeType, &app_window_size);
-                    CFRelease(temp);
-
-                    CGPoint app_window_pos;
-                    AXUIElementCopyAttributeValue(app_window_ref, kAXPositionAttribute, (CFTypeRef*)&temp);
-                    AXValueGetValue(temp, kAXValueCGPointType, &app_window_pos);
-                    CFRelease(temp);
-
-                    if(window->x == app_window_pos.x && 
-                            window->y == app_window_pos.y &&
-                            window->width == app_window_size.width && 
-                            window->height == app_window_size.height &&
-                            window->name == app_window_name)
+                    if(!result)
                     {
-                        *window_ref = app_window_ref;
-                        do_not_free = window_index;
-                        result = true;
+                        AXValueRef temp;
+
+                        CFStringRef app_window_title;
+                        AXUIElementCopyAttributeValue(app_window_ref, kAXTitleAttribute, (CFTypeRef*)&app_window_title);
+
+                        std::string app_window_name;
+                        if(CFStringGetCStringPtr(app_window_title, kCFStringEncodingMacRoman))
+                            app_window_name = CFStringGetCStringPtr(app_window_title, kCFStringEncodingMacRoman);
+                        if(app_window_title != NULL)
+                            CFRelease(app_window_title);
+
+                        CGSize app_window_size;
+                        AXUIElementCopyAttributeValue(app_window_ref, kAXSizeAttribute, (CFTypeRef*)&temp);
+                        AXValueGetValue(temp, kAXValueCGSizeType, &app_window_size);
+                        if(temp != NULL)
+                            CFRelease(temp);
+
+                        CGPoint app_window_pos;
+                        AXUIElementCopyAttributeValue(app_window_ref, kAXPositionAttribute, (CFTypeRef*)&temp);
+                        AXValueGetValue(temp, kAXValueCGPointType, &app_window_pos);
+                        if(temp != NULL)
+                            CFRelease(temp);
+
+                        if(window->x == app_window_pos.x && 
+                                window->y == app_window_pos.y &&
+                                window->width == app_window_size.width && 
+                                window->height == app_window_size.height &&
+                                window->name == app_window_name)
+                        {
+                            *window_ref = app_window_ref;
+                            do_not_free = window_index;
+                            result = true;
+                        }
+
                     }
 
+                    if(window_index != do_not_free)
+                        CFRelease(app_window_ref);
                 }
-
-                if(window_index != do_not_free)
-                    CFRelease(app_window_ref);
             }
         }
         CFRelease(app);
@@ -228,32 +239,41 @@ bool get_window_ref(window_info *window, AXUIElementRef *window_ref)
     return result;
 }
 
+// Currently not in use
 window_info get_window_info_from_ref(AXUIElementRef window_ref)
 {
     window_info info;
+    info.name = "invalid";
+    if(window_ref != NULL)
+    {
 
-    CFStringRef window_title;
-    AXValueRef temp;
-    CGSize window_size;
-    CGPoint window_pos;
+        CFStringRef window_title;
+        AXValueRef temp;
+        CGSize window_size;
+        CGPoint window_pos;
 
-    AXUIElementCopyAttributeValue(window_ref, kAXTitleAttribute, (CFTypeRef*)&window_title);
-    if(CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman))
-        info.name = CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman);
-    CFRelease(window_title);
+        AXUIElementCopyAttributeValue(window_ref, kAXTitleAttribute, (CFTypeRef*)&window_title);
+        if(CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman))
+            info.name = CFStringGetCStringPtr(window_title, kCFStringEncodingMacRoman);
+        
+        if(window_title != NULL)
+            CFRelease(window_title);
 
-    AXUIElementCopyAttributeValue(window_ref, kAXSizeAttribute, (CFTypeRef*)&temp);
-    AXValueGetValue(temp, kAXValueCGSizeType, &window_size);
-    CFRelease(temp);
+        AXUIElementCopyAttributeValue(window_ref, kAXSizeAttribute, (CFTypeRef*)&temp);
+        AXValueGetValue(temp, kAXValueCGSizeType, &window_size);
+        if(temp != NULL)
+            CFRelease(temp);
 
-    AXUIElementCopyAttributeValue(window_ref, kAXPositionAttribute, (CFTypeRef*)&temp);
-    AXValueGetValue(temp, kAXValueCGPointType, &window_pos);
-    CFRelease(temp);
+        AXUIElementCopyAttributeValue(window_ref, kAXPositionAttribute, (CFTypeRef*)&temp);
+        AXValueGetValue(temp, kAXValueCGPointType, &window_pos);
+        if(temp !=NULL)
+            CFRelease(temp);
 
-    info.width = window_size.width;
-    info.height = window_size.height;
+        info.width = window_size.width;
+        info.height = window_size.height;
 
-    return info;
+        return info;
+    }
 }
 
 void get_window_info(const void *key, const void *value, void *context)
