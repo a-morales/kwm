@@ -15,9 +15,8 @@ struct window_layout;
 struct window_info
 {
     std::string name;
-    int wid;
-    int pid;
-    int x,y;
+    int pid, wid;
+    int x, y;
     int width, height;
     window_layout *layout;
     int layout_index;
@@ -27,9 +26,9 @@ struct window_layout
 {
     std::string name;
     int x, y;
+    int width, height;
     int gap_x, gap_y;
     int gap_vertical, gap_horizontal;
-    int width, height;
 };
 
 struct window_group_layout
