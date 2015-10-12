@@ -51,15 +51,19 @@ CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
         if(kwm_hotkey_commands(cmd_key, ctrl_key, alt_key, keycode))
             return NULL;
 
+        // Let system hotkeys pass through as normal
+        if(system_hotkey_passthrough(cmd_key, ctrl_key, alt_key, keycode))
+            return event;
+            
+        // capture custom hotkeys
+        if(custom_hotkey_commands(cmd_key, ctrl_key, alt_key, keycode))
+            return NULL;
+
         if(toggle_tap)
         {
-            // Let system hotkeys pass through as normal
-            if(system_hotkey_passthrough(cmd_key, ctrl_key, alt_key, keycode))
-                return event;
-            
-            // capture custom hotkeys
-            if(custom_hotkey_commands(cmd_key, ctrl_key, alt_key, keycode))
-                return NULL;
+            CGEventSetIntegerValueField(event, kCGKeyboardEventAutorepeat, 0);
+            CGEventPostToPSN(&focused_psn, event);
+            return NULL;
         }
         else
         {
@@ -76,9 +80,6 @@ CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
             return event;
         }
 
-        CGEventSetIntegerValueField(event, kCGKeyboardEventAutorepeat, 0);
-        CGEventPostToPSN(&focused_psn, event);
-        return NULL;
     }
     else if(type == kCGEventMouseMoved)
         detect_window_below_cursor();
