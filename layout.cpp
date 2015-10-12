@@ -116,6 +116,7 @@ void cycle_focused_window_layout(int screen_index, int shift)
 void cycle_window_inside_layout(int screen_index)
 {
     detect_window_below_cursor();
+    get_layout_of_window(&focused_window);
 
     std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
     screen_layout *layout_master = &screen_layout_lst[screen_index];
