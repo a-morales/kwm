@@ -63,13 +63,16 @@ CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
         }
         else
         {
-            // Re-enable keytap when spotlight is closed
+            /* Re-enable keytap when spotlight is closed
+            
             if ((cmd_key && keycode == kVK_Space)
                     || keycode == kVK_Return || keycode == kVK_ANSI_KeypadEnter)
             {
                 toggle_tap = true;
                 std::cout << "tap enabled" << std::endl;
             }
+
+            */
             return event;
         }
 
