@@ -11,352 +11,350 @@ extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info FocusedWindow;
 
-void ApplyLayoutForDisplay(int screen_index)
+void ApplyLayoutForDisplay(int ScreenIndex)
 {
     RefreshActiveSpacesInfo();
     DetectWindowBelowCursor();
 
-    std::vector<window_info*> screen_WindowLst = GetAllWindowsOnDisplay(screen_index);
-    screen_layout *layout_master = &ScreenLayoutLst[screen_index];
+    std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
+    screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
 
-    int space_index = GetSpaceOfWindow(&FocusedWindow);
-    if(space_index == -1)
+    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    if(SpaceIndex == -1)
         return;
 
-    int active_layout_index = SpacesLst[space_index].next_layout_index;
-    SpacesLst[space_index].active_layout_index = active_layout_index;
+    int ActiveLayoutIndex = SpacesLst[SpaceIndex].next_layout_index;
+    SpacesLst[SpaceIndex].active_layout_index = ActiveLayoutIndex;
 
-    if(active_layout_index + 1 < layout_master->number_of_layouts)
-        SpacesLst[space_index].next_layout_index = active_layout_index + 1;
+    if(ActiveLayoutIndex + 1 < LayoutMaster->number_of_layouts)
+        SpacesLst[SpaceIndex].next_layout_index = ActiveLayoutIndex + 1;
     else
-        SpacesLst[space_index].next_layout_index = 0;
+        SpacesLst[SpaceIndex].next_layout_index = 0;
 
-    for(int window_index = 0; window_index < screen_WindowLst.size(); ++window_index)
+    for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
     {
-        window_info *window = screen_WindowLst[window_index];
-        AXUIElementRef window_ref;
-        if(GetWindowRef(window, &window_ref))
+        window_info *Window = ScreenWindowLst[WindowIndex];
+        AXUIElementRef WindowRef;
+        if(GetWindowRef(Window, &WindowRef))
         {
-            if(window_index < layout_master->layouts[active_layout_index].layouts.size())
+            if(WindowIndex < LayoutMaster->layouts[ActiveLayoutIndex].layouts.size())
             {
-                window_layout *layout = &layout_master->layouts[active_layout_index].layouts[window_index];
-                window->layout = layout;
-                window->layout_index = window_index;
-                SetWindowDimensions(window_ref, window, layout->x, layout->y, layout->width, layout->height); 
+                window_layout *Layout = &LayoutMaster->layouts[ActiveLayoutIndex].layouts[WindowIndex];
+                Window->layout = Layout;
+                Window->layout_index = WindowIndex;
+                SetWindowDimensions(WindowRef, Window, Layout->x, Layout->y, Layout->width, Layout->height); 
             }
 
-            if(!WindowsAreEqual(&FocusedWindow, window))
-                CFRelease(window_ref);
+            if(!WindowsAreEqual(&FocusedWindow, Window))
+                CFRelease(WindowRef);
         }
     }
 
     DetectWindowBelowCursor();
 }
 
-void CycleFocusedWindowLayout(int screen_index, int shift)
+void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
 {
-    std::vector<window_info*> screen_WindowLst = GetAllWindowsOnDisplay(screen_index);
-    screen_layout *layout_master = &ScreenLayoutLst[screen_index];
+    std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
+    screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
 
     GetLayoutOfWindow(&FocusedWindow);
-    int space_index = GetSpaceOfWindow(&FocusedWindow);
-    if(space_index == -1)
+    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    if(SpaceIndex == -1)
         return;
 
-    int active_layout_index = SpacesLst[space_index].active_layout_index;
+    int ActiveLayoutIndex = SpacesLst[SpaceIndex].active_layout_index;
 
-    window_layout *FocusedWindow_layout = FocusedWindow.layout;
-    int FocusedWindow_layout_index = FocusedWindow.layout_index;
-    if(!FocusedWindow_layout)
+    window_layout *FocusedWindowLayout = FocusedWindow.layout;
+    int FocusedWindowLayoutIndex = FocusedWindow.layout_index;
+    if(!FocusedWindowLayout)
         return;
 
-    int swap_with_window_layout_index = FocusedWindow_layout_index + shift;
-
-    if(swap_with_window_layout_index < 0 || 
-        swap_with_window_layout_index >= layout_master->number_of_layouts)
+    int SwapWithWindowLayoutIndex = FocusedWindowLayoutIndex + Shift;
+    if(SwapWithWindowLayoutIndex < 0 || 
+        SwapWithWindowLayoutIndex >= LayoutMaster->number_of_layouts)
             return;
 
-    int swap_with_window_index = -1;
-    window_layout *swap_with_window_layout = &layout_master->layouts[active_layout_index].layouts[swap_with_window_layout_index];
-    for(int window_index = 0; window_index < screen_WindowLst.size(); ++window_index)
+    int SwapWithWindowIndex = -1;
+    window_layout *SwapWithWindowLayout = &LayoutMaster->layouts[ActiveLayoutIndex].layouts[SwapWithWindowLayoutIndex];
+    for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
     {
-        window_info *window = screen_WindowLst[window_index];
-        if(WindowHasLayout(window, swap_with_window_layout))
+        window_info *Window = ScreenWindowLst[WindowIndex];
+        if(WindowHasLayout(Window, SwapWithWindowLayout))
         {
-            swap_with_window_index = window_index;
+            SwapWithWindowIndex = WindowIndex;
             break;
         }
     }
 
-    if(swap_with_window_index == -1)
+    if(SwapWithWindowIndex == -1)
         return;
 
-    AXUIElementRef window_ref;
-    window_info *window = screen_WindowLst[swap_with_window_index];
-    if(GetWindowRef(window, &window_ref))
+    AXUIElementRef WindowRef;
+    window_info *Window = ScreenWindowLst[SwapWithWindowIndex];
+    if(GetWindowRef(Window, &WindowRef))
     {
-        SetWindowDimensions(window_ref, 
-                window, 
-                FocusedWindow_layout->x, 
-                FocusedWindow_layout->y, 
-                FocusedWindow_layout->width, 
-                FocusedWindow_layout->height); 
+        SetWindowDimensions(WindowRef, 
+                Window, 
+                FocusedWindowLayout->x, 
+                FocusedWindowLayout->y, 
+                FocusedWindowLayout->width, 
+                FocusedWindowLayout->height); 
 
         SetWindowDimensions(FocusedWindowRef, 
                 &FocusedWindow, 
-                swap_with_window_layout->x, 
-                swap_with_window_layout->y, 
-                swap_with_window_layout->width, 
-                swap_with_window_layout->height); 
+                SwapWithWindowLayout->x, 
+                SwapWithWindowLayout->y, 
+                SwapWithWindowLayout->width, 
+                SwapWithWindowLayout->height); 
 
-        CFRelease(window_ref);
+        CFRelease(WindowRef);
     }
 }
 
-void CycleWindowInsideLayout(int screen_index)
+void CycleWindowInsideLayout(int ScreenIndex)
 {
     DetectWindowBelowCursor();
     GetLayoutOfWindow(&FocusedWindow);
 
-    std::vector<window_info*> screen_WindowLst = GetAllWindowsOnDisplay(screen_index);
-    screen_layout *layout_master = &ScreenLayoutLst[screen_index];
+    std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
+    screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
 
-    int space_index = GetSpaceOfWindow(&FocusedWindow);
-    if(space_index == -1)
+    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    if(SpaceIndex == -1)
         return;
 
-    int active_layout_index = SpacesLst[space_index].active_layout_index;
+    int ActiveLayoutIndex = SpacesLst[SpaceIndex].active_layout_index;
 
-    window_layout *FocusedWindow_layout = FocusedWindow.layout;
-    if(!FocusedWindow_layout)
+    window_layout *FocusedWindowLayout = FocusedWindow.layout;
+    if(!FocusedWindowLayout)
         return;
 
-    int max_layout_tiles = layout_master->layouts[active_layout_index].layouts.size();
-    if(screen_WindowLst.size() <= max_layout_tiles)
+    int MaxLayoutTiles = LayoutMaster->layouts[ActiveLayoutIndex].layouts.size();
+    if(ScreenWindowLst.size() <= MaxLayoutTiles)
         return;
 
-    AXUIElementRef window_ref;
-    window_info *window = screen_WindowLst[screen_WindowLst.size()-1];
+    AXUIElementRef WindowRef;
+    window_info *Window = ScreenWindowLst[ScreenWindowLst.size()-1];
     
-    if(GetWindowRef(window, &window_ref))
+    if(GetWindowRef(Window, &WindowRef))
     {
-        SetWindowDimensions(window_ref,
-                window,
-                FocusedWindow_layout->x,
-                FocusedWindow_layout->y,
-                FocusedWindow_layout->width,
-                FocusedWindow_layout->height);
+        SetWindowDimensions(WindowRef,
+                Window,
+                FocusedWindowLayout->x,
+                FocusedWindowLayout->y,
+                FocusedWindowLayout->width,
+                FocusedWindowLayout->height);
 
-        ProcessSerialNumber newpsn;
-        GetProcessForPID(window->pid, &newpsn);
+        ProcessSerialNumber NewPSN;
+        GetProcessForPID(Window->pid, &NewPSN);
 
-        AXUIElementSetAttributeValue(window_ref, kAXMainAttribute, kCFBooleanTrue);
-        AXUIElementSetAttributeValue(window_ref, kAXFocusedAttribute, kCFBooleanTrue);
-        AXUIElementPerformAction (window_ref, kAXRaiseAction);
+        AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
+        AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
+        AXUIElementPerformAction (WindowRef, kAXRaiseAction);
 
-        SetFrontProcessWithOptions(&newpsn, kSetFrontProcessFrontWindowOnly);
+        SetFrontProcessWithOptions(&NewPSN, kSetFrontProcessFrontWindowOnly);
 
         if(FocusedWindowRef != NULL)
             CFRelease(FocusedWindowRef);
         
-        FocusedWindowRef = window_ref;
-        FocusedWindow = *window;
-        FocusedPSN = newpsn;
+        FocusedWindowRef = WindowRef;
+        FocusedWindow = *Window;
+        FocusedPSN = NewPSN;
     }
 }
 
-window_layout *GetLayoutOfWindow(window_info *window)
+window_layout *GetLayoutOfWindow(window_info *Window)
 {
-    window_layout *result = NULL;
+    window_layout *Result = NULL;
 
-    int screen_id = GetDisplayOfWindow(window)->id;
+    int ScreenID = GetDisplayOfWindow(Window)->id;
+    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    if(SpaceIndex == -1)
+        return Result;
 
-    int space_index = GetSpaceOfWindow(&FocusedWindow);
-    if(space_index == -1)
-        return result;
+    int ActiveLayoutIndex = SpacesLst[SpaceIndex].active_layout_index;
+    int MaxLayoutSize = ScreenLayoutLst[ScreenID].layouts[ActiveLayoutIndex].layouts.size();
 
-    int active_layout_index = SpacesLst[space_index].active_layout_index;
-    int max_layout_size = ScreenLayoutLst[screen_id].layouts[active_layout_index].layouts.size();
-
-    for(int layout_index = 0; layout_index < max_layout_size; ++layout_index)
+    for(int LayoutIndex = 0; LayoutIndex < MaxLayoutSize; ++LayoutIndex)
     {
-        window_layout *layout = &ScreenLayoutLst[screen_id].layouts[active_layout_index].layouts[layout_index];
-        if(WindowHasLayout(window, layout))
+        window_layout *Layout = &ScreenLayoutLst[ScreenID].layouts[ActiveLayoutIndex].layouts[LayoutIndex];
+        if(WindowHasLayout(Window, Layout))
         {
-            window->layout = layout;
-            window->layout_index = layout_index;
-            result = layout;
+            Window->layout = Layout;
+            Window->layout_index = LayoutIndex;
+            Result = Layout;
             break;
         }
     }
 
-    return result;
+    return Result;
 }
 
-bool WindowHasLayout(window_info *window, window_layout *layout)
+bool WindowHasLayout(window_info *Window, window_layout *Layout)
 {
-    if((window->x >= layout->x - 15 && window->x <= layout->x + 15) &&
-        (window->y >= layout->y - 15 && window->y <= layout->y + 15 ) &&
-        (window->width >= layout->width - 15 && window->width <= layout->width + 15) &&
-        (window->height >= layout->height - 15 && window->height <= layout->height + 15))
+    if((Window->x >= Layout->x - 15 && Window->x <= Layout->x + 15) &&
+        (Window->y >= Layout->y - 15 && Window->y <= Layout->y + 15 ) &&
+        (Window->width >= Layout->width - 15 && Window->width <= Layout->width + 15) &&
+        (Window->height >= Layout->height - 15 && Window->height <= Layout->height + 15))
             return true;
 
     return false;
 }
 
-void SetWindowLayoutValues(window_layout *layout, int x, int y, int width, int height)
+void SetWindowLayoutValues(window_layout *Layout, int X, int Y, int Width, int Height)
 {
-    layout->x = x;
-    layout->y = y;
-    layout->width = width;
-    layout->height = height;
+    Layout->x = X;
+    Layout->y = Y;
+    Layout->width = Width;
+    Layout->height = Height;
 }
 
-window_layout GetWindowLayoutForScreen(int screen_index, const std::string &name)
+window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name)
 {
-    window_layout layout;
-    layout.name = "invalid";
+    window_layout Layout;
+    Layout.name = "invalid";
 
-    screen_info *screen = &DisplayLst[screen_index];
-    if(screen)
+    screen_info *Screen = &DisplayLst[ScreenIndex];
+    if(Screen)
     {
-        for(int layout_index = 0; layout_index < LayoutLst.size(); ++layout_index)
+        for(int LayoutIndex = 0; LayoutIndex < LayoutLst.size(); ++LayoutIndex)
         {
-            if(LayoutLst[layout_index].name == name)
+            if(LayoutLst[LayoutIndex].name == Name)
             {
-                layout = LayoutLst[layout_index];
+                Layout = LayoutLst[LayoutIndex];
                 break;
             }
         }
 
-        if(name == "fullscreen")
-            SetWindowLayoutValues(&layout, 
-                    screen->x + layout.gap_x, 
-                    screen->y + layout.gap_y, 
-                    (screen->width - (layout.gap_vertical * 2)), 
-                    (screen->height - (layout.gap_y * 1.5f)));
-        else if(name == "left vertical split")
-            SetWindowLayoutValues(&layout, 
-                    screen->x + layout.gap_x, 
-                    screen->y + layout.gap_y, 
-                    ((screen->width / 2) - (layout.gap_vertical * 1.5f)), 
-                    (screen->height - (layout.gap_y * 1.5f)));
-        else if(name == "right vertical split")
-            SetWindowLayoutValues(&layout, 
-                    screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f)), 
-                    screen->y + layout.gap_y, 
-                    ((screen->width / 2) - (layout.gap_vertical * 1.5f)), 
-                    (screen->height - (layout.gap_y * 1.5f)));
-        else if(name == "upper horizontal split")
-            SetWindowLayoutValues(&layout, 
-                    screen->x + layout.gap_x, 
-                    screen->y + layout.gap_y, 
-                    (screen->width - (layout.gap_vertical * 2)), 
-                    ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
-        else if(name == "lower horizontal split")
-            SetWindowLayoutValues(&layout, 
-                    screen->x + layout.gap_x, 
-                    screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8)), 
-                    (screen->width - (layout.gap_vertical * 2)), 
-                    ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
-        else if(name == "upper left split")
-            SetWindowLayoutValues(&layout, 
-                    screen->x + layout.gap_x, 
-                    screen->y + layout.gap_y, 
-                    ((screen->width / 2) - (layout.gap_vertical * 1.5f)), 
-                    ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
-        else if(name == "lower left split")
-            SetWindowLayoutValues(&layout, 
-                    screen->x + layout.gap_x, 
-                    screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8)), 
-                    ((screen->width / 2) - (layout.gap_vertical * 1.5f)), 
-                    ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
-        else if(name == "upper right split")
-            SetWindowLayoutValues(&layout, 
-                    screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f)), 
-                    screen->y + layout.gap_y, 
-                    ((screen->width / 2) - (layout.gap_vertical * 1.5f)), 
-                    ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
-        else if(name == "lower right split")
-            SetWindowLayoutValues(&layout, 
-                    screen->x + ((screen->width / 2) + (layout.gap_vertical * 0.5f)), 
-                    screen->y + ((screen->height / 2) + (layout.gap_horizontal * 0.5f) + (layout.gap_y / 8)), 
-                    ((screen->width / 2) - (layout.gap_vertical * 1.5f)), 
-                    ((screen->height / 2) - (layout.gap_horizontal * 1.0f)));
+        if(Name == "fullscreen")
+            SetWindowLayoutValues(&Layout, 
+                    Screen->x + Layout.gap_x, 
+                    Screen->y + Layout.gap_y, 
+                    (Screen->width - (Layout.gap_vertical * 2)), 
+                    (Screen->height - (Layout.gap_y * 1.5f)));
+        else if(Name == "left vertical split")
+            SetWindowLayoutValues(&Layout, 
+                    Screen->x + Layout.gap_x, 
+                    Screen->y + Layout.gap_y, 
+                    ((Screen->width / 2) - (Layout.gap_vertical * 1.5f)), 
+                    (Screen->height - (Layout.gap_y * 1.5f)));
+        else if(Name == "right vertical split")
+            SetWindowLayoutValues(&Layout, 
+                    Screen->x + ((Screen->width / 2) + (Layout.gap_vertical * 0.5f)), 
+                    Screen->y + Layout.gap_y, 
+                    ((Screen->width / 2) - (Layout.gap_vertical * 1.5f)), 
+                    (Screen->height - (Layout.gap_y * 1.5f)));
+        else if(Name == "upper horizontal split")
+            SetWindowLayoutValues(&Layout, 
+                    Screen->x + Layout.gap_x, 
+                    Screen->y + Layout.gap_y, 
+                    (Screen->width - (Layout.gap_vertical * 2)), 
+                    ((Screen->height / 2) - (Layout.gap_horizontal * 1.0f)));
+        else if(Name == "lower horizontal split")
+            SetWindowLayoutValues(&Layout, 
+                    Screen->x + Layout.gap_x, 
+                    Screen->y + ((Screen->height / 2) + (Layout.gap_horizontal * 0.5f) + (Layout.gap_y / 8)), 
+                    (Screen->width - (Layout.gap_vertical * 2)), 
+                    ((Screen->height / 2) - (Layout.gap_horizontal * 1.0f)));
+        else if(Name == "upper left split")
+            SetWindowLayoutValues(&Layout, 
+                    Screen->x + Layout.gap_x, 
+                    Screen->y + Layout.gap_y, 
+                    ((Screen->width / 2) - (Layout.gap_vertical * 1.5f)), 
+                    ((Screen->height / 2) - (Layout.gap_horizontal * 1.0f)));
+        else if(Name == "lower left split")
+            SetWindowLayoutValues(&Layout, 
+                    Screen->x + Layout.gap_x, 
+                    Screen->y + ((Screen->height / 2) + (Layout.gap_horizontal * 0.5f) + (Layout.gap_y / 8)), 
+                    ((Screen->width / 2) - (Layout.gap_vertical * 1.5f)), 
+                    ((Screen->height / 2) - (Layout.gap_horizontal * 1.0f)));
+        else if(Name == "upper right split")
+            SetWindowLayoutValues(&Layout, 
+                    Screen->x + ((Screen->width / 2) + (Layout.gap_vertical * 0.5f)), 
+                    Screen->y + Layout.gap_y, 
+                    ((Screen->width / 2) - (Layout.gap_vertical * 1.5f)), 
+                    ((Screen->height / 2) - (Layout.gap_horizontal * 1.0f)));
+        else if(Name == "lower right split")
+            SetWindowLayoutValues(&Layout, 
+                    Screen->x + ((Screen->width / 2) + (Layout.gap_vertical * 0.5f)), 
+                    Screen->y + ((Screen->height / 2) + (Layout.gap_horizontal * 0.5f) + (Layout.gap_y / 8)), 
+                    ((Screen->width / 2) - (Layout.gap_vertical * 1.5f)), 
+                    ((Screen->height / 2) - (Layout.gap_horizontal * 1.0f)));
     }
 
-    return layout;
+    return Layout;
 }
 
 void InitWindowLayouts()
 {
-    window_layout screen_vertical_split;
-    screen_vertical_split.gap_x = 30;
-    screen_vertical_split.gap_y = 40;
-    screen_vertical_split.gap_vertical = 30;
-    screen_vertical_split.gap_horizontal = 30;
+    window_layout ScreenVerticalSplit;
+    ScreenVerticalSplit.gap_x = 30;
+    ScreenVerticalSplit.gap_y = 40;
+    ScreenVerticalSplit.gap_vertical = 30;
+    ScreenVerticalSplit.gap_horizontal = 30;
 
-    screen_vertical_split.name = "fullscreen";
-    LayoutLst.push_back(screen_vertical_split);
+    ScreenVerticalSplit.name = "fullscreen";
+    LayoutLst.push_back(ScreenVerticalSplit);
 
-    screen_vertical_split.name = "left vertical split";
-    LayoutLst.push_back(screen_vertical_split);
+    ScreenVerticalSplit.name = "left vertical split";
+    LayoutLst.push_back(ScreenVerticalSplit);
 
-    screen_vertical_split.name = "right vertical split";
-    LayoutLst.push_back(screen_vertical_split);
+    ScreenVerticalSplit.name = "right vertical split";
+    LayoutLst.push_back(ScreenVerticalSplit);
 
-    screen_vertical_split.name = "upper horizontal split";
-    LayoutLst.push_back(screen_vertical_split);
+    ScreenVerticalSplit.name = "upper horizontal split";
+    LayoutLst.push_back(ScreenVerticalSplit);
 
-    screen_vertical_split.name = "lower horizontal split";
-    LayoutLst.push_back(screen_vertical_split);
+    ScreenVerticalSplit.name = "lower horizontal split";
+    LayoutLst.push_back(ScreenVerticalSplit);
 
-    screen_vertical_split.name = "upper left split";
-    LayoutLst.push_back(screen_vertical_split);
+    ScreenVerticalSplit.name = "upper left split";
+    LayoutLst.push_back(ScreenVerticalSplit);
 
-    screen_vertical_split.name = "lower left split";
-    LayoutLst.push_back(screen_vertical_split);
+    ScreenVerticalSplit.name = "lower left split";
+    LayoutLst.push_back(ScreenVerticalSplit);
 
-    screen_vertical_split.name = "upper right split";
-    LayoutLst.push_back(screen_vertical_split);
+    ScreenVerticalSplit.name = "upper right split";
+    LayoutLst.push_back(ScreenVerticalSplit);
 
-    screen_vertical_split.name = "lower right split";
-    LayoutLst.push_back(screen_vertical_split);
+    ScreenVerticalSplit.name = "lower right split";
+    LayoutLst.push_back(ScreenVerticalSplit);
 
     // Screen Layouts
-    for(int screen_index = 0; screen_index < MaxDisplayCount; ++screen_index)
+    for(int ScreenIndex = 0; ScreenIndex < MaxDisplayCount; ++ScreenIndex)
     {
-        screen_layout layout_master;
+        screen_layout LayoutMaster;
 
-        window_group_layout layout_tall_left;
-        layout_tall_left.layouts.push_back(GetWindowLayoutForScreen(screen_index, "left vertical split"));
-        layout_tall_left.layouts.push_back(GetWindowLayoutForScreen(screen_index, "upper right split"));
-        layout_tall_left.layouts.push_back(GetWindowLayoutForScreen(screen_index, "lower right split"));
-        layout_master.layouts.push_back(layout_tall_left);
+        window_group_layout LayoutTallLeft;
+        LayoutTallLeft.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "left vertical split"));
+        LayoutTallLeft.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper right split"));
+        LayoutTallLeft.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower right split"));
+        LayoutMaster.layouts.push_back(LayoutTallLeft);
 
-        window_group_layout layout_tall_right;
-        layout_tall_right.layouts.push_back(GetWindowLayoutForScreen(screen_index, "upper left split"));
-        layout_tall_right.layouts.push_back(GetWindowLayoutForScreen(screen_index, "lower left split"));
-        layout_tall_right.layouts.push_back(GetWindowLayoutForScreen(screen_index, "right vertical split"));
-        layout_master.layouts.push_back(layout_tall_right);
+        window_group_layout LayoutTallRight;
+        LayoutTallRight.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper left split"));
+        LayoutTallRight.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower left split"));
+        LayoutTallRight.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "right vertical split"));
+        LayoutMaster.layouts.push_back(LayoutTallRight);
 
-        window_group_layout layout_vertical_split;
-        layout_vertical_split.layouts.push_back(GetWindowLayoutForScreen(screen_index, "left vertical split"));
-        layout_vertical_split.layouts.push_back(GetWindowLayoutForScreen(screen_index, "right vertical split"));
-        layout_master.layouts.push_back(layout_vertical_split);
+        window_group_layout LayoutVerticalSplit;
+        LayoutVerticalSplit.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "left vertical split"));
+        LayoutVerticalSplit.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "right vertical split"));
+        LayoutMaster.layouts.push_back(LayoutVerticalSplit);
 
-        window_group_layout layout_quarters;
-        layout_quarters.layouts.push_back(GetWindowLayoutForScreen(screen_index, "upper left split"));
-        layout_quarters.layouts.push_back(GetWindowLayoutForScreen(screen_index, "lower left split"));
-        layout_quarters.layouts.push_back(GetWindowLayoutForScreen(screen_index, "upper right split"));
-        layout_quarters.layouts.push_back(GetWindowLayoutForScreen(screen_index, "lower right split"));
-        layout_master.layouts.push_back(layout_quarters);
+        window_group_layout LayoutQuarters;
+        LayoutQuarters.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper left split"));
+        LayoutQuarters.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower left split"));
+        LayoutQuarters.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper right split"));
+        LayoutQuarters.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower right split"));
+        LayoutMaster.layouts.push_back(LayoutQuarters);
 
-        window_group_layout layout_fullscreen;
-        layout_fullscreen.layouts.push_back(GetWindowLayoutForScreen(screen_index, "fullscreen"));
-        layout_master.layouts.push_back(layout_fullscreen);
+        window_group_layout LayoutFullscreen;
+        LayoutFullscreen.layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "fullscreen"));
+        LayoutMaster.layouts.push_back(LayoutFullscreen);
 
-        layout_master.number_of_layouts = layout_master.layouts.size();;
-        ScreenLayoutLst.push_back(layout_master);
+        LayoutMaster.number_of_layouts = LayoutMaster.layouts.size();;
+        ScreenLayoutLst.push_back(LayoutMaster);
     }
 }

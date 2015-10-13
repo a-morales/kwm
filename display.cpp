@@ -12,62 +12,62 @@ extern window_info FocusedWindow;
 void GetActiveDisplays()
 {
     CGGetActiveDisplayList(MaxDisplayCount, (CGDirectDisplayID*)&ActiveDisplays, &ActiveDisplaysCount);
-    for(int display_index = 0; display_index < ActiveDisplaysCount; ++display_index)
+    for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
     {
-        CGRect display_rect = CGDisplayBounds(ActiveDisplays[display_index]);
-        screen_info screen;
-        screen.id = display_index;
-        screen.x = display_rect.origin.x;
-        screen.y = display_rect.origin.y;
-        screen.width = display_rect.size.width;
-        screen.height = display_rect.size.height;
-        DisplayLst.push_back(screen);
+        CGRect DisplayRect = CGDisplayBounds(ActiveDisplays[DisplayIndex]);
+        screen_info Screen;
+        Screen.id = DisplayIndex;
+        Screen.x = DisplayRect.origin.x;
+        Screen.y = DisplayRect.origin.y;
+        Screen.width = DisplayRect.size.width;
+        Screen.height = DisplayRect.size.height;
+        DisplayLst.push_back(Screen);
     }
 }
 
-screen_info *GetDisplayOfWindow(window_info *window)
+screen_info *GetDisplayOfWindow(window_info *Window)
 {
-    for(int display_index = 0; display_index < ActiveDisplaysCount; ++display_index)
+    for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
     {
-        screen_info *screen = &DisplayLst[display_index];
-        if(window->x >= screen->x && window->x <= screen->x + screen->width)
-            return screen;
+        screen_info *Screen = &DisplayLst[DisplayIndex];
+        if(Window->x >= Screen->x && Window->x <= Screen->x + Screen->width)
+            return Screen;
     }
 
     return NULL;
 }
 
-std::vector<window_info*> GetAllWindowsOnDisplay(int screen_index)
+std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
 {
-    screen_info *screen = &DisplayLst[screen_index];
-    std::vector<window_info*> screen_WindowLst;
-    for(int window_index = 0; window_index < WindowLst.size(); ++window_index)
+    screen_info *Screen = &DisplayLst[ScreenIndex];
+    std::vector<window_info*> ScreenWindowLst;
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-        window_info *window = &WindowLst[window_index];
-        if(window->x >= screen->x && window->x <= screen->x + screen->width)
-            screen_WindowLst.push_back(window);
+        window_info *Window = &WindowLst[WindowIndex];
+        if(Window->x >= Screen->x && Window->x <= Screen->x + Screen->width)
+            ScreenWindowLst.push_back(Window);
     }
 
-    return screen_WindowLst;
+    return ScreenWindowLst;
 }
 
-void CycleFocusedWindowDisplay(int shift)
+void CycleFocusedWindowDisplay(int Shift)
 {
-    screen_info *cur_screen = GetDisplayOfWindow(&FocusedWindow);
-    int new_screen_index;
+    screen_info *Screen = GetDisplayOfWindow(&FocusedWindow);
+    int NewScreenIndex;
 
-    if(shift == 1)
-        new_screen_index = (cur_screen->id + 1 >= ActiveDisplaysCount) ? 0 : cur_screen->id + 1;
-    else if(shift == -1)
-        new_screen_index = (cur_screen->id - 1 < 0) ? ActiveDisplaysCount - 1 : cur_screen->id - 1;
+    if(Shift == 1)
+        NewScreenIndex = (Screen->id + 1 >= ActiveDisplaysCount) ? 0 : Screen->id + 1;
+    else if(Shift == -1)
+        NewScreenIndex = (Screen->id - 1 < 0) ? ActiveDisplaysCount - 1 : Screen->id - 1;
     else
         return;
 
-    screen_info *screen = &DisplayLst[new_screen_index];
+    screen_info *NewScreen = &DisplayLst[NewScreenIndex];
     SetWindowDimensions(FocusedWindowRef,
             &FocusedWindow,
-            screen->x + 30, 
-            screen->y + 40,
+            NewScreen->x + 30, 
+            NewScreen->y + 40,
             FocusedWindow.width,
             FocusedWindow.height);
 }
