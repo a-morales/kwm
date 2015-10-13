@@ -99,9 +99,7 @@ int main(int argc, char **argv)
     event_mask = ((1 << kCGEventKeyDown) | (1 << kCGEventKeyUp) | (1 << kCGEventMouseMoved));
     event_tap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, event_mask, cgevent_callback, NULL);
 
-    if(event_tap && CGEventTapIsEnabled(event_tap))
-        std::cout << "tapping keys.." << std::endl;
-    else
+    if(!event_tap || !CGEventTapIsEnabled(event_tap))
         fatal("could not tap keys, try running as root");
 
     get_active_displays();
