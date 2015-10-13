@@ -1,68 +1,68 @@
 #include "kwm.h"
 
-std::vector<spaces_info> spaces_lst;
-std::vector<screen_info> display_lst;
-std::vector<window_info> window_lst;
-std::vector<screen_layout> screen_layout_lst;
-std::vector<window_layout> layout_lst;
+std::vector<spaces_info> SpacesLst;
+std::vector<screen_info> DisplayLst;
+std::vector<window_info> WindowLst;
+std::vector<screen_layout> ScreenLayoutLst;
+std::vector<window_layout> LayoutLst;
 
-ProcessSerialNumber focused_psn;
-AXUIElementRef focused_window_ref;
-window_info focused_window;
+ProcessSerialNumber FocusedPSN;
+AXUIElementRef FocusedWindowRef;
+window_info FocusedWindow;
 
-bool toggle_tap = true;
-bool enable_auto_raise = true;
+bool ToggleTap = true;
+bool EnableAutoraise = true;
 
-uint32_t max_display_count = 5;
-uint32_t active_displays_count;
-CGDirectDisplayID active_displays[5];
+uint32_t MaxDisplayCount = 5;
+uint32_t ActiveDisplaysCount;
+CGDirectDisplayID ActiveDisplays[5];
 
-void fatal(const std::string &err)
+void Fatal(const std::string &Err)
 {
-    std::cout << err << std::endl;
+    std::cout << Err << std::endl;
     exit(1);
 }
 
-bool check_privileges()
+bool CheckPrivileges()
 {
-    const void * keys[] = { kAXTrustedCheckOptionPrompt };
-    const void * values[] = { kCFBooleanTrue };
+    const void * Keys[] = { kAXTrustedCheckOptionPrompt };
+    const void * Values[] = { kCFBooleanTrue };
 
-    CFDictionaryRef options;
-    options = CFDictionaryCreate(kCFAllocatorDefault, 
-            keys, values, sizeof(keys) / sizeof(*keys),
+    CFDictionaryRef Options;
+    Options = CFDictionaryCreate(kCFAllocatorDefault, 
+            Keys, Values, sizeof(Keys) / sizeof(*Keys),
             &kCFCopyStringDictionaryKeyCallBacks,
             &kCFTypeDictionaryValueCallBacks);
 
-    return AXIsProcessTrustedWithOptions(options);
+    return AXIsProcessTrustedWithOptions(Options);
 }
 
-CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
+CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
-    if(type == kCGEventKeyDown)
+    if(Type == kCGEventKeyDown)
     {
-        CGEventFlags flags = CGEventGetFlags(event);
-        bool cmd_key = (flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
-        bool alt_key = (flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
-        bool ctrl_key = (flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
-        CGKeyCode keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+        CGEventFlags Flags = CGEventGetFlags(Event);
+        bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
+        bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
+        bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
+        CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
         // Toggle keytap on | off
-        if(kwm_hotkey_commands(cmd_key, ctrl_key, alt_key, keycode))
+        if(KwmHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
             return NULL;
 
         // Let system hotkeys pass through as normal
-        if(system_hotkey_passthrough(cmd_key, ctrl_key, alt_key, keycode))
-            return event;
+        if(SystemHotkeyPassthrough(CmdKey, CtrlKey, AltKey, Keycode))
+            return Event;
             
         // capture custom hotkeys
-        if(custom_hotkey_commands(cmd_key, ctrl_key, alt_key, keycode))
+        if(CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
             return NULL;
 
-        if(toggle_tap)
+        if(ToggleTap)
         {
-            CGEventSetIntegerValueField(event, kCGKeyboardEventAutorepeat, 0);
-            CGEventPostToPSN(&focused_psn, event);
+            CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
+            CGEventPostToPSN(&FocusedPSN, Event);
             return NULL;
         }
         else
@@ -77,39 +77,39 @@ CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
             }
 
             */
-            return event;
+            return Event;
         }
 
     }
-    else if(type == kCGEventMouseMoved)
-        detect_window_below_cursor();
+    else if(Type == kCGEventMouseMoved)
+        DetectWindowBelowCursor();
 
-    return event;
+    return Event;
 }
 
 int main(int argc, char **argv)
 {
-    if(!check_privileges())
-        fatal("Could not access OSX Accessibility!"); 
+    if(!CheckPrivileges())
+        Fatal("Could not access OSX Accessibility!"); 
 
-    CFMachPortRef event_tap;
-    CGEventMask event_mask;
-    CFRunLoopSourceRef run_loop_source;
+    CFMachPortRef EventTap;
+    CGEventMask EventMask;
+    CFRunLoopSourceRef RunLoopSource;
 
-    event_mask = ((1 << kCGEventKeyDown) | (1 << kCGEventKeyUp) | (1 << kCGEventMouseMoved));
-    event_tap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, event_mask, cgevent_callback, NULL);
+    EventMask = ((1 << kCGEventKeyDown) | (1 << kCGEventKeyUp) | (1 << kCGEventMouseMoved));
+    EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, EventMask, CGEventCallback, NULL);
 
-    if(!event_tap || !CGEventTapIsEnabled(event_tap))
-        fatal("could not tap keys, try running as root");
+    if(!EventTap || !CGEventTapIsEnabled(EventTap))
+        Fatal("could not tap keys, try running as root");
 
-    get_active_displays();
-    init_window_layouts();
-    get_active_spaces();
-    detect_window_below_cursor();
+    GetActiveDisplays();
+    InitWindowLayouts();
+    GetActiveSpaces();
+    DetectWindowBelowCursor();
 
-    run_loop_source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, event_tap, 0);
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), run_loop_source, kCFRunLoopCommonModes);
-    CGEventTapEnable(event_tap, true);
+    RunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, EventTap, 0);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), RunLoopSource, kCFRunLoopCommonModes);
+    CGEventTapEnable(EventTap, true);
     CFRunLoopRun();
     return 0;
 }

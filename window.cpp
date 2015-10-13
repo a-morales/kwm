@@ -1,15 +1,15 @@
 #include "kwm.h"
 
-static CGWindowListOption osx_window_list_option = kCGWindowListOptionOnScreenOnly | 
+static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | 
                                                    kCGWindowListExcludeDesktopElements;
 
-extern std::vector<window_info> window_lst;
-extern ProcessSerialNumber focused_psn;
-extern AXUIElementRef focused_window_ref;
-extern window_info focused_window;
-extern bool enable_auto_raise;
+extern std::vector<window_info> WindowLst;
+extern ProcessSerialNumber FocusedPSN;
+extern AXUIElementRef FocusedWindowRef;
+extern window_info FocusedWindow;
+extern bool EnableAutoraise;
 
-bool windows_are_equal(window_info *window, window_info *match)
+bool WindowsAreEqual(window_info *window, window_info *match)
 {
     if(window->x == match->x &&
         window->y == match->y &&
@@ -21,7 +21,7 @@ bool windows_are_equal(window_info *window, window_info *match)
     return false;
 }
 
-bool is_window_below_cursor(window_info *window)
+bool IsWindowBelowCursor(window_info *window)
 {
     CGEventRef event = CGEventCreate(NULL);
     CGPoint cursor = CGEventGetLocation(event);
@@ -35,54 +35,54 @@ bool is_window_below_cursor(window_info *window)
     return false;
 }
 
-void detect_window_below_cursor()
+void DetectWindowBelowCursor()
 {
-    window_lst.clear();
+    WindowLst.clear();
 
-    CFArrayRef osx_window_list = CGWindowListCopyWindowInfo(osx_window_list_option, kCGNullWindowID);
+    CFArrayRef osx_window_list = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
     if(osx_window_list)
     {
         CFIndex osx_window_count = CFArrayGetCount(osx_window_list);
         for(CFIndex osx_window_index = 0; osx_window_index < osx_window_count; ++osx_window_index)
         {
             CFDictionaryRef elem = (CFDictionaryRef)CFArrayGetValueAtIndex(osx_window_list, osx_window_index);
-            window_lst.push_back(window_info());
-            CFDictionaryApplyFunction(elem, get_window_info, NULL);
+            WindowLst.push_back(window_info());
+            CFDictionaryApplyFunction(elem, GetWindowInfo, NULL);
         }
         CFRelease(osx_window_list);
 
-        for(int i = 0; i < window_lst.size(); ++i)
+        for(int i = 0; i < WindowLst.size(); ++i)
         {
-            if(is_window_below_cursor(&window_lst[i]))
+            if(IsWindowBelowCursor(&WindowLst[i]))
             {
-                if(!windows_are_equal(&focused_window, &window_lst[i]))
+                if(!WindowsAreEqual(&FocusedWindow, &WindowLst[i]))
                 {
                     ProcessSerialNumber newpsn;
-                    GetProcessForPID(window_lst[i].pid, &newpsn);
+                    GetProcessForPID(WindowLst[i].pid, &newpsn);
 
-                    focused_psn = newpsn;
-                    focused_window = window_lst[i];
+                    FocusedPSN = newpsn;
+                    FocusedWindow = WindowLst[i];
 
                     AXUIElementRef window_ref;
-                    if(get_window_ref(&focused_window, &window_ref))
+                    if(GetWindowRef(&FocusedWindow, &window_ref))
                     {
                         AXUIElementSetAttributeValue(window_ref, kAXMainAttribute, kCFBooleanTrue);
                         AXUIElementSetAttributeValue(window_ref, kAXFocusedAttribute, kCFBooleanTrue);
                         AXUIElementPerformAction (window_ref, kAXRaiseAction);
 
-                        if(focused_window_ref != NULL)
-                            CFRelease(focused_window_ref);
+                        if(FocusedWindowRef != NULL)
+                            CFRelease(FocusedWindowRef);
 
-                        focused_window_ref = window_ref;
-                        std::cout << "current space: " << get_space_of_window(&focused_window) << std::endl;
+                        FocusedWindowRef = window_ref;
+                        std::cout << "current space: " << GetSpaceOfWindow(&FocusedWindow) << std::endl;
                     }
 
-                    if(enable_auto_raise)
-                        SetFrontProcessWithOptions(&focused_psn, kSetFrontProcessFrontWindowOnly);
+                    if(EnableAutoraise)
+                        SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
-                    std::cout << "Keyboard focus: " << focused_window.pid << std::endl;
-                    if(focused_window.layout)
-                        std::cout << focused_window.layout->name << std::endl;
+                    std::cout << "Keyboard focus: " << FocusedWindow.pid << std::endl;
+                    if(FocusedWindow.layout)
+                        std::cout << FocusedWindow.layout->name << std::endl;
                 }
                 break;
             }
@@ -90,9 +90,9 @@ void detect_window_below_cursor()
     }
 }
 
-bool get_expression_from_shift_direction(window_info *window, const std::string &direction)
+bool GetExpressionFromShiftDirection(window_info *window, const std::string &direction)
 {
-    get_layout_of_window(window);
+    GetLayoutOfWindow(window);
     if(!window->layout)
         return false;
 
@@ -102,24 +102,24 @@ bool get_expression_from_shift_direction(window_info *window, const std::string 
     else if(direction == "next")
         shift = 1;
 
-    return (window->layout_index == focused_window.layout_index + shift);
+    return (window->layout_index == FocusedWindow.layout_index + shift);
 }
 
-void shift_window_focus(const std::string &direction)
+void ShiftWindowFocus(const std::string &direction)
 {
-    window_layout *focused_window_layout = get_layout_of_window(&focused_window);
-    if(!focused_window_layout)
+    window_layout *FocusedWindow_layout = GetLayoutOfWindow(&FocusedWindow);
+    if(!FocusedWindow_layout)
         return;
 
-    int screen_index = get_display_of_window(&focused_window)->id;
-    std::vector<window_info*> screen_window_lst = get_all_windows_on_display(screen_index);
-    for(int window_index = 0; window_index < screen_window_lst.size(); ++window_index)
+    int screen_index = GetDisplayOfWindow(&FocusedWindow)->id;
+    std::vector<window_info*> screen_WindowLst = GetAllWindowsOnDisplay(screen_index);
+    for(int window_index = 0; window_index < screen_WindowLst.size(); ++window_index)
     {
-        window_info *window = screen_window_lst[window_index];
-        if(get_expression_from_shift_direction(window, direction))
+        window_info *window = screen_WindowLst[window_index];
+        if(GetExpressionFromShiftDirection(window, direction))
         {
             AXUIElementRef window_ref;
-            if(get_window_ref(window, &window_ref))
+            if(GetWindowRef(window, &window_ref))
             {
                 ProcessSerialNumber newpsn;
                 GetProcessForPID(window->pid, &newpsn);
@@ -130,19 +130,19 @@ void shift_window_focus(const std::string &direction)
 
                 SetFrontProcessWithOptions(&newpsn, kSetFrontProcessFrontWindowOnly);
 
-                if(focused_window_ref != NULL)
-                    CFRelease(focused_window_ref);
+                if(FocusedWindowRef != NULL)
+                    CFRelease(FocusedWindowRef);
 
-                focused_window_ref = window_ref;
-                focused_window = *window;
-                focused_psn = newpsn;
+                FocusedWindowRef = window_ref;
+                FocusedWindow = *window;
+                FocusedPSN = newpsn;
             }
             break;
         }
     }
 }
 
-void set_window_dimensions(AXUIElementRef app_window, window_info *window, int x, int y, int width, int height)
+void SetWindowDimensions(AXUIElementRef app_window, window_info *window, int x, int y, int width, int height)
 {
     if(app_window != NULL)
     {
@@ -162,7 +162,7 @@ void set_window_dimensions(AXUIElementRef app_window, window_info *window, int x
         window->width = window_size.width;
         window->height = window_size.height;
 
-        get_layout_of_window(window);
+        GetLayoutOfWindow(window);
 
         if(new_window_pos != NULL)
             CFRelease(new_window_pos);
@@ -171,22 +171,22 @@ void set_window_dimensions(AXUIElementRef app_window, window_info *window, int x
     }
 }
 
-bool get_window_ref(window_info *window, AXUIElementRef *window_ref)
+bool GetWindowRef(window_info *window, AXUIElementRef *window_ref)
 {
     AXUIElementRef app = AXUIElementCreateApplication(window->pid);
-    CFArrayRef app_window_lst;
+    CFArrayRef app_WindowLst;
     bool result = false;
     
     if(app)
     {
-        AXError error = AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, (CFTypeRef*)&app_window_lst);
+        AXError error = AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, (CFTypeRef*)&app_WindowLst);
         if(error == kAXErrorSuccess)
         {
             CFIndex do_not_free = -1;
-            CFIndex app_window_count = CFArrayGetCount(app_window_lst);
+            CFIndex app_window_count = CFArrayGetCount(app_WindowLst);
             for(CFIndex window_index = 0; window_index < app_window_count; ++window_index)
             {
-                AXUIElementRef app_window_ref = (AXUIElementRef)CFArrayGetValueAtIndex(app_window_lst, window_index);
+                AXUIElementRef app_window_ref = (AXUIElementRef)CFArrayGetValueAtIndex(app_WindowLst, window_index);
                 if(app_window_ref != NULL)
                 {
                     if(!result)
@@ -239,7 +239,7 @@ bool get_window_ref(window_info *window, AXUIElementRef *window_ref)
 }
 
 // Currently not in use
-window_info get_window_info_from_ref(AXUIElementRef window_ref)
+window_info GetWindowInfoFromRef(AXUIElementRef window_ref)
 {
     window_info info;
     info.name = "invalid";
@@ -275,7 +275,7 @@ window_info get_window_info_from_ref(AXUIElementRef window_ref)
     }
 }
 
-void get_window_info(const void *key, const void *value, void *context)
+void GetWindowInfo(const void *key, const void *value, void *context)
 {
     CFStringRef k = (CFStringRef)key;
     std::string key_str = CFStringGetCStringPtr(k, kCFStringEncodingMacRoman);
@@ -288,7 +288,7 @@ void get_window_info(const void *key, const void *value, void *context)
         {
             std::string value_str = CFStringGetCStringPtr(v, kCFStringEncodingMacRoman);
             if(key_str == "kCGWindowName")
-                window_lst[window_lst.size()-1].name = value_str;
+                WindowLst[WindowLst.size()-1].name = value_str;
         }
     }
     else if(id == CFNumberGetTypeID())
@@ -297,21 +297,21 @@ void get_window_info(const void *key, const void *value, void *context)
         CFNumberRef v = (CFNumberRef)value;
         CFNumberGetValue(v, kCFNumberSInt64Type, &myint);
         if(key_str == "kCGWindowNumber")
-            window_lst[window_lst.size()-1].wid = myint;
+            WindowLst[WindowLst.size()-1].wid = myint;
         else if(key_str == "kCGWindowOwnerPID")
-            window_lst[window_lst.size()-1].pid = myint;
+            WindowLst[WindowLst.size()-1].pid = myint;
         else if(key_str == "X")
-            window_lst[window_lst.size()-1].x = myint;
+            WindowLst[WindowLst.size()-1].x = myint;
         else if(key_str == "Y")
-            window_lst[window_lst.size()-1].y = myint;
+            WindowLst[WindowLst.size()-1].y = myint;
         else if(key_str == "Width")
-            window_lst[window_lst.size()-1].width = myint;
+            WindowLst[WindowLst.size()-1].width = myint;
         else if(key_str == "Height")
-            window_lst[window_lst.size()-1].height = myint;
+            WindowLst[WindowLst.size()-1].height = myint;
     }
     else if(id == CFDictionaryGetTypeID())
     {
         CFDictionaryRef elem = (CFDictionaryRef)value;
-        CFDictionaryApplyFunction(elem, get_window_info, NULL);
+        CFDictionaryApplyFunction(elem, GetWindowInfo, NULL);
     } 
 }

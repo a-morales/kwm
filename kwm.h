@@ -57,47 +57,46 @@ struct spaces_info
     std::vector<int> windows;
 };
 
-bool check_privileges();
-void request_privileges();
+bool CheckPrivileges();
 
-void get_active_displays();
-screen_info *get_display_of_window(window_info *window);
-std::vector<window_info*> get_all_windows_on_display(int screen_index);
+void GetActiveDisplays();
+screen_info *GetDisplayOfWindow(window_info *window);
+std::vector<window_info*> GetAllWindowsOnDisplay(int screen_index);
 
-int get_space_of_window(window_info *window);
-void get_spaces_info(const void *key, const void *value, void *context);
-void refresh_active_spaces_info();
-void get_active_spaces();
+int GetSpaceOfWindow(window_info *window);
+void GetSpacesInfo(const void *key, const void *value, void *context);
+void RefreshActiveSpacesInfo();
+void GetActiveSpaces();
 
-void apply_layout_for_display(int screen_index);
-void cycle_focused_window_layout(int screen_index, int shift);
-void cycle_window_inside_layout(int screen_index);
-void cycle_focused_window_display(int shift);
+void ApplyLayoutForDisplay(int screen_index);
+void CycleFocusedWindowLayout(int screen_index, int shift);
+void CycleWindowInsideLayout(int screen_index);
+void CycleFocusedWindowDisplay(int shift);
 
-bool get_expression_from_shift_direction(window_info *window, const std::string &direction);
-void shift_window_focus(const std::string &direction);
+bool GetExpressionFromShiftDirection(window_info *window, const std::string &direction);
+void ShiftWindowFocus(const std::string &direction);
 
-void init_window_layouts();
-void set_window_layout_values(window_layout *layout, int x, int y, int width, int height);
-window_layout get_window_layout_for_screen(int screen_index, const std::string &name);
+void InitWindowLayouts();
+void SetWindowLayoutValues(window_layout *layout, int x, int y, int width, int height);
+window_layout GetWindowLayoutForScreen(int screen_index, const std::string &name);
 
-void set_window_dimensions(AXUIElementRef app_window, window_info *window, int x, int y, int width, int height);
-window_layout *get_layout_of_window(window_info *window);
-bool window_has_layout(window_info *window, window_layout *layout);
+void SetWindowDimensions(AXUIElementRef app_window, window_info *window, int x, int y, int width, int height);
+window_layout *GetLayoutOfWindow(window_info *window);
+bool WindowHasLayout(window_info *window, window_layout *layout);
 
-bool kwm_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
-bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
-bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
+bool KwmHotkeyCommands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
+bool SystemHotkeyPassthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
+bool CustomHotkeyCommands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode);
 
-bool is_window_below_cursor(window_info *window);
-void detect_window_below_cursor();
+bool IsWindowBelowCursor(window_info *window);
+void DetectWindowBelowCursor();
 
-bool get_window_ref(window_info *window, AXUIElementRef *window_ref);
-void get_window_info(const void *key, const void *value, void *context);
-window_info get_window_info_from_ref(AXUIElementRef window_ref);
-bool windows_are_equal(window_info *window, window_info *match);
+bool GetWindowRef(window_info *window, AXUIElementRef *window_ref);
+void GetWindowInfo(const void *key, const void *value, void *context);
+window_info GetWindowInfoFromRef(AXUIElementRef window_ref);
+bool WindowsAreEqual(window_info *window, window_info *match);
 
-CGEventRef cgevent_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
-void fatal(const std::string &err);
+CGEventRef CGEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
+void Fatal(const std::string &err);
 
 #endif

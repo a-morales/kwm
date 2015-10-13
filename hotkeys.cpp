@@ -1,29 +1,29 @@
 #include "kwm.h"
 
-extern AXUIElementRef focused_window_ref;
-extern window_info focused_window;
-extern bool toggle_tap;
-extern bool enable_auto_raise;
+extern AXUIElementRef FocusedWindowRef;
+extern window_info FocusedWindow;
+extern bool ToggleTap;
+extern bool EnableAutoraise;
 
 static const CGKeyCode kVK_SPECIAL_Å = 0x21;
 static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
 static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
 
-bool kwm_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
+bool KwmHotkeyCommands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
 {
     if(cmd_key && alt_key && ctrl_key)
     {
         if(keycode == kVK_ANSI_T)
         {
-            toggle_tap = !toggle_tap;
-            std::cout << (toggle_tap ? "tap enabled" : "tap disabled") << std::endl;
+            ToggleTap = !ToggleTap;
+            std::cout << (ToggleTap ? "tap enabled" : "tap disabled") << std::endl;
             return true;
         }
 
         if(keycode == kVK_ANSI_R)
         {
-            enable_auto_raise = !enable_auto_raise;
-            std::cout << (enable_auto_raise ? "autoraise enabled" : "autoraise disabled") << std::endl;
+            EnableAutoraise = !EnableAutoraise;
+            std::cout << (EnableAutoraise ? "autoraise enabled" : "autoraise disabled") << std::endl;
             return true;
         }
     }
@@ -31,14 +31,14 @@ bool kwm_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode ke
     return false;
 }
 
-bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
+bool SystemHotkeyPassthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
 {
     // Spotlight fix
     if (cmd_key && !ctrl_key && !alt_key)
     {
         if (keycode == kVK_Space)
         {
-            toggle_tap = false;
+            ToggleTap = false;
             std::cout << "tap disabled" << std::endl;
             return true;
         }
@@ -49,7 +49,7 @@ bool system_hotkey_passthrough(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyC
     return false;
 }
 
-bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
+bool CustomHotkeyCommands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode keycode)
 {
     if(cmd_key && alt_key && ctrl_key)
     {
@@ -77,7 +77,7 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         // Toggle Screen Layout
         if(keycode == kVK_Space)
         {
-            apply_layout_for_display(get_display_of_window(&focused_window)->id);
+            ApplyLayoutForDisplay(GetDisplayOfWindow(&FocusedWindow)->id);
             return true;
         }
 
@@ -85,59 +85,59 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         window_layout layout;
         layout.name = "invalid";
         if(keycode == kVK_ANSI_M)
-            layout = get_window_layout_for_screen(get_display_of_window(&focused_window)->id, "fullscreen");
+            layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->id, "fullscreen");
         else if(keycode == kVK_LeftArrow)
-            layout = get_window_layout_for_screen(get_display_of_window(&focused_window)->id, "left vertical split");
+            layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->id, "left vertical split");
         else if(keycode == kVK_RightArrow)
-            layout = get_window_layout_for_screen(get_display_of_window(&focused_window)->id, "right vertical split");
+            layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->id, "right vertical split");
         else if(keycode == kVK_UpArrow)
-            layout = get_window_layout_for_screen(get_display_of_window(&focused_window)->id, "upper horizontal split");
+            layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->id, "upper horizontal split");
         else if(keycode == kVK_DownArrow)
-            layout = get_window_layout_for_screen(get_display_of_window(&focused_window)->id, "lower horizontal split");
+            layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->id, "lower horizontal split");
         else if(keycode == kVK_ANSI_P)
-            layout = get_window_layout_for_screen(get_display_of_window(&focused_window)->id, "upper left split");
+            layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->id, "upper left split");
         else if(keycode == kVK_SPECIAL_Ø)
-            layout = get_window_layout_for_screen(get_display_of_window(&focused_window)->id, "lower left split");
+            layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->id, "lower left split");
         else if(keycode == kVK_SPECIAL_Å)
-            layout = get_window_layout_for_screen(get_display_of_window(&focused_window)->id, "upper right split");
+            layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->id, "upper right split");
         else if(keycode == kVK_SPECIAL_Æ)
-            layout = get_window_layout_for_screen(get_display_of_window(&focused_window)->id, "lower right split");
+            layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->id, "lower right split");
 
         if(layout.name != "invalid")
         {
-            set_window_dimensions(focused_window_ref, &focused_window, layout.x, layout.y, layout.width, layout.height);
+            SetWindowDimensions(FocusedWindowRef, &FocusedWindow, layout.x, layout.y, layout.width, layout.height);
             return true;
         }
 
         // Window Resize
         if(keycode == kVK_ANSI_H)
-            set_window_dimensions(focused_window_ref, 
-                    &focused_window, 
-                    focused_window.x, 
-                    focused_window.y, 
-                    focused_window.width - 10, 
-                    focused_window.height);
+            SetWindowDimensions(FocusedWindowRef, 
+                    &FocusedWindow, 
+                    FocusedWindow.x, 
+                    FocusedWindow.y, 
+                    FocusedWindow.width - 10, 
+                    FocusedWindow.height);
         else if(keycode == kVK_ANSI_J)
-            set_window_dimensions(focused_window_ref, 
-                    &focused_window, 
-                    focused_window.x, 
-                    focused_window.y, 
-                    focused_window.width, 
-                    focused_window.height + 10);
+            SetWindowDimensions(FocusedWindowRef, 
+                    &FocusedWindow, 
+                    FocusedWindow.x, 
+                    FocusedWindow.y, 
+                    FocusedWindow.width, 
+                    FocusedWindow.height + 10);
         else if(keycode == kVK_ANSI_K)
-            set_window_dimensions(focused_window_ref, 
-                    &focused_window, 
-                    focused_window.x, 
-                    focused_window.y, 
-                    focused_window.width, 
-                    focused_window.height - 10);
+            SetWindowDimensions(FocusedWindowRef, 
+                    &FocusedWindow, 
+                    FocusedWindow.x, 
+                    FocusedWindow.y, 
+                    FocusedWindow.width, 
+                    FocusedWindow.height - 10);
         else if(keycode == kVK_ANSI_L)
-            set_window_dimensions(focused_window_ref, 
-                    &focused_window, 
-                    focused_window.x, 
-                    focused_window.y, 
-                    focused_window.width + 10, 
-                    focused_window.height);
+            SetWindowDimensions(FocusedWindowRef, 
+                    &FocusedWindow, 
+                    FocusedWindow.x, 
+                    FocusedWindow.y, 
+                    FocusedWindow.width + 10, 
+                    FocusedWindow.height);
     }
 
     if(cmd_key && ctrl_key && !alt_key)
@@ -146,43 +146,43 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         if(keycode == kVK_ANSI_P || keycode == kVK_ANSI_N)
         {
             if(keycode == kVK_ANSI_P)
-                cycle_focused_window_display(-1);
+                CycleFocusedWindowDisplay(-1);
 
             if(keycode == kVK_ANSI_N)
-                cycle_focused_window_display(1);
+                CycleFocusedWindowDisplay(1);
 
             return true;
         }
 
         // Move Window
         if(keycode == kVK_ANSI_H)
-            set_window_dimensions(focused_window_ref, 
-                    &focused_window, 
-                    focused_window.x - 10, 
-                    focused_window.y, 
-                    focused_window.width, 
-                    focused_window.height);
+            SetWindowDimensions(FocusedWindowRef, 
+                    &FocusedWindow, 
+                    FocusedWindow.x - 10, 
+                    FocusedWindow.y, 
+                    FocusedWindow.width, 
+                    FocusedWindow.height);
         else if(keycode == kVK_ANSI_J)
-            set_window_dimensions(focused_window_ref, 
-                    &focused_window, 
-                    focused_window.x, 
-                    focused_window.y + 10, 
-                    focused_window.width, 
-                    focused_window.height);
+            SetWindowDimensions(FocusedWindowRef, 
+                    &FocusedWindow, 
+                    FocusedWindow.x, 
+                    FocusedWindow.y + 10, 
+                    FocusedWindow.width, 
+                    FocusedWindow.height);
         else if(keycode == kVK_ANSI_K)
-            set_window_dimensions(focused_window_ref, 
-                    &focused_window, 
-                    focused_window.x, 
-                    focused_window.y - 10, 
-                    focused_window.width, 
-                    focused_window.height);
+            SetWindowDimensions(FocusedWindowRef, 
+                    &FocusedWindow, 
+                    FocusedWindow.x, 
+                    FocusedWindow.y - 10, 
+                    FocusedWindow.width, 
+                    FocusedWindow.height);
         else if(keycode == kVK_ANSI_L)
-            set_window_dimensions(focused_window_ref, 
-                    &focused_window, 
-                    focused_window.x + 10, 
-                    focused_window.y, 
-                    focused_window.width, 
-                    focused_window.height);
+            SetWindowDimensions(FocusedWindowRef, 
+                    &FocusedWindow, 
+                    FocusedWindow.x + 10, 
+                    FocusedWindow.y, 
+                    FocusedWindow.width, 
+                    FocusedWindow.height);
     }
 
     if(cmd_key && alt_key && !ctrl_key)
@@ -191,10 +191,10 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         if(keycode == kVK_ANSI_P || keycode == kVK_ANSI_N)
         {
             if(keycode == kVK_ANSI_P)
-                cycle_focused_window_layout(get_display_of_window(&focused_window)->id, -1);
+                CycleFocusedWindowLayout(GetDisplayOfWindow(&FocusedWindow)->id, -1);
 
             if(keycode == kVK_ANSI_N)
-                cycle_focused_window_layout(get_display_of_window(&focused_window)->id, 1);
+                CycleFocusedWindowLayout(GetDisplayOfWindow(&FocusedWindow)->id, 1);
 
             return true;
         }
@@ -202,7 +202,7 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         // Cycle window inside focused layout
         if(keycode == kVK_Tab)
         {
-            cycle_window_inside_layout(get_display_of_window(&focused_window)->id);
+            CycleWindowInsideLayout(GetDisplayOfWindow(&FocusedWindow)->id);
             return true;
         }
 
@@ -210,9 +210,9 @@ bool custom_hotkey_commands(bool cmd_key, bool ctrl_key, bool alt_key, CGKeyCode
         if(keycode == kVK_ANSI_H || keycode == kVK_ANSI_L)
         {
             if(keycode == kVK_ANSI_H)
-                shift_window_focus("prev");
+                ShiftWindowFocus("prev");
             else if(keycode == kVK_ANSI_L)
-                shift_window_focus("next");
+                ShiftWindowFocus("next");
         
             return true;
         }

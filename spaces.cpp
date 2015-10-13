@@ -1,8 +1,8 @@
 #include "kwm.h"
 
-extern std::vector<spaces_info> spaces_lst;
+extern std::vector<spaces_info> SpacesLst;
 
-void get_active_spaces()
+void GetActiveSpaces()
 {
     CFStringRef spaces_plist = CFSTR("com.apple.spaces");
     CFStringRef spaces_key = CFSTR("SpacesDisplayConfiguration");
@@ -10,15 +10,15 @@ void get_active_spaces()
     CFArrayRef spaces_prop_list = (CFArrayRef) CFPreferencesCopyAppValue(spaces_key, spaces_plist); 
     if(spaces_prop_list)
     {
-        spaces_lst.clear();
+        SpacesLst.clear();
 
-        CFDictionaryApplyFunction((CFDictionaryRef)spaces_prop_list, get_spaces_info, NULL);
+        CFDictionaryApplyFunction((CFDictionaryRef)spaces_prop_list, GetSpacesInfo, NULL);
         CFRelease(spaces_prop_list);
 
-        for(int space_index = 0; space_index < spaces_lst.size(); ++space_index)
+        for(int space_index = 0; space_index < SpacesLst.size(); ++space_index)
         {
-            spaces_lst[space_index].active_layout_index = 0;
-            spaces_lst[space_index].next_layout_index = 0;
+            SpacesLst[space_index].active_layout_index = 0;
+            SpacesLst[space_index].next_layout_index = 0;
         }
     }
 
@@ -26,13 +26,13 @@ void get_active_spaces()
     CFRelease(spaces_plist);
 }
 
-int get_space_of_window(window_info *window)
+int GetSpaceOfWindow(window_info *window)
 {
-    for(int space_index = 0; space_index < spaces_lst.size(); ++space_index)
+    for(int space_index = 0; space_index < SpacesLst.size(); ++space_index)
     {
-        for(int window_index = 0; window_index < spaces_lst[space_index].windows.size(); ++window_index)
+        for(int window_index = 0; window_index < SpacesLst[space_index].windows.size(); ++window_index)
         {
-            if(window->wid == spaces_lst[space_index].windows[window_index])
+            if(window->wid == SpacesLst[space_index].windows[window_index])
                 return space_index;
         }
     }
@@ -40,28 +40,28 @@ int get_space_of_window(window_info *window)
     return -1;
 }
 
-void refresh_active_spaces_info()
+void RefreshActiveSpacesInfo()
 {
     std::vector<std::pair<int,int> > spaces_cache;
-    for(int space_index = 0; space_index < spaces_lst.size(); ++space_index)
+    for(int space_index = 0; space_index < SpacesLst.size(); ++space_index)
     {
-        std::pair<int,int> info = std::make_pair(spaces_lst[space_index].active_layout_index,
-                                                 spaces_lst[space_index].next_layout_index);
+        std::pair<int,int> info = std::make_pair(SpacesLst[space_index].active_layout_index,
+                                                 SpacesLst[space_index].next_layout_index);
         spaces_cache.push_back(info);
     }
 
-    get_active_spaces();
-    for(int space_index = 0; space_index < spaces_lst.size(); ++space_index)
+    GetActiveSpaces();
+    for(int space_index = 0; space_index < SpacesLst.size(); ++space_index)
     {
         if(space_index < spaces_cache.size())
         {
-            spaces_lst[space_index].active_layout_index = spaces_cache[space_index].first;
-            spaces_lst[space_index].next_layout_index = spaces_cache[space_index].second;
+            SpacesLst[space_index].active_layout_index = spaces_cache[space_index].first;
+            SpacesLst[space_index].next_layout_index = spaces_cache[space_index].second;
         }
     }
 }
 
-void get_spaces_info(const void *key, const void *value, void *context)
+void GetSpacesInfo(const void *key, const void *value, void *context)
 {
     CFStringRef k = (CFStringRef)key;
     std::string key_str = CFStringGetCStringPtr(k, kCFStringEncodingMacRoman);
@@ -82,13 +82,13 @@ void get_spaces_info(const void *key, const void *value, void *context)
                         CFNumberRef num = (CFNumberRef)CFArrayGetValueAtIndex(v, c);
                         int myint;
                         CFNumberGetValue(num, kCFNumberSInt64Type, &myint);
-                        spaces_lst[spaces_lst.size()-1].windows.push_back(myint);
+                        SpacesLst[SpacesLst.size()-1].windows.push_back(myint);
                     }
                     else
                     {
-                        spaces_lst.push_back(spaces_info());
+                        SpacesLst.push_back(spaces_info());
                         CFDictionaryRef elem = (CFDictionaryRef)CFArrayGetValueAtIndex(v, c);
-                        CFDictionaryApplyFunction(elem, get_spaces_info, NULL);
+                        CFDictionaryApplyFunction(elem, GetSpacesInfo, NULL);
                     }
                 }
             }
