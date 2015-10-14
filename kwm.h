@@ -34,6 +34,7 @@ struct window_layout
 struct window_group_layout
 {
     std::string Name;
+    std::vector<int> TileWID;
     std::vector<window_layout> Layouts;
 };
 
