@@ -11,11 +11,11 @@ extern bool EnableAutoraise;
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
-    if(Window->x == Match->x &&
-        Window->y == Match->y &&
-        Window->width == Match->width &&
-        Window->height == Match->height &&
-        Window->name == Match->name)
+    if(Window->X == Match->X &&
+        Window->Y == Match->Y &&
+        Window->Width == Match->Width &&
+        Window->Height == Match->Height &&
+        Window->Name == Match->Name)
             return true;
 
     return false;
@@ -26,10 +26,10 @@ bool IsWindowBelowCursor(window_info *Window)
     CGEventRef Event = CGEventCreate(NULL);
     CGPoint Cursor = CGEventGetLocation(Event);
     CFRelease(Event);
-    if(Cursor.x >= Window->x && 
-            Cursor.x <= Window->x + Window->width && 
-            Cursor.y >= Window->y && 
-            Cursor.y <= Window->y + Window->height)
+    if(Cursor.x >= Window->X && 
+            Cursor.x <= Window->X + Window->Width && 
+            Cursor.y >= Window->Y && 
+            Cursor.y <= Window->Y + Window->Height)
         return true;
         
     return false;
@@ -58,7 +58,7 @@ void DetectWindowBelowCursor()
                 if(!WindowsAreEqual(&FocusedWindow, &WindowLst[i]))
                 {
                     ProcessSerialNumber NewPSN;
-                    GetProcessForPID(WindowLst[i].pid, &NewPSN);
+                    GetProcessForPID(WindowLst[i].PID, &NewPSN);
 
                     FocusedPSN = NewPSN;
                     FocusedWindow = WindowLst[i];
@@ -80,9 +80,9 @@ void DetectWindowBelowCursor()
                     if(EnableAutoraise)
                         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
-                    std::cout << "Keyboard focus: " << FocusedWindow.pid << std::endl;
-                    if(FocusedWindow.layout)
-                        std::cout << FocusedWindow.layout->name << std::endl;
+                    std::cout << "Keyboard focus: " << FocusedWindow.PID << std::endl;
+                    if(FocusedWindow.Layout)
+                        std::cout << FocusedWindow.Layout->Name << std::endl;
                 }
                 break;
             }
@@ -93,7 +93,7 @@ void DetectWindowBelowCursor()
 bool GetExpressionFromShiftDirection(window_info *Window, const std::string &Direction)
 {
     GetLayoutOfWindow(Window);
-    if(!Window->layout)
+    if(!Window->Layout)
         return false;
 
     int Shift = 0;
@@ -102,7 +102,7 @@ bool GetExpressionFromShiftDirection(window_info *Window, const std::string &Dir
     else if(Direction == "next")
         Shift = 1;
 
-    return (Window->layout_index == FocusedWindow.layout_index + Shift);
+    return (Window->LayoutIndex == FocusedWindow.LayoutIndex + Shift);
 }
 
 void ShiftWindowFocus(const std::string &Direction)
@@ -111,7 +111,7 @@ void ShiftWindowFocus(const std::string &Direction)
     if(!FocusedWindowLayout)
         return;
 
-    int ScreenIndex = GetDisplayOfWindow(&FocusedWindow)->id;
+    int ScreenIndex = GetDisplayOfWindow(&FocusedWindow)->ID;
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
     {
@@ -122,7 +122,7 @@ void ShiftWindowFocus(const std::string &Direction)
             if(GetWindowRef(Window, &WindowRef))
             {
                 ProcessSerialNumber NewPSN;
-                GetProcessForPID(Window->pid, &NewPSN);
+                GetProcessForPID(Window->PID, &NewPSN);
 
                 AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
                 AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
@@ -154,14 +154,14 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
 
         if(AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos) == kAXErrorSuccess)
         {
-            Window->x = WindowPos.x;
-            Window->y = WindowPos.y;
+            Window->X = WindowPos.x;
+            Window->Y = WindowPos.y;
         }
 
         if(AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize) == kAXErrorSuccess)
         {
-            Window->width = WindowSize.width;
-            Window->height = WindowSize.height;
+            Window->Width = WindowSize.width;
+            Window->Height = WindowSize.height;
         }
 
         GetLayoutOfWindow(Window);
@@ -174,7 +174,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
 
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 {
-    AXUIElementRef App = AXUIElementCreateApplication(Window->pid);
+    AXUIElementRef App = AXUIElementCreateApplication(Window->PID);
     CFArrayRef AppWindowLst;
     bool Result = false;
     
@@ -215,11 +215,11 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
                         if(Temp != NULL)
                             CFRelease(Temp);
 
-                        if(Window->x == AppWindowPos.x && 
-                                Window->y == AppWindowPos.y &&
-                                Window->width == AppWindowSize.width && 
-                                Window->height == AppWindowSize.height &&
-                                Window->name == AppWindowName)
+                        if(Window->X == AppWindowPos.x && 
+                                Window->Y == AppWindowPos.y &&
+                                Window->Width == AppWindowSize.width && 
+                                Window->Height == AppWindowSize.height &&
+                                Window->Name == AppWindowName)
                         {
                             *WindowRef = AppWindowRef;
                             DoNotFree = WindowIndex;
@@ -243,7 +243,7 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 window_info GetWindowInfoFromRef(AXUIElementRef WindowRef)
 {
     window_info Info;
-    Info.name = "invalid";
+    Info.Name = "invalid";
     if(WindowRef != NULL)
     {
 
@@ -254,7 +254,7 @@ window_info GetWindowInfoFromRef(AXUIElementRef WindowRef)
 
         AXUIElementCopyAttributeValue(WindowRef, kAXTitleAttribute, (CFTypeRef*)&WindowTitle);
         if(CFStringGetCStringPtr(WindowTitle, kCFStringEncodingMacRoman))
-            Info.name = CFStringGetCStringPtr(WindowTitle, kCFStringEncodingMacRoman);
+            Info.Name = CFStringGetCStringPtr(WindowTitle, kCFStringEncodingMacRoman);
         
         if(WindowTitle != NULL)
             CFRelease(WindowTitle);
@@ -269,10 +269,10 @@ window_info GetWindowInfoFromRef(AXUIElementRef WindowRef)
         if(Temp !=NULL)
             CFRelease(Temp);
 
-        Info.x = WindowPos.x;
-        Info.y = WindowPos.y;
-        Info.width = WindowSize.width;
-        Info.height = WindowSize.height;
+        Info.X = WindowPos.x;
+        Info.Y = WindowPos.y;
+        Info.Width = WindowSize.width;
+        Info.Height = WindowSize.height;
 
         return Info;
     }
@@ -291,7 +291,7 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
         {
             std::string ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
             if(KeyStr == "kCGWindowName")
-                WindowLst[WindowLst.size()-1].name = ValueStr;
+                WindowLst[WindowLst.size()-1].Name = ValueStr;
         }
     }
     else if(ID == CFNumberGetTypeID())
@@ -300,17 +300,17 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
         CFNumberRef V = (CFNumberRef)Value;
         CFNumberGetValue(V, kCFNumberSInt64Type, &MyInt);
         if(KeyStr == "kCGWindowNumber")
-            WindowLst[WindowLst.size()-1].wid = MyInt;
+            WindowLst[WindowLst.size()-1].WID = MyInt;
         else if(KeyStr == "kCGWindowOwnerPID")
-            WindowLst[WindowLst.size()-1].pid = MyInt;
+            WindowLst[WindowLst.size()-1].PID = MyInt;
         else if(KeyStr == "X")
-            WindowLst[WindowLst.size()-1].x = MyInt;
+            WindowLst[WindowLst.size()-1].X = MyInt;
         else if(KeyStr == "Y")
-            WindowLst[WindowLst.size()-1].y = MyInt;
+            WindowLst[WindowLst.size()-1].Y = MyInt;
         else if(KeyStr == "Width")
-            WindowLst[WindowLst.size()-1].width = MyInt;
+            WindowLst[WindowLst.size()-1].Width = MyInt;
         else if(KeyStr == "Height")
-            WindowLst[WindowLst.size()-1].height = MyInt;
+            WindowLst[WindowLst.size()-1].Height = MyInt;
     }
     else if(ID == CFDictionaryGetTypeID())
     {

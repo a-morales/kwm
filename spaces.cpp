@@ -17,8 +17,8 @@ void GetActiveSpaces()
 
         for(int SpaceIndex = 0; SpaceIndex < SpacesLst.size(); ++SpaceIndex)
         {
-            SpacesLst[SpaceIndex].active_layout_index = 0;
-            SpacesLst[SpaceIndex].next_layout_index = 0;
+            SpacesLst[SpaceIndex].ActiveLayoutIndex = 0;
+            SpacesLst[SpaceIndex].NextLayoutIndex = 0;
         }
     }
 
@@ -30,9 +30,9 @@ int GetSpaceOfWindow(window_info *Window)
 {
     for(int SpaceIndex = 0; SpaceIndex < SpacesLst.size(); ++SpaceIndex)
     {
-        for(int WindowIndex = 0; WindowIndex < SpacesLst[SpaceIndex].windows.size(); ++WindowIndex)
+        for(int WindowIndex = 0; WindowIndex < SpacesLst[SpaceIndex].Windows.size(); ++WindowIndex)
         {
-            if(Window->wid == SpacesLst[SpaceIndex].windows[WindowIndex])
+            if(Window->WID == SpacesLst[SpaceIndex].Windows[WindowIndex])
                 return SpaceIndex;
         }
     }
@@ -45,8 +45,8 @@ void RefreshActiveSpacesInfo()
     std::vector<std::pair<int,int> > SpacesCache;
     for(int SpaceIndex = 0; SpaceIndex < SpacesLst.size(); ++SpaceIndex)
     {
-        std::pair<int,int> Info = std::make_pair(SpacesLst[SpaceIndex].active_layout_index,
-                                                 SpacesLst[SpaceIndex].next_layout_index);
+        std::pair<int,int> Info = std::make_pair(SpacesLst[SpaceIndex].ActiveLayoutIndex,
+                                                 SpacesLst[SpaceIndex].NextLayoutIndex);
         SpacesCache.push_back(Info);
     }
 
@@ -55,8 +55,8 @@ void RefreshActiveSpacesInfo()
     {
         if(SpaceIndex < SpacesCache.size())
         {
-            SpacesLst[SpaceIndex].active_layout_index = SpacesCache[SpaceIndex].first;
-            SpacesLst[SpaceIndex].next_layout_index = SpacesCache[SpaceIndex].second;
+            SpacesLst[SpaceIndex].ActiveLayoutIndex = SpacesCache[SpaceIndex].first;
+            SpacesLst[SpaceIndex].NextLayoutIndex = SpacesCache[SpaceIndex].second;
         }
     }
 }
@@ -82,7 +82,7 @@ void GetSpacesInfo(const void *Key, const void *Value, void *Context)
                         CFNumberRef Num = (CFNumberRef)CFArrayGetValueAtIndex(V, Index);
                         int MyInt;
                         CFNumberGetValue(Num, kCFNumberSInt64Type, &MyInt);
-                        SpacesLst[SpacesLst.size()-1].windows.push_back(MyInt);
+                        SpacesLst[SpacesLst.size()-1].Windows.push_back(MyInt);
                     }
                     else
                     {

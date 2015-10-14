@@ -14,47 +14,47 @@ struct window_layout;
 
 struct window_info
 {
-    std::string name;
-    int pid, wid;
-    int x, y;
-    int width, height;
-    window_layout *layout;
-    int layout_index;
+    std::string Name;
+    int PID, WID;
+    int X, Y;
+    int Width, Height;
+    window_layout *Layout;
+    int LayoutIndex;
 };
 
 struct window_layout
 {
-    std::string name;
-    int x, y;
-    int width, height;
-    int gap_x, gap_y;
-    int gap_vertical, gap_horizontal;
+    std::string Name;
+    int X, Y;
+    int Width, Height;
+    int GapX, GapY;
+    int GapVertical, GapHorizontal;
 };
 
 struct window_group_layout
 {
-    std::string name;
-    std::vector<window_layout> layouts;
+    std::string Name;
+    std::vector<window_layout> Layouts;
 };
 
 struct screen_info
 {
-    int id;
-    int x, y;
-    int width, height;
+    int ID;
+    int X, Y;
+    int Width, Height;
 };
 
 struct screen_layout
 {
-    int number_of_layouts;
-    std::vector<window_group_layout> layouts;    
+    int NumberOfLayouts;
+    std::vector<window_group_layout> Layouts;    
 };
 
 struct spaces_info
 {
-    int active_layout_index;
-    int next_layout_index;
-    std::vector<int> windows;
+    int ActiveLayoutIndex;
+    int NextLayoutIndex;
+    std::vector<int> Windows;
 };
 
 bool CheckPrivileges();

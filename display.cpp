@@ -16,11 +16,11 @@ void GetActiveDisplays()
     {
         CGRect DisplayRect = CGDisplayBounds(ActiveDisplays[DisplayIndex]);
         screen_info Screen;
-        Screen.id = DisplayIndex;
-        Screen.x = DisplayRect.origin.x;
-        Screen.y = DisplayRect.origin.y;
-        Screen.width = DisplayRect.size.width;
-        Screen.height = DisplayRect.size.height;
+        Screen.ID = DisplayIndex;
+        Screen.X = DisplayRect.origin.x;
+        Screen.Y = DisplayRect.origin.y;
+        Screen.Width = DisplayRect.size.width;
+        Screen.Height = DisplayRect.size.height;
         DisplayLst.push_back(Screen);
     }
 }
@@ -30,7 +30,7 @@ screen_info *GetDisplayOfWindow(window_info *Window)
     for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
     {
         screen_info *Screen = &DisplayLst[DisplayIndex];
-        if(Window->x >= Screen->x && Window->x <= Screen->x + Screen->width)
+        if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
             return Screen;
     }
 
@@ -44,7 +44,7 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         window_info *Window = &WindowLst[WindowIndex];
-        if(Window->x >= Screen->x && Window->x <= Screen->x + Screen->width)
+        if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
             ScreenWindowLst.push_back(Window);
     }
 
@@ -57,17 +57,17 @@ void CycleFocusedWindowDisplay(int Shift)
     int NewScreenIndex;
 
     if(Shift == 1)
-        NewScreenIndex = (Screen->id + 1 >= ActiveDisplaysCount) ? 0 : Screen->id + 1;
+        NewScreenIndex = (Screen->ID + 1 >= ActiveDisplaysCount) ? 0 : Screen->ID + 1;
     else if(Shift == -1)
-        NewScreenIndex = (Screen->id - 1 < 0) ? ActiveDisplaysCount - 1 : Screen->id - 1;
+        NewScreenIndex = (Screen->ID - 1 < 0) ? ActiveDisplaysCount - 1 : Screen->ID - 1;
     else
         return;
 
     screen_info *NewScreen = &DisplayLst[NewScreenIndex];
     SetWindowDimensions(FocusedWindowRef,
             &FocusedWindow,
-            NewScreen->x + 30, 
-            NewScreen->y + 40,
-            FocusedWindow.width,
-            FocusedWindow.height);
+            NewScreen->X + 30, 
+            NewScreen->Y + 40,
+            FocusedWindow.Width,
+            FocusedWindow.Height);
 }
