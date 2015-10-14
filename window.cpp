@@ -43,7 +43,7 @@ void DetectWindowBelowCursor()
     if(OsxWindowLst)
     {
         CFIndex OsxWindowCount = CFArrayGetCount(OsxWindowLst);
-        for(CFIndex WindowIndex = 0; WindowIndex < WindowIndex; ++WindowIndex)
+        for(CFIndex WindowIndex = 0; WindowIndex < OsxWindowCount; ++WindowIndex)
         {
             CFDictionaryRef Elem = (CFDictionaryRef)CFArrayGetValueAtIndex(OsxWindowLst, WindowIndex);
             WindowLst.push_back(window_info());
