@@ -41,7 +41,7 @@ void ApplyLayoutForDisplay(int ScreenIndex)
             {
                 window_layout *Layout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[WindowIndex];
                 LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][WindowIndex] = Window->WID;
-                SetWindowDimensions(WindowRef, Window, Layout->X, Layout->Y, Layout->Width, Layout->Height); 
+                ApplyLayoutForWindow(WindowRef, Window, Layout);
             }
 
             if(!WindowsAreEqual(&FocusedWindow, Window))
@@ -105,9 +105,11 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
     window_info *Window = NULL;
     for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
     {
-        Window = ScreenWindowLst[WindowIndex];
-        if(GetLayoutIndexOfWindow(Window) == SwapWithWindowIndex)
+        if(GetLayoutIndexOfWindow(ScreenWindowLst[WindowIndex]) == SwapWithWindowIndex)
+        {
+            Window = ScreenWindowLst[WindowIndex];
             break;
+        }
     }
     if (Window == NULL)
         return;
