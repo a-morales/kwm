@@ -59,11 +59,15 @@ void ApplyLayoutForWindow(AXUIElementRef WindowRef, window_info *Window, window_
 
 void ToggleFocusedWindowFullscreen()
 {
-    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
     int ScreenIndex = GetDisplayOfWindow(&FocusedWindow)->ID;
+    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    if(SpaceIndex == -1)
+        return;
 
-    int FocusedWindowIndex = GetLayoutIndexOfWindow(&FocusedWindow);
     int ActiveLayoutIndex = SpacesLst[SpaceIndex].ActiveLayoutIndex;
+    int FocusedWindowIndex = GetLayoutIndexOfWindow(&FocusedWindow);
+    if(FocusedWindowIndex == -1)
+        return;
 
     screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
     window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
