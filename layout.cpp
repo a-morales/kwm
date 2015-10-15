@@ -52,6 +52,11 @@ void ApplyLayoutForDisplay(int ScreenIndex)
     DetectWindowBelowCursor();
 }
 
+void ApplyLayoutForWindow(AXUIElementRef WindowRef, window_info *Window, window_layout *Layout)
+{
+    SetWindowDimensions(WindowRef, Window, Layout->X, Layout->Y, Layout->Width, Layout->Height); 
+}
+
 void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
 {
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
@@ -86,20 +91,8 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
         window_layout *SwapWithWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[SwapWithWindowIndex];
         LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SwapWithWindowIndex] = FocusedWindow.WID;
         LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[FocusedWindowIndex] = Window->WID;
-        SetWindowDimensions(WindowRef, 
-                Window, 
-                FocusedWindowLayout->X, 
-                FocusedWindowLayout->Y, 
-                FocusedWindowLayout->Width, 
-                FocusedWindowLayout->Height); 
-
-        SetWindowDimensions(FocusedWindowRef, 
-                &FocusedWindow, 
-                SwapWithWindowLayout->X, 
-                SwapWithWindowLayout->Y, 
-                SwapWithWindowLayout->Width, 
-                SwapWithWindowLayout->Height); 
-
+        ApplyLayoutForWindow(WindowRef, Window, FocusedWindowLayout);
+        ApplyLayoutForWindow(FocusedWindowRef, &FocusedWindow, SwapWithWindowLayout);
         CFRelease(WindowRef);
     }
 }
@@ -107,7 +100,6 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
 void CycleWindowInsideLayout(int ScreenIndex)
 {
     DetectWindowBelowCursor();
-
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
 
@@ -116,7 +108,6 @@ void CycleWindowInsideLayout(int ScreenIndex)
         return;
 
     int ActiveLayoutIndex = SpacesLst[SpaceIndex].ActiveLayoutIndex;
-
     int MaxLayoutTiles = LayoutMaster->Layouts[ActiveLayoutIndex].Layouts.size();
     if(ScreenWindowLst.size() <= MaxLayoutTiles)
         return;
@@ -144,12 +135,7 @@ void CycleWindowInsideLayout(int ScreenIndex)
     {
         window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
         LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[FocusedWindowIndex] = Window->WID; 
-        SetWindowDimensions(WindowRef,
-                Window,
-                FocusedWindowLayout->X,
-                FocusedWindowLayout->Y,
-                FocusedWindowLayout->Width,
-                FocusedWindowLayout->Height);
+        ApplyLayoutForWindow(WindowRef, Window, FocusedWindowLayout);
 
         ProcessSerialNumber NewPSN;
         GetProcessForPID(Window->PID, &NewPSN);
@@ -186,17 +172,6 @@ int GetLayoutIndexOfWindow(window_info *Window)
     }
 
     return -1;
-}
-
-bool WindowHasLayout(window_info *Window, window_layout *Layout)
-{
-    if((Window->X >= Layout->X - 15 && Window->X <= Layout->X + 15) &&
-        (Window->Y >= Layout->Y - 15 && Window->Y <= Layout->Y + 15 ) &&
-        (Window->Width >= Layout->Width - 15 && Window->Width <= Layout->Width + 15) &&
-        (Window->Height >= Layout->Height - 15 && Window->Height <= Layout->Height + 15))
-            return true;
-
-    return false;
 }
 
 void SetWindowLayoutValues(window_layout *Layout, int X, int Y, int Width, int Height)
