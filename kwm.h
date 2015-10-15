@@ -18,8 +18,6 @@ struct window_info
     int PID, WID;
     int X, Y;
     int Width, Height;
-    window_layout *Layout;
-    int LayoutIndex;
 };
 
 struct window_layout
@@ -82,8 +80,8 @@ void SetWindowLayoutValues(window_layout *Layout, int X, int Y, int Width, int H
 window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name);
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
-window_layout *GetLayoutOfWindow(window_info *Window);
-bool WindowHasLayout(window_info *Window, window_layout *Kayout);
+int GetLayoutIndexOfWindow(window_info *Window);
+bool WindowHasLayout(window_info *Window, int LayoutIndex);
 
 bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
