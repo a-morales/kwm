@@ -105,7 +105,7 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
 
         if(Layout.Name != "invalid")
         {
-            SetWindowDimensions(FocusedWindowRef, &FocusedWindow, Layout.X, Layout.Y, Layout.Width, Layout.Height);
+            ApplyLayoutForWindow(FocusedWindowRef, &FocusedWindow, &Layout);
             return true;
         }
 
