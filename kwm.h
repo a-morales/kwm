@@ -67,6 +67,7 @@ void GetSpacesInfo(const void *Key, const void *Value, void *Context);
 void RefreshActiveSpacesInfo();
 void GetActiveSpaces();
 
+void ToggleFocusedWindowFullscreen();
 void ApplyLayoutForDisplay(int ScreenIndex);
 void CycleFocusedWindowLayout(int ScreenIndex, int Shift);
 void CycleWindowInsideLayout(int ScreenIndex);

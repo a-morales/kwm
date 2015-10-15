@@ -57,6 +57,30 @@ void ApplyLayoutForWindow(AXUIElementRef WindowRef, window_info *Window, window_
     SetWindowDimensions(WindowRef, Window, Layout->X, Layout->Y, Layout->Width, Layout->Height); 
 }
 
+void ToggleFocusedWindowFullscreen()
+{
+    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    int ScreenIndex = GetDisplayOfWindow(&FocusedWindow)->ID;
+
+    int FocusedWindowIndex = GetLayoutIndexOfWindow(&FocusedWindow);
+    int ActiveLayoutIndex = SpacesLst[SpaceIndex].ActiveLayoutIndex;
+
+    screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
+    window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
+
+    if(FocusedWindow.X == FocusedWindowLayout->X && FocusedWindow.Y == FocusedWindowLayout->Y
+            && FocusedWindow.Width == FocusedWindowLayout->Width
+            && FocusedWindow.Height == FocusedWindowLayout->Height) 
+    {
+        window_layout Layout = GetWindowLayoutForScreen(ScreenIndex, "fullscreen");
+        ApplyLayoutForWindow(FocusedWindowRef, &FocusedWindow, &Layout);
+    }
+    else
+    {
+        ApplyLayoutForWindow(FocusedWindowRef, &FocusedWindow, FocusedWindowLayout);
+    }
+}
+
 void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
 {
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);

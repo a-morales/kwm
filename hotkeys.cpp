@@ -81,6 +81,12 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
             return true;
         }
 
+        if(Keycode == kVK_ANSI_F)
+        {
+            ToggleFocusedWindowFullscreen();
+            return true;
+        }
+
         // Window Layout
         window_layout Layout;
         Layout.Name = "invalid";
