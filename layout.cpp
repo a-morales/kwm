@@ -40,7 +40,7 @@ void ApplyLayoutForDisplay(int ScreenIndex)
             if(WindowIndex < LayoutMaster->Layouts[ActiveLayoutIndex].Layouts.size())
             {
                 window_layout *Layout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[WindowIndex];
-                LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[WindowIndex] = Window->WID;
+                LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][WindowIndex] = Window->WID;
                 SetWindowDimensions(WindowRef, Window, Layout->X, Layout->Y, Layout->Width, Layout->Height); 
             }
 
@@ -117,8 +117,8 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
     {
         window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
         window_layout *SwapWithWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[SwapWithWindowIndex];
-        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SwapWithWindowIndex] = FocusedWindow.WID;
-        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[FocusedWindowIndex] = Window->WID;
+        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][SwapWithWindowIndex] = FocusedWindow.WID;
+        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][FocusedWindowIndex] = Window->WID;
         ApplyLayoutForWindow(WindowRef, Window, FocusedWindowLayout);
         ApplyLayoutForWindow(FocusedWindowRef, &FocusedWindow, SwapWithWindowLayout);
         CFRelease(WindowRef);
@@ -162,7 +162,7 @@ void CycleWindowInsideLayout(int ScreenIndex)
     if(GetWindowRef(Window, &WindowRef))
     {
         window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
-        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[FocusedWindowIndex] = Window->WID; 
+        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][FocusedWindowIndex] = Window->WID; 
         ApplyLayoutForWindow(WindowRef, Window, FocusedWindowLayout);
 
         ProcessSerialNumber NewPSN;
@@ -195,7 +195,7 @@ int GetLayoutIndexOfWindow(window_info *Window)
 
     for(int LayoutIndex = 0; LayoutIndex < MaxLayoutSize; ++LayoutIndex)
     {
-        if(Window->WID == ScreenLayoutLst[ScreenID].Layouts[ActiveLayoutIndex].TileWID[LayoutIndex])
+        if(Window->WID == ScreenLayoutLst[ScreenID].Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][LayoutIndex])
             return LayoutIndex;
     }
 
@@ -330,20 +330,20 @@ void InitWindowLayouts()
         LayoutTallLeft.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "left vertical split"));
         LayoutTallLeft.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper right split"));
         LayoutTallLeft.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower right split"));
-        LayoutTallLeft.TileWID = std::vector<int>(3, 0);
+        LayoutTallLeft.TileWID = std::vector<std::vector<int> >(10, std::vector<int>(3, 0));
         LayoutMaster.Layouts.push_back(LayoutTallLeft);
 
         window_group_layout LayoutTallRight;
         LayoutTallRight.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper left split"));
         LayoutTallRight.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower left split"));
         LayoutTallRight.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "right vertical split"));
-        LayoutTallRight.TileWID = std::vector<int>(3, 0);
+        LayoutTallRight.TileWID = std::vector<std::vector<int> >(10, std::vector<int>(3, 0));
         LayoutMaster.Layouts.push_back(LayoutTallRight);
 
         window_group_layout LayoutVerticalSplit;
         LayoutVerticalSplit.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "left vertical split"));
         LayoutVerticalSplit.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "right vertical split"));
-        LayoutVerticalSplit.TileWID = std::vector<int>(2, 0);;
+        LayoutVerticalSplit.TileWID = std::vector<std::vector<int> >(10, std::vector<int>(2, 0));
         LayoutMaster.Layouts.push_back(LayoutVerticalSplit);
 
         window_group_layout LayoutQuarters;
@@ -351,12 +351,12 @@ void InitWindowLayouts()
         LayoutQuarters.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower left split"));
         LayoutQuarters.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper right split"));
         LayoutQuarters.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower right split"));
-        LayoutQuarters.TileWID = std::vector<int>(4, 0);
+        LayoutQuarters.TileWID = std::vector<std::vector<int> >(10, std::vector<int>(4, 0));
         LayoutMaster.Layouts.push_back(LayoutQuarters);
 
         window_group_layout LayoutFullscreen;
         LayoutFullscreen.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "fullscreen"));
-        LayoutFullscreen.TileWID = std::vector<int>(1, 0);
+        LayoutFullscreen.TileWID = std::vector<std::vector<int> >(10, std::vector<int>(1, 0));
         LayoutMaster.Layouts.push_back(LayoutFullscreen);
 
         LayoutMaster.NumberOfLayouts = LayoutMaster.Layouts.size();;

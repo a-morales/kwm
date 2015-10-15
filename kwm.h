@@ -10,8 +10,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct window_layout;
-
 struct window_info
 {
     std::string Name;
@@ -32,7 +30,7 @@ struct window_layout
 struct window_group_layout
 {
     std::string Name;
-    std::vector<int> TileWID;
+    std::vector<std::vector<int> > TileWID;
     std::vector<window_layout> Layouts;
 };
 
