@@ -81,8 +81,6 @@ void DetectWindowBelowCursor()
                         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
                     std::cout << "Keyboard focus: " << FocusedWindow.PID << std::endl;
-                    if(FocusedWindow.Layout)
-                        std::cout << FocusedWindow.Layout->Name << std::endl;
                 }
                 break;
             }
@@ -92,26 +90,19 @@ void DetectWindowBelowCursor()
 
 bool GetExpressionFromShiftDirection(window_info *Window, const std::string &Direction)
 {
-    GetLayoutOfWindow(Window);
-    if(!Window->Layout)
-        return false;
-
     int Shift = 0;
     if(Direction == "prev")
         Shift = -1;
     else if(Direction == "next")
         Shift = 1;
 
-    return (Window->LayoutIndex == FocusedWindow.LayoutIndex + Shift);
+    return (GetLayoutIndexOfWindow(Window) == GetLayoutIndexOfWindow(&FocusedWindow) + Shift);
 }
 
 void ShiftWindowFocus(const std::string &Direction)
 {
-    window_layout *FocusedWindowLayout = GetLayoutOfWindow(&FocusedWindow);
-    if(!FocusedWindowLayout)
-        return;
-
     int ScreenIndex = GetDisplayOfWindow(&FocusedWindow)->ID;
+
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
     {
@@ -164,7 +155,6 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
             Window->Height = WindowSize.height;
         }
 
-        GetLayoutOfWindow(Window);
         if(NewWindowPos != NULL)
             CFRelease(NewWindowPos);
         if(NewWindowSize != NULL)

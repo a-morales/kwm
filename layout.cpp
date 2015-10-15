@@ -40,8 +40,7 @@ void ApplyLayoutForDisplay(int ScreenIndex)
             if(WindowIndex < LayoutMaster->Layouts[ActiveLayoutIndex].Layouts.size())
             {
                 window_layout *Layout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[WindowIndex];
-                Window->Layout = Layout;
-                Window->LayoutIndex = WindowIndex;
+                LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[WindowIndex] = Window->WID;
                 SetWindowDimensions(WindowRef, Window, Layout->X, Layout->Y, Layout->Width, Layout->Height); 
             }
 
@@ -58,42 +57,35 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
 
-    GetLayoutOfWindow(&FocusedWindow);
     int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
     if(SpaceIndex == -1)
         return;
 
     int ActiveLayoutIndex = SpacesLst[SpaceIndex].ActiveLayoutIndex;
+    int MaxLayoutTiles = LayoutMaster->Layouts[ActiveLayoutIndex].Layouts.size();
 
-    window_layout *FocusedWindowLayout = FocusedWindow.Layout;
-    int FocusedWindowLayoutIndex = FocusedWindow.LayoutIndex;
-    if(!FocusedWindowLayout)
+    int FocusedWindowIndex = GetLayoutIndexOfWindow(&FocusedWindow);
+    int SwapWithWindowIndex = FocusedWindowIndex + Shift;
+    if(SwapWithWindowIndex < 0 || SwapWithWindowIndex >= MaxLayoutTiles)
         return;
 
-    int SwapWithWindowLayoutIndex = FocusedWindowLayoutIndex + Shift;
-    if(SwapWithWindowLayoutIndex < 0 || 
-        SwapWithWindowLayoutIndex >= LayoutMaster->NumberOfLayouts)
-            return;
-
-    int SwapWithWindowIndex = -1;
-    window_layout *SwapWithWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[SwapWithWindowLayoutIndex];
+    window_info *Window = NULL;
     for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
     {
-        window_info *Window = ScreenWindowLst[WindowIndex];
-        if(WindowHasLayout(Window, SwapWithWindowLayout))
-        {
-            SwapWithWindowIndex = WindowIndex;
+        Window = ScreenWindowLst[WindowIndex];
+        if(GetLayoutIndexOfWindow(Window) == SwapWithWindowIndex)
             break;
-        }
     }
-
-    if(SwapWithWindowIndex == -1)
+    if (Window == NULL)
         return;
 
     AXUIElementRef WindowRef;
-    window_info *Window = ScreenWindowLst[SwapWithWindowIndex];
     if(GetWindowRef(Window, &WindowRef))
     {
+        window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
+        window_layout *SwapWithWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[SwapWithWindowIndex];
+        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SwapWithWindowIndex] = FocusedWindow.WID;
+        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[FocusedWindowIndex] = Window->WID;
         SetWindowDimensions(WindowRef, 
                 Window, 
                 FocusedWindowLayout->X, 
@@ -115,7 +107,6 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
 void CycleWindowInsideLayout(int ScreenIndex)
 {
     DetectWindowBelowCursor();
-    GetLayoutOfWindow(&FocusedWindow);
 
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
@@ -126,19 +117,33 @@ void CycleWindowInsideLayout(int ScreenIndex)
 
     int ActiveLayoutIndex = SpacesLst[SpaceIndex].ActiveLayoutIndex;
 
-    window_layout *FocusedWindowLayout = FocusedWindow.Layout;
-    if(!FocusedWindowLayout)
-        return;
-
     int MaxLayoutTiles = LayoutMaster->Layouts[ActiveLayoutIndex].Layouts.size();
     if(ScreenWindowLst.size() <= MaxLayoutTiles)
         return;
 
+    int FocusedWindowIndex = GetLayoutIndexOfWindow(&FocusedWindow);
+    if(FocusedWindowIndex == -1)
+        return;
+
+    bool Found = false;
+    window_info *Window = NULL;
+    for(int WindowIndex = ScreenWindowLst.size()-1; WindowIndex >= 0; --WindowIndex)
+    {
+        Window = ScreenWindowLst[WindowIndex];
+        if(GetLayoutIndexOfWindow(Window) == -1)
+        {
+            Found = true;
+            break;
+        }
+    }
+    if(!Found)
+        return;
+
     AXUIElementRef WindowRef;
-    window_info *Window = ScreenWindowLst[ScreenWindowLst.size()-1];
-    
     if(GetWindowRef(Window, &WindowRef))
     {
+        window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
+        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[FocusedWindowIndex] = Window->WID; 
         SetWindowDimensions(WindowRef,
                 Window,
                 FocusedWindowLayout->X,
@@ -164,31 +169,23 @@ void CycleWindowInsideLayout(int ScreenIndex)
     }
 }
 
-window_layout *GetLayoutOfWindow(window_info *Window)
+int GetLayoutIndexOfWindow(window_info *Window)
 {
-    window_layout *Result = NULL;
-
     int ScreenID = GetDisplayOfWindow(Window)->ID;
     int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
     if(SpaceIndex == -1)
-        return Result;
+        return -1;
 
     int ActiveLayoutIndex = SpacesLst[SpaceIndex].ActiveLayoutIndex;
     int MaxLayoutSize = ScreenLayoutLst[ScreenID].Layouts[ActiveLayoutIndex].Layouts.size();
 
     for(int LayoutIndex = 0; LayoutIndex < MaxLayoutSize; ++LayoutIndex)
     {
-        window_layout *Layout = &ScreenLayoutLst[ScreenID].Layouts[ActiveLayoutIndex].Layouts[LayoutIndex];
-        if(WindowHasLayout(Window, Layout))
-        {
-            Window->Layout = Layout;
-            Window->LayoutIndex = LayoutIndex;
-            Result = Layout;
-            break;
-        }
+        if(Window->WID == ScreenLayoutLst[ScreenID].Layouts[ActiveLayoutIndex].TileWID[LayoutIndex])
+            return LayoutIndex;
     }
 
-    return Result;
+    return -1;
 }
 
 bool WindowHasLayout(window_info *Window, window_layout *Layout)
@@ -330,17 +327,20 @@ void InitWindowLayouts()
         LayoutTallLeft.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "left vertical split"));
         LayoutTallLeft.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper right split"));
         LayoutTallLeft.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower right split"));
+        LayoutTallLeft.TileWID = std::vector<int>(3, 0);
         LayoutMaster.Layouts.push_back(LayoutTallLeft);
 
         window_group_layout LayoutTallRight;
         LayoutTallRight.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper left split"));
         LayoutTallRight.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower left split"));
         LayoutTallRight.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "right vertical split"));
+        LayoutTallRight.TileWID = std::vector<int>(3, 0);
         LayoutMaster.Layouts.push_back(LayoutTallRight);
 
         window_group_layout LayoutVerticalSplit;
         LayoutVerticalSplit.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "left vertical split"));
         LayoutVerticalSplit.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "right vertical split"));
+        LayoutVerticalSplit.TileWID = std::vector<int>(2, 0);;
         LayoutMaster.Layouts.push_back(LayoutVerticalSplit);
 
         window_group_layout LayoutQuarters;
@@ -348,10 +348,12 @@ void InitWindowLayouts()
         LayoutQuarters.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower left split"));
         LayoutQuarters.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "upper right split"));
         LayoutQuarters.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "lower right split"));
+        LayoutQuarters.TileWID = std::vector<int>(4, 0);
         LayoutMaster.Layouts.push_back(LayoutQuarters);
 
         window_group_layout LayoutFullscreen;
         LayoutFullscreen.Layouts.push_back(GetWindowLayoutForScreen(ScreenIndex, "fullscreen"));
+        LayoutFullscreen.TileWID = std::vector<int>(1, 0);
         LayoutMaster.Layouts.push_back(LayoutFullscreen);
 
         LayoutMaster.NumberOfLayouts = LayoutMaster.Layouts.size();;
