@@ -102,7 +102,6 @@ bool GetExpressionFromShiftDirection(window_info *Window, const std::string &Dir
 void ShiftWindowFocus(const std::string &Direction)
 {
     int ScreenIndex = GetDisplayOfWindow(&FocusedWindow)->ID;
-
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
     {
