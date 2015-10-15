@@ -21,6 +21,8 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - k: decrease height
 
         - space: toggle screen layout
+        - f: toggle fullscreen for focused
+             window in screen-layout
 
         - up: move and resize upper-half
         - down: move and resize lower-half
@@ -54,5 +56,4 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - p: swap with the previous window in layout
         - n: swap with the next window in layout
 
-        - tab: cycle windows and place them
-               in the focused layout
+        - tab: cycle windows (alt tab) inside the focused layout
