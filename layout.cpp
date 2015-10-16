@@ -218,8 +218,8 @@ window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name)
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + Layout.GapY, 
-                    (Screen->Width - (Layout.GapX * 2.0f) + (Layout.GapX / 6)),
-                    (Screen->Height - (Layout.GapY * 1.0f)));
+                    (Screen->Width - (Layout.GapX * 2.0f)),
+                    (Screen->Height - (Layout.GapY * 1.0f))); 
         else if(Name == "left vertical split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
@@ -237,13 +237,13 @@ window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name)
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + Layout.GapY, 
-                    (Screen->Width - (Layout.GapX * 2.0f) + (Layout.GapX / 6)),
+                    (Screen->Width - (Layout.GapX * 2.0f)),
                     ((Screen->Height / 2) - (Layout.GapHorizontal * 1.0f)));
         else if(Name == "lower horizontal split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + ((Screen->Height / 2) + (Layout.GapHorizontal * 0.5f) + (Layout.GapY / 8)), 
-                    (Screen->Width - (Layout.GapX * 2.0f) + (Layout.GapX / 6)),
+                    (Screen->Width - (Layout.GapX * 2.0f)),
                     ((Screen->Height / 2) - (Layout.GapHorizontal * 1.0f)));
         else if(Name == "upper left split")
             SetWindowLayoutValues(&Layout, 
@@ -277,10 +277,10 @@ window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name)
 void InitWindowLayouts()
 {
     window_layout ScreenVerticalSplit;
-    ScreenVerticalSplit.GapX = 30;
-    ScreenVerticalSplit.GapY = 40;
-    ScreenVerticalSplit.GapVertical = 20;
-    ScreenVerticalSplit.GapHorizontal = 30;
+    ScreenVerticalSplit.GapX = 24;
+    ScreenVerticalSplit.GapY = 32;
+    ScreenVerticalSplit.GapVertical = 18;
+    ScreenVerticalSplit.GapHorizontal = 24;
 
     ScreenVerticalSplit.Name = "fullscreen";
     LayoutLst.push_back(ScreenVerticalSplit);
