@@ -91,31 +91,36 @@ void ShiftWindowFocus(const std::string &Direction)
     }
 }
 
-void SetWindowFocus(window_info *Window)
+void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
 {
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
+    FocusedPSN = NewPSN;
+    FocusedWindow = *Window;
+
+    AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
+    AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
+    AXUIElementPerformAction (WindowRef, kAXRaiseAction);
+
+    if(FocusedWindowRef != NULL)
+        CFRelease(FocusedWindowRef);
+
+    FocusedWindowRef = WindowRef;
+    std::cout << "current space: " << GetSpaceOfWindow(&FocusedWindow) << std::endl;
+
+    if(EnableAutoraise)
+        SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
+
+    std::cout << "Keyboard focus: " << FocusedWindow.PID << std::endl;
+}
+
+void SetWindowFocus(window_info *Window)
+{
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
     {
-        FocusedPSN = NewPSN;
-        FocusedWindow = *Window;
-
-        AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
-        AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
-        AXUIElementPerformAction (WindowRef, kAXRaiseAction);
-
-        if(FocusedWindowRef != NULL)
-            CFRelease(FocusedWindowRef);
-
-        FocusedWindowRef = WindowRef;
-        std::cout << "current space: " << GetSpaceOfWindow(&FocusedWindow) << std::endl;
-
-        if(EnableAutoraise)
-            SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
-
-        std::cout << "Keyboard focus: " << FocusedWindow.PID << std::endl;
+        SetWindowRefFocus(WindowRef, Window);
     }
 }
 

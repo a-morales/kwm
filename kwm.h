@@ -89,6 +89,7 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
 bool IsWindowBelowCursor(window_info *Window);
 void DetectWindowBelowCursor();
 
+void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window);
 void SetWindowFocus(window_info *Window);
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);
 void GetWindowInfo(const void *Key, const void *Value, void *Context);
