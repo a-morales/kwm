@@ -220,45 +220,6 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
     return Result;
 }
 
-// Currently not in use
-window_info GetWindowInfoFromRef(AXUIElementRef WindowRef)
-{
-    window_info Info;
-    Info.Name = "invalid";
-    if(WindowRef != NULL)
-    {
-
-        CFStringRef WindowTitle;
-        AXValueRef Temp;
-        CGSize WindowSize;
-        CGPoint WindowPos;
-
-        AXUIElementCopyAttributeValue(WindowRef, kAXTitleAttribute, (CFTypeRef*)&WindowTitle);
-        if(CFStringGetCStringPtr(WindowTitle, kCFStringEncodingMacRoman))
-            Info.Name = CFStringGetCStringPtr(WindowTitle, kCFStringEncodingMacRoman);
-        
-        if(WindowTitle != NULL)
-            CFRelease(WindowTitle);
-
-        AXUIElementCopyAttributeValue(WindowRef, kAXSizeAttribute, (CFTypeRef*)&Temp);
-        AXValueGetValue(Temp, kAXValueCGSizeType, &WindowSize);
-        if(Temp != NULL)
-            CFRelease(Temp);
-
-        AXUIElementCopyAttributeValue(WindowRef, kAXPositionAttribute, (CFTypeRef*)&Temp);
-        AXValueGetValue(Temp, kAXValueCGPointType, &WindowPos);
-        if(Temp !=NULL)
-            CFRelease(Temp);
-
-        Info.X = WindowPos.x;
-        Info.Y = WindowPos.y;
-        Info.Width = WindowSize.width;
-        Info.Height = WindowSize.height;
-
-        return Info;
-    }
-}
-
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
 {
     CFStringRef K = (CFStringRef)Key;
