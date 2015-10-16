@@ -218,56 +218,56 @@ window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name)
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + Layout.GapY, 
-                    (Screen->Width - (Layout.GapVertical * 2)), 
-                    (Screen->Height - (Layout.GapY * 1.5f)));
+                    (Screen->Width - (Layout.GapX * 2.0f) + (Layout.GapX / 6)),
+                    (Screen->Height - (Layout.GapY * 1.0f)));
         else if(Name == "left vertical split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + Layout.GapY, 
-                    ((Screen->Width / 2) - (Layout.GapVertical * 1.5f)), 
+                    ((Screen->Width / 2) - (Layout.GapVertical * 2.0f) + (Layout.GapX / 2)), 
                     (Screen->Height - (Layout.GapY * 1.0f)));
         else if(Name == "right vertical split")
             SetWindowLayoutValues(&Layout, 
-                    Screen->X + ((Screen->Width / 2) + (Layout.GapVertical * 0.5f)), 
+                    Screen->X + (Screen->Width / 2) + (Layout.GapX / 2), 
                     Screen->Y + Layout.GapY, 
-                    ((Screen->Width / 2) - (Layout.GapVertical * 1.5f)), 
+                    ((Screen->Width / 2) - (Layout.GapVertical * 2.0f)), 
                     (Screen->Height - (Layout.GapY * 1.0f))); // Screen aspect-ratio 16:10
                     //(Screen->Height - (Layout.GapY * 1.5f))); for aspect-ratio 16:9
         else if(Name == "upper horizontal split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + Layout.GapY, 
-                    (Screen->Width - (Layout.GapVertical * 2)), 
+                    (Screen->Width - (Layout.GapX * 2.0f) + (Layout.GapX / 6)),
                     ((Screen->Height / 2) - (Layout.GapHorizontal * 1.0f)));
         else if(Name == "lower horizontal split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + ((Screen->Height / 2) + (Layout.GapHorizontal * 0.5f) + (Layout.GapY / 8)), 
-                    (Screen->Width - (Layout.GapVertical * 2)), 
+                    (Screen->Width - (Layout.GapX * 2.0f) + (Layout.GapX / 6)),
                     ((Screen->Height / 2) - (Layout.GapHorizontal * 1.0f)));
         else if(Name == "upper left split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + Layout.GapY, 
-                    ((Screen->Width / 2) - (Layout.GapVertical * 1.5f)), 
+                    ((Screen->Width / 2) - (Layout.GapVertical * 2.0f) + (Layout.GapX / 2)), 
                     ((Screen->Height / 2) - (Layout.GapHorizontal * 1.0f)));
         else if(Name == "lower left split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + ((Screen->Height / 2) + (Layout.GapHorizontal * 0.5f) + (Layout.GapY / 8)), 
-                    ((Screen->Width / 2) - (Layout.GapVertical * 1.5f)), 
+                    ((Screen->Width / 2) - (Layout.GapVertical * 2.0f) + (Layout.GapX / 2)), 
                     ((Screen->Height / 2) - (Layout.GapHorizontal * 1.0f)));
         else if(Name == "upper right split")
             SetWindowLayoutValues(&Layout, 
-                    Screen->X + ((Screen->Width / 2) + (Layout.GapVertical * 0.5f)), 
+                    Screen->X + (Screen->Width / 2) + (Layout.GapX / 2), 
                     Screen->Y + Layout.GapY, 
-                    ((Screen->Width / 2) - (Layout.GapVertical * 1.5f)), 
+                    ((Screen->Width / 2) - (Layout.GapVertical * 2.0f)), 
                     ((Screen->Height / 2) - (Layout.GapHorizontal * 1.0f)));
         else if(Name == "lower right split")
             SetWindowLayoutValues(&Layout, 
-                    Screen->X + ((Screen->Width / 2) + (Layout.GapVertical * 0.5f)), 
+                    Screen->X + (Screen->Width / 2) + (Layout.GapX / 2), 
                     Screen->Y + ((Screen->Height / 2) + (Layout.GapHorizontal * 0.5f) + (Layout.GapY / 8)), 
-                    ((Screen->Width / 2) - (Layout.GapVertical * 1.5f)), 
+                    ((Screen->Width / 2) - (Layout.GapVertical * 2.0f)), 
                     ((Screen->Height / 2) - (Layout.GapHorizontal * 1.0f)));
     }
 
