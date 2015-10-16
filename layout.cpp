@@ -225,13 +225,14 @@ window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name)
                     Screen->X + Layout.GapX, 
                     Screen->Y + Layout.GapY, 
                     ((Screen->Width / 2) - (Layout.GapVertical * 1.5f)), 
-                    (Screen->Height - (Layout.GapY * 1.5f)));
+                    (Screen->Height - (Layout.GapY * 1.0f)));
         else if(Name == "right vertical split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + ((Screen->Width / 2) + (Layout.GapVertical * 0.5f)), 
                     Screen->Y + Layout.GapY, 
                     ((Screen->Width / 2) - (Layout.GapVertical * 1.5f)), 
-                    (Screen->Height - (Layout.GapY * 1.5f)));
+                    (Screen->Height - (Layout.GapY * 1.0f))); // Screen aspect-ratio 16:10
+                    //(Screen->Height - (Layout.GapY * 1.5f))); for aspect-ratio 16:9
         else if(Name == "upper horizontal split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
