@@ -166,22 +166,7 @@ void CycleWindowInsideLayout(int ScreenIndex)
         window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
         LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][FocusedWindowIndex] = Window->WID; 
         ApplyLayoutForWindow(WindowRef, Window, FocusedWindowLayout);
-
-        ProcessSerialNumber NewPSN;
-        GetProcessForPID(Window->PID, &NewPSN);
-
-        AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
-        AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
-        AXUIElementPerformAction (WindowRef, kAXRaiseAction);
-
-        SetFrontProcessWithOptions(&NewPSN, kSetFrontProcessFrontWindowOnly);
-
-        if(FocusedWindowRef != NULL)
-            CFRelease(FocusedWindowRef);
-        
-        FocusedWindowRef = WindowRef;
-        FocusedWindow = *Window;
-        FocusedPSN = NewPSN;
+        SetWindowRefFocus(WindowRef, Window);
     }
 }
 
