@@ -278,7 +278,7 @@ void InitWindowLayouts()
     window_layout ScreenVerticalSplit;
     ScreenVerticalSplit.GapX = 30;
     ScreenVerticalSplit.GapY = 40;
-    ScreenVerticalSplit.GapVertical = 30;
+    ScreenVerticalSplit.GapVertical = 20;
     ScreenVerticalSplit.GapHorizontal = 30;
 
     ScreenVerticalSplit.Name = "fullscreen";
