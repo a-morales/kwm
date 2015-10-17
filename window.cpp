@@ -16,11 +16,11 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
     if(Window && Match)
     {
         if(Window->X == Match->X &&
-                Window->Y == Match->Y &&
-                Window->Width == Match->Width &&
-                Window->Height == Match->Height &&
-                Window->Name == Match->Name)
-                    Result = true;
+           Window->Y == Match->Y &&
+           Window->Width == Match->Width &&
+           Window->Height == Match->Height &&
+           Window->Name == Match->Name)
+               Result = true;
     }
 
     return Result;
@@ -36,10 +36,10 @@ bool IsWindowBelowCursor(window_info *Window)
         CGPoint Cursor = CGEventGetLocation(Event);
         CFRelease(Event);
         if(Cursor.x >= Window->X && 
-                Cursor.x <= Window->X + Window->Width && 
-                Cursor.y >= Window->Y && 
-                Cursor.y <= Window->Y + Window->Height)
-                    Result = true;
+           Cursor.x <= Window->X + Window->Width &&
+           Cursor.y >= Window->Y &&
+           Cursor.y <= Window->Y + Window->Height)
+               Result = true;
     }
         
     return Result;
@@ -65,9 +65,8 @@ void DetectWindowBelowCursor()
             if(IsWindowBelowCursor(&WindowLst[i]))
             {
                 if(!WindowsAreEqual(FocusedWindow, &WindowLst[i]))
-                {
                     SetWindowFocus(&WindowLst[i]);
-                }
+
                 break;
             }
         }
@@ -102,9 +101,10 @@ void ShiftWindowFocus(const std::string &Direction)
 
 void CloseFocusedWindow()
 {
-    DEBUG("Closing window: " << FocusedWindow->Name)
     if(FocusedWindow)
     {
+        DEBUG("CloseFocusedWindow() Closing window: " << FocusedWindow->Name)
+
         CloseWindowByRef(FocusedWindowRef);
         CFRelease(FocusedWindowRef);
         FocusedWindowRef = NULL;
@@ -124,9 +124,7 @@ void CloseWindow(window_info *Window)
 {
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
-    {
         CloseWindowByRef(WindowRef);
-    }
 }
 
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
@@ -134,71 +132,107 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
-    FocusedPSN = NewPSN;
-    FocusedWindow = Window;
-
-    AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
-    AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
-    AXUIElementPerformAction (WindowRef, kAXRaiseAction);
-
     if(FocusedWindowRef != NULL)
         CFRelease(FocusedWindowRef);
 
+    FocusedPSN = NewPSN;
     FocusedWindowRef = WindowRef;
-    DEBUG("Focused Window: " << FocusedWindow->Name << "| Workspace: " << GetSpaceOfWindow(FocusedWindow))
+    FocusedWindow = Window;
+
+    AXUIElementSetAttributeValue(FocusedWindowRef, kAXMainAttribute, kCFBooleanTrue);
+    AXUIElementSetAttributeValue(FocusedWindowRef, kAXFocusedAttribute, kCFBooleanTrue);
+    AXUIElementPerformAction(FocusedWindowRef, kAXRaiseAction);
 
     if(EnableAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
+
+    DEBUG("SetWindowRefFocus() Focused Window: " << FocusedWindow->Name << " | Workspace: " << GetSpaceOfWindow(FocusedWindow))
 }
 
 void SetWindowFocus(window_info *Window)
 {
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
-    {
         SetWindowRefFocus(WindowRef, Window);
-    }
 }
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)
 {
-    if(WindowRef != NULL)
-    {
-        CGPoint WindowPos = CGPointMake(X, Y);
-        CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
+    CGPoint WindowPos = CGPointMake(X, Y);
+    CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
 
-        CGSize WindowSize = CGSizeMake(Width, Height);
-        CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
+    CGSize WindowSize = CGSizeMake(Width, Height);
+    CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
 
-        if(AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos) == kAXErrorSuccess)
-        {
-            Window->X = WindowPos.x;
-            Window->Y = WindowPos.y;
-        }
+    AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+    AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
 
-        if(AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize) == kAXErrorSuccess)
-        {
-            Window->Width = WindowSize.width;
-            Window->Height = WindowSize.height;
-        }
+    Window->X = X;
+    Window->Y = Y;
+    Window->Width = Width;
+    Window->Height = Height;
 
-        if(NewWindowPos != NULL)
-            CFRelease(NewWindowPos);
-        if(NewWindowSize != NULL)
-            CFRelease(NewWindowSize);
-    }
+    DEBUG("SetWindowDimensions() Window " << Window->Name << ": " << Window->X << "," << Window->Y)
+
+    if(NewWindowPos != NULL)
+        CFRelease(NewWindowPos);
+    if(NewWindowSize != NULL)
+        CFRelease(NewWindowSize);
+}
+
+std::string GetWindowTitle(AXUIElementRef WindowRef)
+{
+    CFStringRef Temp;
+    std::string WindowTitle;
+
+    AXUIElementCopyAttributeValue(WindowRef, kAXTitleAttribute, (CFTypeRef*)&Temp);
+    if(CFStringGetCStringPtr(Temp, kCFStringEncodingMacRoman))
+        WindowTitle = CFStringGetCStringPtr(Temp, kCFStringEncodingMacRoman);
+
+    if(Temp != NULL)
+        CFRelease(Temp);
+
+    return WindowTitle;
+}
+
+CGSize GetWindowSize(AXUIElementRef WindowRef)
+{
+    AXValueRef Temp;
+    CGSize WindowSize;
+
+    AXUIElementCopyAttributeValue(WindowRef, kAXSizeAttribute, (CFTypeRef*)&Temp);
+    AXValueGetValue(Temp, kAXValueCGSizeType, &WindowSize);
+
+    if(Temp != NULL)
+        CFRelease(Temp);
+
+    return WindowSize;
+}
+
+CGPoint GetWindowPos(AXUIElementRef WindowRef)
+{
+    AXValueRef Temp;
+    CGPoint WindowPos;
+
+    AXUIElementCopyAttributeValue(WindowRef, kAXPositionAttribute, (CFTypeRef*)&Temp);
+    AXValueGetValue(Temp, kAXValueCGPointType, &WindowPos);
+
+    if(Temp != NULL)
+        CFRelease(Temp);
+
+    return WindowPos;
 }
 
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 {
     AXUIElementRef App = AXUIElementCreateApplication(Window->PID);
-    CFArrayRef AppWindowLst;
-    bool Result = false;
+    bool Found = false;
     
     if(App)
     {
-        AXError Error = AXUIElementCopyAttributeValue(App, kAXWindowsAttribute, (CFTypeRef*)&AppWindowLst);
-        if(Error == kAXErrorSuccess)
+        CFArrayRef AppWindowLst;
+        AXUIElementCopyAttributeValue(App, kAXWindowsAttribute, (CFTypeRef*)&AppWindowLst);
+        if(AppWindowLst)
         {
             CFIndex DoNotFree = -1;
             CFIndex AppWindowCount = CFArrayGetCount(AppWindowLst);
@@ -207,40 +241,18 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
                 AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
                 if(AppWindowRef != NULL)
                 {
-                    if(!Result)
+                    if(!Found)
                     {
-                        AXValueRef Temp;
-
-                        CFStringRef AppWindowTitle;
-                        AXUIElementCopyAttributeValue(AppWindowRef, kAXTitleAttribute, (CFTypeRef*)&AppWindowTitle);
-
-                        std::string AppWindowName;
-                        if(CFStringGetCStringPtr(AppWindowTitle, kCFStringEncodingMacRoman))
-                            AppWindowName = CFStringGetCStringPtr(AppWindowTitle, kCFStringEncodingMacRoman);
-                        if(AppWindowTitle != NULL)
-                            CFRelease(AppWindowTitle);
-
-                        CGSize AppWindowSize;
-                        AXUIElementCopyAttributeValue(AppWindowRef, kAXSizeAttribute, (CFTypeRef*)&Temp);
-                        AXValueGetValue(Temp, kAXValueCGSizeType, &AppWindowSize);
-                        if(Temp != NULL)
-                            CFRelease(Temp);
-
-                        CGPoint AppWindowPos;
-                        AXUIElementCopyAttributeValue(AppWindowRef, kAXPositionAttribute, (CFTypeRef*)&Temp);
-                        AXValueGetValue(Temp, kAXValueCGPointType, &AppWindowPos);
-                        if(Temp != NULL)
-                            CFRelease(Temp);
+                        std::string AppWindowTitle = GetWindowTitle(AppWindowRef);
+                        CGPoint AppWindowPos = GetWindowPos(AppWindowRef);
 
                         if(Window->X == AppWindowPos.x && 
-                                Window->Y == AppWindowPos.y &&
-                                Window->Width == AppWindowSize.width && 
-                                Window->Height == AppWindowSize.height &&
-                                Window->Name == AppWindowName)
+                           Window->Y == AppWindowPos.y &&
+                            Window->Name == AppWindowTitle)
                         {
                             *WindowRef = AppWindowRef;
                             DoNotFree = WindowIndex;
-                            Result = true;
+                            Found = true;
                         }
 
                     }
@@ -250,10 +262,18 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
                 }
             }
         }
+        else
+        {
+            DEBUG("GetWindowRef() Failed to get AppWindowLst for: " << Window->Name)
+        }
         CFRelease(App);
     }
+    else
+    {
+        DEBUG("GetWindowRef() Failed to get App for: " << Window->Name)
+    }
 
-    return Result;
+    return Found;
 }
 
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
