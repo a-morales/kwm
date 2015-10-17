@@ -92,7 +92,10 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
 
     int SpaceIndex = GetSpaceOfWindow(FocusedWindow);
     if(SpaceIndex == -1)
+    {
+        DEBUG("CycleFocusedWindowLayout() Could not get space of window: " << FocusedWindow->Name)
         return;
+    }
 
     int ActiveLayoutIndex = SpacesLst[SpaceIndex].ActiveLayoutIndex;
     int MaxLayoutTiles = LayoutMaster->Layouts[ActiveLayoutIndex].Layouts.size();
@@ -100,7 +103,10 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
     int FocusedWindowIndex = GetLayoutIndexOfWindow(FocusedWindow);
     int SwapWithWindowIndex = FocusedWindowIndex + Shift;
     if(SwapWithWindowIndex < 0 || SwapWithWindowIndex >= MaxLayoutTiles)
+    {
+        DEBUG("CycleFocusedWindowLayout() Window to swap with is invalid: " << SwapWithWindowIndex)
         return;
+    }
 
     window_info *Window = NULL;
     for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
@@ -112,7 +118,10 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
         }
     }
     if (Window == NULL)
+    {
+        DEBUG("CycleFocusedWindowLayout() Window is NULL: " << SwapWithWindowIndex)
         return;
+    }
 
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
@@ -123,7 +132,13 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
         LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][FocusedWindowIndex] = Window->WID;
         ApplyLayoutForWindow(WindowRef, Window, FocusedWindowLayout);
         ApplyLayoutForWindow(FocusedWindowRef, FocusedWindow, SwapWithWindowLayout);
+
+        DEBUG("CycleFocusedWindowLayout() Focused Window: "  << FocusedWindow->Name << " - Swapped: " << Window->Name)
         CFRelease(WindowRef);
+    }
+    else
+    {
+        DEBUG("CycleFocusedWindowLayout() Failed to get WindowRef for: " << Window->Name)
     }
 }
 
@@ -173,7 +188,7 @@ void CycleWindowInsideLayout(int ScreenIndex)
 int GetLayoutIndexOfWindow(window_info *Window)
 {
     int ScreenID = GetDisplayOfWindow(Window)->ID;
-    int SpaceIndex = GetSpaceOfWindow(FocusedWindow);
+    int SpaceIndex = GetSpaceOfWindow(Window);
     if(SpaceIndex == -1)
         return -1;
 
