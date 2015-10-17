@@ -13,7 +13,7 @@
 #if 1
 #define DEBUG(x) std::cout << x << std::endl;
 #else
-#define DEBUG(X, Y)
+#define DEBUG(x)
 #endif
 
 struct window_info
