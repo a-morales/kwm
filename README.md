@@ -15,11 +15,14 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - t: toggle keypress redirect
         - r: toggle auto-raise
 
+        - q: close focused window
+
         - h: decrease width
         - l: increasee width
         - j: increasee height
         - k: decrease height
 
+        - enter: opens a new iTerm window
         - space: toggle screen layout
         - f: toggle fullscreen for focused
              window in screen-layout
