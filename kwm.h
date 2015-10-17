@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#if 1
+#ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
 #else
     #define DEBUG(x)
