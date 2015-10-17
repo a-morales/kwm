@@ -4,7 +4,7 @@ extern std::vector<spaces_info> SpacesLst;
 extern std::vector<screen_info> DisplayLst;
 extern std::vector<window_info> WindowLst;
 extern std::vector<screen_layout> ScreenLayoutLst;
-extern std::vector<window_layout> LayoutLst;
+extern std::vector<window_layout> WindowLayoutLst;
 
 extern uint32_t MaxDisplayCount;
 extern ProcessSerialNumber FocusedPSN;
@@ -220,11 +220,11 @@ window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name)
     screen_info *Screen = &DisplayLst[ScreenIndex];
     if(Screen)
     {
-        for(int LayoutIndex = 0; LayoutIndex < LayoutLst.size(); ++LayoutIndex)
+        for(int LayoutIndex = 0; LayoutIndex < WindowLayoutLst.size(); ++LayoutIndex)
         {
-            if(LayoutLst[LayoutIndex].Name == Name)
+            if(WindowLayoutLst[LayoutIndex].Name == Name)
             {
-                Layout = LayoutLst[LayoutIndex];
+                Layout = WindowLayoutLst[LayoutIndex];
                 break;
             }
         }
@@ -297,31 +297,31 @@ void InitWindowLayouts()
     ScreenVerticalSplit.GapHorizontal = 18;
 
     ScreenVerticalSplit.Name = "fullscreen";
-    LayoutLst.push_back(ScreenVerticalSplit);
+    WindowLayoutLst.push_back(ScreenVerticalSplit);
 
     ScreenVerticalSplit.Name = "left vertical split";
-    LayoutLst.push_back(ScreenVerticalSplit);
+    WindowLayoutLst.push_back(ScreenVerticalSplit);
 
     ScreenVerticalSplit.Name = "right vertical split";
-    LayoutLst.push_back(ScreenVerticalSplit);
+    WindowLayoutLst.push_back(ScreenVerticalSplit);
 
     ScreenVerticalSplit.Name = "upper horizontal split";
-    LayoutLst.push_back(ScreenVerticalSplit);
+    WindowLayoutLst.push_back(ScreenVerticalSplit);
 
     ScreenVerticalSplit.Name = "lower horizontal split";
-    LayoutLst.push_back(ScreenVerticalSplit);
+    WindowLayoutLst.push_back(ScreenVerticalSplit);
 
     ScreenVerticalSplit.Name = "upper left split";
-    LayoutLst.push_back(ScreenVerticalSplit);
+    WindowLayoutLst.push_back(ScreenVerticalSplit);
 
     ScreenVerticalSplit.Name = "lower left split";
-    LayoutLst.push_back(ScreenVerticalSplit);
+    WindowLayoutLst.push_back(ScreenVerticalSplit);
 
     ScreenVerticalSplit.Name = "upper right split";
-    LayoutLst.push_back(ScreenVerticalSplit);
+    WindowLayoutLst.push_back(ScreenVerticalSplit);
 
     ScreenVerticalSplit.Name = "lower right split";
-    LayoutLst.push_back(ScreenVerticalSplit);
+    WindowLayoutLst.push_back(ScreenVerticalSplit);
 
     // Screen Layouts
     for(int ScreenIndex = 0; ScreenIndex < MaxDisplayCount; ++ScreenIndex)

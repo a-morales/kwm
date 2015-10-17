@@ -4,7 +4,7 @@ std::vector<spaces_info> SpacesLst;
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
 std::vector<screen_layout> ScreenLayoutLst;
-std::vector<window_layout> LayoutLst;
+std::vector<window_layout> WindowLayoutLst;
 
 ProcessSerialNumber FocusedPSN;
 AXUIElementRef FocusedWindowRef;
