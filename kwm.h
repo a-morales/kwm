@@ -11,9 +11,9 @@
 #include <stdlib.h>
 
 #if 1
-#define DEBUG(x) std::cout << x << std::endl;
+    #define DEBUG(x) std::cout << x << std::endl;
 #else
-#define DEBUG(x)
+    #define DEBUG(x)
 #endif
 
 struct window_info
@@ -92,6 +92,7 @@ bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode
 bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 
+bool WindowsAreEqual(window_info *Window, window_info *Match);
 bool IsWindowBelowCursor(window_info *Window);
 void DetectWindowBelowCursor();
 
@@ -100,10 +101,12 @@ void CloseFocusedWindow();
 void CloseWindow(window_info *Window);
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window);
 void SetWindowFocus(window_info *Window);
+
+std::string GetWindowTitle(AXUIElementRef WindowRef);
+CGPoint GetWindowPos(AXUIElementRef WindowRef);
+CGSize GetWindowSize(AXUIElementRef WindowRef);
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);
 void GetWindowInfo(const void *Key, const void *Value, void *Context);
-window_info GetWindowInfoFromRef(AXUIElementRef WindowRef);
-bool WindowsAreEqual(window_info *Window, window_info *Match);
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon);
 void Fatal(const std::string &Err);
