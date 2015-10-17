@@ -1,7 +1,7 @@
 #include "kwm.h"
 
 extern AXUIElementRef FocusedWindowRef;
-extern window_info FocusedWindow;
+extern window_info *FocusedWindow;
 extern bool ToggleTap;
 extern bool EnableAutoraise;
 
@@ -53,10 +53,14 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
 {
     if(CmdKey && AltKey && CtrlKey)
     {
+        // Close Window
+        if(Keycode == kVK_ANSI_Q)
+            CloseFocusedWindow();
+
         // Start Applications
         std::string SysCommand = "";
         // New iterm2 Window
-        if(Keycode == kVK_ANSI_1)
+        if(Keycode == kVK_Return)
             SysCommand = "/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window &";
         // YTD - Media Player Controls
         else if(Keycode == kVK_ANSI_Z)
@@ -77,7 +81,7 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
         // Toggle Screen Layout
         if(Keycode == kVK_Space)
         {
-            ApplyLayoutForDisplay(GetDisplayOfWindow(&FocusedWindow)->ID);
+            ApplyLayoutForDisplay(GetDisplayOfWindow(FocusedWindow)->ID);
             return true;
         }
 
@@ -91,59 +95,59 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
         window_layout Layout;
         Layout.Name = "invalid";
         if(Keycode == kVK_ANSI_M)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->ID, "fullscreen");
+            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "fullscreen");
         else if(Keycode == kVK_LeftArrow)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->ID, "left vertical split");
+            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "left vertical split");
         else if(Keycode == kVK_RightArrow)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->ID, "right vertical split");
+            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "right vertical split");
         else if(Keycode == kVK_UpArrow)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->ID, "upper horizontal split");
+            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "upper horizontal split");
         else if(Keycode == kVK_DownArrow)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->ID, "lower horizontal split");
+            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "lower horizontal split");
         else if(Keycode == kVK_ANSI_P)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->ID, "upper left split");
+            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "upper left split");
         else if(Keycode == kVK_SPECIAL_Ø)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->ID, "lower left split");
+            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "lower left split");
         else if(Keycode == kVK_SPECIAL_Å)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->ID, "upper right split");
+            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "upper right split");
         else if(Keycode == kVK_SPECIAL_Æ)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(&FocusedWindow)->ID, "lower right split");
+            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "lower right split");
 
         if(Layout.Name != "invalid")
         {
-            ApplyLayoutForWindow(FocusedWindowRef, &FocusedWindow, &Layout);
+            ApplyLayoutForWindow(FocusedWindowRef, FocusedWindow, &Layout);
             return true;
         }
 
         // Window Resize
         if(Keycode == kVK_ANSI_H)
             SetWindowDimensions(FocusedWindowRef, 
-                    &FocusedWindow, 
-                    FocusedWindow.X, 
-                    FocusedWindow.Y, 
-                    FocusedWindow.Width - 10, 
-                    FocusedWindow.Height);
+                    FocusedWindow, 
+                    FocusedWindow->X, 
+                    FocusedWindow->Y, 
+                    FocusedWindow->Width - 10, 
+                    FocusedWindow->Height);
         else if(Keycode == kVK_ANSI_J)
             SetWindowDimensions(FocusedWindowRef, 
-                    &FocusedWindow, 
-                    FocusedWindow.X, 
-                    FocusedWindow.Y, 
-                    FocusedWindow.Width, 
-                    FocusedWindow.Height + 10);
+                    FocusedWindow, 
+                    FocusedWindow->X, 
+                    FocusedWindow->Y, 
+                    FocusedWindow->Width, 
+                    FocusedWindow->Height + 10);
         else if(Keycode == kVK_ANSI_K)
             SetWindowDimensions(FocusedWindowRef, 
-                    &FocusedWindow, 
-                    FocusedWindow.X, 
-                    FocusedWindow.Y, 
-                    FocusedWindow.Width, 
-                    FocusedWindow.Height - 10);
+                    FocusedWindow, 
+                    FocusedWindow->X, 
+                    FocusedWindow->Y, 
+                    FocusedWindow->Width, 
+                    FocusedWindow->Height - 10);
         else if(Keycode == kVK_ANSI_L)
             SetWindowDimensions(FocusedWindowRef, 
-                    &FocusedWindow, 
-                    FocusedWindow.X, 
-                    FocusedWindow.Y, 
-                    FocusedWindow.Width + 10, 
-                    FocusedWindow.Height);
+                    FocusedWindow, 
+                    FocusedWindow->X, 
+                    FocusedWindow->Y, 
+                    FocusedWindow->Width + 10, 
+                    FocusedWindow->Height);
     }
 
     if(CmdKey && CtrlKey && !AltKey)
@@ -163,32 +167,32 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
         // Move Window
         if(Keycode == kVK_ANSI_H)
             SetWindowDimensions(FocusedWindowRef, 
-                    &FocusedWindow, 
-                    FocusedWindow.X - 10, 
-                    FocusedWindow.Y, 
-                    FocusedWindow.Width, 
-                    FocusedWindow.Height);
+                    FocusedWindow, 
+                    FocusedWindow->X - 10, 
+                    FocusedWindow->Y, 
+                    FocusedWindow->Width, 
+                    FocusedWindow->Height);
         else if(Keycode == kVK_ANSI_J)
             SetWindowDimensions(FocusedWindowRef, 
-                    &FocusedWindow, 
-                    FocusedWindow.X, 
-                    FocusedWindow.Y + 10, 
-                    FocusedWindow.Width, 
-                    FocusedWindow.Height);
+                    FocusedWindow, 
+                    FocusedWindow->X, 
+                    FocusedWindow->Y + 10, 
+                    FocusedWindow->Width, 
+                    FocusedWindow->Height);
         else if(Keycode == kVK_ANSI_K)
             SetWindowDimensions(FocusedWindowRef, 
-                    &FocusedWindow, 
-                    FocusedWindow.X, 
-                    FocusedWindow.Y - 10, 
-                    FocusedWindow.Width, 
-                    FocusedWindow.Height);
+                    FocusedWindow, 
+                    FocusedWindow->X, 
+                    FocusedWindow->Y - 10, 
+                    FocusedWindow->Width, 
+                    FocusedWindow->Height);
         else if(Keycode == kVK_ANSI_L)
             SetWindowDimensions(FocusedWindowRef, 
-                    &FocusedWindow, 
-                    FocusedWindow.X + 10, 
-                    FocusedWindow.Y, 
-                    FocusedWindow.Width, 
-                    FocusedWindow.Height);
+                    FocusedWindow, 
+                    FocusedWindow->X + 10, 
+                    FocusedWindow->Y, 
+                    FocusedWindow->Width, 
+                    FocusedWindow->Height);
     }
 
     if(CmdKey && AltKey && !CtrlKey)
@@ -197,10 +201,10 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
         if(Keycode == kVK_ANSI_P || Keycode == kVK_ANSI_N)
         {
             if(Keycode == kVK_ANSI_P)
-                CycleFocusedWindowLayout(GetDisplayOfWindow(&FocusedWindow)->ID, -1);
+                CycleFocusedWindowLayout(GetDisplayOfWindow(FocusedWindow)->ID, -1);
 
             if(Keycode == kVK_ANSI_N)
-                CycleFocusedWindowLayout(GetDisplayOfWindow(&FocusedWindow)->ID, 1);
+                CycleFocusedWindowLayout(GetDisplayOfWindow(FocusedWindow)->ID, 1);
 
             return true;
         }
@@ -208,7 +212,7 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
         // Cycle window inside focused layout
         if(Keycode == kVK_Tab)
         {
-            CycleWindowInsideLayout(GetDisplayOfWindow(&FocusedWindow)->ID);
+            CycleWindowInsideLayout(GetDisplayOfWindow(FocusedWindow)->ID);
             return true;
         }
 

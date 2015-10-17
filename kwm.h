@@ -10,6 +10,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+#if 1
+#define DEBUG(x) std::cout << x << std::endl;
+#else
+#define DEBUG(X, Y)
+#endif
+
 struct window_info
 {
     std::string Name;
@@ -89,6 +95,9 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
 bool IsWindowBelowCursor(window_info *Window);
 void DetectWindowBelowCursor();
 
+void CloseWindowByRef(AXUIElementRef WindowRef);
+void CloseFocusedWindow();
+void CloseWindow(window_info *Window);
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window);
 void SetWindowFocus(window_info *Window);
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);

@@ -7,7 +7,7 @@ extern CGDirectDisplayID ActiveDisplays[];
 extern std::vector<screen_info> DisplayLst;
 extern std::vector<window_info> WindowLst;
 extern AXUIElementRef FocusedWindowRef;
-extern window_info FocusedWindow;
+extern window_info *FocusedWindow;
 
 void GetActiveDisplays()
 {
@@ -53,7 +53,7 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
 
 void CycleFocusedWindowDisplay(int Shift)
 {
-    screen_info *Screen = GetDisplayOfWindow(&FocusedWindow);
+    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
     int NewScreenIndex;
 
     if(Shift == 1)
@@ -65,9 +65,9 @@ void CycleFocusedWindowDisplay(int Shift)
 
     screen_info *NewScreen = &DisplayLst[NewScreenIndex];
     SetWindowDimensions(FocusedWindowRef,
-            &FocusedWindow,
+            FocusedWindow,
             NewScreen->X + 30, 
             NewScreen->Y + 40,
-            FocusedWindow.Width,
-            FocusedWindow.Height);
+            FocusedWindow->Width,
+            FocusedWindow->Height);
 }

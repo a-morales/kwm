@@ -6,39 +6,48 @@ static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly 
 extern std::vector<window_info> WindowLst;
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
-extern window_info FocusedWindow;
+extern window_info *FocusedWindow;
 extern bool EnableAutoraise;
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
-    if(Window->X == Match->X &&
-        Window->Y == Match->Y &&
-        Window->Width == Match->Width &&
-        Window->Height == Match->Height &&
-        Window->Name == Match->Name)
-            return true;
+    bool Result = Window == Match;
 
-    return false;
+    if(Window && Match)
+    {
+        if(Window->X == Match->X &&
+                Window->Y == Match->Y &&
+                Window->Width == Match->Width &&
+                Window->Height == Match->Height &&
+                Window->Name == Match->Name)
+                    Result = true;
+    }
+
+    return Result;
 }
 
 bool IsWindowBelowCursor(window_info *Window)
 {
-    CGEventRef Event = CGEventCreate(NULL);
-    CGPoint Cursor = CGEventGetLocation(Event);
-    CFRelease(Event);
-    if(Cursor.x >= Window->X && 
-            Cursor.x <= Window->X + Window->Width && 
-            Cursor.y >= Window->Y && 
-            Cursor.y <= Window->Y + Window->Height)
-        return true;
+    bool Result = Window == NULL;
+
+    if(Window)
+    {
+        CGEventRef Event = CGEventCreate(NULL);
+        CGPoint Cursor = CGEventGetLocation(Event);
+        CFRelease(Event);
+        if(Cursor.x >= Window->X && 
+                Cursor.x <= Window->X + Window->Width && 
+                Cursor.y >= Window->Y && 
+                Cursor.y <= Window->Y + Window->Height)
+                    Result = true;
+    }
         
-    return false;
+    return Result;
 }
 
 void DetectWindowBelowCursor()
 {
     WindowLst.clear();
-
     CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
     if(OsxWindowLst)
     {
@@ -55,7 +64,7 @@ void DetectWindowBelowCursor()
         {
             if(IsWindowBelowCursor(&WindowLst[i]))
             {
-                if(!WindowsAreEqual(&FocusedWindow, &WindowLst[i]))
+                if(!WindowsAreEqual(FocusedWindow, &WindowLst[i]))
                 {
                     SetWindowFocus(&WindowLst[i]);
                 }
@@ -73,12 +82,12 @@ bool GetExpressionFromShiftDirection(window_info *Window, const std::string &Dir
     else if(Direction == "next")
         Shift = 1;
 
-    return (GetLayoutIndexOfWindow(Window) == GetLayoutIndexOfWindow(&FocusedWindow) + Shift);
+    return (GetLayoutIndexOfWindow(Window) == GetLayoutIndexOfWindow(FocusedWindow) + Shift);
 }
 
 void ShiftWindowFocus(const std::string &Direction)
 {
-    int ScreenIndex = GetDisplayOfWindow(&FocusedWindow)->ID;
+    int ScreenIndex = GetDisplayOfWindow(FocusedWindow)->ID;
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
     {
@@ -91,13 +100,42 @@ void ShiftWindowFocus(const std::string &Direction)
     }
 }
 
+void CloseFocusedWindow()
+{
+    DEBUG("Closing window: " << FocusedWindow->Name)
+    if(FocusedWindow)
+    {
+        CloseWindowByRef(FocusedWindowRef);
+        CFRelease(FocusedWindowRef);
+        FocusedWindowRef = NULL;
+        FocusedWindow = NULL;
+        DetectWindowBelowCursor();
+    }
+}
+
+void CloseWindowByRef(AXUIElementRef WindowRef)
+{
+    AXUIElementRef ActionClose;
+    AXUIElementCopyAttributeValue(WindowRef, kAXCloseButtonAttribute, (CFTypeRef*)&ActionClose);
+    AXUIElementPerformAction(ActionClose, kAXPressAction);
+}
+
+void CloseWindow(window_info *Window)
+{
+    AXUIElementRef WindowRef;
+    if(GetWindowRef(Window, &WindowRef))
+    {
+        CloseWindowByRef(WindowRef);
+    }
+}
+
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
 {
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
     FocusedPSN = NewPSN;
-    FocusedWindow = *Window;
+    FocusedWindow = Window;
 
     AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
@@ -107,12 +145,10 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
         CFRelease(FocusedWindowRef);
 
     FocusedWindowRef = WindowRef;
-    std::cout << "current space: " << GetSpaceOfWindow(&FocusedWindow) << std::endl;
+    DEBUG("Focused Window: " << FocusedWindow->Name << "| Workspace: " << GetSpaceOfWindow(FocusedWindow))
 
     if(EnableAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
-
-    std::cout << "Keyboard focus: " << FocusedWindow.PID << std::endl;
 }
 
 void SetWindowFocus(window_info *Window)

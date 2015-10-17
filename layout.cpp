@@ -9,7 +9,7 @@ extern std::vector<window_layout> LayoutLst;
 extern uint32_t MaxDisplayCount;
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
-extern window_info FocusedWindow;
+extern window_info *FocusedWindow;
 
 void ApplyLayoutForDisplay(int ScreenIndex)
 {
@@ -19,7 +19,7 @@ void ApplyLayoutForDisplay(int ScreenIndex)
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
 
-    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    int SpaceIndex = GetSpaceOfWindow(FocusedWindow);
     if(SpaceIndex == -1)
         return;
 
@@ -44,7 +44,7 @@ void ApplyLayoutForDisplay(int ScreenIndex)
                 ApplyLayoutForWindow(WindowRef, Window, Layout);
             }
 
-            if(!WindowsAreEqual(&FocusedWindow, Window))
+            if(!WindowsAreEqual(FocusedWindow, Window))
                 CFRelease(WindowRef);
         }
     }
@@ -59,29 +59,29 @@ void ApplyLayoutForWindow(AXUIElementRef WindowRef, window_info *Window, window_
 
 void ToggleFocusedWindowFullscreen()
 {
-    int ScreenIndex = GetDisplayOfWindow(&FocusedWindow)->ID;
-    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    int ScreenIndex = GetDisplayOfWindow(FocusedWindow)->ID;
+    int SpaceIndex = GetSpaceOfWindow(FocusedWindow);
     if(SpaceIndex == -1)
         return;
 
     int ActiveLayoutIndex = SpacesLst[SpaceIndex].ActiveLayoutIndex;
-    int FocusedWindowIndex = GetLayoutIndexOfWindow(&FocusedWindow);
+    int FocusedWindowIndex = GetLayoutIndexOfWindow(FocusedWindow);
     if(FocusedWindowIndex == -1)
         return;
 
     screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
     window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
 
-    if(FocusedWindow.X == FocusedWindowLayout->X && FocusedWindow.Y == FocusedWindowLayout->Y
-            && FocusedWindow.Width == FocusedWindowLayout->Width
-            && FocusedWindow.Height == FocusedWindowLayout->Height) 
+    if(FocusedWindow->X == FocusedWindowLayout->X && FocusedWindow->Y == FocusedWindowLayout->Y
+            && FocusedWindow->Width == FocusedWindowLayout->Width
+            && FocusedWindow->Height == FocusedWindowLayout->Height) 
     {
         window_layout Layout = GetWindowLayoutForScreen(ScreenIndex, "fullscreen");
-        ApplyLayoutForWindow(FocusedWindowRef, &FocusedWindow, &Layout);
+        ApplyLayoutForWindow(FocusedWindowRef, FocusedWindow, &Layout);
     }
     else
     {
-        ApplyLayoutForWindow(FocusedWindowRef, &FocusedWindow, FocusedWindowLayout);
+        ApplyLayoutForWindow(FocusedWindowRef, FocusedWindow, FocusedWindowLayout);
     }
 }
 
@@ -90,14 +90,14 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
 
-    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    int SpaceIndex = GetSpaceOfWindow(FocusedWindow);
     if(SpaceIndex == -1)
         return;
 
     int ActiveLayoutIndex = SpacesLst[SpaceIndex].ActiveLayoutIndex;
     int MaxLayoutTiles = LayoutMaster->Layouts[ActiveLayoutIndex].Layouts.size();
 
-    int FocusedWindowIndex = GetLayoutIndexOfWindow(&FocusedWindow);
+    int FocusedWindowIndex = GetLayoutIndexOfWindow(FocusedWindow);
     int SwapWithWindowIndex = FocusedWindowIndex + Shift;
     if(SwapWithWindowIndex < 0 || SwapWithWindowIndex >= MaxLayoutTiles)
         return;
@@ -119,10 +119,10 @@ void CycleFocusedWindowLayout(int ScreenIndex, int Shift)
     {
         window_layout *FocusedWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[FocusedWindowIndex];
         window_layout *SwapWithWindowLayout = &LayoutMaster->Layouts[ActiveLayoutIndex].Layouts[SwapWithWindowIndex];
-        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][SwapWithWindowIndex] = FocusedWindow.WID;
+        LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][SwapWithWindowIndex] = FocusedWindow->WID;
         LayoutMaster->Layouts[ActiveLayoutIndex].TileWID[SpaceIndex][FocusedWindowIndex] = Window->WID;
         ApplyLayoutForWindow(WindowRef, Window, FocusedWindowLayout);
-        ApplyLayoutForWindow(FocusedWindowRef, &FocusedWindow, SwapWithWindowLayout);
+        ApplyLayoutForWindow(FocusedWindowRef, FocusedWindow, SwapWithWindowLayout);
         CFRelease(WindowRef);
     }
 }
@@ -133,7 +133,7 @@ void CycleWindowInsideLayout(int ScreenIndex)
     std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
     screen_layout *LayoutMaster = &ScreenLayoutLst[ScreenIndex];
 
-    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    int SpaceIndex = GetSpaceOfWindow(FocusedWindow);
     if(SpaceIndex == -1)
         return;
 
@@ -142,7 +142,7 @@ void CycleWindowInsideLayout(int ScreenIndex)
     if(ScreenWindowLst.size() <= MaxLayoutTiles)
         return;
 
-    int FocusedWindowIndex = GetLayoutIndexOfWindow(&FocusedWindow);
+    int FocusedWindowIndex = GetLayoutIndexOfWindow(FocusedWindow);
     if(FocusedWindowIndex == -1)
         return;
 
@@ -173,7 +173,7 @@ void CycleWindowInsideLayout(int ScreenIndex)
 int GetLayoutIndexOfWindow(window_info *Window)
 {
     int ScreenID = GetDisplayOfWindow(Window)->ID;
-    int SpaceIndex = GetSpaceOfWindow(&FocusedWindow);
+    int SpaceIndex = GetSpaceOfWindow(FocusedWindow);
     if(SpaceIndex == -1)
         return -1;
 
@@ -219,20 +219,19 @@ window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name)
                     Screen->X + Layout.GapX, 
                     Screen->Y + Layout.GapY, 
                     (Screen->Width - (Layout.GapX * 2.0f)),
-                    (Screen->Height - (Layout.GapY * 1.0f))); 
+                    (Screen->Height - (Layout.GapY * 1.2f)));
         else if(Name == "left vertical split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
                     Screen->Y + Layout.GapY, 
                     ((Screen->Width / 2) - (Layout.GapVertical * 2.0f) + (Layout.GapX / 2)), 
-                    (Screen->Height - (Layout.GapY * 1.0f)));
+                    (Screen->Height - (Layout.GapY * 1.2f)));
         else if(Name == "right vertical split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + (Screen->Width / 2) + (Layout.GapX / 2), 
                     Screen->Y + Layout.GapY, 
                     ((Screen->Width / 2) - (Layout.GapVertical * 2.0f)), 
-                    (Screen->Height - (Layout.GapY * 1.0f))); // Screen aspect-ratio 16:10
-                    //(Screen->Height - (Layout.GapY * 1.5f))); for aspect-ratio 16:9
+                    (Screen->Height - (Layout.GapY * 1.2f)));
         else if(Name == "upper horizontal split")
             SetWindowLayoutValues(&Layout, 
                     Screen->X + Layout.GapX, 
@@ -280,7 +279,7 @@ void InitWindowLayouts()
     ScreenVerticalSplit.GapX = 24;
     ScreenVerticalSplit.GapY = 32;
     ScreenVerticalSplit.GapVertical = 18;
-    ScreenVerticalSplit.GapHorizontal = 24;
+    ScreenVerticalSplit.GapHorizontal = 18;
 
     ScreenVerticalSplit.Name = "fullscreen";
     LayoutLst.push_back(ScreenVerticalSplit);

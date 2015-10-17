@@ -8,7 +8,7 @@ std::vector<window_layout> LayoutLst;
 
 ProcessSerialNumber FocusedPSN;
 AXUIElementRef FocusedWindowRef;
-window_info FocusedWindow;
+window_info *FocusedWindow;
 
 bool ToggleTap = true;
 bool EnableAutoraise = true;
@@ -51,14 +51,14 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         if(KwmHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
             return NULL;
 
-        // Let system hotkeys pass through as normal
-        if(SystemHotkeyPassthrough(CmdKey, CtrlKey, AltKey, Keycode))
-            return Event;
-            
         // capture custom hotkeys
         if(CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
             return NULL;
 
+        // Let system hotkeys pass through as normal
+        if(SystemHotkeyPassthrough(CmdKey, CtrlKey, AltKey, Keycode))
+            return Event;
+            
         if(ToggleTap)
         {
             CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
