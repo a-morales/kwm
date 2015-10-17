@@ -9,9 +9,7 @@ std::vector<window_layout> LayoutLst;
 ProcessSerialNumber FocusedPSN;
 AXUIElementRef FocusedWindowRef;
 window_info *FocusedWindow;
-
-bool ToggleTap = true;
-bool EnableAutoraise = true;
+focus_option KwmFocusMode = FocusAutoraise;
 
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
@@ -59,30 +57,18 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         if(SystemHotkeyPassthrough(CmdKey, CtrlKey, AltKey, Keycode))
             return Event;
             
-        if(ToggleTap)
+        if(KwmFocusMode == FocusFollowsMouse)
         {
             CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
             CGEventPostToPSN(&FocusedPSN, Event);
             return NULL;
         }
-        else
-        {
-            /* Re-enable keytap when spotlight is closed
-            
-            if ((cmd_key && keycode == kVK_Space)
-                    || keycode == kVK_Return || keycode == kVK_ANSI_KeypadEnter)
-            {
-                toggle_tap = true;
-                std::cout << "tap enabled" << std::endl;
-            }
-
-            */
-            return Event;
-        }
-
     }
     else if(Type == kCGEventMouseMoved)
-        DetectWindowBelowCursor();
+    {
+        if(KwmFocusMode != FocusDisabled)
+            DetectWindowBelowCursor();
+    }
 
     return Event;
 }

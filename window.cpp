@@ -7,7 +7,7 @@ extern std::vector<window_info> WindowLst;
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
-extern bool EnableAutoraise;
+extern focus_option KwmFocusMode;
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
@@ -143,7 +143,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     AXUIElementSetAttributeValue(FocusedWindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(FocusedWindowRef, kAXRaiseAction);
 
-    if(EnableAutoraise)
+    if(KwmFocusMode == FocusAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
     DEBUG("SetWindowRefFocus() Focused Window: " << FocusedWindow->Name << " | Workspace: " << GetSpaceOfWindow(FocusedWindow))

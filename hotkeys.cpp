@@ -2,8 +2,7 @@
 
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
-extern bool ToggleTap;
-extern bool EnableAutoraise;
+extern focus_option KwmFocusMode;
 
 static const CGKeyCode kVK_SPECIAL_Å = 0x21;
 static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
@@ -15,15 +14,22 @@ bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode
     {
         if(Keycode == kVK_ANSI_T)
         {
-            ToggleTap = !ToggleTap;
-            std::cout << (ToggleTap ? "tap enabled" : "tap disabled") << std::endl;
-            return true;
-        }
+            if(KwmFocusMode == FocusFollowsMouse)
+            {
+                KwmFocusMode = FocusAutoraise;
+                DEBUG("KwmFocusMode: Autoraise")
+            }
+            else if(KwmFocusMode == FocusAutoraise)
+            {
+                KwmFocusMode = FocusDisabled;
+                DEBUG("KwmFocusMode: Disabled")
+            }
+            else if(KwmFocusMode == FocusDisabled)
+            {
+                KwmFocusMode = FocusFollowsMouse;
+                DEBUG("KwmFocusMode: Focus-follows-mouse")
+            }
 
-        if(Keycode == kVK_ANSI_R)
-        {
-            EnableAutoraise = !EnableAutoraise;
-            std::cout << (EnableAutoraise ? "autoraise enabled" : "autoraise disabled") << std::endl;
             return true;
         }
     }
@@ -33,13 +39,12 @@ bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode
 
 bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
 {
-    // Spotlight fix
     if (CmdKey && !CtrlKey && !AltKey)
     {
+        // Spotlight fix
         if (Keycode == kVK_Space)
         {
-            ToggleTap = false;
-            std::cout << "tap disabled" << std::endl;
+            KwmFocusMode = FocusAutoraise;
             return true;
         }
         else if(Keycode == kVK_Tab)

@@ -16,6 +16,13 @@
     #define DEBUG(x)
 #endif
 
+enum focus_option
+{ 
+    FocusFollowsMouse, 
+    FocusAutoraise, 
+    FocusDisabled 
+};
+
 struct window_info
 {
     std::string Name;
