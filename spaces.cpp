@@ -17,7 +17,7 @@ void GetActiveSpaces()
 
         for(int SpaceIndex = 0; SpaceIndex < SpacesLst.size(); ++SpaceIndex)
         {
-            SpacesLst[SpaceIndex].ActiveLayoutIndex = 0;
+            SpacesLst[SpaceIndex].RootNode = CreateTreeFromWindowIDList(&SpacesLst[SpaceIndex].Windows);
             SpacesLst[SpaceIndex].NextLayoutIndex = 0;
         }
     }
@@ -38,27 +38,6 @@ int GetSpaceOfWindow(window_info *Window)
     }
 
     return -1;
-}
-
-void RefreshActiveSpacesInfo()
-{
-    std::vector<std::pair<int,int> > SpacesCache;
-    for(int SpaceIndex = 0; SpaceIndex < SpacesLst.size(); ++SpaceIndex)
-    {
-        std::pair<int,int> Info = std::make_pair(SpacesLst[SpaceIndex].ActiveLayoutIndex,
-                                                 SpacesLst[SpaceIndex].NextLayoutIndex);
-        SpacesCache.push_back(Info);
-    }
-
-    GetActiveSpaces();
-    for(int SpaceIndex = 0; SpaceIndex < SpacesLst.size(); ++SpaceIndex)
-    {
-        if(SpaceIndex < SpacesCache.size())
-        {
-            SpacesLst[SpaceIndex].ActiveLayoutIndex = SpacesCache[SpaceIndex].first;
-            SpacesLst[SpaceIndex].NextLayoutIndex = SpacesCache[SpaceIndex].second;
-        }
-    }
 }
 
 void GetSpacesInfo(const void *Key, const void *Value, void *Context)

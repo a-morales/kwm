@@ -180,6 +180,17 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         CFRelease(NewWindowSize);
 }
 
+void ResizeWindow(tree_node *Node)
+{
+    AXUIElementRef WindowRef;
+    if(GetWindowRef(Node->Window, &WindowRef))
+    {
+        SetWindowDimensions(WindowRef, Node->Window,
+                            Node->Container.X, Node->Container.Y, 
+                            Node->Container.Width, Node->Container.Height);
+    }
+}
+
 std::string GetWindowTitle(AXUIElementRef WindowRef)
 {
     CFStringRef Temp;

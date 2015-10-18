@@ -7,8 +7,8 @@
 #include <vector>
 #include <string>
 
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
@@ -16,11 +16,32 @@
     #define DEBUG(x)
 #endif
 
+struct window_info;
+struct screen_info;
+struct spaces_info;
+struct node_container;
+struct tree_node;
+
 enum focus_option
 { 
     FocusFollowsMouse, 
     FocusAutoraise, 
     FocusDisabled 
+};
+
+struct node_container
+{    
+    int X,Y;
+    int Width, Height;
+};
+
+struct tree_node
+{
+    int WindowID;
+    node_container Container;
+    tree_node *Parent;
+    tree_node *LeftChild;
+    tree_node *RightChild;
 };
 
 struct window_info
@@ -31,20 +52,10 @@ struct window_info
     int Width, Height;
 };
 
-struct window_layout
+struct spaces_info
 {
-    std::string Name;
-    int X, Y;
-    int Width, Height;
-    int GapX, GapY;
-    int GapVertical, GapHorizontal;
-};
-
-struct window_group_layout
-{
-    std::string Name;
-    std::vector<std::vector<int> > TileWID;
-    std::vector<window_layout> Layouts;
+    std::vector<int> Windows;
+    tree_node *RootNode;
 };
 
 struct screen_info
@@ -52,48 +63,33 @@ struct screen_info
     int ID;
     int X, Y;
     int Width, Height;
+    int PaddingTop, PaddingBottom;
+    int PaddingLeft, PaddingRight;
 };
 
-struct screen_layout
-{
-    int NumberOfLayouts;
-    std::vector<window_group_layout> Layouts;    
-};
+tree_node *CreateNode(int WindowID, node_container *Container,
+                      tree_node *Parent, tree_node *LeftChild, tree_node *RightChild);
 
-struct spaces_info
-{
-    int ActiveLayoutIndex;
-    int NextLayoutIndex;
-    std::vector<int> Windows;
-};
+tree_node *CreateNode(int WindowID, int X, int Y, int Width, int Height,
+                      tree_node *Parent, tree_node *LeftChild, tree_node *RightChild);
 
-bool CheckPrivileges();
+tree_node *CreateTreeFromWindowIDList(std::vector<int> *Windows);
+void DestroyNode(tree_node *Node);
+void ApplyNodeContainer(tree_node *Node);
 
 void GetActiveDisplays();
 screen_info *GetDisplayOfWindow(window_info *Window);
 std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex);
+void CycleFocusedWindowDisplay(int Shift);
 
 int GetSpaceOfWindow(window_info *Window);
 void GetSpacesInfo(const void *Key, const void *Value, void *Context);
 void RefreshActiveSpacesInfo();
 void GetActiveSpaces();
 
-void ToggleFocusedWindowFullscreen();
-void ApplyLayoutForDisplay(int ScreenIndex);
-void CycleFocusedWindowLayout(int ScreenIndex, int Shift);
-void CycleWindowInsideLayout(int ScreenIndex);
-void CycleFocusedWindowDisplay(int Shift);
-
-bool GetExpressionFromShiftDirection(window_info *Window, const std::string &Direction);
-void ShiftWindowFocus(const std::string &Direction);
-
-void InitWindowLayouts();
-void SetWindowLayoutValues(window_layout *Layout, int X, int Y, int Width, int Height);
-window_layout GetWindowLayoutForScreen(int ScreenIndex, const std::string &Name);
-
-void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
-void ApplyLayoutForWindow(AXUIElementRef WindowRef, window_info *Window, window_layout *Layout);
-int GetLayoutIndexOfWindow(window_info *Window);
+void ResizeWindow(tree_node *Node);
+void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, 
+                         int X, int Y, int Width, int Height);
 
 bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
@@ -116,6 +112,7 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);
 void GetWindowInfo(const void *Key, const void *Value, void *Context);
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon);
+bool CheckPrivileges();
 void Fatal(const std::string &Err);
 
 #endif
