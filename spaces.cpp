@@ -1,6 +1,8 @@
 #include "kwm.h"
 
 extern std::vector<spaces_info> SpacesLst;
+extern std::vector<window_info> WindowLst;
+extern std::vector<screen_info> DisplayLst;
 
 void GetActiveSpaces()
 {
@@ -15,9 +17,32 @@ void GetActiveSpaces()
         CFDictionaryApplyFunction((CFDictionaryRef)SpacesPropList, GetSpacesInfo, NULL);
         CFRelease(SpacesPropList);
 
+        if(!WindowLst.empty())
+        {
+            DEBUG("SPACE CHECK WINDOWS")
+            for(int SpaceIndex = 0; SpaceIndex < SpacesLst.size(); ++SpaceIndex)
+            {
+                std::vector<int> NewWindows;
+                for(int WindowIndex = 0; WindowIndex < SpacesLst[SpaceIndex].Windows.size(); ++WindowIndex)
+                {
+                    bool found = false;
+                    for(int Index = 0; Index < WindowLst.size(); ++ Index)
+                    {
+                        if(SpacesLst[SpaceIndex].Windows[WindowIndex] == WindowLst[Index].WID)
+                            found = true;
+                    }
+                    if(found)
+                    {
+                        NewWindows.push_back(SpacesLst[SpaceIndex].Windows[WindowIndex]);
+                    }
+                }
+                SpacesLst[SpaceIndex].Windows = NewWindows;
+            }
+        }
+
         for(int SpaceIndex = 0; SpaceIndex < SpacesLst.size(); ++SpaceIndex)
         {
-            SpacesLst[SpaceIndex].RootNode = CreateTreeFromWindowIDList(&SpacesLst[SpaceIndex].Windows);
+            SpacesLst[SpaceIndex].RootNode = CreateTreeFromWindowIDList(&DisplayLst[0], &SpacesLst[SpaceIndex].Windows);
         }
     }
 

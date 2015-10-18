@@ -65,7 +65,9 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
     else if(Type == kCGEventMouseMoved)
     {
         if(KwmFocusMode != FocusDisabled)
+        {
             DetectWindowBelowCursor();
+        }
     }
 
     return Event;
@@ -87,8 +89,8 @@ int main(int argc, char **argv)
         Fatal("could not tap keys, try running as root");
 
     GetActiveDisplays();
-    GetActiveSpaces();
     DetectWindowBelowCursor();
+    GetActiveSpaces();
 
     RunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, EventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), RunLoopSource, kCFRunLoopCommonModes);

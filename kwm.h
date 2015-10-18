@@ -73,7 +73,7 @@ tree_node *CreateNode(int WindowID, node_container *Container,
 tree_node *CreateNode(int WindowID, int X, int Y, int Width, int Height,
                       tree_node *Parent, tree_node *LeftChild, tree_node *RightChild);
 
-tree_node *CreateTreeFromWindowIDList(std::vector<int> *Windows);
+tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> *Windows);
 void DestroyNode(tree_node *Node);
 void ApplyNodeContainer(tree_node *Node);
 

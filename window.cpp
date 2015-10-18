@@ -3,6 +3,7 @@
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | 
                                                    kCGWindowListExcludeDesktopElements;
 
+extern std::vector<spaces_info> SpacesLst;
 extern std::vector<window_info> WindowLst;
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
@@ -65,7 +66,21 @@ void DetectWindowBelowCursor()
             if(IsWindowBelowCursor(&WindowLst[i]))
             {
                 if(!WindowsAreEqual(FocusedWindow, &WindowLst[i]))
+                {
                     SetWindowFocus(&WindowLst[i]);
+
+                    int ActiveSpace = GetSpaceOfWindow(FocusedWindow);
+                    if(ActiveSpace != -1)
+                    {
+                        if(SpacesLst[ActiveSpace].RootNode && SpacesLst[ActiveSpace].RootNode->LeftChild)
+                        {
+                            int WindowID = SpacesLst[ActiveSpace].RootNode->LeftChild->WindowID;
+                            window_info *Window = GetWindowByID(WindowID);
+                            if(Window)
+                                DEBUG("Left Child WindowName: " << Window->Name)
+                        }
+                    }
+                }
 
                 break;
             }
@@ -217,7 +232,9 @@ window_info *GetWindowByID(int WindowID)
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         if(WindowLst[WindowIndex].WID == WindowID)
+        {
             return &WindowLst[WindowIndex];
+        }
     }
 
     return NULL;
