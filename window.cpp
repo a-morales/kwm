@@ -73,32 +73,6 @@ void DetectWindowBelowCursor()
     }
 }
 
-bool GetExpressionFromShiftDirection(window_info *Window, const std::string &Direction)
-{
-    int Shift = 0;
-    if(Direction == "prev")
-        Shift = -1;
-    else if(Direction == "next")
-        Shift = 1;
-
-    return (GetLayoutIndexOfWindow(Window) == GetLayoutIndexOfWindow(FocusedWindow) + Shift);
-}
-
-void ShiftWindowFocus(const std::string &Direction)
-{
-    int ScreenIndex = GetDisplayOfWindow(FocusedWindow)->ID;
-    std::vector<window_info*> ScreenWindowLst = GetAllWindowsOnDisplay(ScreenIndex);
-    for(int WindowIndex = 0; WindowIndex < ScreenWindowLst.size(); ++WindowIndex)
-    {
-        window_info *Window = ScreenWindowLst[WindowIndex];
-        if(GetExpressionFromShiftDirection(Window, Direction))
-        {
-            SetWindowFocus(Window);
-            break;
-        }
-    }
-}
-
 void CloseFocusedWindow()
 {
     if(FocusedWindow)
@@ -182,12 +156,16 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
 
 void ResizeWindow(tree_node *Node)
 {
-    AXUIElementRef WindowRef;
-    if(GetWindowRef(Node->Window, &WindowRef))
+    window_info *Window = GetWindowByID(Node->WindowID);
+    if(Window)
     {
-        SetWindowDimensions(WindowRef, Node->Window,
-                            Node->Container.X, Node->Container.Y, 
-                            Node->Container.Width, Node->Container.Height);
+        AXUIElementRef WindowRef;
+        if(GetWindowRef(Window, &WindowRef))
+        {
+            SetWindowDimensions(WindowRef, Window,
+                    Node->Container.X, Node->Container.Y, 
+                    Node->Container.Width, Node->Container.Height);
+        }
     }
 }
 
@@ -232,6 +210,17 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef)
         CFRelease(Temp);
 
     return WindowPos;
+}
+
+window_info *GetWindowByID(int WindowID)
+{
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    {
+        if(WindowLst[WindowIndex].WID == WindowID)
+            return &WindowLst[WindowIndex];
+    }
+
+    return NULL;
 }
 
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)

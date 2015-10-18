@@ -18,7 +18,6 @@ void GetActiveSpaces()
         for(int SpaceIndex = 0; SpaceIndex < SpacesLst.size(); ++SpaceIndex)
         {
             SpacesLst[SpaceIndex].RootNode = CreateTreeFromWindowIDList(&SpacesLst[SpaceIndex].Windows);
-            SpacesLst[SpaceIndex].NextLayoutIndex = 0;
         }
     }
 

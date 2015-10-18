@@ -11,7 +11,7 @@ tree_node * CreateNode(int WindowID, node_container *Container,
 tree_node * CreateNode(int WindowID, int X, int Y, int Width, int Height, 
                        tree_node *Parent, tree_node *LeftChild, tree_node *RightChild)
 {
-    tree_node *NewNode = malloc(sizeof(tree_node));
+    tree_node *NewNode = (tree_node*) malloc(sizeof(tree_node));
 
     NewNode->Container.X = X;
     NewNode->Container.Y = Y;
@@ -36,7 +36,7 @@ void DestroyNode(tree_node *Node)
 
 tree_node *CreateTreeFromWindowIDList(std::vector<int> *Windows)
 {
-    tree_node *RootNode = malloc(sizeof(tree_node));
+    tree_node *RootNode = (tree_node*) malloc(sizeof(tree_node));
     std::memset(&RootNode, '\0', sizeof(tree_node));
     RootNode->Parent = NULL;
 

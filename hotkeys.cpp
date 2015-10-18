@@ -83,47 +83,6 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
             return true;
         }
 
-        // Toggle Screen Layout
-        if(Keycode == kVK_Space)
-        {
-            ApplyLayoutForDisplay(GetDisplayOfWindow(FocusedWindow)->ID);
-            return true;
-        }
-
-        if(Keycode == kVK_ANSI_F)
-        {
-            ToggleFocusedWindowFullscreen();
-            return true;
-        }
-
-        // Window Layout
-        window_layout Layout;
-        Layout.Name = "invalid";
-        if(Keycode == kVK_ANSI_M)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "fullscreen");
-        else if(Keycode == kVK_LeftArrow)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "left vertical split");
-        else if(Keycode == kVK_RightArrow)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "right vertical split");
-        else if(Keycode == kVK_UpArrow)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "upper horizontal split");
-        else if(Keycode == kVK_DownArrow)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "lower horizontal split");
-        else if(Keycode == kVK_ANSI_P)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "upper left split");
-        else if(Keycode == kVK_SPECIAL_Ø)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "lower left split");
-        else if(Keycode == kVK_SPECIAL_Å)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "upper right split");
-        else if(Keycode == kVK_SPECIAL_Æ)
-            Layout = GetWindowLayoutForScreen(GetDisplayOfWindow(FocusedWindow)->ID, "lower right split");
-
-        if(Layout.Name != "invalid")
-        {
-            ApplyLayoutForWindow(FocusedWindowRef, FocusedWindow, &Layout);
-            return true;
-        }
-
         // Window Resize
         if(Keycode == kVK_ANSI_H)
             SetWindowDimensions(FocusedWindowRef, 
@@ -200,16 +159,15 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
                     FocusedWindow->Height);
     }
 
+    /*
     if(CmdKey && AltKey && !CtrlKey)
     {
         // Cycle focused window layout
         if(Keycode == kVK_ANSI_P || Keycode == kVK_ANSI_N)
         {
             if(Keycode == kVK_ANSI_P)
-                CycleFocusedWindowLayout(GetDisplayOfWindow(FocusedWindow)->ID, -1);
 
             if(Keycode == kVK_ANSI_N)
-                CycleFocusedWindowLayout(GetDisplayOfWindow(FocusedWindow)->ID, 1);
 
             return true;
         }
@@ -217,7 +175,6 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
         // Cycle window inside focused layout
         if(Keycode == kVK_Tab)
         {
-            CycleWindowInsideLayout(GetDisplayOfWindow(FocusedWindow)->ID);
             return true;
         }
 
@@ -225,13 +182,12 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
         if(Keycode == kVK_ANSI_H || Keycode == kVK_ANSI_L)
         {
             if(Keycode == kVK_ANSI_H)
-                ShiftWindowFocus("prev");
             else if(Keycode == kVK_ANSI_L)
-                ShiftWindowFocus("next");
         
             return true;
         }
     }
+    */
     
     if(CmdKey && !AltKey && !CtrlKey)
     {

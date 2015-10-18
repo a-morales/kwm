@@ -108,6 +108,7 @@ void SetWindowFocus(window_info *Window);
 std::string GetWindowTitle(AXUIElementRef WindowRef);
 CGPoint GetWindowPos(AXUIElementRef WindowRef);
 CGSize GetWindowSize(AXUIElementRef WindowRef);
+window_info *GetWindowByID(int WindowID);
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);
 void GetWindowInfo(const void *Key, const void *Value, void *Context);
 

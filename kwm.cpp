@@ -3,8 +3,6 @@
 std::vector<spaces_info> SpacesLst;
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
-std::vector<screen_layout> ScreenLayoutLst;
-std::vector<window_layout> WindowLayoutLst;
 
 ProcessSerialNumber FocusedPSN;
 AXUIElementRef FocusedWindowRef;
@@ -89,7 +87,6 @@ int main(int argc, char **argv)
         Fatal("could not tap keys, try running as root");
 
     GetActiveDisplays();
-    InitWindowLayouts();
     GetActiveSpaces();
     DetectWindowBelowCursor();
 
