@@ -44,15 +44,36 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> *Win
     RootNode->Container.X = Screen->PaddingLeft;
     RootNode->Container.Y = Screen->PaddingTop,
     RootNode->Container.Width = Screen->Width - Screen->PaddingRight;
-    RootNode->Container.Height = Screen->Height - Screen->PaddingBottom;
+    RootNode->Container.Height = Screen->Height - Screen->PaddingTop - Screen->PaddingBottom;
+
+    node_container LeftContainer;
+    LeftContainer.X = RootNode->Container.X;
+    LeftContainer.Y = RootNode->Container.Y;
+    LeftContainer.Width = (RootNode->Container.Width / 2) - (Screen->PaddingLeft / 2);
+    LeftContainer.Height = RootNode->Container.Height;
 
     tree_node *LeftChild = (tree_node*) malloc(sizeof(tree_node));
     LeftChild->Parent = RootNode;
     LeftChild->WindowID = (*Windows)[0];
-    LeftChild->Container = RootNode->Container;
+    LeftChild->Container = LeftContainer;
+    LeftChild->LeftChild = NULL;
     LeftChild->RightChild = NULL;
 
+    node_container RightContainer;
+    RightContainer.X = (RootNode->Container.Width / 2) + (Screen->PaddingLeft);
+    RightContainer.Y = RootNode->Container.Y;
+    RightContainer.Width = RootNode->Container.Width / 2 - (Screen->PaddingRight);
+    RightContainer.Height = RootNode->Container.Height;
+
+    tree_node *RightChild = (tree_node*) malloc(sizeof(tree_node));
+    RightChild->Parent = RootNode;
+    RightChild->WindowID = (*Windows)[1];
+    RightChild->Container = RightContainer;
+    RightChild->LeftChild = NULL;
+    RightChild->RightChild = NULL;
+
     RootNode->LeftChild = LeftChild;
+    RootNode->RightChild = RightChild;
     return RootNode;
 }
 

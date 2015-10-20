@@ -23,7 +23,7 @@ void GetActiveDisplays()
         Screen.Height = DisplayRect.size.height;
 
         // Read from config at some point
-        Screen.PaddingTop = 40;
+        Screen.PaddingTop = 30;
         Screen.PaddingLeft = 20;
         Screen.PaddingRight = 20;
         Screen.PaddingBottom = 20;
