@@ -18,7 +18,6 @@
 
 struct window_info;
 struct screen_info;
-struct spaces_info;
 struct node_container;
 struct tree_node;
 
@@ -52,12 +51,6 @@ struct window_info
     int Width, Height;
 };
 
-struct spaces_info
-{
-    std::vector<int> Windows;
-    tree_node *RootNode;
-};
-
 struct screen_info
 {
     int ID;
@@ -65,6 +58,7 @@ struct screen_info
     int Width, Height;
     int PaddingTop, PaddingBottom;
     int PaddingLeft, PaddingRight;
+    tree_node *RootNode;
 };
 
 tree_node *CreateNode(int WindowID, node_container *Container,
@@ -73,19 +67,20 @@ tree_node *CreateNode(int WindowID, node_container *Container,
 tree_node *CreateNode(int WindowID, int X, int Y, int Width, int Height,
                       tree_node *Parent, tree_node *LeftChild, tree_node *RightChild);
 
-tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> *Windows);
+tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Windows);
 void DestroyNode(tree_node *Node);
 void ApplyNodeContainer(tree_node *Node);
+tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType);
+tree_node *CreateRootNode(screen_info *Screen);
+node_container FullscreenContainer(screen_info *Screen, tree_node *Node);
+node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node);
+node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node);
 
 void GetActiveDisplays();
 screen_info *GetDisplayOfWindow(window_info *Window);
 std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex);
+std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex);
 void CycleFocusedWindowDisplay(int Shift);
-
-int GetSpaceOfWindow(window_info *Window);
-void GetSpacesInfo(const void *Key, const void *Value, void *Context);
-void RefreshActiveSpacesInfo();
-void GetActiveSpaces();
 
 void ResizeWindow(tree_node *Node);
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, 

@@ -1,6 +1,5 @@
 #include "kwm.h"
 
-std::vector<spaces_info> SpacesLst;
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
 
@@ -90,7 +89,6 @@ int main(int argc, char **argv)
 
     GetActiveDisplays();
     DetectWindowBelowCursor();
-    GetActiveSpaces();
 
     RunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, EventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), RunLoopSource, kCFRunLoopCommonModes);

@@ -3,8 +3,8 @@
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | 
                                                    kCGWindowListExcludeDesktopElements;
 
-extern std::vector<spaces_info> SpacesLst;
 extern std::vector<window_info> WindowLst;
+
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
@@ -48,7 +48,9 @@ bool IsWindowBelowCursor(window_info *Window)
 
 void DetectWindowBelowCursor()
 {
+    int OldWindowLstCount = WindowLst.size();
     WindowLst.clear();
+
     CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
     if(OsxWindowLst)
     {
@@ -61,6 +63,19 @@ void DetectWindowBelowCursor()
         }
         CFRelease(OsxWindowLst);
 
+        if(OldWindowLstCount != WindowLst.size())
+        {
+            if(FocusedWindow)
+            {
+                std::cout << " start " << std::endl;
+                screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+                if(Screen)
+                {
+                    Screen->RootNode = CreateTreeFromWindowIDList(Screen, GetAllWindowIDsOnDisplay(Screen->ID));
+                }
+            }
+        }
+
         for(int i = 0; i < WindowLst.size(); ++i)
         {
             if(IsWindowBelowCursor(&WindowLst[i]))
@@ -68,18 +83,6 @@ void DetectWindowBelowCursor()
                 if(!WindowsAreEqual(FocusedWindow, &WindowLst[i]))
                 {
                     SetWindowFocus(&WindowLst[i]);
-
-                    int ActiveSpace = GetSpaceOfWindow(FocusedWindow);
-                    if(ActiveSpace != -1)
-                    {
-                        if(SpacesLst[ActiveSpace].RootNode && SpacesLst[ActiveSpace].RootNode->LeftChild)
-                        {
-                            int WindowID = SpacesLst[ActiveSpace].RootNode->LeftChild->WindowID;
-                            window_info *Window = GetWindowByID(WindowID);
-                            if(Window)
-                                DEBUG("Left Child WindowName: " << Window->Name)
-                        }
-                    }
                 }
 
                 break;
@@ -135,7 +138,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     if(KwmFocusMode == FocusAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
-    DEBUG("SetWindowRefFocus() Focused Window: " << FocusedWindow->Name << " | Workspace: " << GetSpaceOfWindow(FocusedWindow))
+    DEBUG("SetWindowRefFocus() Focused Window: " << FocusedWindow->Name)
 }
 
 void SetWindowFocus(window_info *Window)

@@ -34,11 +34,14 @@ void GetActiveDisplays()
 
 screen_info *GetDisplayOfWindow(window_info *Window)
 {
-    for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
+    if(Window)
     {
-        screen_info *Screen = &DisplayLst[DisplayIndex];
-        if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
-            return Screen;
+        for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
+        {
+            screen_info *Screen = &DisplayLst[DisplayIndex];
+            if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
+                return Screen;
+        }
     }
 
     return NULL;
@@ -56,6 +59,22 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
     }
 
     return ScreenWindowLst;
+}
+
+std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
+{
+    screen_info *Screen = &DisplayLst[ScreenIndex];
+    std::vector<int> ScreenWindowIDLst;
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    {
+        window_info *Window = &WindowLst[WindowIndex];
+        if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
+            ScreenWindowIDLst.push_back(Window->WID);
+    }
+
+    for(int i = 0; i < ScreenWindowIDLst.size(); ++i)
+        std::cout << ScreenWindowIDLst[i] << std::endl;
+    return ScreenWindowIDLst;
 }
 
 void CycleFocusedWindowDisplay(int Shift)
