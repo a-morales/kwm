@@ -58,10 +58,6 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
 {
     if(CmdKey && AltKey && CtrlKey)
     {
-        // Close Window
-        if(Keycode == kVK_ANSI_Q)
-            CloseFocusedWindow();
-
         // Start Applications
         std::string SysCommand = "";
         // New iterm2 Window

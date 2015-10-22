@@ -103,7 +103,6 @@ bool IsWindowBelowCursor(window_info *Window);
 void DetectWindowBelowCursor();
 
 void CloseWindowByRef(AXUIElementRef WindowRef);
-void CloseFocusedWindow();
 void CloseWindow(window_info *Window);
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window);
 void SetWindowFocus(window_info *Window);

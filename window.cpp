@@ -173,20 +173,6 @@ void ShiftWindowFocus(int Shift)
     }
 }
 
-void CloseFocusedWindow()
-{
-    if(FocusedWindow)
-    {
-        DEBUG("CloseFocusedWindow() Closing window: " << FocusedWindow->Name)
-
-        CloseWindowByRef(FocusedWindowRef);
-        CFRelease(FocusedWindowRef);
-        FocusedWindowRef = NULL;
-        FocusedWindow = NULL;
-        DetectWindowBelowCursor();
-    }
-}
-
 void CloseWindowByRef(AXUIElementRef WindowRef)
 {
     AXUIElementRef ActionClose;
