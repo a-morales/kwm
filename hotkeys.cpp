@@ -161,17 +161,18 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
 
     if(CmdKey && AltKey && !CtrlKey)
     {
-        /*
         // Cycle focused window layout
         if(Keycode == kVK_ANSI_P || Keycode == kVK_ANSI_N)
         {
             if(Keycode == kVK_ANSI_P)
-
+                SwapFocusedWindowWithNearest(-1);
             if(Keycode == kVK_ANSI_N)
+                SwapFocusedWindowWithNearest(1);
 
             return true;
         }
 
+        /*
         // Cycle window inside focused layout
         if(Keycode == kVK_Tab)
         {

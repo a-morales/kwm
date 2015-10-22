@@ -63,6 +63,7 @@ struct screen_info
     tree_node *RootNode;
 };
 
+void SwapNodeWindowIDs(tree_node *A, tree_node *B);
 tree_node *GetNearestNodeToTheLeft(tree_node *Node);
 tree_node *GetNearestNodeToTheRight(tree_node *Node);
 tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID);
@@ -94,6 +95,7 @@ bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode
 bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 
+void SwapFocusedWindowWithNearest(int Shift);
 void ShiftWindowFocus(int Shift);
 bool WindowsAreEqual(window_info *Window, window_info *Match);
 void FilterWindowList();

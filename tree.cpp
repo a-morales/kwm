@@ -180,6 +180,19 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
     return RootNode;
 }
 
+void SwapNodeWindowIDs(tree_node *A, tree_node *B)
+{
+    if(A && B)
+    {
+        DEBUG("SwapNodeWindowIDs() " << A->WindowID << " with " << B->WindowID)
+        int TempWindowID = A->WindowID;
+        A->WindowID = B->WindowID;
+        B->WindowID = TempWindowID;
+        ResizeWindow(A);
+        ResizeWindow(B);
+    }
+}
+
 tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID)
 {
     tree_node *Result = NULL;

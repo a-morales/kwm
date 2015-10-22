@@ -100,10 +100,41 @@ void RefreshWindowLayout()
         screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
         if(Screen)
         {
+            //if(Screen->RootNode)
+                //DestroyNodeTree(Screen->RootNode);
+
             std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
             Screen->RootNode = CreateTreeFromWindowIDList(Screen, WindowIDs);
             ApplyNodeContainer(Screen->RootNode);
-            //DestroyNodeTree(Screen->RootNode);
+        }
+    }
+}
+
+void SwapFocusedWindowWithNearest(int Shift)
+{
+    if(FocusedWindow)
+    {
+        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+        if(Screen && Screen->RootNode)
+        {
+            tree_node *FocusedWindowNode = GetNodeFromWindowID(Screen->RootNode, FocusedWindow->WID);
+            if(FocusedWindowNode)
+            {
+                tree_node *NewFocusNode;
+                if(Shift == 1)
+                {
+                    NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode);
+                }
+                else if(Shift == -1)
+                {
+                    NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode);
+                }
+
+                if(NewFocusNode)
+                {
+                    SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
+                }
+            }
         }
     }
 }
@@ -118,30 +149,23 @@ void ShiftWindowFocus(int Shift)
             tree_node *FocusedWindowNode = GetNodeFromWindowID(Screen->RootNode, FocusedWindow->WID);
             if(FocusedWindowNode)
             {
+                tree_node *NewFocusNode;
                 if(Shift == 1)
                 {
-                    tree_node *NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode);
-                    if(NewFocusNode)
-                    {
-                        window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
-                        if(NewWindow)
-                        {
-                            DEBUG("ShiftWindowFocus() changing focus to " << FocusedWindow->Name)
-                            SetWindowFocus(NewWindow);
-                        }
-                    }
+                    NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode);
                 }
                 else if(Shift == -1)
                 {
-                    tree_node *NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode);
-                    if(NewFocusNode)
+                    NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode);
+                }
+
+                if(NewFocusNode)
+                {
+                    window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
+                    if(NewWindow)
                     {
-                        window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
-                        if(NewWindow)
-                        {
-                            DEBUG("ShiftWindowFocus() changing focus to " << FocusedWindow->Name)
-                            SetWindowFocus(NewWindow);
-                        }
+                        DEBUG("ShiftWindowFocus() changing focus to " << NewWindow->Name)
+                        SetWindowFocus(NewWindow);
                     }
                 }
             }
