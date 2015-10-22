@@ -108,6 +108,8 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
                     FocusedWindow->Y, 
                     FocusedWindow->Width + 10, 
                     FocusedWindow->Height);
+        else if(Keycode == kVK_ANSI_F)
+            ToggleFocusedWindowFullscreen();
     }
 
     if(CmdKey && CtrlKey && !AltKey)
@@ -167,14 +169,6 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
 
             return true;
         }
-
-        /*
-        // Cycle window inside focused layout
-        if(Keycode == kVK_Tab)
-        {
-            return true;
-        }
-        */
 
         // Focus a window
         if(Keycode == kVK_ANSI_H || Keycode == kVK_ANSI_L)

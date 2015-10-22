@@ -110,6 +110,39 @@ void RefreshWindowLayout()
     }
 }
 
+void ToggleFocusedWindowFullscreen()
+{
+    if(FocusedWindow)
+    {
+        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+        if(Screen && Screen->RootNode)
+        {
+            tree_node *Node;
+            if(Screen->RootNode->WindowID == -1)
+            {
+                Node = GetNodeFromWindowID(Screen->RootNode, FocusedWindow->WID);
+                if(Node)
+                {
+                    DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
+                    Screen->RootNode->WindowID = Node->WindowID;
+                    ResizeWindow(Screen->RootNode);
+                }
+            }
+            else
+            {
+                DEBUG("ToggleFocusedWindowFullscreen() Restore old size")
+                Screen->RootNode->WindowID = -1;
+
+                Node = GetNodeFromWindowID(Screen->RootNode, FocusedWindow->WID);
+                if(Node)
+                {
+                    ResizeWindow(Node);
+                }
+            }
+        }
+    }
+}
+
 void SwapFocusedWindowWithNearest(int Shift)
 {
     if(FocusedWindow)

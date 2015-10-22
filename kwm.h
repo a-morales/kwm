@@ -95,6 +95,7 @@ bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode
 bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 
+void ToggleFocusedWindowFullscreen();
 void SwapFocusedWindowWithNearest(int Shift);
 void ShiftWindowFocus(int Shift);
 bool WindowsAreEqual(window_info *Window, window_info *Match);
