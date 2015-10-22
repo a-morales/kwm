@@ -17,6 +17,7 @@
 #endif
 
 struct window_info;
+struct space_info;
 struct screen_info;
 struct node_container;
 struct tree_node;
@@ -61,19 +62,17 @@ struct screen_info
     tree_node *RootNode;
 };
 
-tree_node *CreateNode(int WindowID, node_container *Container,
-                      tree_node *Parent, tree_node *LeftChild, tree_node *RightChild);
-
-tree_node *CreateNode(int WindowID, int X, int Y, int Width, int Height,
-                      tree_node *Parent, tree_node *LeftChild, tree_node *RightChild);
-
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Windows);
-void DestroyNode(tree_node *Node);
+void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID, int RightWindowID, int SplitMode);
+void SetRootNodeContainer(tree_node *Node, int X, int Y, int Width, int Height);
 void ApplyNodeContainer(tree_node *Node);
+void DestroyNodeTree(tree_node *Node);
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType);
-tree_node *CreateRootNode(screen_info *Screen);
+tree_node *CreateRootNode();
 node_container FullscreenContainer(screen_info *Screen, tree_node *Node);
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node);
+node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Node);
+node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Node);
 node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node);
 
 void GetActiveDisplays();
@@ -82,6 +81,7 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex);
 std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex);
 void CycleFocusedWindowDisplay(int Shift);
 
+void RefreshWindowLayout();
 void ResizeWindow(tree_node *Node);
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, 
                          int X, int Y, int Width, int Height);
@@ -91,6 +91,7 @@ bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode K
 bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 
 bool WindowsAreEqual(window_info *Window, window_info *Match);
+void FilterWindowList();
 bool IsWindowBelowCursor(window_info *Window);
 void DetectWindowBelowCursor();
 

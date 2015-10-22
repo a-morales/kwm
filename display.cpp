@@ -72,8 +72,6 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
             ScreenWindowIDLst.push_back(Window->WID);
     }
 
-    for(int i = 0; i < ScreenWindowIDLst.size(); ++i)
-        std::cout << ScreenWindowIDLst[i] << std::endl;
     return ScreenWindowIDLst;
 }
 

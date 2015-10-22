@@ -27,6 +27,21 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
     return Result;
 }
 
+void FilterWindowList()
+{
+    std::vector<window_info> FilteredWindowLst;
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    {
+        if(WindowLst[WindowIndex].Name != "Dock" &&
+           WindowLst[WindowIndex].Name != "Menubar" &&
+           WindowLst[WindowIndex].Name != "Contextual Menu" &&
+           WindowLst[WindowIndex].Name != "Spotlight" &&
+           WindowLst[WindowIndex].Name != "")
+               FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+    }
+    WindowLst = FilteredWindowLst;
+}
+
 bool IsWindowBelowCursor(window_info *Window)
 {
     bool Result = Window == NULL;
@@ -48,7 +63,7 @@ bool IsWindowBelowCursor(window_info *Window)
 
 void DetectWindowBelowCursor()
 {
-    int OldWindowLstCount = WindowLst.size();
+    std::vector<window_info> OldWindowLst = WindowLst;
     WindowLst.clear();
 
     CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
@@ -63,19 +78,7 @@ void DetectWindowBelowCursor()
         }
         CFRelease(OsxWindowLst);
 
-        if(OldWindowLstCount != WindowLst.size())
-        {
-            if(FocusedWindow)
-            {
-                std::cout << " start " << std::endl;
-                screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-                if(Screen)
-                {
-                    Screen->RootNode = CreateTreeFromWindowIDList(Screen, GetAllWindowIDsOnDisplay(Screen->ID));
-                }
-            }
-        }
-
+        FilterWindowList();
         for(int i = 0; i < WindowLst.size(); ++i)
         {
             if(IsWindowBelowCursor(&WindowLst[i]))
@@ -84,9 +87,28 @@ void DetectWindowBelowCursor()
                 {
                     SetWindowFocus(&WindowLst[i]);
                 }
-
                 break;
             }
+        }
+
+        if(OldWindowLst.size() != WindowLst.size())
+        {
+            RefreshWindowLayout();
+        }
+    }
+}
+
+void RefreshWindowLayout()
+{
+    if(FocusedWindow)
+    {
+        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+        if(Screen)
+        {
+            std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
+            Screen->RootNode = CreateTreeFromWindowIDList(Screen, WindowIDs);
+            ApplyNodeContainer(Screen->RootNode);
+            DestroyNodeTree(Screen->RootNode);
         }
     }
 }
