@@ -4,7 +4,7 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
 
 ### Features:
 - Enables focus-follows-mouse
-- Assigning windows to predefined layouts
+- Automatically tile windows as they are opened/destroyed
 - System wide hotkeys
 
 ### Requirements:
@@ -15,28 +15,15 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - t: toggle keypress redirect
         - r: toggle auto-raise
 
-        - q: close focused window
-
         - h: decrease width
         - l: increasee width
         - j: increasee height
         - k: decrease height
 
         - enter: opens a new iTerm window
-        - space: toggle screen layout
         - f: toggle fullscreen for focused
              window in screen-layout
 
-        - up: move and resize upper-half
-        - down: move and resize lower-half
-        - left: move and resize left-half
-        - right: move and resize right-half
-
-        - p: move and resize upper-left quarter
-        - å: move and resize upper-right quarter
-        - ø: move and resize lower-left quarter
-        - æ: move and resize lower-right quarter
-    
         YTD player controls:
         - z: play previous video
         - x: toggle play/pause
@@ -58,5 +45,3 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
 
         - p: swap with the previous window in layout
         - n: swap with the next window in layout
-
-        - tab: cycle windows (alt tab) inside the focused layout
