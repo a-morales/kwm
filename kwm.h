@@ -63,6 +63,9 @@ struct screen_info
     tree_node *RootNode;
 };
 
+tree_node *GetNearestNodeToTheLeft(tree_node *Node);
+tree_node *GetNearestNodeToTheRight(tree_node *Node);
+tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID);
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Windows);
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID, int RightWindowID, int SplitMode);
 void SetRootNodeContainer(tree_node *Node, int X, int Y, int Width, int Height);
@@ -91,6 +94,7 @@ bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode
 bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 
+void ShiftWindowFocus(int Shift);
 bool WindowsAreEqual(window_info *Window, window_info *Match);
 void FilterWindowList();
 bool IsWindowBelowCursor(window_info *Window);

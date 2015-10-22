@@ -103,7 +103,48 @@ void RefreshWindowLayout()
             std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
             Screen->RootNode = CreateTreeFromWindowIDList(Screen, WindowIDs);
             ApplyNodeContainer(Screen->RootNode);
-            DestroyNodeTree(Screen->RootNode);
+            //DestroyNodeTree(Screen->RootNode);
+        }
+    }
+}
+
+void ShiftWindowFocus(int Shift)
+{
+    if(FocusedWindow)
+    {
+        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+        if(Screen && Screen->RootNode)
+        {
+            tree_node *FocusedWindowNode = GetNodeFromWindowID(Screen->RootNode, FocusedWindow->WID);
+            if(FocusedWindowNode)
+            {
+                if(Shift == 1)
+                {
+                    tree_node *NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode);
+                    if(NewFocusNode)
+                    {
+                        window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
+                        if(NewWindow)
+                        {
+                            DEBUG("ShiftWindowFocus() changing focus to " << FocusedWindow->Name)
+                            SetWindowFocus(NewWindow);
+                        }
+                    }
+                }
+                else if(Shift == -1)
+                {
+                    tree_node *NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode);
+                    if(NewFocusNode)
+                    {
+                        window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
+                        if(NewWindow)
+                        {
+                            DEBUG("ShiftWindowFocus() changing focus to " << FocusedWindow->Name)
+                            SetWindowFocus(NewWindow);
+                        }
+                    }
+                }
+            }
         }
     }
 }

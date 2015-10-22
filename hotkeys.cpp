@@ -159,9 +159,9 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
                     FocusedWindow->Height);
     }
 
-    /*
     if(CmdKey && AltKey && !CtrlKey)
     {
+        /*
         // Cycle focused window layout
         if(Keycode == kVK_ANSI_P || Keycode == kVK_ANSI_N)
         {
@@ -177,17 +177,19 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
         {
             return true;
         }
+        */
 
         // Focus a window
         if(Keycode == kVK_ANSI_H || Keycode == kVK_ANSI_L)
         {
-            if(Keycode == kVK_ANSI_H)
-            else if(Keycode == kVK_ANSI_L)
+            if(Keycode == kVK_ANSI_H && FocusedWindow)
+                ShiftWindowFocus(-1);
+            else if(Keycode == kVK_ANSI_L && FocusedWindow)
+                ShiftWindowFocus(1);
         
             return true;
         }
     }
-    */
     
     if(CmdKey && !AltKey && !CtrlKey)
     {

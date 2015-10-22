@@ -180,6 +180,97 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
     return RootNode;
 }
 
+tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID)
+{
+    tree_node *Result = NULL;
+
+    if(Node)
+    {
+        if(Node->WindowID == WindowID)
+        {
+            DEBUG("GetNodeFromWindowID() " << WindowID)
+            return Node;
+        }
+
+        if(Node->LeftChild)
+        {
+            Result = GetNodeFromWindowID(Node->LeftChild, WindowID);
+            if(Result)
+                return Result;
+
+            Result = GetNodeFromWindowID(Node->RightChild, WindowID);
+        }
+
+        if(Node->RightChild)
+        {
+            GetNodeFromWindowID(Node->RightChild, WindowID);
+            if(Result)
+                return Result;
+
+            GetNodeFromWindowID(Node->LeftChild, WindowID);
+        }
+    }
+
+    DEBUG("GetNodeFromWindowID() NO MATCH")
+    return Result;
+}
+
+tree_node *GetNearestNodeToTheLeft(tree_node *Node)
+{
+    if(Node)
+    {
+        if(Node->Parent)
+        {
+            tree_node *Root = Node->Parent;
+            if(Root->LeftChild != Node)
+            {
+                if(Root->LeftChild->WindowID != -1)
+                {
+                    return Root->LeftChild;
+                }
+                else
+                {
+                    return Root->LeftChild->RightChild;
+                }
+            }
+            else
+            {
+                return GetNearestNodeToTheLeft(Root);
+            }
+        }
+    }
+
+    return NULL;
+}
+
+tree_node *GetNearestNodeToTheRight(tree_node *Node)
+{
+    if(Node)
+    {
+        if(Node->Parent)
+        {
+            tree_node *Root = Node->Parent;
+            if(Root->RightChild != Node)
+            {
+                if(Root->RightChild->WindowID != -1)
+                {
+                    return Root->RightChild;
+                }
+                else
+                {
+                    return Root->RightChild->LeftChild;
+                }
+            }
+            else
+            {
+                return GetNearestNodeToTheRight(Root);
+            }
+        }
+    }
+
+    return NULL;
+}
+
 void ApplyNodeContainer(tree_node *Node)
 {
     if(Node)
