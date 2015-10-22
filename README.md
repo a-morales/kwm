@@ -15,13 +15,12 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
 
         - h: decrease width
-        - l: increasee width
-        - j: increasee height
+        - l: increase width
+        - j: increase height
         - k: decrease height
 
         - enter: opens a new iTerm window
-        - f: toggle fullscreen for focused
-             window in screen-layout
+        - f: toggle fullscreen for focused window
 
         YTD player controls:
         - z: play previous video
