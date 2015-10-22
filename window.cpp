@@ -1,10 +1,7 @@
 #include "kwm.h"
 
-static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | 
-                                                   kCGWindowListExcludeDesktopElements;
-
+static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 extern std::vector<window_info> WindowLst;
-
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
@@ -32,12 +29,10 @@ void FilterWindowList()
     std::vector<window_info> FilteredWindowLst;
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-        if(WindowLst[WindowIndex].Name != "Dock" &&
-           WindowLst[WindowIndex].Name != "Menubar" &&
-           WindowLst[WindowIndex].Name != "Contextual Menu" &&
-           WindowLst[WindowIndex].Name != "Spotlight" &&
-           WindowLst[WindowIndex].Name != "")
-               FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+        if(WindowLst[WindowIndex].Layer == 0)
+        {
+           FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+        }
     }
     WindowLst = FilteredWindowLst;
 }
@@ -91,7 +86,7 @@ void DetectWindowBelowCursor()
             }
         }
 
-        if(OldWindowLst.size() != WindowLst.size())
+        if(OldWindowLst.size() != WindowLst.size() && !WindowLst.empty())
         {
             RefreshWindowLayout();
         }
@@ -343,6 +338,8 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
             WindowLst[WindowLst.size()-1].WID = MyInt;
         else if(KeyStr == "kCGWindowOwnerPID")
             WindowLst[WindowLst.size()-1].PID = MyInt;
+        else if(KeyStr == "kCGWindowLayer")
+            WindowLst[WindowLst.size()-1].Layer = MyInt;
         else if(KeyStr == "X")
             WindowLst[WindowLst.size()-1].X = MyInt;
         else if(KeyStr == "Y")

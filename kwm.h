@@ -48,6 +48,7 @@ struct window_info
 {
     std::string Name;
     int PID, WID;
+    int Layer;
     int X, Y;
     int Width, Height;
 };
