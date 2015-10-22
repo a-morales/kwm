@@ -12,8 +12,7 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
 
 ### hotkeys:
     - ctrl+alt+cmd:
-        - t: toggle keypress redirect
-        - r: toggle auto-raise
+        - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
 
         - h: decrease width
         - l: increasee width
