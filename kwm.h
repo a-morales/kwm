@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
@@ -124,6 +125,7 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context);
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon);
 bool CheckPrivileges();
+void KwmRestart();
 void Fatal(const std::string &Err);
 
 #endif

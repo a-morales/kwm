@@ -75,6 +75,15 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
     return Event;
 }
 
+void KwmRestart()
+{
+    DEBUG("KWM Restarting..")
+    const char **ExecArgs = new const char*[2];
+    ExecArgs[0] = "kwm";
+    ExecArgs[1] = NULL;
+    execv("/usr/local/bin/kwm", (char**)ExecArgs);
+}
+
 int main(int argc, char **argv)
 {
     if(!CheckPrivileges())

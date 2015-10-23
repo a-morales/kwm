@@ -37,6 +37,10 @@ bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode
             DetectWindowBelowCursor();
             return true;
         }
+        else if(Keycode == kVK_ANSI_Q)
+        {
+            KwmRestart();
+        }
     }
 
     return false;
