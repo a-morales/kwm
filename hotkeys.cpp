@@ -1,6 +1,5 @@
 #include "kwm.h"
 
-extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 
@@ -79,37 +78,11 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
             return true;
         }
 
-        // Window Resize
-        if(Keycode == kVK_ANSI_H)
-            SetWindowDimensions(FocusedWindowRef, 
-                    FocusedWindow, 
-                    FocusedWindow->X, 
-                    FocusedWindow->Y, 
-                    FocusedWindow->Width - 10, 
-                    FocusedWindow->Height);
-        else if(Keycode == kVK_ANSI_J)
-            SetWindowDimensions(FocusedWindowRef, 
-                    FocusedWindow, 
-                    FocusedWindow->X, 
-                    FocusedWindow->Y, 
-                    FocusedWindow->Width, 
-                    FocusedWindow->Height + 10);
-        else if(Keycode == kVK_ANSI_K)
-            SetWindowDimensions(FocusedWindowRef, 
-                    FocusedWindow, 
-                    FocusedWindow->X, 
-                    FocusedWindow->Y, 
-                    FocusedWindow->Width, 
-                    FocusedWindow->Height - 10);
-        else if(Keycode == kVK_ANSI_L)
-            SetWindowDimensions(FocusedWindowRef, 
-                    FocusedWindow, 
-                    FocusedWindow->X, 
-                    FocusedWindow->Y, 
-                    FocusedWindow->Width + 10, 
-                    FocusedWindow->Height);
-        else if(Keycode == kVK_ANSI_F)
+        if(Keycode == kVK_ANSI_F)
+        {
             ToggleFocusedWindowFullscreen();
+            return true;
+        }
     }
 
     if(CmdKey && CtrlKey && !AltKey)
@@ -125,36 +98,6 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
 
             return true;
         }
-
-        // Move Window
-        if(Keycode == kVK_ANSI_H)
-            SetWindowDimensions(FocusedWindowRef, 
-                    FocusedWindow, 
-                    FocusedWindow->X - 10, 
-                    FocusedWindow->Y, 
-                    FocusedWindow->Width, 
-                    FocusedWindow->Height);
-        else if(Keycode == kVK_ANSI_J)
-            SetWindowDimensions(FocusedWindowRef, 
-                    FocusedWindow, 
-                    FocusedWindow->X, 
-                    FocusedWindow->Y + 10, 
-                    FocusedWindow->Width, 
-                    FocusedWindow->Height);
-        else if(Keycode == kVK_ANSI_K)
-            SetWindowDimensions(FocusedWindowRef, 
-                    FocusedWindow, 
-                    FocusedWindow->X, 
-                    FocusedWindow->Y - 10, 
-                    FocusedWindow->Width, 
-                    FocusedWindow->Height);
-        else if(Keycode == kVK_ANSI_L)
-            SetWindowDimensions(FocusedWindowRef, 
-                    FocusedWindow, 
-                    FocusedWindow->X + 10, 
-                    FocusedWindow->Y, 
-                    FocusedWindow->Width, 
-                    FocusedWindow->Height);
     }
 
     if(CmdKey && AltKey && !CtrlKey)

@@ -7,7 +7,6 @@ int CurrentSpace = 0;
 int PrevSpace = -1;
 
 ProcessSerialNumber FocusedPSN;
-AXUIElementRef FocusedWindowRef;
 window_info *FocusedWindow;
 focus_option KwmFocusMode = FocusAutoraise;
 

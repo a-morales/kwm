@@ -3,7 +3,6 @@
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 extern std::vector<window_info> WindowLst;
 extern ProcessSerialNumber FocusedPSN;
-extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int CurrentSpace;
@@ -106,6 +105,8 @@ void DetectWindowBelowCursor()
                     }
 
                     DEBUG("ACTIVE SPACE IS NOW: " << CurrentSpace)
+
+                    // Note: Memory leak related to this function-call
                     SetWindowFocus(&WindowLst[i]);
 
                     if(CurrentSpace != -1)
@@ -150,8 +151,7 @@ void RefreshWindowLayout()
         {
             if(Screen->Space[CurrentSpace])
             {
-                if(Screen->Space[CurrentSpace])
-                    DestroyNodeTree(Screen->Space[CurrentSpace]);
+                DestroyNodeTree(Screen->Space[CurrentSpace]);
 
                 DEBUG("REMOVE AND CREATE NEW ROOT TREE")
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
@@ -277,16 +277,12 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
-    if(FocusedWindowRef != NULL)
-        CFRelease(FocusedWindowRef);
-
     FocusedPSN = NewPSN;
-    FocusedWindowRef = WindowRef;
     FocusedWindow = Window;
 
-    AXUIElementSetAttributeValue(FocusedWindowRef, kAXMainAttribute, kCFBooleanTrue);
-    AXUIElementSetAttributeValue(FocusedWindowRef, kAXFocusedAttribute, kCFBooleanTrue);
-    AXUIElementPerformAction(FocusedWindowRef, kAXRaiseAction);
+    AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
+    AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
+    AXUIElementPerformAction(WindowRef, kAXRaiseAction);
 
     if(KwmFocusMode == FocusAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
@@ -298,7 +294,10 @@ void SetWindowFocus(window_info *Window)
 {
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
+    {
         SetWindowRefFocus(WindowRef, Window);
+        CFRelease(WindowRef);
+    }
 }
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)
