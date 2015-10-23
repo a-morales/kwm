@@ -14,6 +14,7 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
     - ctrl+alt+cmd:
         - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
         - r: set focus to window below cursor in case focus-cache breaks
+        - q: restart kwm
 
         - h: decrease width
         - l: increase width
