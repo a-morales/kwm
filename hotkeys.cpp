@@ -32,6 +32,11 @@ bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode
 
             return true;
         }
+        else if(Keycode == kVK_ANSI_R)
+        {
+            DetectWindowBelowCursor();
+            return true;
+        }
     }
 
     return false;
@@ -109,7 +114,10 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
                     FocusedWindow->Width + 10,
                     FocusedWindow->Height);
         else if(Keycode == kVK_ANSI_F)
+        {
             ToggleFocusedWindowFullscreen();
+            return true;
+        }
     }
 
     if(CmdKey && CtrlKey && !AltKey)
