@@ -2,6 +2,9 @@
 
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
+std::map<int, std::vector<int> > SpacesOfWindow;
+int CurrentSpace = 0;
+int PrevSpace = -1;
 
 ProcessSerialNumber FocusedPSN;
 AXUIElementRef FocusedWindowRef;
@@ -87,6 +90,7 @@ int main(int argc, char **argv)
     if(!EventTap || !CGEventTapIsEnabled(EventTap))
         Fatal("could not tap keys, try running as root");
 
+    GetActiveSpaces();
     GetActiveDisplays();
     DetectWindowBelowCursor();
 

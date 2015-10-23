@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include <string>
 
 #include <stdlib.h>
@@ -17,7 +18,6 @@
 #endif
 
 struct window_info;
-struct space_info;
 struct screen_info;
 struct node_container;
 struct tree_node;
@@ -60,7 +60,7 @@ struct screen_info
     int Width, Height;
     int PaddingTop, PaddingBottom;
     int PaddingLeft, PaddingRight;
-    tree_node *RootNode;
+    std::vector<tree_node*> Space;
 };
 
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
@@ -86,10 +86,17 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex);
 std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex);
 void CycleFocusedWindowDisplay(int Shift);
 
+void CreateWindowLayout();
 void RefreshWindowLayout();
 void ResizeWindow(tree_node *Node);
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, 
                          int X, int Y, int Width, int Height);
+
+int NumberOfSpaces();
+void AddWindowToSpace(int WindowID, int SpaceIndex);
+int GetSpaceOfWindow(window_info *Window);
+void GetActiveSpaces();
+void GetSpaceInfo(const void *Key, const void *Value, void *Context);
 
 bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
