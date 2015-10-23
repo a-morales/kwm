@@ -14,6 +14,11 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
     - ctrl+alt+cmd:
         - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
 
+        - h: decrease width
+        - l: increase width
+        - j: increase height
+        - k: decrease height
+
         - enter: opens a new iTerm window
         - f: toggle fullscreen for focused window
 
@@ -24,6 +29,11 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - v: stop player
 
     - ctrl+alt:
+        - h: move window left
+        - l: move window right
+        - j: move window down
+        - k: move window up
+
         - p: send window to previous screen
         - n: send window to next screen
 

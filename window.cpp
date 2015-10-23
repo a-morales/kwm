@@ -3,6 +3,7 @@
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 extern std::vector<window_info> WindowLst;
 extern ProcessSerialNumber FocusedPSN;
+extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int CurrentSpace;
@@ -277,12 +278,16 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
+    if(FocusedWindowRef != NULL)
+        CFRelease(FocusedWindowRef);
+
     FocusedPSN = NewPSN;
+    FocusedWindowRef = WindowRef;
     FocusedWindow = Window;
 
-    AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
-    AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
-    AXUIElementPerformAction(WindowRef, kAXRaiseAction);
+    AXUIElementSetAttributeValue(FocusedWindowRef, kAXMainAttribute, kCFBooleanTrue);
+    AXUIElementSetAttributeValue(FocusedWindowRef, kAXFocusedAttribute, kCFBooleanTrue);
+    AXUIElementPerformAction(FocusedWindowRef, kAXRaiseAction);
 
     if(KwmFocusMode == FocusAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
@@ -294,10 +299,7 @@ void SetWindowFocus(window_info *Window)
 {
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
-    {
         SetWindowRefFocus(WindowRef, Window);
-        CFRelease(WindowRef);
-    }
 }
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)
