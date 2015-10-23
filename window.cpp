@@ -107,6 +107,9 @@ void DetectWindowBelowCursor()
 
                     DEBUG("ACTIVE SPACE IS NOW: " << CurrentSpace)
                     SetWindowFocus(&WindowLst[i]);
+
+                    if(CurrentSpace != -1)
+                        CreateWindowLayout();
                 }
                 break;
             }
@@ -147,17 +150,13 @@ void RefreshWindowLayout()
         {
             if(Screen->Space[CurrentSpace])
             {
-                //if(Screen->Space[CurrentSpace])
-                    //DestroyNodeTree(Screen->Space[CurrentSpace]);
+                if(Screen->Space[CurrentSpace])
+                    DestroyNodeTree(Screen->Space[CurrentSpace]);
 
                 DEBUG("REMOVE AND CREATE NEW ROOT TREE")
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
                 Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
-            }
-            else
-            {
-                CreateWindowLayout();
             }
         }
     }
