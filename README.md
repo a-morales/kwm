@@ -29,6 +29,8 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - x: toggle play/pause
         - c: play next video
         - v: stop player
+        - a: increase volume
+        - d: decrease volume
 
     - ctrl+alt:
         - h: move window left

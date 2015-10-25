@@ -81,6 +81,10 @@ bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keyc
             SysCommand = "ytc next";
         else if(Keycode == kVK_ANSI_V)
             SysCommand = "ytc stop";
+        else if(Keycode == kVK_ANSI_A)
+            SysCommand = "ytc volup";
+        else if(Keycode == kVK_ANSI_D)
+            SysCommand = "ytc voldown";
 
         if(SysCommand != "")
         {
