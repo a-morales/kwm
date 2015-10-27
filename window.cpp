@@ -1,6 +1,8 @@
 #include "kwm.h"
 
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
+
+extern export_table ExportTable;
 extern std::vector<window_info> WindowLst;
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
@@ -284,6 +286,9 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     FocusedPSN = NewPSN;
     FocusedWindowRef = WindowRef;
     FocusedWindow = Window;
+
+    ExportTable.FocusedWindowRef = FocusedWindowRef;
+    ExportTable.FocusedWindow = FocusedWindow;
 
     AXUIElementSetAttributeValue(FocusedWindowRef, kAXMainAttribute, kCFBooleanTrue);
     AXUIElementSetAttributeValue(FocusedWindowRef, kAXFocusedAttribute, kCFBooleanTrue);

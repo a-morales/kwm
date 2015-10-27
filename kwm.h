@@ -11,6 +11,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dlfcn.h>
+
+struct kwm_code;
+struct export_table;
+
+struct window_info;
+struct screen_info;
+struct node_container;
+struct tree_node;
 
 #ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
@@ -18,16 +27,47 @@
     #define DEBUG(x)
 #endif
 
-struct window_info;
-struct screen_info;
-struct node_container;
-struct tree_node;
+#define KWM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
+typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
+
+#define SYSTEM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
+typedef SYSTEM_HOTKEY_COMMANDS(system_hotkey_commands);
+
+#define CUSTOM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
+typedef CUSTOM_HOTKEY_COMMANDS(custom_hotkey_commands);
 
 enum focus_option
 { 
     FocusFollowsMouse, 
     FocusAutoraise, 
     FocusDisabled 
+};
+
+struct kwm_code
+{
+    void *KwmHotkeySO;
+
+    kwm_hotkey_commands *KWMHotkeyCommands;
+    system_hotkey_commands *SystemHotkeyCommands;
+    custom_hotkey_commands *CustomHotkeyCommands;
+
+    bool IsValid;
+};
+
+struct export_table
+{
+    AXUIElementRef FocusedWindowRef;
+    window_info *FocusedWindow;
+    focus_option KwmFocusMode;
+
+    void (*DetectWindowBelowCursor)();
+    void (*SetWindowDimensions)(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
+    void (*ToggleFocusedWindowFullscreen)();
+    void (*SwapFocusedWindowWithNearest)(int Shift);
+    void (*ShiftWindowFocus)(int Shift);
+    void (*CycleFocusedWindowDisplay)(int Shift);
+
+    void (*KwmRestart)();
 };
 
 struct node_container
@@ -64,6 +104,35 @@ struct screen_info
     std::vector<tree_node*> Space;
 };
 
+inline kwm_code LoadKwmCode()
+{
+    kwm_code Code = {};
+
+    Code.KwmHotkeySO = dlopen("hotkeys.so", RTLD_LAZY);
+    if(Code.KwmHotkeySO)
+    {
+        Code.KWMHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "KWMHotkeyCommands");
+        Code.SystemHotkeyCommands = (system_hotkey_commands*) dlsym(Code.KwmHotkeySO, "SystemHotkeyCommands");
+        Code.CustomHotkeyCommands = (custom_hotkey_commands*) dlsym(Code.KwmHotkeySO, "CustomHotkeyCommands");
+    }
+
+    Code.IsValid = (Code.KWMHotkeyCommands && Code.SystemHotkeyCommands && Code.CustomHotkeyCommands);
+    return Code;
+}
+
+inline void UnloadKwmCode(kwm_code *Code)
+{
+    if(Code->KwmHotkeySO)
+    {
+        dlclose(Code->KwmHotkeySO);
+    }
+
+    Code->KWMHotkeyCommands = 0;
+    Code->SystemHotkeyCommands = 0;
+    Code->CustomHotkeyCommands = 0;
+    Code->IsValid = 0;
+}
+
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
 tree_node *GetNearestNodeToTheLeft(tree_node *Node);
 tree_node *GetNearestNodeToTheRight(tree_node *Node);
@@ -90,18 +159,13 @@ void CycleFocusedWindowDisplay(int Shift);
 void CreateWindowLayout();
 void RefreshWindowLayout();
 void ResizeWindow(tree_node *Node);
-void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, 
-                         int X, int Y, int Width, int Height);
+void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
 
 int NumberOfSpaces();
 void AddWindowToSpace(int WindowID, int SpaceIndex);
 int GetSpaceOfWindow(window_info *Window);
 void GetActiveSpaces();
 void GetSpaceInfo(const void *Key, const void *Value, void *Context);
-
-bool KwmHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
-bool SystemHotkeyPassthrough(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
-bool CustomHotkeyCommands(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode);
 
 void ToggleFocusedWindowFullscreen();
 void SwapFocusedWindowWithNearest(int Shift);

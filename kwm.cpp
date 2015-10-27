@@ -1,5 +1,8 @@
 #include "kwm.h"
 
+kwm_code KWMCode;
+export_table ExportTable;
+
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
 std::map<int, std::vector<int> > SpacesOfWindow;
@@ -39,6 +42,9 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 {
     if(Type == kCGEventKeyDown)
     {
+        UnloadKwmCode(&KWMCode);
+        KWMCode = LoadKwmCode();
+
         CGEventFlags Flags = CGEventGetFlags(Event);
         bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
         bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
@@ -46,15 +52,15 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
         // Toggle keytap on | off
-        if(KwmHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+        if(KWMCode.KWMHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
             return NULL;
 
         // capture custom hotkeys
-        if(CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+        if(KWMCode.CustomHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
             return NULL;
 
         // Let system hotkeys pass through as normal
-        if(SystemHotkeyPassthrough(CmdKey, CtrlKey, AltKey, Keycode))
+        if(KWMCode.SystemHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
             return Event;
             
         if(KwmFocusMode == FocusFollowsMouse)
@@ -98,6 +104,22 @@ int main(int argc, char **argv)
 
     if(!EventTap || !CGEventTapIsEnabled(EventTap))
         Fatal("could not tap keys, try running as root");
+    
+    KWMCode = LoadKwmCode();
+    if(!KWMCode.IsValid)
+        Fatal("Could not load hotkeys.so");
+
+    ExportTable.FocusedWindowRef = FocusedWindowRef;
+    ExportTable.FocusedWindow = FocusedWindow;
+    ExportTable.KwmFocusMode = KwmFocusMode;;
+
+    ExportTable.DetectWindowBelowCursor = &DetectWindowBelowCursor;
+    ExportTable.SetWindowDimensions = &SetWindowDimensions;
+    ExportTable.ToggleFocusedWindowFullscreen = &ToggleFocusedWindowFullscreen;
+    ExportTable.SwapFocusedWindowWithNearest = &SwapFocusedWindowWithNearest;
+    ExportTable.ShiftWindowFocus = &ShiftWindowFocus;
+    ExportTable.CycleFocusedWindowDisplay = &CycleFocusedWindowDisplay;
+    ExportTable.KwmRestart = &KwmRestart;
 
     GetActiveSpaces();
     GetActiveDisplays();
