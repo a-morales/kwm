@@ -10,7 +10,6 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
     {
         if(Keycode == kVK_ANSI_T)
         {
-            DEBUG("T PRESSED")
             if(EX->KwmFocusMode == FocusFollowsMouse)
             {
                 EX->KwmFocusMode = FocusAutoraise;
