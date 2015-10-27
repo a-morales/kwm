@@ -55,6 +55,8 @@ struct kwm_code
 
 struct export_table
 {
+    std::string KwmFilePath;
+
     AXUIElementRef FocusedWindowRef;
     window_info *FocusedWindow;
     focus_option KwmFocusMode;
@@ -65,7 +67,6 @@ struct export_table
     void (*SwapFocusedWindowWithNearest)(int Shift);
     void (*ShiftWindowFocus)(int Shift);
     void (*CycleFocusedWindowDisplay)(int Shift);
-
     void (*KwmRestart)();
 };
 

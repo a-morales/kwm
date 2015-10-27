@@ -161,6 +161,7 @@ int main(int argc, char **argv)
     HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
     
     KWMCode = LoadKwmCode();
+    ExportTable.KwmFilePath = KwmFilePath;
     ExportTable.KwmFocusMode = FocusAutoraise;;
     ExportTable.FocusedWindowRef = FocusedWindowRef;
     ExportTable.FocusedWindow = FocusedWindow;
