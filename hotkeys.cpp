@@ -47,8 +47,6 @@ extern "C" KWM_HOTKEY_COMMANDS(SystemHotkeyCommands)
             EX->KwmFocusMode = FocusAutoraise;
             return true;
         }
-        else if(Keycode == kVK_Tab)
-            return true;
     }
 
     return false;
@@ -201,6 +199,9 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             return true;
         // disable retarded hotkey for hiding an application
         else if(Keycode == kVK_ANSI_H)
+            return true;
+        // disable cmd+tab window-swap
+        else if(Keycode == kVK_Tab)
             return true;
     }
 
