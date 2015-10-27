@@ -7,7 +7,6 @@ extern std::vector<window_info> WindowLst;
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
-extern focus_option KwmFocusMode;
 extern int CurrentSpace;
 extern int PrevSpace;
 
@@ -294,7 +293,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     AXUIElementSetAttributeValue(FocusedWindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(FocusedWindowRef, kAXRaiseAction);
 
-    if(KwmFocusMode == FocusAutoraise)
+    if(ExportTable.KwmFocusMode == FocusAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
     DEBUG("SetWindowRefFocus() Focused Window: " << FocusedWindow->Name)

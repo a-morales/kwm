@@ -12,7 +12,6 @@ int PrevSpace = -1;
 ProcessSerialNumber FocusedPSN;
 AXUIElementRef FocusedWindowRef;
 window_info *FocusedWindow;
-focus_option KwmFocusMode = FocusAutoraise;
 
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
@@ -63,7 +62,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         if(KWMCode.SystemHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
             return Event;
             
-        if(KwmFocusMode == FocusFollowsMouse)
+        if(ExportTable.KwmFocusMode == FocusFollowsMouse)
         {
             CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
             CGEventPostToPSN(&FocusedPSN, Event);
@@ -72,7 +71,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
     }
     else if(Type == kCGEventMouseMoved)
     {
-        if(KwmFocusMode != FocusDisabled)
+        if(ExportTable.KwmFocusMode != FocusDisabled)
         {
             DetectWindowBelowCursor();
         }
@@ -111,7 +110,7 @@ int main(int argc, char **argv)
 
     ExportTable.FocusedWindowRef = FocusedWindowRef;
     ExportTable.FocusedWindow = FocusedWindow;
-    ExportTable.KwmFocusMode = KwmFocusMode;;
+    ExportTable.KwmFocusMode = FocusAutoraise;;
 
     ExportTable.DetectWindowBelowCursor = &DetectWindowBelowCursor;
     ExportTable.SetWindowDimensions = &SetWindowDimensions;
