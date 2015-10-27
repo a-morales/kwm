@@ -28,11 +28,6 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
 
             return true;
         }
-        else if(Keycode == kVK_ANSI_R)
-        {
-            EX->DetectWindowBelowCursor();
-            return true;
-        }
         else if(Keycode == kVK_ANSI_Q)
         {
             EX->KwmRestart();
@@ -68,6 +63,9 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
         // New iterm2 Window
         if(Keycode == kVK_Return)
             SysCommand = "/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window &";
+        // Rebuild hotkeys.cpp
+        else if(Keycode == kVK_ANSI_R)
+            SysCommand = "sh " + EX->KwmFilePath + "/sobuild.sh";
         // YTD - Media Player Controls
         else if(Keycode == kVK_ANSI_Z)
             SysCommand = "ytc prev";
