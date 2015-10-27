@@ -42,7 +42,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
     return false;
 }
 
-extern "C" SYSTEM_HOTKEY_COMMANDS(SystemHotkeyCommands)
+extern "C" KWM_HOTKEY_COMMANDS(SystemHotkeyCommands)
 {
     if (CmdKey && !CtrlKey && !AltKey)
     {
@@ -59,7 +59,7 @@ extern "C" SYSTEM_HOTKEY_COMMANDS(SystemHotkeyCommands)
     return false;
 }
 
-extern "C" CUSTOM_HOTKEY_COMMANDS(CustomHotkeyCommands)
+extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
 {
     if(CmdKey && AltKey && CtrlKey)
     {

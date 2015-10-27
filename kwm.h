@@ -30,12 +30,6 @@ struct tree_node;
 #define KWM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
 typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
 
-#define SYSTEM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
-typedef SYSTEM_HOTKEY_COMMANDS(system_hotkey_commands);
-
-#define CUSTOM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
-typedef CUSTOM_HOTKEY_COMMANDS(custom_hotkey_commands);
-
 enum focus_option
 { 
     FocusFollowsMouse, 
@@ -48,8 +42,8 @@ struct kwm_code
     void *KwmHotkeySO;
 
     kwm_hotkey_commands *KWMHotkeyCommands;
-    system_hotkey_commands *SystemHotkeyCommands;
-    custom_hotkey_commands *CustomHotkeyCommands;
+    kwm_hotkey_commands *SystemHotkeyCommands;
+    kwm_hotkey_commands *CustomHotkeyCommands;
 
     bool IsValid;
 };
@@ -112,8 +106,8 @@ inline kwm_code LoadKwmCode()
     if(Code.KwmHotkeySO)
     {
         Code.KWMHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "KWMHotkeyCommands");
-        Code.SystemHotkeyCommands = (system_hotkey_commands*) dlsym(Code.KwmHotkeySO, "SystemHotkeyCommands");
-        Code.CustomHotkeyCommands = (custom_hotkey_commands*) dlsym(Code.KwmHotkeySO, "CustomHotkeyCommands");
+        Code.SystemHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "SystemHotkeyCommands");
+        Code.CustomHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "CustomHotkeyCommands");
     }
 
     Code.IsValid = (Code.KWMHotkeyCommands && Code.SystemHotkeyCommands && Code.CustomHotkeyCommands);
