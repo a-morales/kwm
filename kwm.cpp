@@ -41,8 +41,12 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 {
     if(Type == kCGEventKeyDown)
     {
-        UnloadKwmCode(&KWMCode);
-        KWMCode = LoadKwmCode();
+        std::string NewHotkeySOFileTime = KwmGetFileTime("hotkeys.so");
+        if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
+        {
+            UnloadKwmCode(&KWMCode);
+            KWMCode = LoadKwmCode();
+        }
 
         CGEventFlags Flags = CGEventGetFlags(Event);
         bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
@@ -87,6 +91,45 @@ void KwmRestart()
     ExecArgs[0] = "kwm";
     ExecArgs[1] = NULL;
     execv("/usr/local/bin/kwm", (char**)ExecArgs);
+}
+
+kwm_code LoadKwmCode()
+{
+    kwm_code Code = {};
+
+    Code.HotkeySOFileTime = KwmGetFileTime("hotkeys.so");
+    Code.KwmHotkeySO = dlopen("hotkeys.so", RTLD_LAZY);
+    if(Code.KwmHotkeySO)
+    {
+        Code.KWMHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "KWMHotkeyCommands");
+        Code.SystemHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "SystemHotkeyCommands");
+        Code.CustomHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "CustomHotkeyCommands");
+    }
+
+    Code.IsValid = (Code.KWMHotkeyCommands && Code.SystemHotkeyCommands && Code.CustomHotkeyCommands);
+    return Code;
+}
+
+void UnloadKwmCode(kwm_code *Code)
+{
+    if(Code->KwmHotkeySO)
+    {
+        dlclose(Code->KwmHotkeySO);
+    }
+
+    Code->HotkeySOFileTime = "";
+    Code->KWMHotkeyCommands = 0;
+    Code->SystemHotkeyCommands = 0;
+    Code->CustomHotkeyCommands = 0;
+    Code->IsValid = 0;
+}
+
+std::string KwmGetFileTime(const char *File)
+{
+    struct stat attr;
+    stat(File, &attr);
+
+    return ctime(&attr.st_mtime);
 }
 
 int main(int argc, char **argv)

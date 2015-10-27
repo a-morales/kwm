@@ -11,7 +11,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
 #include <dlfcn.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
 
 struct kwm_code;
 struct export_table;
@@ -40,6 +44,7 @@ enum focus_option
 struct kwm_code
 {
     void *KwmHotkeySO;
+    std::string HotkeySOFileTime;
 
     kwm_hotkey_commands *KWMHotkeyCommands;
     kwm_hotkey_commands *SystemHotkeyCommands;
@@ -98,34 +103,9 @@ struct screen_info
     std::vector<tree_node*> Space;
 };
 
-inline kwm_code LoadKwmCode()
-{
-    kwm_code Code = {};
-
-    Code.KwmHotkeySO = dlopen("hotkeys.so", RTLD_LAZY);
-    if(Code.KwmHotkeySO)
-    {
-        Code.KWMHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "KWMHotkeyCommands");
-        Code.SystemHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "SystemHotkeyCommands");
-        Code.CustomHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "CustomHotkeyCommands");
-    }
-
-    Code.IsValid = (Code.KWMHotkeyCommands && Code.SystemHotkeyCommands && Code.CustomHotkeyCommands);
-    return Code;
-}
-
-inline void UnloadKwmCode(kwm_code *Code)
-{
-    if(Code->KwmHotkeySO)
-    {
-        dlclose(Code->KwmHotkeySO);
-    }
-
-    Code->KWMHotkeyCommands = 0;
-    Code->SystemHotkeyCommands = 0;
-    Code->CustomHotkeyCommands = 0;
-    Code->IsValid = 0;
-}
+kwm_code LoadKwmCode();
+void UnloadKwmCode(kwm_code *Code);
+std::string KwmGetFileTime(const char *File);
 
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
 tree_node *GetNearestNodeToTheLeft(tree_node *Node);
