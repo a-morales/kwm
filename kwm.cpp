@@ -2,6 +2,8 @@
 
 kwm_code KWMCode;
 export_table ExportTable;
+std::string KwmFilePath;
+std::string HotkeySOFullFilePath;
 
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
@@ -41,7 +43,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 {
     if(Type == kCGEventKeyDown)
     {
-        std::string NewHotkeySOFileTime = KwmGetFileTime("hotkeys.so");
+        std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
         if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
         {
             UnloadKwmCode(&KWMCode);
@@ -54,17 +56,20 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
         CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
-        // Toggle keytap on | off
-        if(KWMCode.KWMHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
-            return NULL;
+        if(KWMCode.IsValid)
+        {
+            // Toggle keytap on | off
+            if(KWMCode.KWMHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+                return NULL;
 
-        // capture custom hotkeys
-        if(KWMCode.CustomHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
-            return NULL;
+            // capture custom hotkeys
+            if(KWMCode.CustomHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+                return NULL;
 
-        // Let system hotkeys pass through as normal
-        if(KWMCode.SystemHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
-            return Event;
+            // Let system hotkeys pass through as normal
+            if(KWMCode.SystemHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+                return Event;
+        }
             
         if(ExportTable.KwmFocusMode == FocusFollowsMouse)
         {
@@ -90,20 +95,25 @@ void KwmRestart()
     const char **ExecArgs = new const char*[2];
     ExecArgs[0] = "kwm";
     ExecArgs[1] = NULL;
-    execv("/usr/local/bin/kwm", (char**)ExecArgs);
+    std::string KwmBinPath = KwmFilePath + "/kwm";
+    execv(KwmBinPath.c_str(), (char**)ExecArgs);
 }
 
 kwm_code LoadKwmCode()
 {
     kwm_code Code = {};
 
-    Code.HotkeySOFileTime = KwmGetFileTime("hotkeys.so");
-    Code.KwmHotkeySO = dlopen("hotkeys.so", RTLD_LAZY);
+    Code.HotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
+    Code.KwmHotkeySO = dlopen(HotkeySOFullFilePath.c_str(),  RTLD_LAZY);
     if(Code.KwmHotkeySO)
     {
         Code.KWMHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "KWMHotkeyCommands");
         Code.SystemHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "SystemHotkeyCommands");
         Code.CustomHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "CustomHotkeyCommands");
+    }
+    else
+    {
+        DEBUG("LoadKwmCode() Could not open '" << HotkeySOFullFilePath << "'")
     }
 
     Code.IsValid = (Code.KWMHotkeyCommands && Code.SystemHotkeyCommands && Code.CustomHotkeyCommands);
@@ -146,14 +156,14 @@ int main(int argc, char **argv)
 
     if(!EventTap || !CGEventTapIsEnabled(EventTap))
         Fatal("could not tap keys, try running as root");
+
+    KwmFilePath = getcwd(NULL, 0);
+    HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
     
     KWMCode = LoadKwmCode();
-    if(!KWMCode.IsValid)
-        Fatal("Could not load hotkeys.so");
-
+    ExportTable.KwmFocusMode = FocusAutoraise;;
     ExportTable.FocusedWindowRef = FocusedWindowRef;
     ExportTable.FocusedWindow = FocusedWindow;
-    ExportTable.KwmFocusMode = FocusAutoraise;;
 
     ExportTable.DetectWindowBelowCursor = &DetectWindowBelowCursor;
     ExportTable.SetWindowDimensions = &SetWindowDimensions;
