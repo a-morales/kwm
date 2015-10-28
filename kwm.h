@@ -62,11 +62,11 @@ struct export_table
     focus_option KwmFocusMode;
 
     void (*DetectWindowBelowCursor)();
-    void (*SetWindowDimensions)(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
+    void (*SetWindowDimensions)(AXUIElementRef, window_info *, int, int, int, int);
     void (*ToggleFocusedWindowFullscreen)();
-    void (*SwapFocusedWindowWithNearest)(int Shift);
-    void (*ShiftWindowFocus)(int Shift);
-    void (*CycleFocusedWindowDisplay)(int Shift);
+    void (*SwapFocusedWindowWithNearest)(int);
+    void (*ShiftWindowFocus)(int);
+    void (*CycleFocusedWindowDisplay)(int);
     void (*KwmRestart)();
 };
 
