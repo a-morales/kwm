@@ -25,7 +25,7 @@ void GetActiveSpaces()
 
 void AddWindowToSpace(int WindowID, int SpaceIndex)
 {
-    auto Identifier = SpacesOfWindow.find(WindowID);
+    std::map<int, std::vector<int> >::iterator Identifier = SpacesOfWindow.find(WindowID);
     if(Identifier != SpacesOfWindow.end())
     {
         Identifier->second.push_back(SpaceIndex);
@@ -45,7 +45,7 @@ int NumberOfSpaces()
 
 int GetSpaceOfWindow(window_info *Window)
 {
-    auto Identifier = SpacesOfWindow.find(Window->WID);
+    std::map<int, std::vector<int> >::iterator Identifier = SpacesOfWindow.find(Window->WID);
     if(Identifier != SpacesOfWindow.end())
     {
         if(Identifier->second.size() == 1)
@@ -79,7 +79,7 @@ void GetSpaceInfo(const void *Key, const void *Value, void *Context)
                         int MyInt;
                         CFNumberGetValue(Num, kCFNumberSInt64Type, &MyInt);
 
-                        auto Identifier = SpacesOfWindow.find(MyInt);
+                        std::map<int, std::vector<int> >::iterator Identifier = SpacesOfWindow.find(MyInt);
                         if(Identifier == SpacesOfWindow.end())
                         {
                             SpacesOfWindow.insert(std::pair<int, std::vector<int> >(MyInt, std::vector<int>()));
