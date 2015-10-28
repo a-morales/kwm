@@ -61,7 +61,7 @@ bool IsWindowBelowCursor(window_info *Window)
 
 void DetectWindowBelowCursor()
 {
-    std::vector<window_info> OldWindowLst = WindowLst;
+    int OldWindowListCount = WindowLst.size();
     WindowLst.clear();
 
     CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
@@ -100,7 +100,7 @@ void DetectWindowBelowCursor()
             }
         }
 
-        ShouldWindowNodeTreeUpdate();
+        ShouldWindowNodeTreeUpdate(OldWindowListCount);
     }
 }
 
@@ -124,9 +124,9 @@ void CheckIfSpaceTransitionOccurred()
     }
 }
 
-void ShouldWindowNodeTreeUpdate()
+void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
 {
-    if(OldWindowLst.size() != WindowLst.size() && !WindowLst.empty())
+    if(OldWindowListCount != WindowLst.size() && !WindowLst.empty())
     {
         if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
             RefreshWindowNodeTree();
