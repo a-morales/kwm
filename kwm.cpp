@@ -41,49 +41,52 @@ bool CheckPrivileges()
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
-    if(Type == kCGEventKeyDown)
+    switch(Type)
     {
-        std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
-        if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
+        case kCGEventKeyDown:
         {
-            UnloadKwmCode(&KWMCode);
-            KWMCode = LoadKwmCode();
-        }
+            std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
+            if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
+            {
+                UnloadKwmCode(&KWMCode);
+                KWMCode = LoadKwmCode();
+            }
 
-        CGEventFlags Flags = CGEventGetFlags(Event);
-        bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
-        bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
-        bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
-        CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
+            CGEventFlags Flags = CGEventGetFlags(Event);
+            bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
+            bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
+            bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
+            CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
-        if(KWMCode.IsValid)
-        {
-            // Toggle keytap on | off
-            if(KWMCode.KWMHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+            if(KWMCode.IsValid)
+            {
+                // Toggle keytap on | off
+                if(KWMCode.KWMHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+                    return NULL;
+
+                // capture custom hotkeys
+                if(KWMCode.CustomHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+                    return NULL;
+
+                // Let system hotkeys pass through as normal
+                if(KWMCode.SystemHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+                    return Event;
+            }
+
+            if(ExportTable.KwmFocusMode == FocusFollowsMouse)
+            {
+                CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
+                CGEventPostToPSN(&FocusedPSN, Event);
                 return NULL;
-
-            // capture custom hotkeys
-            if(KWMCode.CustomHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
-                return NULL;
-
-            // Let system hotkeys pass through as normal
-            if(KWMCode.SystemHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
-                return Event;
-        }
-            
-        if(ExportTable.KwmFocusMode == FocusFollowsMouse)
+            }
+        } break;
+        case kCGEventMouseMoved:
         {
-            CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
-            CGEventPostToPSN(&FocusedPSN, Event);
-            return NULL;
-        }
-    }
-    else if(Type == kCGEventMouseMoved)
-    {
-        if(ExportTable.KwmFocusMode != FocusDisabled)
-        {
-            DetectWindowBelowCursor();
-        }
+            if(ExportTable.KwmFocusMode != FocusDisabled)
+            {
+                DetectWindowBelowCursor();
+            }
+        } break;
     }
 
     return Event;

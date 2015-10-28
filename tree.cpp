@@ -68,16 +68,29 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
     Leaf->Parent = Parent;
     Leaf->WindowID = WindowID;
 
-    if(ContainerType == 0)
-        Leaf->Container = FullscreenContainer(Screen, Leaf->Parent);
-    else if(ContainerType == 1)
-        Leaf->Container = LeftVerticalContainerSplit(Screen, Leaf->Parent);
-    else if(ContainerType == 2)
-        Leaf->Container = RightVerticalContainerSplit(Screen, Leaf->Parent);
-    else if(ContainerType == 3)
-        Leaf->Container = UpperHorizontalContainerSplit(Screen, Leaf->Parent);
-    else if(ContainerType == 4)
-        Leaf->Container = LowerHorizontalContainerSplit(Screen, Leaf->Parent);
+    switch(ContainerType)
+    {
+        case 0:
+        {
+            Leaf->Container = FullscreenContainer(Screen, Leaf->Parent);
+        } break;
+        case 1:
+        {
+            Leaf->Container = LeftVerticalContainerSplit(Screen, Leaf->Parent);
+        } break;
+        case 2:
+        {
+            Leaf->Container = RightVerticalContainerSplit(Screen, Leaf->Parent);
+        } break;
+        case 3:
+        {
+            Leaf->Container = UpperHorizontalContainerSplit(Screen, Leaf->Parent);
+        } break;
+        case 4:
+        {
+            Leaf->Container = LowerHorizontalContainerSplit(Screen, Leaf->Parent);
+        } break;
+    }
 
     Leaf->LeftChild = NULL;
     Leaf->RightChild = NULL;
