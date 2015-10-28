@@ -75,24 +75,9 @@ void DetectWindowBelowCursor()
             CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
         }
         CFRelease(OsxWindowLst);
+
         FilterWindowList();
-
-        int ActiveSpace = -1;
-        for(int Index = 0; Index < WindowLst.size(); ++Index)
-        {
-            int Temp = GetSpaceOfWindow(&WindowLst[Index]);
-            if(Temp != -1)
-            {
-                ActiveSpace = Temp;
-                break;
-            }
-        }
-
-        if(ActiveSpace != -1)
-        {
-            PrevSpace = CurrentSpace;
-            CurrentSpace = ActiveSpace;
-        }
+        CheckIfSpaceTransitionOccurred();
 
         for(int i = 0; i < WindowLst.size(); ++i)
         {
@@ -102,31 +87,53 @@ void DetectWindowBelowCursor()
                 {
                     int NewSpace = GetSpaceOfWindow(&WindowLst[i]);
                     if(NewSpace == -1)
-                    {
                         AddWindowToSpace(WindowLst[i].WID, CurrentSpace);
-                    }
 
-                    DEBUG("ACTIVE SPACE IS NOW: " << CurrentSpace)
+                    DEBUG("DetectWindowBelowCursor() Current space: " << CurrentSpace)
+                    if(CurrentSpace != -1)
+                        CreateWindowNodeTree();
 
                     // Note: Memory leak related to this function-call
                     SetWindowFocus(&WindowLst[i]);
-
-                    if(CurrentSpace != -1)
-                        CreateWindowLayout();
                 }
                 break;
             }
         }
 
-        if(OldWindowLst.size() != WindowLst.size() && !WindowLst.empty())
-        {
-            if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
-                RefreshWindowLayout();
-        }
+        ShouldWindowNodeTreeUpdate();
     }
 }
 
-void CreateWindowLayout()
+void CheckIfSpaceTransitionOccurred()
+{
+    int ActiveSpace = -1;
+    for(int Index = 0; Index < WindowLst.size(); ++Index)
+    {
+        int Temp = GetSpaceOfWindow(&WindowLst[Index]);
+        if(Temp != -1)
+        {
+            ActiveSpace = Temp;
+            break;
+        }
+    }
+
+    if(ActiveSpace != -1)
+    {
+        PrevSpace = CurrentSpace;
+        CurrentSpace = ActiveSpace;
+    }
+}
+
+void ShouldWindowNodeTreeUpdate()
+{
+    if(OldWindowLst.size() != WindowLst.size() && !WindowLst.empty())
+    {
+        if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
+            RefreshWindowNodeTree();
+    }
+}
+
+void CreateWindowNodeTree()
 {
     if(FocusedWindow)
     {
@@ -135,7 +142,7 @@ void CreateWindowLayout()
         {
             if(Screen->Space[CurrentSpace] == NULL)
             {
-                DEBUG("CREATE NEW ROOTTREE")
+                DEBUG("CreateWindowNodeTree() Create Tree")
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
                 Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
@@ -144,7 +151,7 @@ void CreateWindowLayout()
     }
 }
 
-void RefreshWindowLayout()
+void RefreshWindowNodeTree()
 {
     if(FocusedWindow)
     {
@@ -155,7 +162,7 @@ void RefreshWindowLayout()
             {
                 DestroyNodeTree(Screen->Space[CurrentSpace]);
 
-                DEBUG("REMOVE AND CREATE NEW ROOT TREE")
+                DEBUG("RefreshWindowNodeTree() Destroy and Create Tree")
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
                 Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
@@ -189,9 +196,7 @@ void ToggleFocusedWindowFullscreen()
 
                 Node = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
                 if(Node)
-                {
                     ResizeWindow(Node);
-                }
             }
         }
     }
@@ -208,19 +213,14 @@ void SwapFocusedWindowWithNearest(int Shift)
             if(FocusedWindowNode)
             {
                 tree_node *NewFocusNode;
+
                 if(Shift == 1)
-                {
                     NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode);
-                }
                 else if(Shift == -1)
-                {
                     NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode);
-                }
 
                 if(NewFocusNode)
-                {
                     SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
-                }
             }
         }
     }
@@ -237,14 +237,11 @@ void ShiftWindowFocus(int Shift)
             if(FocusedWindowNode)
             {
                 tree_node *NewFocusNode;
+
                 if(Shift == 1)
-                {
                     NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode);
-                }
                 else if(Shift == -1)
-                {
                     NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode);
-                }
 
                 if(NewFocusNode)
                 {
@@ -393,9 +390,7 @@ window_info *GetWindowByID(int WindowID)
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         if(WindowLst[WindowIndex].WID == WindowID)
-        {
             return &WindowLst[WindowIndex];
-        }
     }
 
     return NULL;
