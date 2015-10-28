@@ -123,13 +123,11 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID
 {
     if(SplitMode == 1)
     {
-        // Vertical Split
         Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 1);
         Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 2);
     }
     else
     {
-        // Horizontal Split
         Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 3);
         Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 4);
     }
@@ -142,9 +140,12 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
                          Screen->Width - Screen->PaddingLeft - Screen->PaddingRight,
                          Screen->Height - Screen->PaddingTop - Screen->PaddingBottom);
 
-    if(Windows.size() % 2 == 0)
+    if(Windows.size() == 1)
     {
-        // Even number of windows
+        RootNode->WindowID = Windows[0];
+    }
+    else if(Windows.size() % 2 == 0)
+    {
         CreateLeafNodePair(Screen, RootNode, Windows[0], Windows[1], 1);
         for(int WindowIndex = 2; WindowIndex < Windows.size(); WindowIndex+=2)
         {
@@ -169,24 +170,17 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
     }
     else
     {
-        if(Windows.size() == 1)
+        CreateLeafNodePair(Screen, RootNode, Windows[0], Windows[1], 1);
+        for(int WindowIndex = 2; WindowIndex < Windows.size(); WindowIndex+=2)
         {
-            RootNode->WindowID = Windows[0];
-        }
-        else
-        {
-            CreateLeafNodePair(Screen, RootNode, Windows[0], Windows[1], 1);
-            for(int WindowIndex = 2; WindowIndex < Windows.size(); WindowIndex+=2)
+            tree_node *Right = RootNode->RightChild;
+            for(int Index = WindowIndex; Index < Windows.size(); Index+=2)
             {
-                tree_node *Right = RootNode->RightChild;
-                for(int Index = WindowIndex; Index < Windows.size(); Index+=2)
-                {
-                    CreateLeafNodePair(Screen, Right, Right->WindowID, Windows[Index], 2);
-                    Right->WindowID = -1;
-                    Right = Right->LeftChild;
-                }
-                RootNode->RightChild->WindowID = -1;
+                CreateLeafNodePair(Screen, Right, Right->WindowID, Windows[Index], 2);
+                Right->WindowID = -1;
+                Right = Right->LeftChild;
             }
+            RootNode->RightChild->WindowID = -1;
         }
     }
 
@@ -233,7 +227,7 @@ tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID)
             if(Result)
                 return Result;
 
-            GetNodeFromWindowID(Node->LeftChild, WindowID);
+            Result = GetNodeFromWindowID(Node->LeftChild, WindowID);
         }
     }
 
@@ -250,14 +244,10 @@ tree_node *GetNearestNodeToTheLeft(tree_node *Node)
             tree_node *Root = Node->Parent;
             if(Root->LeftChild != Node)
             {
-                if(Root->LeftChild->WindowID != -1)
-                {
-                    return Root->LeftChild;
-                }
-                else
-                {
+                if(Root->LeftChild->WindowID == -1)
                     return Root->LeftChild->RightChild;
-                }
+
+                return Root->LeftChild;
             }
             else
             {
@@ -278,14 +268,10 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node)
             tree_node *Root = Node->Parent;
             if(Root->RightChild != Node)
             {
-                if(Root->RightChild->WindowID != -1)
-                {
-                    return Root->RightChild;
-                }
-                else
-                {
+                if(Root->RightChild->WindowID == -1)
                     return Root->RightChild->LeftChild;
-                }
+
+                return Root->RightChild;
             }
             else
             {
@@ -302,19 +288,13 @@ void ApplyNodeContainer(tree_node *Node)
     if(Node)
     {
         if(Node->LeftChild)
-        {
             ApplyNodeContainer(Node->LeftChild);
-        }
 
         if(Node->RightChild)
-        {
             ApplyNodeContainer(Node->RightChild);
-        }
 
         if(Node->WindowID != -1)
-        {
             ResizeWindow(Node);
-        }
     }
 }
 
@@ -323,14 +303,10 @@ void DestroyNodeTree(tree_node *Node)
     if(Node)
     {
         if(Node->LeftChild)
-        {
             DestroyNodeTree(Node->LeftChild);
-        }
 
         if(Node->RightChild)
-        {
             DestroyNodeTree(Node->RightChild);
-        }
 
         free(Node);
     }
