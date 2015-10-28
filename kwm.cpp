@@ -145,25 +145,8 @@ std::string KwmGetFileTime(const char *File)
     return ctime(&attr.st_mtime);
 }
 
-int main(int argc, char **argv)
+void BuildExportTable()
 {
-    if(!CheckPrivileges())
-        Fatal("Could not access OSX Accessibility!"); 
-
-    CFMachPortRef EventTap;
-    CGEventMask EventMask;
-    CFRunLoopSourceRef RunLoopSource;
-
-    EventMask = ((1 << kCGEventKeyDown) | (1 << kCGEventKeyUp) | (1 << kCGEventMouseMoved));
-    EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, EventMask, CGEventCallback, NULL);
-
-    if(!EventTap || !CGEventTapIsEnabled(EventTap))
-        Fatal("could not tap keys, try running as root");
-
-    KwmFilePath = getcwd(NULL, 0);
-    HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
-    
-    KWMCode = LoadKwmCode();
     ExportTable.KwmFilePath = KwmFilePath;
     ExportTable.KwmFocusMode = FocusAutoraise;;
     ExportTable.FocusedWindowRef = FocusedWindowRef;
@@ -176,14 +159,42 @@ int main(int argc, char **argv)
     ExportTable.ShiftWindowFocus = &ShiftWindowFocus;
     ExportTable.CycleFocusedWindowDisplay = &CycleFocusedWindowDisplay;
     ExportTable.KwmRestart = &KwmRestart;
+}
+
+void KwmInit()
+{
+    if(!CheckPrivileges())
+        Fatal("Could not access OSX Accessibility!"); 
+
+    KwmFilePath = getcwd(NULL, 0);
+    HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
+    
+    KWMCode = LoadKwmCode();
+    BuildExportTable();
 
     GetActiveSpaces();
     GetActiveDisplays();
     DetectWindowBelowCursor();
+}
+
+int main(int argc, char **argv)
+{
+    KwmInit();
+
+    CFMachPortRef EventTap;
+    CGEventMask EventMask;
+    CFRunLoopSourceRef RunLoopSource;
+
+    EventMask = ((1 << kCGEventKeyDown) | (1 << kCGEventMouseMoved));
+    EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, EventMask, CGEventCallback, NULL);
+
+    if(!EventTap || !CGEventTapIsEnabled(EventTap))
+        Fatal("ERROR: Could not create event-tap!");
 
     RunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, EventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), RunLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(EventTap, true);
     CFRunLoopRun();
+
     return 0;
 }

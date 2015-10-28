@@ -104,10 +104,6 @@ struct screen_info
     std::vector<tree_node*> Space;
 };
 
-kwm_code LoadKwmCode();
-void UnloadKwmCode(kwm_code *Code);
-std::string KwmGetFileTime(const char *File);
-
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
 tree_node *GetNearestNodeToTheLeft(tree_node *Node);
 tree_node *GetNearestNodeToTheRight(tree_node *Node);
@@ -162,9 +158,15 @@ window_info *GetWindowByID(int WindowID);
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);
 void GetWindowInfo(const void *Key, const void *Value, void *Context);
 
-CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon);
-bool CheckPrivileges();
+kwm_code LoadKwmCode();
+void UnloadKwmCode(kwm_code *Code);
+void BuildExportTable();
+std::string KwmGetFileTime(const char *File);
+
+void KwmInit();
 void KwmRestart();
+bool CheckPrivileges();
 void Fatal(const std::string &Err);
+CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon);
 
 #endif
