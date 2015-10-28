@@ -19,44 +19,24 @@ uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
 CGDirectDisplayID ActiveDisplays[5];
 
-void Fatal(const std::string &Err)
-{
-    std::cout << Err << std::endl;
-    exit(1);
-}
-
-bool CheckPrivileges()
-{
-    const void * Keys[] = { kAXTrustedCheckOptionPrompt };
-    const void * Values[] = { kCFBooleanTrue };
-
-    CFDictionaryRef Options;
-    Options = CFDictionaryCreate(kCFAllocatorDefault, 
-            Keys, Values, sizeof(Keys) / sizeof(*Keys),
-            &kCFCopyStringDictionaryKeyCallBacks,
-            &kCFTypeDictionaryValueCallBacks);
-
-    return AXIsProcessTrustedWithOptions(Options);
-}
-
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
     switch(Type)
     {
         case kCGEventKeyDown:
         {
+            CGEventFlags Flags = CGEventGetFlags(Event);
+            bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
+            bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
+            bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
+            CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
+
             std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
             if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
             {
                 UnloadKwmCode(&KWMCode);
                 KWMCode = LoadKwmCode();
             }
-
-            CGEventFlags Flags = CGEventGetFlags(Event);
-            bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
-            bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
-            bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
-            CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
             if(KWMCode.IsValid)
             {
@@ -90,16 +70,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
     }
 
     return Event;
-}
-
-void KwmRestart()
-{
-    DEBUG("KWM Restarting..")
-    const char **ExecArgs = new const char*[2];
-    ExecArgs[0] = "kwm";
-    ExecArgs[1] = NULL;
-    std::string KwmBinPath = KwmFilePath + "/kwm";
-    execv(KwmBinPath.c_str(), (char**)ExecArgs);
 }
 
 kwm_code LoadKwmCode()
@@ -161,6 +131,16 @@ void BuildExportTable()
     ExportTable.KwmRestart = &KwmRestart;
 }
 
+void KwmRestart()
+{
+    DEBUG("KWM Restarting..")
+    const char **ExecArgs = new const char*[2];
+    ExecArgs[0] = "kwm";
+    ExecArgs[1] = NULL;
+    std::string KwmBinPath = KwmFilePath + "/kwm";
+    execv(KwmBinPath.c_str(), (char**)ExecArgs);
+}
+
 void KwmInit()
 {
     if(!CheckPrivileges())
@@ -175,6 +155,26 @@ void KwmInit()
     GetActiveSpaces();
     GetActiveDisplays();
     DetectWindowBelowCursor();
+}
+
+bool CheckPrivileges()
+{
+    const void * Keys[] = { kAXTrustedCheckOptionPrompt };
+    const void * Values[] = { kCFBooleanTrue };
+
+    CFDictionaryRef Options;
+    Options = CFDictionaryCreate(kCFAllocatorDefault, 
+            Keys, Values, sizeof(Keys) / sizeof(*Keys),
+            &kCFCopyStringDictionaryKeyCallBacks,
+            &kCFTypeDictionaryValueCallBacks);
+
+    return AXIsProcessTrustedWithOptions(Options);
+}
+
+void Fatal(const std::string &Err)
+{
+    std::cout << Err << std::endl;
+    exit(1);
 }
 
 int main(int argc, char **argv)
