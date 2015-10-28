@@ -127,8 +127,9 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex);
 std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex);
 void CycleFocusedWindowDisplay(int Shift);
 
-void CreateWindowLayout();
-void RefreshWindowLayout();
+void ShouldWindowNodeTreeUpdate()
+void CreateWindowNodeTree();
+void RefreshWindowNodeTree();
 void ResizeWindow(tree_node *Node);
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
 
@@ -145,6 +146,7 @@ bool WindowsAreEqual(window_info *Window, window_info *Match);
 void FilterWindowList();
 bool IsWindowBelowCursor(window_info *Window);
 void DetectWindowBelowCursor();
+void CheckIfSpaceTransitionOccurred()
 
 void CloseWindowByRef(AXUIElementRef WindowRef);
 void CloseWindow(window_info *Window);
