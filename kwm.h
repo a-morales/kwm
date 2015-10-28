@@ -104,71 +104,71 @@ struct screen_info
     std::vector<tree_node*> Space;
 };
 
-void SwapNodeWindowIDs(tree_node *A, tree_node *B);
-tree_node *GetNearestNodeToTheLeft(tree_node *Node);
-tree_node *GetNearestNodeToTheRight(tree_node *Node);
-tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID);
-tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Windows);
-void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID, int RightWindowID, int SplitMode);
-void SetRootNodeContainer(tree_node *Node, int X, int Y, int Width, int Height);
-void ApplyNodeContainer(tree_node *Node);
-void DestroyNodeTree(tree_node *Node);
-tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType);
+void SwapNodeWindowIDs(tree_node *, tree_node *);
+tree_node *GetNearestNodeToTheLeft(tree_node *);
+tree_node *GetNearestNodeToTheRight(tree_node *);
+tree_node *GetNodeFromWindowID(tree_node *, int);
+tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<int>);
+void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
+void SetRootNodeContainer(tree_node *, int, int, int, int);
+void ApplyNodeContainer(tree_node *);
+void DestroyNodeTree(tree_node *);
+tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
 tree_node *CreateRootNode();
-node_container FullscreenContainer(screen_info *Screen, tree_node *Node);
-node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node);
-node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Node);
-node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Node);
-node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node);
+node_container FullscreenContainer(screen_info *, tree_node *);
+node_container LeftVerticalContainerSplit(screen_info *, tree_node *);
+node_container UpperHorizontalContainerSplit(screen_info *, tree_node *);
+node_container LowerHorizontalContainerSplit(screen_info *, tree_node *);
+node_container RightVerticalContainerSplit(screen_info *, tree_node *);
 
 void GetActiveDisplays();
-screen_info *GetDisplayOfWindow(window_info *Window);
-std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex);
-std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex);
-void CycleFocusedWindowDisplay(int Shift);
+screen_info *GetDisplayOfWindow(window_info *);
+std::vector<window_info*> GetAllWindowsOnDisplay(int);
+std::vector<int> GetAllWindowIDsOnDisplay(int);
+void CycleFocusedWindowDisplay(int);
 
-void ShouldWindowNodeTreeUpdate()
+void ShouldWindowNodeTreeUpdate(int);
 void CreateWindowNodeTree();
 void RefreshWindowNodeTree();
-void ResizeWindow(tree_node *Node);
-void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
+void ResizeWindow(tree_node *);
+void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 
 int NumberOfSpaces();
-void AddWindowToSpace(int WindowID, int SpaceIndex);
-int GetSpaceOfWindow(window_info *Window);
+void AddWindowToSpace(int, int);
+int GetSpaceOfWindow(window_info *);
 void GetActiveSpaces();
-void GetSpaceInfo(const void *Key, const void *Value, void *Context);
+void GetSpaceInfo(const void *, const void *, void *);
 
 void ToggleFocusedWindowFullscreen();
-void SwapFocusedWindowWithNearest(int Shift);
-void ShiftWindowFocus(int Shift);
-bool WindowsAreEqual(window_info *Window, window_info *Match);
+void SwapFocusedWindowWithNearest(int);
+void ShiftWindowFocus(int);
+bool WindowsAreEqual(window_info *, window_info *);
 void FilterWindowList();
-bool IsWindowBelowCursor(window_info *Window);
+bool IsWindowBelowCursor(window_info *);
 void DetectWindowBelowCursor();
-void CheckIfSpaceTransitionOccurred()
+void CheckIfSpaceTransitionOccurred();
 
-void CloseWindowByRef(AXUIElementRef WindowRef);
-void CloseWindow(window_info *Window);
-void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window);
-void SetWindowFocus(window_info *Window);
+void CloseWindowByRef(AXUIElementRef);
+void CloseWindow(window_info *);
+void SetWindowRefFocus(AXUIElementRef, window_info *);
+void SetWindowFocus(window_info *);
 
-std::string GetWindowTitle(AXUIElementRef WindowRef);
-CGPoint GetWindowPos(AXUIElementRef WindowRef);
-CGSize GetWindowSize(AXUIElementRef WindowRef);
-window_info *GetWindowByID(int WindowID);
-bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);
-void GetWindowInfo(const void *Key, const void *Value, void *Context);
+std::string GetWindowTitle(AXUIElementRef);
+CGPoint GetWindowPos(AXUIElementRef);
+CGSize GetWindowSize(AXUIElementRef);
+window_info *GetWindowByID(int);
+bool GetWindowRef(window_info *, AXUIElementRef *);
+void GetWindowInfo(const void *, const void *, void *);
 
 kwm_code LoadKwmCode();
-void UnloadKwmCode(kwm_code *Code);
+void UnloadKwmCode(kwm_code *);
 void BuildExportTable();
-std::string KwmGetFileTime(const char *File);
+std::string KwmGetFileTime(const char *);
 
 void KwmInit();
 void KwmRestart();
 bool CheckPrivileges();
-void Fatal(const std::string &Err);
-CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon);
+void Fatal(const std::string &);
+CGEventRef CGEventCallback(CGEventTapProxy, CGEventType, CGEventRef, void *);
 
 #endif
