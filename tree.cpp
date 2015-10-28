@@ -215,23 +215,18 @@ tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID)
         if(Node->LeftChild)
         {
             Result = GetNodeFromWindowID(Node->LeftChild, WindowID);
-            if(Result)
-                return Result;
-
-            Result = GetNodeFromWindowID(Node->RightChild, WindowID);
+            if(Result == NULL)
+                return GetNodeFromWindowID(Node->RightChild, WindowID);
         }
 
         if(Node->RightChild)
         {
-            GetNodeFromWindowID(Node->RightChild, WindowID);
-            if(Result)
-                return Result;
-
-            Result = GetNodeFromWindowID(Node->LeftChild, WindowID);
+            Result = GetNodeFromWindowID(Node->RightChild, WindowID);
+            if(Result == NULL)
+                return GetNodeFromWindowID(Node->LeftChild, WindowID);
         }
     }
 
-    DEBUG("GetNodeFromWindowID() NO MATCH")
     return Result;
 }
 
