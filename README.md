@@ -1,4 +1,4 @@
-## kwm
+## Kwm
 
 Started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
 
@@ -10,7 +10,7 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
 ### Requirements:
 - Access to osx accessibility
 
-### hotkeys:
+### Hotkeys:
     - ctrl+alt+cmd:
         - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
         - r: rebuild hotkeys.cpp
@@ -21,16 +21,20 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - j: increase height
         - k: decrease height
 
-        - enter: opens a new iTerm window
         - f: toggle fullscreen for focused window
+        - enter: opens a new iTerm window
 
         YTD player controls:
-        - z: play previous video
         - x: toggle play/pause
-        - c: play next video
         - v: stop player
+
+        - z: play previous video
+        - c: play next video
+
         - a: increase volume
         - d: decrease volume
+
+        - s: seek forward
 
     - ctrl+alt:
         - h: move window left
