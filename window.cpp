@@ -32,7 +32,7 @@ void FilterWindowList()
     std::vector<window_info> FilteredWindowLst;
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-        if(WindowLst[WindowIndex].Layer == 0)
+        if(WindowLst[WindowIndex].Layer == 0 && WindowLst[WindowIndex].Name != "")
         {
            FilteredWindowLst.push_back(WindowLst[WindowIndex]);
         }
