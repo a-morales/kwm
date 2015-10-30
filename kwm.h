@@ -72,8 +72,8 @@ struct export_table
 
 struct node_container
 {    
-    int X,Y;
-    int Width, Height;
+    double X,Y;
+    double Width, Height;
 };
 
 struct tree_node
@@ -98,9 +98,9 @@ struct screen_info
 {
     int ID;
     int X, Y;
-    int Width, Height;
-    int PaddingTop, PaddingBottom;
-    int PaddingLeft, PaddingRight;
+    double Width, Height;
+    double PaddingTop, PaddingBottom;
+    double PaddingLeft, PaddingRight;
     std::vector<tree_node*> Space;
 };
 
