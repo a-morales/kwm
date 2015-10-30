@@ -21,7 +21,7 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - j: increase height
         - k: decrease height
 
-        - f: toggle fullscreen for focused window
+        - f: toggle window fullscreen
         - enter: opens a new iTerm window
 
         YTD player controls:
@@ -51,8 +51,8 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - n: send window to next screen
 
     - alt+cmd
-        - h: focus previous window in layout
-        - l: focus next window in layout
+        - h: focus previous window
+        - l: focus next window
 
-        - p: swap with the previous window in layout
-        - n: swap with the next window in layout
+        - p: swap with the previous window
+        - n: swap with the next window
