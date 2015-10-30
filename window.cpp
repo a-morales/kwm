@@ -106,21 +106,16 @@ void DetectWindowBelowCursor()
 
 void CheckIfSpaceTransitionOccurred()
 {
-    int ActiveSpace = -1;
-    for(int Index = 0; Index < WindowLst.size(); ++Index)
+    PrevSpace = CurrentSpace;
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-        int Temp = GetSpaceOfWindow(&WindowLst[Index]);
+        int Temp = GetSpaceOfWindow(&WindowLst[WindowIndex]);
         if(Temp != -1)
         {
-            ActiveSpace = Temp;
+            CurrentSpace = Temp;
+            DEBUG("FOUND SPACE: " << CurrentSpace)
             break;
         }
-    }
-
-    if(ActiveSpace != -1)
-    {
-        PrevSpace = CurrentSpace;
-        CurrentSpace = ActiveSpace;
     }
 }
 
