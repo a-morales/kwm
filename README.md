@@ -25,16 +25,21 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - enter: opens a new iTerm window
 
         YTD player controls:
+        - <: toggle playback mode (fav / default)
         - x: toggle play/pause
         - v: stop player
 
-        - z: play previous video
-        - c: play next video
+        - s: star / favorite playing song
 
         - a: increase volume
         - d: decrease volume
+        
+        - z: play previous video
+        - c: play next video
 
-        - s: seek forward
+        - larrow: seek backward
+        - rarrow: seek forward
+
 
     - ctrl+alt:
         - h: move window left
