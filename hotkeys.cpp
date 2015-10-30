@@ -119,7 +119,19 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             } break;
             case kVK_ANSI_S:
             {
+                SysCommand = "ytc mkfav";
+            } break;
+            case kVK_LeftArrow:
+            {
+                SysCommand = "ytc seekbk";
+            } break;
+            case kVK_RightArrow:
+            {
                 SysCommand = "ytc seekfw";
+            } break;
+            case kVK_ANSI_Grave:
+            {
+                SysCommand = "ytc fav";
             } break;
             // Window Resize
             case kVK_ANSI_H:
