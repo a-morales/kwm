@@ -32,7 +32,7 @@ void FilterWindowList()
     std::vector<window_info> FilteredWindowLst;
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-        if(WindowLst[WindowIndex].Layer == 0 && WindowLst[WindowIndex].Name != "")
+        if(WindowLst[WindowIndex].Layer == 0) // && WindowLst[WindowIndex].Name != "")
         {
            FilteredWindowLst.push_back(WindowLst[WindowIndex]);
         }
@@ -141,6 +141,7 @@ void CreateWindowNodeTree()
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
                 Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
+                ApplyNodeContainer(Screen->Space[CurrentSpace]);
             }
         }
     }
@@ -160,6 +161,7 @@ void RefreshWindowNodeTree()
                 DEBUG("RefreshWindowNodeTree() Destroy and Create Tree")
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
                 Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
+                ApplyNodeContainer(Screen->Space[CurrentSpace]);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
             }
         }
