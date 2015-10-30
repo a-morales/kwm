@@ -40,7 +40,6 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - larrow: seek backward
         - rarrow: seek forward
 
-
     - ctrl+alt:
         - h: move window left
         - l: move window right
