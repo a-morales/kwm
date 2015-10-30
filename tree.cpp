@@ -133,6 +133,11 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID
     }
 }
 
+bool IsLeafNode(tree_node *Node)
+{
+    return Node->LeftChild == NULL && Node->RightChild == NULL ? true : false;
+}
+
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Windows)
 {
     tree_node *RootNode = CreateRootNode();
@@ -144,43 +149,25 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
     {
         RootNode->WindowID = Windows[0];
     }
-    else if(Windows.size() % 2 == 0)
-    {
-        CreateLeafNodePair(Screen, RootNode, Windows[0], Windows[1], 1);
-        for(int WindowIndex = 2; WindowIndex < Windows.size(); WindowIndex+=2)
-        {
-            tree_node *Left = RootNode->LeftChild;
-            for(int Index = WindowIndex; Index < Windows.size(); Index+=2)
-            {
-                CreateLeafNodePair(Screen, Left, Left->WindowID, Windows[Index], 2);
-                Left->WindowID = -1;
-                Left = Left->LeftChild;
-            }
-            RootNode->LeftChild->WindowID = -1;
-
-            tree_node *Right = RootNode->RightChild;
-            for(int Index = WindowIndex + 1; Index < Windows.size(); Index+=2)
-            {
-                CreateLeafNodePair(Screen, Right, Right->WindowID, Windows[Index], 2);
-                Right->WindowID = -1;
-                Right = Right->LeftChild;
-            }
-            RootNode->RightChild->WindowID = -1;
-        }
-    }
     else
     {
-        CreateLeafNodePair(Screen, RootNode, Windows[0], Windows[1], 1);
-        for(int WindowIndex = 2; WindowIndex < Windows.size(); WindowIndex+=2)
+        int splitmode = 1;
+        tree_node *Root = RootNode;
+        Root->WindowID = Windows[0];
+        for(int WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
         {
-            tree_node *Right = RootNode->RightChild;
-            for(int Index = WindowIndex; Index < Windows.size(); Index+=2)
+            while(!IsLeafNode(Root))
             {
-                CreateLeafNodePair(Screen, Right, Right->WindowID, Windows[Index], 2);
-                Right->WindowID = -1;
-                Right = Right->LeftChild;
+                if(!IsLeafNode(Root->LeftChild) && IsLeafNode(Root->RightChild))
+                    Root = Root->RightChild;
+                else
+                    Root = Root->LeftChild;
             }
-            RootNode->RightChild->WindowID = -1;
+
+            DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
+            CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex], splitmode++ % 3);
+            Root->WindowID = -1;
+            Root = RootNode;
         }
     }
 
