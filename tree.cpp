@@ -50,18 +50,6 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
     return LowerContainer;
 }
 
-node_container FullscreenContainer(screen_info *Screen, tree_node *Node)
-{
-    node_container FullscreenContainer;
-
-    FullscreenContainer.X = Node->Container.X;
-    FullscreenContainer.Y = Node->Container.Y;
-    FullscreenContainer.Width = Node->Container.Width - Screen->PaddingRight;
-    FullscreenContainer.Height = Node->Container.Height;
-
-    return FullscreenContainer;
-}
-
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType)
 {
     tree_node *Leaf = (tree_node*) malloc(sizeof(tree_node));
@@ -70,10 +58,6 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
 
     switch(ContainerType)
     {
-        case 0:
-        {
-            Leaf->Container = FullscreenContainer(Screen, Leaf->Parent);
-        } break;
         case 1:
         {
             Leaf->Container = LeftVerticalContainerSplit(Screen, Leaf->Parent);
