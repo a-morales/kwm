@@ -104,22 +104,21 @@ struct screen_info
     std::vector<tree_node*> Space;
 };
 
-void SwapNodeWindowIDs(tree_node *, tree_node *);
+tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<int>);
+tree_node *CreateRootNode();
+tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
 tree_node *GetNearestNodeToTheLeft(tree_node *);
 tree_node *GetNearestNodeToTheRight(tree_node *);
 tree_node *GetNodeFromWindowID(tree_node *, int);
-tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<int>);
 void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
+void SwapNodeWindowIDs(tree_node *, tree_node *);
 void SetRootNodeContainer(tree_node *, int, int, int, int);
 void ApplyNodeContainer(tree_node *);
 void DestroyNodeTree(tree_node *);
-tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
-tree_node *CreateRootNode();
-node_container FullscreenContainer(screen_info *, tree_node *);
 node_container LeftVerticalContainerSplit(screen_info *, tree_node *);
+node_container RightVerticalContainerSplit(screen_info *, tree_node *);
 node_container UpperHorizontalContainerSplit(screen_info *, tree_node *);
 node_container LowerHorizontalContainerSplit(screen_info *, tree_node *);
-node_container RightVerticalContainerSplit(screen_info *, tree_node *);
 
 void GetActiveDisplays();
 screen_info *GetDisplayOfWindow(window_info *);
