@@ -210,10 +210,18 @@ tree_node *GetNearestNodeToTheLeft(tree_node *Node)
             tree_node *Root = Node->Parent;
             if(Root->LeftChild != Node)
             {
-                if(Root->LeftChild->WindowID == -1)
-                    return Root->LeftChild->RightChild;
+                if(IsLeafNode(Root->LeftChild))
+                {
+                    return Root->LeftChild;
+                }
+                else
+                {
+                    Root = Root->LeftChild;
+                    while(!IsLeafNode(Root->RightChild))
+                        Root = Root->RightChild;
+                }
 
-                return Root->LeftChild;
+                return Root->RightChild;
             }
             else
             {
@@ -234,10 +242,18 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node)
             tree_node *Root = Node->Parent;
             if(Root->RightChild != Node)
             {
-                if(Root->RightChild->WindowID == -1)
-                    return Root->RightChild->LeftChild;
+                if(IsLeafNode(Root->RightChild))
+                {
+                    return Root->RightChild;
+                }
+                else
+                {
+                    Root = Root->RightChild;
+                    while(!IsLeafNode(Root->LeftChild))
+                        Root = Root->LeftChild;
+                }
 
-                return Root->RightChild;
+                return Root->LeftChild;
             }
             else
             {
