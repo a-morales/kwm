@@ -141,7 +141,7 @@ bool IsLeafNode(tree_node *Node)
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Windows)
 {
     tree_node *RootNode = CreateRootNode();
-    SetRootNodeContainer(RootNode, Screen->PaddingLeft, Screen->PaddingTop,
+    SetRootNodeContainer(RootNode, Screen->X + Screen->PaddingLeft, Screen->Y + Screen->PaddingTop,
                          Screen->Width - Screen->PaddingLeft - Screen->PaddingRight,
                          Screen->Height - Screen->PaddingTop - Screen->PaddingBottom);
 
