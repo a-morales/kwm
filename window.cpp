@@ -335,6 +335,8 @@ void ResizeWindow(tree_node *Node)
             SetWindowDimensions(WindowRef, Window,
                     Node->Container.X, Node->Container.Y, 
                     Node->Container.Width, Node->Container.Height);
+
+            CFRelease(WindowRef);
         }
     }
 }
@@ -398,51 +400,44 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
     AXUIElementRef App = AXUIElementCreateApplication(Window->PID);
     bool Found = false;
     
-    if(App)
-    {
-        CFArrayRef AppWindowLst;
-        AXUIElementCopyAttributeValue(App, kAXWindowsAttribute, (CFTypeRef*)&AppWindowLst);
-        if(AppWindowLst)
-        {
-            CFIndex DoNotFree = -1;
-            CFIndex AppWindowCount = CFArrayGetCount(AppWindowLst);
-            for(CFIndex WindowIndex = 0; WindowIndex < AppWindowCount; ++WindowIndex)
-            {
-                AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
-                if(AppWindowRef != NULL)
-                {
-                    if(!Found)
-                    {
-                        std::string AppWindowTitle = GetWindowTitle(AppWindowRef);
-                        CGPoint AppWindowPos = GetWindowPos(AppWindowRef);
-
-                        if(Window->X == AppWindowPos.x && 
-                           Window->Y == AppWindowPos.y &&
-                            Window->Name == AppWindowTitle)
-                        {
-                            *WindowRef = AppWindowRef;
-                            DoNotFree = WindowIndex;
-                            Found = true;
-                        }
-
-                    }
-
-                    if(WindowIndex != DoNotFree)
-                        CFRelease(AppWindowRef);
-                }
-            }
-        }
-        else
-        {
-            DEBUG("GetWindowRef() Failed to get AppWindowLst for: " << Window->Name)
-        }
-        CFRelease(App);
-    }
-    else
+    if(!App)
     {
         DEBUG("GetWindowRef() Failed to get App for: " << Window->Name)
+        return false;
     }
 
+    CFArrayRef AppWindowLst;
+    AXUIElementCopyAttributeValue(App, kAXWindowsAttribute, (CFTypeRef*)&AppWindowLst);
+    if(AppWindowLst)
+    {
+        CFIndex DoNotFree = -1;
+        CFIndex AppWindowCount = CFArrayGetCount(AppWindowLst);
+        for(CFIndex WindowIndex = 0; WindowIndex < AppWindowCount; ++WindowIndex)
+        {
+            AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
+            if(AppWindowRef != NULL)
+            {
+                if(!Found)
+                {
+                    std::string AppWindowTitle = GetWindowTitle(AppWindowRef);
+                    CGPoint AppWindowPos = GetWindowPos(AppWindowRef);
+
+                    if(Window->X == AppWindowPos.x &&
+                        Window->Y == AppWindowPos.y &&
+                        Window->Name == AppWindowTitle)
+                    {
+                        *WindowRef = AppWindowRef;
+                        DoNotFree = WindowIndex;
+                        Found = true;
+                    }
+                }
+
+                if(WindowIndex != DoNotFree)
+                    CFRelease(AppWindowRef);
+            }
+        }
+    }
+    CFRelease(App);
     return Found;
 }
 
