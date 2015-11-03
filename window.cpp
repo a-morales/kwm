@@ -34,9 +34,10 @@ void FilterWindowList()
     {
         if(WindowLst[WindowIndex].Layer == 0) // && WindowLst[WindowIndex].Name != "")
         {
-           FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+            FilteredWindowLst.push_back(WindowLst[WindowIndex]);
         }
     }
+
     WindowLst = FilteredWindowLst;
 }
 
@@ -119,6 +120,22 @@ void CheckIfSpaceTransitionOccurred()
     }
 }
 
+bool IsWindowFloating(int WindowID)
+{
+    bool Result = false;
+    for(int Index = 0; Index < ExportTable.FloatingWindowLst.size(); ++Index)
+    {
+        if(WindowID == ExportTable.FloatingWindowLst[Index])
+        {
+            DEBUG("IsWindowFloating(): floating " << WindowID)
+            Result = true;
+            break;
+        }
+    }
+
+    return Result;
+}
+
 void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
 {
     if(OldWindowListCount != WindowLst.size() && !WindowLst.empty())
@@ -163,6 +180,82 @@ void RefreshWindowNodeTree()
                 Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
+            }
+        }
+    }
+}
+
+void AddWindowToTree()
+{
+    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+    if(Screen && Screen->Space[CurrentSpace])
+    {
+        int WindowID = FocusedWindow->WID;
+        tree_node *RootNode = Screen->Space[CurrentSpace];
+        tree_node *CurrentNode = RootNode;
+        while(!IsLeafNode(CurrentNode))
+        {
+            if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
+                CurrentNode = CurrentNode->RightChild;
+            else
+                CurrentNode = CurrentNode->LeftChild;
+        }
+
+        DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
+        CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, 2);
+        CurrentNode->WindowID = -1;
+        ApplyNodeContainer(CurrentNode);
+    }
+}
+
+void RemoveWindowFromTree()
+{
+    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+    if(Screen && Screen->Space[CurrentSpace])
+    {
+        int WindowID = FocusedWindow->WID;
+        tree_node *RootNode = Screen->Space[CurrentSpace];
+        tree_node *WindowNode = GetNodeFromWindowID(RootNode, WindowID);
+
+        if(WindowNode)
+        {
+            tree_node *Parent = WindowNode->Parent;
+            if(Parent && Parent->LeftChild && Parent->RightChild)
+            {
+                tree_node *OldLeftChild = Parent->LeftChild;
+                tree_node *OldRightChild = Parent->RightChild;
+                tree_node *AccessChild;
+
+                Parent->LeftChild = NULL;
+                Parent->RightChild = NULL;
+
+                if(OldRightChild == WindowNode)
+                {
+                    if(OldLeftChild)
+                        AccessChild = OldLeftChild;
+                }
+                else
+                {
+                    if(OldRightChild)
+                        AccessChild = OldRightChild;
+                }
+
+                if(AccessChild)
+                {
+                    DEBUG("RemoveWindowFromTree() " << FocusedWindow->Name)
+                    Parent->WindowID = AccessChild->WindowID;
+                    if(AccessChild->LeftChild && AccessChild->RightChild)
+                        CreateLeafNodePair(Screen, Parent, AccessChild->LeftChild->WindowID, AccessChild->RightChild->WindowID, 2);
+
+                    free(AccessChild);
+                    ApplyNodeContainer(Parent);
+
+                    int NewX = Screen->Width / 4;
+                    int NewY = Screen->Height / 4;
+                    int NewWidth = Screen->Width / 2;
+                    int NewHeight = Screen->Height / 2;
+                    SetWindowDimensions(FocusedWindowRef, FocusedWindow, NewX, NewY, NewWidth, NewHeight);
+                }
             }
         }
     }
