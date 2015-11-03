@@ -122,6 +122,7 @@ void SetRootNodeContainer(tree_node *, int, int, int, int);
 void ApplyNodeContainer(tree_node *);
 void AddWindowToTree(int WindowID);
 void AddWindowToTree();
+void RemoveWindowFromTree(int, bool);
 void RemoveWindowFromTree();
 void DestroyNodeTree(tree_node *);
 node_container LeftVerticalContainerSplit(screen_info *, tree_node *);
@@ -137,7 +138,6 @@ void CycleFocusedWindowDisplay(int);
 
 void ShouldWindowNodeTreeUpdate(int);
 void CreateWindowNodeTree();
-void RefreshWindowNodeTree();
 void ResizeWindow(tree_node *);
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 
