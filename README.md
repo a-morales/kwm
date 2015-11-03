@@ -4,7 +4,7 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
 
 ### Features:
 - Enables focus-follows-mouse
-- Automatically tile windows as they are opened/destroyed
+- Binary space partitioning window management
 - System wide hotkeys (supports instantaneous live code editing)
 
 ### Requirements:
