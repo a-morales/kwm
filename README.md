@@ -16,6 +16,9 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - r: rebuild hotkeys.cpp
         - q: restart kwm
 
+        - 7: set vertical split-mode
+        - -: set horizontal split-mode
+
         - h: decrease width
         - l: increase width
         - j: increase height
