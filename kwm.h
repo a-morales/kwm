@@ -92,6 +92,7 @@ struct tree_node
 struct window_info
 {
     std::string Name;
+    std::string Owner;
     int PID, WID;
     int Layer;
     int X, Y;
@@ -160,6 +161,7 @@ void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
 void SetWindowRefFocus(AXUIElementRef, window_info *);
 void SetWindowFocus(window_info *);
+void WriteNameOfFocusedWindowToFile();
 
 std::string GetWindowTitle(AXUIElementRef);
 CGPoint GetWindowPos(AXUIElementRef);
