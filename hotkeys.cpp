@@ -29,6 +29,26 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
                     DEBUG("KwmFocusMode: Focus-follows-mouse")
                 }
             } break;
+            case kVK_ANSI_W:
+            {
+                bool Found = false;
+                for(int Index = 0; Index < EX->FloatingWindowLst.size(); ++Index)
+                {
+                    if(EX->FloatingWindowLst[Index] == EX->FocusedWindow->WID)
+                    {
+                        EX->FloatingWindowLst.erase(EX->FloatingWindowLst.begin() + Index);
+                        Found = true;
+                        EX->AddWindowToTree();
+                        break;
+                    }
+                }
+
+                if(!Found)
+                {
+                    EX->FloatingWindowLst.push_back(EX->FocusedWindow->WID);
+                    EX->RemoveWindowFromTree();
+                }
+            } break;
             case kVK_ANSI_Q:
             {
                 EX->KwmRestart();
