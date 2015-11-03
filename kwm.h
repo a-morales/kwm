@@ -151,7 +151,7 @@ void ToggleFocusedWindowFullscreen();
 void SwapFocusedWindowWithNearest(int);
 void ShiftWindowFocus(int);
 bool WindowsAreEqual(window_info *, window_info *);
-void FilterWindowList();
+bool FilterWindowList();
 bool IsWindowBelowCursor(window_info *);
 void DetectWindowBelowCursor();
 void CheckIfSpaceTransitionOccurred();
