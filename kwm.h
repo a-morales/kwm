@@ -61,6 +61,7 @@ struct export_table
     AXUIElementRef FocusedWindowRef;
     window_info *FocusedWindow;
     focus_option KwmFocusMode;
+    int KwmSplitMode;
 
     void (*DetectWindowBelowCursor)();
     void (*SetWindowDimensions)(AXUIElementRef, window_info *, int, int, int, int);
