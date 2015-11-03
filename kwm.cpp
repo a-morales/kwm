@@ -128,6 +128,8 @@ void BuildExportTable()
     ExportTable.SwapFocusedWindowWithNearest = &SwapFocusedWindowWithNearest;
     ExportTable.ShiftWindowFocus = &ShiftWindowFocus;
     ExportTable.CycleFocusedWindowDisplay = &CycleFocusedWindowDisplay;
+    ExportTable.AddWindowToTree = &AddWindowToTree;
+    ExportTable.RemoveWindowFromTree = &RemoveWindowFromTree;
     ExportTable.KwmRestart = &KwmRestart;
 }
 
