@@ -10,6 +10,12 @@ extern window_info *FocusedWindow;
 extern int CurrentSpace;
 extern int PrevSpace;
 
+void WriteNameOfFocusedWindowToFile()
+{
+    std::string Command = "echo '" + FocusedWindow->Owner + " - " + FocusedWindow->Name + "' > focus.kwm";
+    system(Command.c_str());
+}
+
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
     bool Result = Window == Match;
@@ -43,7 +49,7 @@ void FilterWindowList()
 
 bool IsWindowBelowCursor(window_info *Window)
 {
-    bool Result = Window == NULL;
+    bool Result = false;
 
     if(Window)
     {
@@ -114,7 +120,6 @@ void CheckIfSpaceTransitionOccurred()
         if(Temp != -1)
         {
             CurrentSpace = Temp;
-            DEBUG("FOUND SPACE: " << CurrentSpace)
             break;
         }
     }
@@ -410,6 +415,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     if(ExportTable.KwmFocusMode == FocusAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
+    WriteNameOfFocusedWindowToFile();
     DEBUG("SetWindowRefFocus() Focused Window: " << FocusedWindow->Name)
 }
 
@@ -575,6 +581,8 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
             std::string ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
             if(KeyStr == "kCGWindowName")
                 WindowLst[WindowLst.size()-1].Name = ValueStr;
+            else if(KeyStr == "kCGWindowOwnerName")
+                WindowLst[WindowLst.size()-1].Owner = ValueStr;
         }
     }
     else if(ID == CFNumberGetTypeID())
