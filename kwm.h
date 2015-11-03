@@ -56,6 +56,7 @@ struct kwm_code
 struct export_table
 {
     std::string KwmFilePath;
+    std::vector<int> FloatingWindowLst;
 
     AXUIElementRef FocusedWindowRef;
     window_info *FocusedWindow;
@@ -67,6 +68,8 @@ struct export_table
     void (*SwapFocusedWindowWithNearest)(int);
     void (*ShiftWindowFocus)(int);
     void (*CycleFocusedWindowDisplay)(int);
+    void (*AddWindowToTree)();
+    void (*RemoveWindowFromTree)();
     void (*KwmRestart)();
 };
 
@@ -110,10 +113,13 @@ tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
 tree_node *GetNearestNodeToTheLeft(tree_node *);
 tree_node *GetNearestNodeToTheRight(tree_node *);
 tree_node *GetNodeFromWindowID(tree_node *, int);
+bool IsLeafNode(tree_node *);
 void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void SetRootNodeContainer(tree_node *, int, int, int, int);
 void ApplyNodeContainer(tree_node *);
+void AddWindowToTree();
+void RemoveWindowFromTree();
 void DestroyNodeTree(tree_node *);
 node_container LeftVerticalContainerSplit(screen_info *, tree_node *);
 node_container RightVerticalContainerSplit(screen_info *, tree_node *);
@@ -146,6 +152,7 @@ void FilterWindowList();
 bool IsWindowBelowCursor(window_info *);
 void DetectWindowBelowCursor();
 void CheckIfSpaceTransitionOccurred();
+bool IsWindowFloating(int);
 
 void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
