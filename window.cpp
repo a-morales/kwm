@@ -33,18 +33,21 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
     return Result;
 }
 
-void FilterWindowList()
+bool FilterWindowList()
 {
+    bool Result = true;
     std::vector<window_info> FilteredWindowLst;
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-        if(WindowLst[WindowIndex].Layer == 0) // && WindowLst[WindowIndex].Name != "")
-        {
+        if(WindowLst[WindowIndex].Owner == "Dock")
+            Result = false;
+
+        if(WindowLst[WindowIndex].Layer == 0)
             FilteredWindowLst.push_back(WindowLst[WindowIndex]);
-        }
     }
 
     WindowLst = FilteredWindowLst;
+    return Result;
 }
 
 bool IsWindowBelowCursor(window_info *Window)
@@ -83,15 +86,15 @@ void DetectWindowBelowCursor()
         }
         CFRelease(OsxWindowLst);
 
-        FilterWindowList();
-        CheckIfSpaceTransitionOccurred();
-
-        for(int i = 0; i < WindowLst.size(); ++i)
+        if(FilterWindowList())
         {
-            if(IsWindowBelowCursor(&WindowLst[i]))
+            CheckIfSpaceTransitionOccurred();
+            for(int i = 0; i < WindowLst.size(); ++i)
             {
-                if(!WindowsAreEqual(FocusedWindow, &WindowLst[i]))
+                if(IsWindowBelowCursor(&WindowLst[i]))
                 {
+                    //if(!WindowsAreEqual(FocusedWindow, &WindowLst[i]))
+                    //{
                     int NewSpace = GetSpaceOfWindow(&WindowLst[i]);
                     if(NewSpace == -1)
                         AddWindowToSpace(WindowLst[i].WID, CurrentSpace);
@@ -102,12 +105,13 @@ void DetectWindowBelowCursor()
 
                     // Note: Memory leak related to this function-call
                     SetWindowFocus(&WindowLst[i]);
+                    //}
+                    break;
                 }
-                break;
             }
-        }
 
-        ShouldWindowNodeTreeUpdate(OldWindowListCount);
+            ShouldWindowNodeTreeUpdate(OldWindowListCount);
+        }
     }
 }
 
@@ -143,9 +147,12 @@ bool IsWindowFloating(int WindowID)
 
 void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
 {
-    if(WindowLst.size() > OldWindowListCount)
+    if(WindowLst.empty() || !FocusedWindow)
+        return;
+
+    if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
     {
-        if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
+        if(WindowLst.size() > OldWindowListCount)
         {
             screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
             for(int Index = 0; Index < WindowLst.size(); ++Index)
@@ -154,15 +161,11 @@ void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
                     AddWindowToTree(WindowLst[Index].WID);
             }
         }
-    }
-    else if(WindowLst.size() < OldWindowListCount)
-    {
-        if(OldWindowListCount != WindowLst.size() && !WindowLst.empty())
+        else if(WindowLst.size() < OldWindowListCount)
         {
-            if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
-                RefreshWindowNodeTree();
+            RefreshWindowNodeTree();
+            // TODO: RemoveWindowFromTree(WindowID)
         }
-        // TODO: RemoveWindowFromTree(WindowID)
     }
 }
 
@@ -187,21 +190,18 @@ void CreateWindowNodeTree()
 
 void RefreshWindowNodeTree()
 {
-    if(FocusedWindow)
+    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+    if(Screen)
     {
-        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-        if(Screen)
+        if(Screen->Space[CurrentSpace])
         {
-            if(Screen->Space[CurrentSpace])
-            {
-                DestroyNodeTree(Screen->Space[CurrentSpace]);
+            DestroyNodeTree(Screen->Space[CurrentSpace]);
 
-                DEBUG("RefreshWindowNodeTree() Destroy and Create Tree")
-                std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
-                Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
-                ApplyNodeContainer(Screen->Space[CurrentSpace]);
-                ApplyNodeContainer(Screen->Space[CurrentSpace]);
-            }
+            DEBUG("RefreshWindowNodeTree() Destroy and Create Tree")
+            std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
+            Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
+            ApplyNodeContainer(Screen->Space[CurrentSpace]);
+            ApplyNodeContainer(Screen->Space[CurrentSpace]);
         }
     }
 }
