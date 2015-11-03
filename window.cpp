@@ -163,8 +163,35 @@ void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
         }
         else if(WindowLst.size() < OldWindowListCount)
         {
-            RefreshWindowNodeTree();
-            // TODO: RemoveWindowFromTree(WindowID)
+            screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+            tree_node *RootNode = Screen->Space[CurrentSpace];
+            std::vector<int> WindowIDsInTree;
+
+            tree_node *CurrentNode = RootNode;
+            while(CurrentNode->LeftChild)
+                CurrentNode = CurrentNode->LeftChild;
+
+            while(CurrentNode)
+            {
+                WindowIDsInTree.push_back(CurrentNode->WindowID);
+                CurrentNode = GetNearestNodeToTheRight(CurrentNode);
+            }
+
+            for(int Index = 0; Index < WindowIDsInTree.size(); ++Index)
+            {
+                bool Found = false;
+                for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+                {
+                    if(WindowLst[WindowIndex].WID == WindowIDsInTree[Index])
+                    {
+                        Found = true;
+                        break;
+                    }
+                }
+
+                if(!Found)
+                    RemoveWindowFromTree(WindowIDsInTree[Index], false);
+            }
         }
     }
 }
@@ -184,24 +211,6 @@ void CreateWindowNodeTree()
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
             }
-        }
-    }
-}
-
-void RefreshWindowNodeTree()
-{
-    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-    if(Screen)
-    {
-        if(Screen->Space[CurrentSpace])
-        {
-            DestroyNodeTree(Screen->Space[CurrentSpace]);
-
-            DEBUG("RefreshWindowNodeTree() Destroy and Create Tree")
-            std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
-            Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
-            ApplyNodeContainer(Screen->Space[CurrentSpace]);
-            ApplyNodeContainer(Screen->Space[CurrentSpace]);
         }
     }
 }
@@ -240,12 +249,11 @@ void AddWindowToTree()
     AddWindowToTree(FocusedWindow->WID);
 }
 
-void RemoveWindowFromTree()
+void RemoveWindowFromTree(int WindowID, bool Center)
 {
     screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
     if(Screen && Screen->Space[CurrentSpace])
     {
-        int WindowID = FocusedWindow->WID;
         tree_node *RootNode = Screen->Space[CurrentSpace];
         tree_node *WindowNode = GetNodeFromWindowID(RootNode, WindowID);
 
@@ -282,15 +290,23 @@ void RemoveWindowFromTree()
                     free(AccessChild);
                     ApplyNodeContainer(Parent);
 
-                    int NewX = Screen->Width / 4;
-                    int NewY = Screen->Height / 4;
-                    int NewWidth = Screen->Width / 2;
-                    int NewHeight = Screen->Height / 2;
-                    SetWindowDimensions(FocusedWindowRef, FocusedWindow, NewX, NewY, NewWidth, NewHeight);
+                    if(Center)
+                    {
+                        int NewX = Screen->Width / 4;
+                        int NewY = Screen->Height / 4;
+                        int NewWidth = Screen->Width / 2;
+                        int NewHeight = Screen->Height / 2;
+                        SetWindowDimensions(FocusedWindowRef, FocusedWindow, NewX, NewY, NewWidth, NewHeight);
+                    }
                 }
             }
         }
     }
+}
+
+void RemoveWindowFromTree()
+{
+    RemoveWindowFromTree(FocusedWindow->WID, true);
 }
 
 void ToggleFocusedWindowFullscreen()
