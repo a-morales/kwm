@@ -2,6 +2,15 @@
 
 extern std::vector<window_info> WindowLst;
 
+/*
+
+       *
+    *     *
+  *   * *   *
+*  *       * *
+
+*/
+
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
     node_container LeftContainer;
@@ -129,30 +138,33 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
                          Screen->Width - Screen->PaddingLeft - Screen->PaddingRight,
                          Screen->Height - Screen->PaddingTop - Screen->PaddingBottom);
 
-    if(Windows.size() == 1)
-    {
-        RootNode->WindowID = Windows[0];
-    }
-    else
+    if(Windows.size() > 1)
     {
         int splitmode = 1;
         tree_node *Root = RootNode;
         Root->WindowID = Windows[0];
         for(int WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
         {
-            while(!IsLeafNode(Root))
+            if(!IsWindowFloating(Windows[WindowIndex]))
             {
-                if(!IsLeafNode(Root->LeftChild) && IsLeafNode(Root->RightChild))
-                    Root = Root->RightChild;
-                else
-                    Root = Root->LeftChild;
-            }
+                while(!IsLeafNode(Root))
+                {
+                    if(!IsLeafNode(Root->LeftChild) && IsLeafNode(Root->RightChild))
+                        Root = Root->RightChild;
+                    else
+                        Root = Root->LeftChild;
+                }
 
-            DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
-            CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex], splitmode++ % 3);
-            Root->WindowID = -1;
-            Root = RootNode;
+                DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
+                CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex], splitmode++ % 3);
+                Root->WindowID = -1;
+                Root = RootNode;
+            }
         }
+    }
+    else if(Windows.size() == 1)
+    {
+        RootNode->WindowID = Windows[0];
     }
 
     return RootNode;
