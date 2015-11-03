@@ -119,6 +119,7 @@ void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void SetRootNodeContainer(tree_node *, int, int, int, int);
 void ApplyNodeContainer(tree_node *);
+void AddWindowToTree(int WindowID);
 void AddWindowToTree();
 void RemoveWindowFromTree();
 void DestroyNodeTree(tree_node *);
