@@ -138,21 +138,26 @@ bool IsWindowFloating(int WindowID)
 
 void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
 {
-    /*
     if(WindowLst.size() > OldWindowListCount)
     {
-        // TODO: AddWindowToTree(WindowID)
+        if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
+        {
+            screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+            for(int Index = 0; Index < WindowLst.size(); ++Index)
+            {
+                if(GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowLst[Index].WID) == NULL)
+                    AddWindowToTree(WindowLst[Index].WID);
+            }
+        }
     }
     else if(WindowLst.size() < OldWindowListCount)
     {
+        if(OldWindowListCount != WindowLst.size() && !WindowLst.empty())
+        {
+            if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
+                RefreshWindowNodeTree();
+        }
         // TODO: RemoveWindowFromTree(WindowID)
-    }
-    */
-
-    if(OldWindowListCount != WindowLst.size() && !WindowLst.empty())
-    {
-        if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
-            RefreshWindowNodeTree();
     }
 }
 
@@ -196,12 +201,11 @@ void RefreshWindowNodeTree()
     }
 }
 
-void AddWindowToTree()
+void AddWindowToTree(int WindowID)
 {
     screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
     if(Screen && Screen->Space[CurrentSpace])
     {
-        int WindowID = FocusedWindow->WID;
         tree_node *RootNode = Screen->Space[CurrentSpace];
         tree_node *CurrentNode = RootNode;
         while(!IsLeafNode(CurrentNode))
@@ -217,6 +221,11 @@ void AddWindowToTree()
         CurrentNode->WindowID = -1;
         ApplyNodeContainer(CurrentNode);
     }
+}
+
+void AddWindowToTree()
+{
+    AddWindowToTree(FocusedWindow->WID);
 }
 
 void RemoveWindowFromTree()
