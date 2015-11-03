@@ -138,6 +138,17 @@ bool IsWindowFloating(int WindowID)
 
 void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
 {
+    /*
+    if(WindowLst.size() > OldWindowListCount)
+    {
+        // TODO: AddWindowToTree(WindowID)
+    }
+    else if(WindowLst.size() < OldWindowListCount)
+    {
+        // TODO: RemoveWindowFromTree(WindowID)
+    }
+    */
+
     if(OldWindowListCount != WindowLst.size() && !WindowLst.empty())
     {
         if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
@@ -202,7 +213,7 @@ void AddWindowToTree()
         }
 
         DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
-        CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, 2);
+        CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, ExportTable.KwmSplitMode);
         CurrentNode->WindowID = -1;
         ApplyNodeContainer(CurrentNode);
     }
@@ -245,7 +256,7 @@ void RemoveWindowFromTree()
                     DEBUG("RemoveWindowFromTree() " << FocusedWindow->Name)
                     Parent->WindowID = AccessChild->WindowID;
                     if(AccessChild->LeftChild && AccessChild->RightChild)
-                        CreateLeafNodePair(Screen, Parent, AccessChild->LeftChild->WindowID, AccessChild->RightChild->WindowID, 2);
+                        CreateLeafNodePair(Screen, Parent, AccessChild->LeftChild->WindowID, AccessChild->RightChild->WindowID, ExportTable.KwmSplitMode);
 
                     free(AccessChild);
                     ApplyNodeContainer(Parent);
