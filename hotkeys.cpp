@@ -53,6 +53,14 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 EX->KwmRestart();
             } break;
+            case kVK_ANSI_7:
+            {
+                EX->KwmSplitMode = 1;
+            } break;
+            case kVK_ANSI_Slash:
+            {
+                EX->KwmSplitMode = 2;
+            } break;
             default:
             {
                 Result = false;
