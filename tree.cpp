@@ -185,32 +185,25 @@ void SwapNodeWindowIDs(tree_node *A, tree_node *B)
 
 tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID)
 {
-    tree_node *Result = NULL;
-
     if(Node)
     {
-        if(Node->WindowID == WindowID)
-        {
-            DEBUG("GetNodeFromWindowID() " << WindowID)
-            return Node;
-        }
+        tree_node *CurrentNode = Node;
+        while(CurrentNode->LeftChild)
+            CurrentNode = CurrentNode->LeftChild;
 
-        if(Node->LeftChild)
+        while(CurrentNode)
         {
-            Result = GetNodeFromWindowID(Node->LeftChild, WindowID);
-            if(Result == NULL)
-                return GetNodeFromWindowID(Node->RightChild, WindowID);
-        }
+            if(CurrentNode->WindowID == WindowID)
+            {
+                DEBUG("GetNodeFromWindowID() " << WindowID)
+                return CurrentNode;
+            }
 
-        if(Node->RightChild)
-        {
-            Result = GetNodeFromWindowID(Node->RightChild, WindowID);
-            if(Result == NULL)
-                return GetNodeFromWindowID(Node->LeftChild, WindowID);
+            CurrentNode = GetNearestNodeToTheRight(CurrentNode);
         }
     }
 
-    return Result;
+    return NULL;
 }
 
 tree_node *GetNearestNodeToTheLeft(tree_node *Node)
