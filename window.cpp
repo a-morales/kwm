@@ -144,14 +144,17 @@ bool IsSpaceTransitionInProgress()
 
 void CheckIfSpaceTransitionOccurred()
 {
-    PrevSpace = CurrentSpace;
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    if(!WindowLst.empty())
     {
-        int Temp = GetSpaceOfWindow(&WindowLst[WindowIndex]);
-        if(Temp != -1)
+        PrevSpace = CurrentSpace;
+        for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
         {
-            CurrentSpace = Temp;
-            break;
+            int Temp = GetSpaceOfWindow(&WindowLst[WindowIndex]);
+            if(Temp != -1)
+            {
+                CurrentSpace = Temp;
+                break;
+            }
         }
     }
 }
