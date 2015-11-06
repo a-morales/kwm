@@ -86,6 +86,9 @@ void DetectWindowBelowCursor()
         }
         CFRelease(OsxWindowLst);
 
+        if(IsSpaceTransitionInProgress())
+            return;
+
         if(FilterWindowList())
         {
             CheckIfSpaceTransitionOccurred();
@@ -113,6 +116,30 @@ void DetectWindowBelowCursor()
             ShouldWindowNodeTreeUpdate(OldWindowListCount);
         }
     }
+}
+
+bool IsSpaceTransitionInProgress()
+{
+    bool Result = false;
+    int Space = -1;
+    for(int Index = 0; Index < WindowLst.size(); ++Index)
+    {
+        int SpaceOfWindow = GetSpaceOfWindow(&WindowLst[Index]);
+        if(Space == -1 && SpaceOfWindow != -1)
+            Space = SpaceOfWindow;
+
+        if(Space != -1 && SpaceOfWindow != -1)
+        {
+            if(Space != SpaceOfWindow)
+            {
+                DEBUG("IsSpaceTransitionInProgress() Space transition detected")
+                Result = true;
+                break;
+            }
+        }
+    }
+
+    return Result;
 }
 
 void CheckIfSpaceTransitionOccurred()
@@ -208,7 +235,6 @@ void CreateWindowNodeTree()
                 DEBUG("CreateWindowNodeTree() Create Tree")
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
                 Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
-                ApplyNodeContainer(Screen->Space[CurrentSpace]);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
             }
         }
