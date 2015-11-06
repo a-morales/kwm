@@ -34,6 +34,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
             if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
             {
+                DEBUG("Reloading hotkeys.so")
                 UnloadKwmCode(&KWMCode);
                 KWMCode = LoadKwmCode();
             }
