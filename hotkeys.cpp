@@ -38,6 +38,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
                     {
                         EX->FloatingWindowLst.erase(EX->FloatingWindowLst.begin() + Index);
                         Found = true;
+                        EX->KwmFocusMode = FocusAutoraise;
                         EX->AddWindowToTree();
                         break;
                     }
@@ -46,6 +47,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
                 if(!Found)
                 {
                     EX->FloatingWindowLst.push_back(EX->FocusedWindow->WID);
+                    EX->KwmFocusMode = FocusFollowsMouse;
                     EX->RemoveWindowFromTree();
                 }
             } break;
@@ -85,7 +87,7 @@ extern "C" KWM_HOTKEY_COMMANDS(SystemHotkeyCommands)
             // Spotlight fix
             case kVK_Space:
             {
-                EX->KwmFocusMode = FocusAutoraise;
+                //EX->KwmFocusMode = FocusAutoraise;
             } break;
             default:
             {
