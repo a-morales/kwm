@@ -155,6 +155,7 @@ bool FilterWindowList();
 bool IsWindowBelowCursor(window_info *);
 void DetectWindowBelowCursor();
 void CheckIfSpaceTransitionOccurred();
+bool IsSpaceTransitionInProgress();
 bool IsWindowFloating(int);
 
 void CloseWindowByRef(AXUIElementRef);
