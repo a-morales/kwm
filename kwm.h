@@ -151,12 +151,13 @@ void ToggleFocusedWindowFullscreen();
 void SwapFocusedWindowWithNearest(int);
 void ShiftWindowFocus(int);
 bool WindowsAreEqual(window_info *, window_info *);
+bool IsWindowFloating(int);
 bool FilterWindowList();
 bool IsWindowBelowCursor(window_info *);
 void DetectWindowBelowCursor();
+void FocusWindowBelowCursor();
 void CheckIfSpaceTransitionOccurred();
 bool IsSpaceTransitionInProgress();
-bool IsWindowFloating(int);
 
 void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
