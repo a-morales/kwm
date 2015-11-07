@@ -1,12 +1,15 @@
 #include "kwm.h"
 
-static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
+static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly |
+                                                kCGWindowListExcludeDesktopElements;
 
-extern export_table ExportTable;
 extern std::vector<window_info> WindowLst;
+extern export_table ExportTable;
+
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
+
 extern int CurrentSpace;
 extern int PrevSpace;
 
@@ -18,7 +21,7 @@ void WriteNameOfFocusedWindowToFile()
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
-    bool Result = Window == Match;
+    bool Result = false;
 
     if(Window && Match)
     {
@@ -37,6 +40,7 @@ bool FilterWindowList()
 {
     bool Result = true;
     std::vector<window_info> FilteredWindowLst;
+
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         if(WindowLst[WindowIndex].Owner == "Dock")
@@ -50,6 +54,23 @@ bool FilterWindowList()
     return Result;
 }
 
+bool IsWindowFloating(int WindowID)
+{
+    bool Result = false;
+
+    for(int WindowIndex = 0; WindowIndex < ExportTable.FloatingWindowLst.size(); ++WindowIndex)
+    {
+        if(WindowID == ExportTable.FloatingWindowLst[WindowIndex])
+        {
+            DEBUG("IsWindowFloating(): floating " << WindowID)
+            Result = true;
+            break;
+        }
+    }
+
+    return Result;
+}
+
 bool IsWindowBelowCursor(window_info *Window)
 {
     bool Result = false;
@@ -59,6 +80,7 @@ bool IsWindowBelowCursor(window_info *Window)
         CGEventRef Event = CGEventCreate(NULL);
         CGPoint Cursor = CGEventGetLocation(Event);
         CFRelease(Event);
+
         if(Cursor.x >= Window->X && 
            Cursor.x <= Window->X + Window->Width &&
            Cursor.y >= Window->Y &&
@@ -86,33 +108,10 @@ void DetectWindowBelowCursor()
         }
         CFRelease(OsxWindowLst);
 
-        if(IsSpaceTransitionInProgress())
-            return;
-
-        if(FilterWindowList())
+        if(!IsSpaceTransitionInProgress() && FilterWindowList())
         {
             CheckIfSpaceTransitionOccurred();
-            for(int i = 0; i < WindowLst.size(); ++i)
-            {
-                if(IsWindowBelowCursor(&WindowLst[i]))
-                {
-                    //if(!WindowsAreEqual(FocusedWindow, &WindowLst[i]))
-                    //{
-                    int NewSpace = GetSpaceOfWindow(&WindowLst[i]);
-                    if(NewSpace == -1)
-                        AddWindowToSpace(WindowLst[i].WID, CurrentSpace);
-
-                    DEBUG("DetectWindowBelowCursor() Current space: " << CurrentSpace)
-                    if(CurrentSpace != -1)
-                        CreateWindowNodeTree();
-
-                    // Note: Memory leak related to this function-call
-                    SetWindowFocus(&WindowLst[i]);
-                    //}
-                    break;
-                }
-            }
-
+            FocusWindowBelowCursor();
             ShouldWindowNodeTreeUpdate(OldWindowListCount);
         }
     }
@@ -122,9 +121,10 @@ bool IsSpaceTransitionInProgress()
 {
     bool Result = false;
     int Space = -1;
-    for(int Index = 0; Index < WindowLst.size(); ++Index)
+
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-        int SpaceOfWindow = GetSpaceOfWindow(&WindowLst[Index]);
+        int SpaceOfWindow = GetSpaceOfWindow(&WindowLst[WindowIndex]);
         if(Space == -1 && SpaceOfWindow != -1)
             Space = SpaceOfWindow;
 
@@ -159,20 +159,28 @@ void CheckIfSpaceTransitionOccurred()
     }
 }
 
-bool IsWindowFloating(int WindowID)
+void FocusWindowBelowCursor()
 {
-    bool Result = false;
-    for(int Index = 0; Index < ExportTable.FloatingWindowLst.size(); ++Index)
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-        if(WindowID == ExportTable.FloatingWindowLst[Index])
+        if(IsWindowBelowCursor(&WindowLst[WindowIndex]))
         {
-            DEBUG("IsWindowFloating(): floating " << WindowID)
-            Result = true;
+            //if(!WindowsAreEqual(FocusedWindow, &WindowLst[WindowIndex]))
+            //{
+            int NewSpace = GetSpaceOfWindow(&WindowLst[WindowIndex]);
+            if(NewSpace == -1)
+                AddWindowToSpace(WindowLst[WindowIndex].WID, CurrentSpace);
+
+            DEBUG("DetectWindowBelowCursor() Current space: " << CurrentSpace)
+                if(CurrentSpace != -1)
+                    CreateWindowNodeTree();
+
+            // Note: Memory leak related to this function-call
+            SetWindowFocus(&WindowLst[WindowIndex]);
             break;
+            //}
         }
     }
-
-    return Result;
 }
 
 void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
@@ -185,10 +193,10 @@ void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
         if(WindowLst.size() > OldWindowListCount)
         {
             screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-            for(int Index = 0; Index < WindowLst.size(); ++Index)
+            for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
             {
-                if(GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowLst[Index].WID) == NULL)
-                    AddWindowToTree(WindowLst[Index].WID);
+                if(GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowLst[WindowIndex].WID) == NULL)
+                    AddWindowToTree(WindowLst[WindowIndex].WID);
             }
         }
         else if(WindowLst.size() < OldWindowListCount)
@@ -207,12 +215,12 @@ void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
                 CurrentNode = GetNearestNodeToTheRight(CurrentNode);
             }
 
-            for(int Index = 0; Index < WindowIDsInTree.size(); ++Index)
+            for(int IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
             {
                 bool Found = false;
                 for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
                 {
-                    if(WindowLst[WindowIndex].WID == WindowIDsInTree[Index])
+                    if(WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
                     {
                         Found = true;
                         break;
@@ -220,7 +228,7 @@ void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
                 }
 
                 if(!Found)
-                    RemoveWindowFromTree(WindowIDsInTree[Index], false);
+                    RemoveWindowFromTree(WindowIDsInTree[IDIndex], false);
             }
         }
     }
