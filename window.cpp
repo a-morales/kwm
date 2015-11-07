@@ -353,7 +353,7 @@ void ToggleFocusedWindowFullscreen()
                 {
                     DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
                     Screen->Space[CurrentSpace]->WindowID = Node->WindowID;
-                    ResizeWindow(Screen->Space[CurrentSpace]);
+                    ResizeWindowToContainerSize(Screen->Space[CurrentSpace]);
                 }
             }
             else
@@ -363,7 +363,7 @@ void ToggleFocusedWindowFullscreen()
 
                 Node = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
                 if(Node)
-                    ResizeWindow(Node);
+                    ResizeWindowToContainerSize(Node);
             }
         }
     }
@@ -495,7 +495,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         CFRelease(NewWindowSize);
 }
 
-void ResizeWindow(tree_node *Node)
+void ResizeWindowToContainerSize(tree_node *Node)
 {
     window_info *Window = GetWindowByID(Node->WindowID);
     if(Window)

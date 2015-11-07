@@ -138,7 +138,7 @@ void CycleFocusedWindowDisplay(int);
 
 void ShouldWindowNodeTreeUpdate(int);
 void CreateWindowNodeTree();
-void ResizeWindow(tree_node *);
+void ResizeWindowToContainerSize(tree_node *);
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 
 int NumberOfSpaces();

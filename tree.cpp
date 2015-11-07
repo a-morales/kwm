@@ -178,8 +178,8 @@ void SwapNodeWindowIDs(tree_node *A, tree_node *B)
         int TempWindowID = A->WindowID;
         A->WindowID = B->WindowID;
         B->WindowID = TempWindowID;
-        ResizeWindow(A);
-        ResizeWindow(B);
+        ResizeWindowToContainerSize(A);
+        ResizeWindowToContainerSize(B);
     }
 }
 
@@ -274,14 +274,14 @@ void ApplyNodeContainer(tree_node *Node)
 {
     if(Node)
     {
+        if(Node->WindowID != -1)
+            ResizeWindowToContainerSize(Node);
+
         if(Node->LeftChild)
             ApplyNodeContainer(Node->LeftChild);
 
         if(Node->RightChild)
             ApplyNodeContainer(Node->RightChild);
-
-        if(Node->WindowID != -1)
-            ResizeWindow(Node);
     }
 }
 
