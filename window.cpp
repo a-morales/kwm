@@ -317,6 +317,7 @@ void RemoveWindowFromTree(int WindowID, bool Center)
                         CreateLeafNodePair(Screen, Parent, AccessChild->LeftChild->WindowID, AccessChild->RightChild->WindowID, ExportTable.KwmSplitMode);
 
                     free(AccessChild);
+                    free(WindowNode);
                     ApplyNodeContainer(Parent);
 
                     if(Center)
