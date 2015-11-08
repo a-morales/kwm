@@ -16,7 +16,7 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - r: rebuild hotkeys.cpp
         - q: restart kwm
 
-        - w: toggle floating for focused window
+        - m: mark the container to use for next window split
         - 7: set vertical split-mode
         - -: set horizontal split-mode
 
@@ -26,6 +26,7 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
         - k: decrease height
 
         - f: toggle window fullscreen
+        - w: toggle window floating
         - enter: opens a new iTerm window
 
         YTD player controls:

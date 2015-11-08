@@ -9,6 +9,7 @@ extern export_table ExportTable;
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
+extern int MarkedWindowID;
 
 extern int CurrentSpace;
 extern int PrevSpace;
@@ -271,7 +272,7 @@ void AddWindowToTree(int WindowID)
     {
         tree_node *RootNode = Screen->Space[CurrentSpace];
         tree_node *CurrentNode = RootNode;
-        if(WindowID == FocusedWindow->WID)
+        if(WindowID == FocusedWindow->WID || MarkedWindowID == -1)
         {
             while(!IsLeafNode(CurrentNode))
             {
@@ -283,7 +284,8 @@ void AddWindowToTree(int WindowID)
         }
         else
         {
-            CurrentNode = GetNodeFromWindowID(RootNode, FocusedWindow->WID);
+            CurrentNode = GetNodeFromWindowID(RootNode, MarkedWindowID);
+            MarkedWindowID = -1;
         }
 
         DEBUG("AddWindowToTree() Create pair of leafs")
@@ -442,6 +444,15 @@ void ShiftWindowFocus(int Shift)
                 }
             }
         }
+    }
+}
+
+void MarkWindowContainer()
+{
+    if(FocusedWindow)
+    {
+        DEBUG("MarkWindowContainer() Marked " << FocusedWindow->Name)
+        MarkedWindowID = FocusedWindow->WID;
     }
 }
 

@@ -14,6 +14,7 @@ int PrevSpace = -1;
 ProcessSerialNumber FocusedPSN;
 AXUIElementRef FocusedWindowRef;
 window_info *FocusedWindow;
+int MarkedWindowID = -1;
 
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
@@ -131,6 +132,7 @@ void BuildExportTable()
     ExportTable.CycleFocusedWindowDisplay = &CycleFocusedWindowDisplay;
     ExportTable.AddWindowToTree = &AddWindowToTree;
     ExportTable.RemoveWindowFromTree = &RemoveWindowFromTree;
+    ExportTable.MarkWindowContainer = &MarkWindowContainer;
     ExportTable.KwmRestart = &KwmRestart;
 }
 

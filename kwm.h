@@ -71,6 +71,7 @@ struct export_table
     void (*CycleFocusedWindowDisplay)(int);
     void (*AddWindowToTree)();
     void (*RemoveWindowFromTree)();
+    void (*MarkWindowContainer)();
     void (*KwmRestart)();
 };
 
@@ -150,6 +151,7 @@ void GetSpaceInfo(const void *, const void *, void *);
 void ToggleFocusedWindowFullscreen();
 void SwapFocusedWindowWithNearest(int);
 void ShiftWindowFocus(int);
+void MarkWindowContainer();
 bool WindowsAreEqual(window_info *, window_info *);
 bool IsWindowFloating(int);
 bool FilterWindowList();

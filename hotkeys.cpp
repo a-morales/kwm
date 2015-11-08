@@ -29,6 +29,10 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
                     DEBUG("KwmFocusMode: Focus-follows-mouse")
                 }
             } break;
+            case kVK_ANSI_M:
+            {
+                EX->MarkWindowContainer();
+            } break;
             case kVK_ANSI_W:
             {
                 bool Found = false;
