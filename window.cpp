@@ -25,12 +25,18 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
 
     if(Window && Match)
     {
-        if(Window->X == Match->X &&
+        if(Window->PID == Match->PID &&
+           Window->WID == Match->WID &&
+           Window->Owner == Match->Owner &&
+           Window->Name == Match->Name &&
+           Window->X == Match->X &&
            Window->Y == Match->Y &&
            Window->Width == Match->Width &&
            Window->Height == Match->Height &&
-           Window->Name == Match->Name)
-               Result = true;
+           Window->Layer == Match->Layer)
+        {
+            Result = true;
+        }
     }
 
     return Result;
@@ -85,7 +91,9 @@ bool IsWindowBelowCursor(window_info *Window)
            Cursor.x <= Window->X + Window->Width &&
            Cursor.y >= Window->Y &&
            Cursor.y <= Window->Y + Window->Height)
-               Result = true;
+        {
+            Result = true;
+        }
     }
         
     return Result;
@@ -165,20 +173,24 @@ void FocusWindowBelowCursor()
     {
         if(IsWindowBelowCursor(&WindowLst[WindowIndex]))
         {
-            //if(!WindowsAreEqual(FocusedWindow, &WindowLst[WindowIndex]))
-            //{
-            int NewSpace = GetSpaceOfWindow(&WindowLst[WindowIndex]);
-            if(NewSpace == -1)
-                AddWindowToSpace(WindowLst[WindowIndex].WID, CurrentSpace);
+            if(!WindowsAreEqual(FocusedWindow, &WindowLst[WindowIndex]))
+            {
+                int NewSpace = GetSpaceOfWindow(&WindowLst[WindowIndex]);
+                if(NewSpace == -1)
+                    AddWindowToSpace(WindowLst[WindowIndex].WID, CurrentSpace);
 
-            DEBUG("DetectWindowBelowCursor() Current space: " << CurrentSpace)
+                DEBUG("DetectWindowBelowCursor() Current space: " << CurrentSpace)
                 if(CurrentSpace != -1)
                     CreateWindowNodeTree();
 
-            // Note: Memory leak related to this function-call
-            SetWindowFocus(&WindowLst[WindowIndex]);
+                // Note: Memory leak related to this function-call
+                SetWindowFocus(&WindowLst[WindowIndex]);
+            }
+            else
+            {
+                WriteNameOfFocusedWindowToFile();
+            }
             break;
-            //}
         }
     }
 }
