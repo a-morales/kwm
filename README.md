@@ -87,6 +87,10 @@ Scroll down for instructions on how to use.
     and Kwm will reload this library without having to be restarted and so
     hotkeys can be edited live.
 
+    Kwm also requires access to the accessibility API.
+    There should be a prompt asking to enable it on startup.
+    Creating a certificate and codesigning the binary works as well.
+
     NOTE:
     Kwm reads com.apple.spaces.plist upon startup.
     spaces.plist is invalidated for some reason when your OSX 
