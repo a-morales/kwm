@@ -3,6 +3,8 @@
 Started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
 Scroll down for instructions on how to use.
 
+![alt tag](https://cloud.githubusercontent.com/assets/6175959/11104379/a4271a1e-88c8-11e5-805e-5d3e0e83d267.png)
+
 ### Features:
 - Enables focus-follows-mouse
 - Binary space partitioning window management
