@@ -99,4 +99,5 @@ Scroll down for instructions on how to use.
     
     To fix this, you have to re-create all spaces and just drag
     whatever applications you had opened, to the new spaces.
-    This causes OSX to update the spaces.plist file and Kwm will work.
+    This causes OSX to update the spaces.plist file.
+    Restart Kwm and it should work again.
