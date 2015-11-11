@@ -272,7 +272,7 @@ void AddWindowToTree(int WindowID)
     {
         tree_node *RootNode = Screen->Space[CurrentSpace];
         tree_node *CurrentNode = RootNode;
-        if(WindowID == FocusedWindow->WID || MarkedWindowID == -1)
+        if(MarkedWindowID == -1)
         {
             while(!IsLeafNode(CurrentNode))
             {
