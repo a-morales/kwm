@@ -1,6 +1,7 @@
 ## Kwm
 
 Started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
+Scroll down for instructions on how to use.
 
 ### Features:
 - Enables focus-follows-mouse
@@ -60,3 +61,38 @@ Started as a simple project to get true focus-follows-mouse support on OSX throu
 
         - p: swap with the previous window
         - n: swap with the next window
+
+### How to use:
+    Currently does not create an app bundle.
+
+    To compile Kwm, simply run the included build.sh script.
+    By default, debug prints are enabled, and you can turn 
+    these off by opening the build.sh script and getting rid
+    of the -DDEBUG_BUILD flag.
+
+    Because there is no app bundle, Kwm has to be started from
+    a terminal. cd into the containing directory and type ./kwm
+
+    IF kwm is added to the path, a launcher script is necessary
+    because it tries to load hotkeys.so from the executables working-directory.
+    
+    Example launcher script, that is placed in your path instead of the kwm binary.
+    ```
+    pushd /path/to/kwm
+    ./kwm
+    popd
+    ```
+
+    The reason for this is that hotkeys.cpp can edited and rebuild separately,
+    and Kwm will reload this library without having to be restarted and so
+    hotkeys can be edited live.
+
+    NOTE:
+    Kwm reads com.apple.spaces.plist upon startup.
+    spaces.plist is invalidated for some reason when your OSX 
+    enters sleep, and so Kwms windowing management often breaks
+    because of this. 
+    
+    To fix this, you have to re-create all spaces and just drag
+    whatever applications you had opened, to the new spaces.
+    This causes OSX to update the spaces.plist file and Kwm will work.
