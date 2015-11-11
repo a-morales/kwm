@@ -77,11 +77,11 @@ Scroll down for instructions on how to use.
     because it tries to load hotkeys.so from the executables working-directory.
     
     Example launcher script, that is placed in your path instead of the kwm binary.
-    ```
+
+    #!/bin/bash
     pushd /path/to/kwm
     ./kwm
     popd
-    ```
 
     The reason for this is that hotkeys.cpp can edited and rebuild separately,
     and Kwm will reload this library without having to be restarted and so
