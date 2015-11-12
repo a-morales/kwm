@@ -1,4 +1,5 @@
 #include "kwm.h"
+#include <pthread.h>
 
 kwm_code KWMCode;
 export_table ExportTable;
@@ -19,6 +20,8 @@ int MarkedWindowID = -1;
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
 CGDirectDisplayID ActiveDisplays[5];
+
+pthread_t BackgroundThread;
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
@@ -66,7 +69,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             if(ExportTable.KwmFocusMode != FocusDisabled)
             {
-                DetectWindowBelowCursor();
+                FocusWindowBelowCursor();
             }
         } break;
     }
@@ -124,7 +127,7 @@ void BuildExportTable()
     ExportTable.FocusedWindowRef = FocusedWindowRef;
     ExportTable.FocusedWindow = FocusedWindow;
 
-    ExportTable.DetectWindowBelowCursor = &DetectWindowBelowCursor;
+    ExportTable.FocusWindowBelowCursor = &FocusWindowBelowCursor;
     ExportTable.SetWindowDimensions = &SetWindowDimensions;
     ExportTable.ToggleFocusedWindowFullscreen = &ToggleFocusedWindowFullscreen;
     ExportTable.SwapFocusedWindowWithNearest = &SwapFocusedWindowWithNearest;
@@ -146,6 +149,16 @@ void KwmRestart()
     execv(KwmBinPath.c_str(), (char**)ExecArgs);
 }
 
+void * KwmWindowMonitor(void*)
+{
+    while(1)
+    {
+        DEBUG("KwmWindowMonitor()")
+        UpdateWindowTree();
+        sleep(1);
+    }
+}
+
 void KwmInit()
 {
     if(!CheckPrivileges())
@@ -159,7 +172,11 @@ void KwmInit()
 
     GetActiveSpaces();
     GetActiveDisplays();
-    DetectWindowBelowCursor();
+
+    UpdateWindowTree();
+    FocusWindowBelowCursor();
+
+    pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }
 
 bool CheckPrivileges()
@@ -200,6 +217,5 @@ int main(int argc, char **argv)
     CFRunLoopAddSource(CFRunLoopGetCurrent(), RunLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(EventTap, true);
     CFRunLoopRun();
-
     return 0;
 }

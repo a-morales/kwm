@@ -63,7 +63,7 @@ struct export_table
     focus_option KwmFocusMode;
     int KwmSplitMode;
 
-    void (*DetectWindowBelowCursor)();
+    void (*FocusWindowBelowCursor)();
     void (*SetWindowDimensions)(AXUIElementRef, window_info *, int, int, int, int);
     void (*ToggleFocusedWindowFullscreen)();
     void (*SwapFocusedWindowWithNearest)(int);
@@ -137,7 +137,7 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
 void CycleFocusedWindowDisplay(int);
 
-void ShouldWindowNodeTreeUpdate(int);
+void ShouldWindowNodeTreeUpdate();
 void CreateWindowNodeTree();
 void ResizeWindowToContainerSize(tree_node *);
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
@@ -156,10 +156,11 @@ bool WindowsAreEqual(window_info *, window_info *);
 bool IsWindowFloating(int);
 bool FilterWindowList();
 bool IsWindowBelowCursor(window_info *);
-void DetectWindowBelowCursor();
 void FocusWindowBelowCursor();
 void CheckIfSpaceTransitionOccurred();
 bool IsSpaceTransitionInProgress();
+void UpdateActiveWindowList();
+void UpdateWindowTree();
 
 void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);

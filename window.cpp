@@ -9,10 +9,13 @@ extern export_table ExportTable;
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
-extern int MarkedWindowID;
 
 extern int CurrentSpace;
 extern int PrevSpace;
+extern int MarkedWindowID;
+
+window_info FocusedWindowCache;
+int OldWindowListCount = -1;
 
 void WriteNameOfFocusedWindowToFile()
 {
@@ -100,32 +103,6 @@ bool IsWindowBelowCursor(window_info *Window)
     return Result;
 }
 
-void DetectWindowBelowCursor()
-{
-    int OldWindowListCount = WindowLst.size();
-    WindowLst.clear();
-
-    CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
-    if(OsxWindowLst)
-    {
-        CFIndex OsxWindowCount = CFArrayGetCount(OsxWindowLst);
-        for(CFIndex WindowIndex = 0; WindowIndex < OsxWindowCount; ++WindowIndex)
-        {
-            CFDictionaryRef Elem = (CFDictionaryRef)CFArrayGetValueAtIndex(OsxWindowLst, WindowIndex);
-            WindowLst.push_back(window_info());
-            CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
-        }
-        CFRelease(OsxWindowLst);
-
-        if(!IsSpaceTransitionInProgress() && FilterWindowList())
-        {
-            CheckIfSpaceTransitionOccurred();
-            FocusWindowBelowCursor();
-            ShouldWindowNodeTreeUpdate(OldWindowListCount);
-        }
-    }
-}
-
 bool IsSpaceTransitionInProgress()
 {
     bool Result = false;
@@ -170,41 +147,74 @@ void CheckIfSpaceTransitionOccurred()
 
 void FocusWindowBelowCursor()
 {
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    if(!IsSpaceTransitionInProgress())
     {
-        if(IsWindowBelowCursor(&WindowLst[WindowIndex]))
+        for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
         {
-            if(!WindowsAreEqual(FocusedWindow, &WindowLst[WindowIndex]))
+            if(IsWindowBelowCursor(&WindowLst[WindowIndex]))
             {
-                int NewSpace = GetSpaceOfWindow(&WindowLst[WindowIndex]);
-                if(NewSpace == -1)
-                    AddWindowToSpace(WindowLst[WindowIndex].WID, CurrentSpace);
+                if(!WindowsAreEqual(FocusedWindow, &WindowLst[WindowIndex]))
+                {
+                    int NewSpace = GetSpaceOfWindow(&WindowLst[WindowIndex]);
+                    if(NewSpace == -1)
+                        AddWindowToSpace(WindowLst[WindowIndex].WID, CurrentSpace);
 
-                DEBUG("DetectWindowBelowCursor() Current space: " << CurrentSpace)
-                if(CurrentSpace != -1)
-                    CreateWindowNodeTree();
-
-                // Note: Memory leak related to this function-call
-                SetWindowFocus(&WindowLst[WindowIndex]);
+                    // Note: Memory leak related to this function-call
+                    SetWindowFocus(&WindowLst[WindowIndex]);
+                    DEBUG("FocusWindowBelowCursor() Current space: " << CurrentSpace)
+                }
+                else
+                {
+                    WriteNameOfFocusedWindowToFile();
+                }
+                break;
             }
-            else
-            {
-                WriteNameOfFocusedWindowToFile();
-            }
-            break;
         }
     }
 }
 
-void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
+void UpdateWindowTree()
 {
-    if(WindowLst.empty() || !FocusedWindow)
+    UpdateActiveWindowList();
+    if(!IsSpaceTransitionInProgress() && FilterWindowList())
+    {
+        CheckIfSpaceTransitionOccurred();
+        if(CurrentSpace != -1)
+            CreateWindowNodeTree();
+
+        ShouldWindowNodeTreeUpdate();
+    }
+}
+
+void UpdateActiveWindowList()
+{
+    OldWindowListCount = WindowLst.size();
+    WindowLst.clear();
+
+    CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
+    if(OsxWindowLst)
+    {
+        CFIndex OsxWindowCount = CFArrayGetCount(OsxWindowLst);
+        for(CFIndex WindowIndex = 0; WindowIndex < OsxWindowCount; ++WindowIndex)
+        {
+            CFDictionaryRef Elem = (CFDictionaryRef)CFArrayGetValueAtIndex(OsxWindowLst, WindowIndex);
+            WindowLst.push_back(window_info());
+            CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
+        }
+        CFRelease(OsxWindowLst);
+    }
+}
+
+void ShouldWindowNodeTreeUpdate()
+{
+    if(WindowLst.empty() || !FocusedWindow || OldWindowListCount == -1)
         return;
 
     if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
     {
         if(WindowLst.size() > OldWindowListCount)
         {
+            DEBUG("ShouldWindowNodeTreeUpdate() Add Window")
             screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
             for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
             {
@@ -214,6 +224,7 @@ void ShouldWindowNodeTreeUpdate(int OldWindowListCount)
         }
         else if(WindowLst.size() < OldWindowListCount)
         {
+            DEBUG("ShouldWindowNodeTreeUpdate() Remove Window")
             screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
             tree_node *RootNode = Screen->Space[CurrentSpace];
             std::vector<int> WindowIDsInTree;
@@ -480,7 +491,8 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
 
     FocusedPSN = NewPSN;
     FocusedWindowRef = WindowRef;
-    FocusedWindow = Window;
+    FocusedWindowCache = *Window;
+    FocusedWindow = &FocusedWindowCache;
 
     ExportTable.FocusedWindowRef = FocusedWindowRef;
     ExportTable.FocusedWindow = FocusedWindow;
