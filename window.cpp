@@ -361,6 +361,10 @@ void RemoveWindowFromTree(int WindowID, bool Center)
                         int NewHeight = Screen->Height / 2;
                         SetWindowDimensions(FocusedWindowRef, FocusedWindow, NewX, NewY, NewWidth, NewHeight);
                     }
+                    else
+                    {
+                        FocusWindowBelowCursor();
+                    }
                 }
             }
         }
