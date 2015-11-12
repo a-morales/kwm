@@ -206,6 +206,40 @@ tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID)
     return NULL;
 }
 
+void ReflectTreeVertically(tree_node *Node)
+{
+    DEBUG("NYI")
+}
+
+void ResizeLeftNodeContainer(tree_node *Node, int Offset)
+{
+    if(Node)
+    {
+        Node->Container.Width += Offset;
+
+        if(Node->LeftChild)
+            ResizeLeftNodeContainer(Node->LeftChild, Offset);
+
+        if(Node->RightChild)
+            ResizeLeftNodeContainer(Node->RightChild, Offset);
+    }
+}
+
+void ResizeRightNodeContainer(tree_node *Node, int Offset)
+{
+    if(Node)
+    {
+        Node->Container.X += Offset;
+        Node->Container.Width += -Offset;
+
+        if(Node->LeftChild)
+            ResizeRightNodeContainer(Node->LeftChild, Offset);
+
+        if(Node->RightChild)
+            ResizeRightNodeContainer(Node->RightChild, Offset);
+    }
+}
+
 tree_node *GetNearestNodeToTheLeft(tree_node *Node)
 {
     if(Node)
