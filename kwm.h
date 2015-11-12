@@ -64,7 +64,7 @@ struct export_table
     int KwmSplitMode;
 
     void (*FocusWindowBelowCursor)();
-    void (*SetWindowDimensions)(AXUIElementRef, window_info *, int, int, int, int);
+    void (*MoveContainerVerticalSplitter)(int);
     void (*ToggleFocusedWindowFullscreen)();
     void (*SwapFocusedWindowWithNearest)(int);
     void (*ShiftWindowFocus)(int);
@@ -130,6 +130,8 @@ node_container LeftVerticalContainerSplit(screen_info *, tree_node *);
 node_container RightVerticalContainerSplit(screen_info *, tree_node *);
 node_container UpperHorizontalContainerSplit(screen_info *, tree_node *);
 node_container LowerHorizontalContainerSplit(screen_info *, tree_node *);
+void ResizeLeftNodeContainer(tree_node *, int);
+void ResizeRightNodeContainer(tree_node *, int);
 
 void GetActiveDisplays();
 screen_info *GetDisplayOfWindow(window_info *);
@@ -141,6 +143,7 @@ void ShouldWindowNodeTreeUpdate();
 void CreateWindowNodeTree();
 void ResizeWindowToContainerSize(tree_node *);
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
+void MoveContainerVerticalSplitter(int);
 
 int NumberOfSpaces();
 void AddWindowToSpace(int, int);
