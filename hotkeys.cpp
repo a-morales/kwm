@@ -170,27 +170,11 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             // Window Resize
             case kVK_ANSI_H:
             {
-                EX->SetWindowDimensions(EX->FocusedWindowRef, EX->FocusedWindow,
-                        EX->FocusedWindow->X, EX->FocusedWindow->Y,
-                        EX->FocusedWindow->Width - 10, EX->FocusedWindow->Height);
-            } break;
-            case kVK_ANSI_J:
-            {
-                EX->SetWindowDimensions(EX->FocusedWindowRef, EX->FocusedWindow,
-                        EX->FocusedWindow->X, EX->FocusedWindow->Y,
-                        EX->FocusedWindow->Width, EX->FocusedWindow->Height + 10);
-            } break;
-            case kVK_ANSI_K:
-            {
-                EX->SetWindowDimensions(EX->FocusedWindowRef, EX->FocusedWindow,
-                        EX->FocusedWindow->X, EX->FocusedWindow->Y,
-                        EX->FocusedWindow->Width, EX->FocusedWindow->Height - 10);
+                EX->MoveContainerVerticalSplitter(-10);
             } break;
             case kVK_ANSI_L:
             {
-                EX->SetWindowDimensions(EX->FocusedWindowRef, EX->FocusedWindow,
-                        EX->FocusedWindow->X, EX->FocusedWindow->Y,
-                        EX->FocusedWindow->Width + 10, EX->FocusedWindow->Height);
+                EX->MoveContainerVerticalSplitter(10);
             } break;
             case kVK_ANSI_F:
             {
@@ -223,27 +207,11 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             // Move Window
             case kVK_ANSI_H:
             {
-                EX->SetWindowDimensions(EX->FocusedWindowRef, EX->FocusedWindow,
-                        EX->FocusedWindow->X - 10, EX->FocusedWindow->Y,
-                        EX->FocusedWindow->Width, EX->FocusedWindow->Height);
-            } break;
-            case kVK_ANSI_J:
-            {
-                EX->SetWindowDimensions(EX->FocusedWindowRef, EX->FocusedWindow,
-                        EX->FocusedWindow->X, EX->FocusedWindow->Y + 10,
-                        EX->FocusedWindow->Width, EX->FocusedWindow->Height);
-            } break;
-            case kVK_ANSI_K:
-            {
-                EX->SetWindowDimensions(EX->FocusedWindowRef, EX->FocusedWindow,
-                        EX->FocusedWindow->X, EX->FocusedWindow->Y - 10,
-                        EX->FocusedWindow->Width, EX->FocusedWindow->Height);
+                //ReflectTreeVertically
             } break;
             case kVK_ANSI_L:
             {
-                EX->SetWindowDimensions(EX->FocusedWindowRef, EX->FocusedWindow,
-                        EX->FocusedWindow->X + 10, EX->FocusedWindow->Y,
-                        EX->FocusedWindow->Width, EX->FocusedWindow->Height);
+                //ReflectTreeVertically
             } break;
             default:
             {
