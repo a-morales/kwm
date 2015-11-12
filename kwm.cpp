@@ -128,7 +128,7 @@ void BuildExportTable()
     ExportTable.FocusedWindow = FocusedWindow;
 
     ExportTable.FocusWindowBelowCursor = &FocusWindowBelowCursor;
-    ExportTable.SetWindowDimensions = &SetWindowDimensions;
+    ExportTable.MoveContainerVerticalSplitter = &MoveContainerVerticalSplitter;
     ExportTable.ToggleFocusedWindowFullscreen = &ToggleFocusedWindowFullscreen;
     ExportTable.SwapFocusedWindowWithNearest = &SwapFocusedWindowWithNearest;
     ExportTable.ShiftWindowFocus = &ShiftWindowFocus;
