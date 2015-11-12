@@ -153,7 +153,7 @@ void * KwmWindowMonitor(void*)
 {
     while(1)
     {
-        DEBUG("KwmWindowMonitor()")
+        //DEBUG("KwmWindowMonitor()")
         UpdateWindowTree();
         usleep(200000);
     }
