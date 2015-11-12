@@ -543,6 +543,27 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         CFRelease(NewWindowSize);
 }
 
+void MoveContainerVerticalSplitter(int Offset)
+{
+    if(FocusedWindow)
+    {
+        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+        if(Screen && Screen->Space[CurrentSpace])
+        {
+            tree_node *Root = Screen->Space[CurrentSpace];
+            if(IsLeafNode(Root) || Root->WindowID != -1)
+                return;
+
+            tree_node *LeftChild = Root->LeftChild;
+            tree_node *RightChild = Root->RightChild;
+
+            ResizeLeftNodeContainer(LeftChild, Offset);
+            ResizeRightNodeContainer(RightChild, Offset);
+            ApplyNodeContainer(Root);
+        }
+    }
+}
+
 void ResizeWindowToContainerSize(tree_node *Node)
 {
     window_info *Window = GetWindowByID(Node->WindowID);
