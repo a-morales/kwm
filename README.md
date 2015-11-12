@@ -23,11 +23,6 @@ Scroll down for instructions on how to use.
         - 7: set vertical split-mode
         - -: set horizontal split-mode
 
-        - h: decrease width
-        - l: increase width
-        - j: increase height
-        - k: decrease height
-
         - f: toggle window fullscreen
         - w: toggle window floating
         - enter: opens a new iTerm window
@@ -49,11 +44,6 @@ Scroll down for instructions on how to use.
         - rarrow: seek forward
 
     - ctrl+alt:
-        - h: move window left
-        - l: move window right
-        - j: move window down
-        - k: move window up
-
         - p: send window to previous screen
         - n: send window to next screen
 
