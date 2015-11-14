@@ -154,7 +154,9 @@ void * KwmWindowMonitor(void*)
     while(1)
     {
         //DEBUG("KwmWindowMonitor()")
-        UpdateWindowTree();
+        if(ExportTable.KwmFocusMode != FocusDisabled)
+            UpdateWindowTree();
+
         usleep(200000);
     }
 }
