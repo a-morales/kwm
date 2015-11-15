@@ -9,6 +9,7 @@ Scroll down for instructions on how to use.
 - Enables focus-follows-mouse
 - Binary space partitioning window management
 - System wide hotkeys (supports instantaneous live code editing)
+- Remapping of keys (supports instantaneous live code editing)
 
 ### Requirements:
 - Access to osx accessibility
