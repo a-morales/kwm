@@ -58,7 +58,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                     return Event;
 
                 int NewKeycode;
-                KWMCode.RemapKeys(Event, CmdKey, CtrlKey, AltKey, Keycode, &NewKeycode);
+                KWMCode.RemapKeys(Event, &CmdKey, &CtrlKey, &AltKey, Keycode, &NewKeycode);
                 if(NewKeycode != -1)
                 {
                     if(CmdKey)
