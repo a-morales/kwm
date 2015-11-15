@@ -56,6 +56,11 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 // Let system hotkeys pass through as normal
                 if(KWMCode.SystemHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
                     return Event;
+
+                int NewKeycode;
+                KWMCode.RemapKeys(Event, CmdKey, CtrlKey, AltKey, Keycode, &NewKeycode);
+                if(NewKeycode != -1)
+                    CGEventSetIntegerValueField(Event, kCGKeyboardEventKeycode, NewKeycode);
             }
 
             if(ExportTable.KwmFocusMode == FocusFollowsMouse)
@@ -88,6 +93,7 @@ kwm_code LoadKwmCode()
         Code.KWMHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "KWMHotkeyCommands");
         Code.SystemHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "SystemHotkeyCommands");
         Code.CustomHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "CustomHotkeyCommands");
+        Code.RemapKeys = (kwm_key_remap*) dlsym(Code.KwmHotkeySO, "RemapKeys");
     }
     else
     {
@@ -109,6 +115,7 @@ void UnloadKwmCode(kwm_code *Code)
     Code->KWMHotkeyCommands = 0;
     Code->SystemHotkeyCommands = 0;
     Code->CustomHotkeyCommands = 0;
+    Code->RemapKeys = 0;
     Code->IsValid = 0;
 }
 

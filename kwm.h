@@ -34,6 +34,9 @@ struct tree_node;
 #define KWM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
 typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
 
+#define KWM_KEY_REMAP(name) void name(CGEventRef Event, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode, int *Result)
+typedef KWM_KEY_REMAP(kwm_key_remap);
+
 enum focus_option
 { 
     FocusFollowsMouse, 
@@ -49,6 +52,7 @@ struct kwm_code
     kwm_hotkey_commands *KWMHotkeyCommands;
     kwm_hotkey_commands *SystemHotkeyCommands;
     kwm_hotkey_commands *CustomHotkeyCommands;
+    kwm_key_remap *RemapKeys;
 
     bool IsValid;
 };

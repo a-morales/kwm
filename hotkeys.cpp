@@ -4,6 +4,25 @@ static const CGKeyCode kVK_SPECIAL_Å = 0x21;
 static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
 static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
 
+extern "C" KWM_KEY_REMAP(RemapKeys)
+{
+    *Result = -1;
+
+    /*
+    if(CmdKey && AltKey && CtrlKey)
+    {
+    }
+
+    switch(Keycode)
+    {
+        case kVK_ANSI_A:
+        {
+            *Result = kVK_ANSI_S;
+        } break;
+    }
+    */
+}
+
 extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
 {
     bool Result = true;
