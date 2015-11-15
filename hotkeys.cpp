@@ -9,7 +9,7 @@ extern "C" KWM_KEY_REMAP(RemapKeys)
     *Result = -1;
 
     /*
-    if(CmdKey && AltKey && CtrlKey)
+    if(*CmdKey && *AltKey && *CtrlKey)
     {
     }
 

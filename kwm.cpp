@@ -60,7 +60,16 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 int NewKeycode;
                 KWMCode.RemapKeys(Event, CmdKey, CtrlKey, AltKey, Keycode, &NewKeycode);
                 if(NewKeycode != -1)
+                {
+                    if(CmdKey)
+                        CGEventSetFlags(Event, kCGEventFlagMaskCommand);
+                    if(CtrlKey)
+                        CGEventSetFlags(Event, kCGEventFlagMaskControl);
+                    if(AltKey)
+                        CGEventSetFlags(Event, kCGEventFlagMaskAlternate);
+
                     CGEventSetIntegerValueField(Event, kCGKeyboardEventKeycode, NewKeycode);
+                }
             }
 
             if(ExportTable.KwmFocusMode == FocusFollowsMouse)
