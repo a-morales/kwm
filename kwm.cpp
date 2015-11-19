@@ -1,5 +1,4 @@
 #include "kwm.h"
-#include <pthread.h>
 
 kwm_code KWMCode;
 export_table ExportTable;

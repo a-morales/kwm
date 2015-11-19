@@ -12,6 +12,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <pthread.h>
 #include <dlfcn.h>
 #include <sys/stat.h>
 #include <sys/types.h>
