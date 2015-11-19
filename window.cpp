@@ -303,6 +303,13 @@ void AddWindowToTree(int WindowID)
         CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, ExportTable.KwmSplitMode);
         CurrentNode->WindowID = -1;
         ApplyNodeContainer(CurrentNode);
+
+        window_info *NewWindow = GetWindowByID(WindowID);
+        if(NewWindow)
+        {
+            DEBUG("AddWindowToTree() changing focus to " << NewWindow->Name)
+            SetWindowFocus(NewWindow);
+        }
     }
 }
 
@@ -527,6 +534,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     CGSize WindowSize = CGSizeMake(Width, Height);
     CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
 
+
     AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
     AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
 
@@ -567,16 +575,40 @@ void MoveContainerVerticalSplitter(int Offset)
 void ResizeWindowToContainerSize(tree_node *Node)
 {
     window_info *Window = GetWindowByID(Node->WindowID);
+
+    int Retries = 0;
+    while(!Window && Retries++ < 3)
+        Window = GetWindowByID(Node->WindowID);
+
     if(Window)
     {
+        Retries = 0;
+        bool Result = false;
         AXUIElementRef WindowRef;
-        if(GetWindowRef(Window, &WindowRef))
+        while(!Result && Retries++ < 3)
+            Result = GetWindowRef(Window, &WindowRef);
+
+        if(Result)
         {
             SetWindowDimensions(WindowRef, Window,
-                    Node->Container.X, Node->Container.Y, 
-                    Node->Container.Width, Node->Container.Height);
+                        Node->Container.X, Node->Container.Y, 
+                        Node->Container.Width, Node->Container.Height);
 
             CFRelease(WindowRef);
+        }
+    }
+}
+
+void ResizeWindowToContainerSize()
+{
+    if(FocusedWindow)
+    {
+        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+        if(Screen && Screen->Space[CurrentSpace])
+        {
+            tree_node *Node = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
+            if(Node)
+                ResizeWindowToContainerSize(Node);
         }
     }
 }
