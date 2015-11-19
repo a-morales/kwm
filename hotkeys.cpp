@@ -74,6 +74,10 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
                     EX->RemoveWindowFromTree();
                 }
             } break;
+            case kVK_ANSI_R:
+            {
+                EX->ResizeWindowToContainerSize();
+            } break;
             case kVK_ANSI_Q:
             {
                 EX->KwmRestart();
@@ -141,10 +145,10 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
                 SysCommand = "/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window &";
             } break;
             // Rebuild Hotkeys
-            case kVK_ANSI_R:
-            {
-                SysCommand = "sh " + EX->KwmFilePath + "/sobuild.sh";
-            } break;
+            // case kVK_ANSI_R:
+            // {
+            //     SysCommand = "sh " + EX->KwmFilePath + "/sobuild.sh";
+            // } break;
             // YTD - Media Player Controls
             case kVK_ANSI_Z:
             {
