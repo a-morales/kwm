@@ -17,7 +17,7 @@ Scroll down for instructions on how to use.
 ### Hotkeys:
     - ctrl+alt+cmd:
         - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
-        - r: rebuild hotkeys.cpp
+        - r: manually resize window to its containersize
         - q: restart kwm
 
         - m: mark the container to use for next window split
