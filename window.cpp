@@ -219,7 +219,10 @@ void ShouldWindowNodeTreeUpdate()
             for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
             {
                 if(GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowLst[WindowIndex].WID) == NULL)
+                {
                     AddWindowToTree(WindowLst[WindowIndex].WID);
+                    SetWindowFocus(&WindowLst[WindowIndex]);
+                }
             }
         }
         else if(WindowLst.size() < OldWindowListCount)
@@ -303,13 +306,6 @@ void AddWindowToTree(int WindowID)
         CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, ExportTable.KwmSplitMode);
         CurrentNode->WindowID = -1;
         ApplyNodeContainer(CurrentNode);
-
-        window_info *NewWindow = GetWindowByID(WindowID);
-        if(NewWindow)
-        {
-            DEBUG("AddWindowToTree() changing focus to " << NewWindow->Name)
-            SetWindowFocus(NewWindow);
-        }
     }
 }
 
