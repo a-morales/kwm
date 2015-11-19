@@ -69,6 +69,7 @@ struct export_table
     int KwmSplitMode;
 
     void (*FocusWindowBelowCursor)();
+    void (*ResizeWindowToContainerSize)();
     void (*MoveContainerVerticalSplitter)(int);
     void (*ToggleFocusedWindowFullscreen)();
     void (*SwapFocusedWindowWithNearest)(int);
@@ -147,6 +148,7 @@ void CycleFocusedWindowDisplay(int);
 void ShouldWindowNodeTreeUpdate();
 void CreateWindowNodeTree();
 void ResizeWindowToContainerSize(tree_node *);
+void ResizeWindowToContainerSize();
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 void MoveContainerVerticalSplitter(int);
 
