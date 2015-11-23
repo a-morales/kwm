@@ -25,6 +25,7 @@ Scroll down for instructions on how to use.
         - -: set horizontal split-mode
 
         - f: toggle window fullscreen
+        - p: toggle window parent container
         - w: toggle window floating
         - enter: opens a new iTerm window
 
