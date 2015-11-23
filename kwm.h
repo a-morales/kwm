@@ -72,6 +72,7 @@ struct export_table
     void (*ResizeWindowToContainerSize)();
     void (*MoveContainerVerticalSplitter)(int);
     void (*ToggleFocusedWindowFullscreen)();
+    void (*ToggleFocusedWindowParentContainer)();
     void (*SwapFocusedWindowWithNearest)(int);
     void (*ShiftWindowFocus)(int);
     void (*CycleFocusedWindowDisplay)(int);
@@ -160,6 +161,7 @@ void GetActiveSpaces();
 void GetSpaceInfo(const void *, const void *, void *);
 
 void ToggleFocusedWindowFullscreen();
+void ToggleFocusedWindowParentContainer();
 void SwapFocusedWindowWithNearest(int);
 void ShiftWindowFocus(int);
 void MarkWindowContainer();
