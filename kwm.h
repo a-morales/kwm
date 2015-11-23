@@ -113,6 +113,7 @@ struct screen_info
     double Width, Height;
     double PaddingTop, PaddingBottom;
     double PaddingLeft, PaddingRight;
+    double VerticalGap, HorizontalGap;
     std::vector<tree_node*> Space;
 };
 

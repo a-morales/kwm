@@ -17,7 +17,7 @@ node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 
     LeftContainer.X = Node->Container.X;
     LeftContainer.Y = Node->Container.Y;
-    LeftContainer.Width = (Node->Container.Width / 2) + (Screen->PaddingLeft / 2);
+    LeftContainer.Width = (Node->Container.Width / 2) - (Screen->VerticalGap / 2);
     LeftContainer.Height = Node->Container.Height;
     
     return LeftContainer;
@@ -27,9 +27,9 @@ node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
     node_container RightContainer;
 
-    RightContainer.X = Node->Container.X + (Node->Container.Width / 2) + (Screen->PaddingLeft);
+    RightContainer.X = Node->Container.X + (Node->Container.Width / 2) + (Screen->VerticalGap / 2);
     RightContainer.Y = Node->Container.Y;
-    RightContainer.Width = (Node->Container.Width / 2) - (Screen->PaddingRight);
+    RightContainer.Width = (Node->Container.Width / 2) - (Screen->VerticalGap / 2);
     RightContainer.Height = Node->Container.Height;
 
     return RightContainer;
@@ -42,7 +42,7 @@ node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
     UpperContainer.X = Node->Container.X;
     UpperContainer.Y = Node->Container.Y;
     UpperContainer.Width = Node->Container.Width;
-    UpperContainer.Height = (Node->Container.Height / 2);
+    UpperContainer.Height = (Node->Container.Height / 2) - (Screen->HorizontalGap / 2);
 
     return UpperContainer;
 }
@@ -52,9 +52,9 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
     node_container LowerContainer;
 
     LowerContainer.X = Node->Container.X;
-    LowerContainer.Y = Node->Container.Y + (Node->Container.Height / 2) + (Screen->PaddingBottom / 2);
+    LowerContainer.Y = Node->Container.Y + (Node->Container.Height / 2) + (Screen->HorizontalGap / 2);
     LowerContainer.Width = Node->Container.Width;
-    LowerContainer.Height = (Node->Container.Height / 2) - (Screen->PaddingBottom / 2);
+    LowerContainer.Height = (Node->Container.Height / 2) - (Screen->HorizontalGap / 2);
 
     return LowerContainer;
 }
