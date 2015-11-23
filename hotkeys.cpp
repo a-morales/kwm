@@ -203,6 +203,10 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             {
                 EX->ToggleFocusedWindowFullscreen();
             } break;
+            case kVK_ANSI_P:
+            {
+                EX->ToggleFocusedWindowParentContainer();
+            } break;
             default:
             {
                 Result = false;
