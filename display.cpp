@@ -24,10 +24,13 @@ void GetActiveDisplays()
         Screen.Height = DisplayRect.size.height;
 
         // Read from config at some point
-        Screen.PaddingTop = 30;
+        Screen.PaddingTop = 40;
         Screen.PaddingLeft = 20;
         Screen.PaddingRight = 20;
-        Screen.PaddingBottom = 20;
+        Screen.PaddingBottom = 40;
+
+        Screen.VerticalGap = 10;
+        Screen.HorizontalGap = 10;
 
         for(int Count = 0; Count < NumberOfSpaces(); ++Count)
             Screen.Space.push_back(NULL);
