@@ -379,6 +379,33 @@ void RemoveWindowFromTree()
     RemoveWindowFromTree(FocusedWindow->WID, true);
 }
 
+void ToggleFocusedWindowParentContainer()
+{
+    if(FocusedWindow)
+    {
+        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+        if(Screen && Screen->Space[CurrentSpace])
+        {
+            tree_node *Node = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
+            if(Node && Node->Parent)
+            {
+                if(IsLeafNode(Node) && Node->Parent->WindowID == -1)
+                {
+                    DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container")
+                    Node->Parent->WindowID = Node->WindowID;
+                    ResizeWindowToContainerSize(Node->Parent);
+                }
+                else
+                {
+                    DEBUG("ToggleFocusedWindowParentContainer() Restore Window Container")
+                    Node->Parent->WindowID = -1;
+                    ResizeWindowToContainerSize(Node);
+                }
+            }
+        }
+    }
+}
+
 void ToggleFocusedWindowFullscreen()
 {
     if(FocusedWindow)
