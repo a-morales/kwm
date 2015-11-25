@@ -24,6 +24,12 @@ Scroll down for instructions on how to use.
         - 7: set vertical split-mode
         - -: set horizontal split-mode
 
+        - h: move vertical-splitter left
+             (increase width of right-side containers)
+
+        - l: move vertical-splitter right
+             (increase width of left-side containers)
+
         - f: toggle window fullscreen
         - p: toggle window parent container
         - w: toggle window floating
