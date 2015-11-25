@@ -25,10 +25,10 @@ Scroll down for instructions on how to use.
         - -: set horizontal split-mode
 
         - h: move vertical-splitter left
-             (increase width of right-side containers)
+             (increase width of right-pane containers)
 
         - l: move vertical-splitter right
-             (increase width of left-side containers)
+             (increase width of left-pane containers)
 
         - f: toggle window fullscreen
         - p: toggle window parent container
