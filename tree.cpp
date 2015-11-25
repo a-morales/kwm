@@ -182,7 +182,7 @@ int GetOptimalSplitMode(tree_node *Node)
 {
     int SplitMode;
 
-    if(Node->Container.Width > Node->Container.Height)
+    if(Node->Container.Width / Node->Container.Height >= 1.618)
         SplitMode = 1;
     else
         SplitMode = 2;
