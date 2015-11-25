@@ -290,13 +290,7 @@ void AddWindowToTree(int WindowID)
         DEBUG("AddWindowToTree() Create pair of leafs")
         if(MarkedWindowID == -1)
         {
-            while(!IsLeafNode(CurrentNode))
-            {
-                if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
-                    CurrentNode = CurrentNode->RightChild;
-                else
-                    CurrentNode = CurrentNode->LeftChild;
-            }
+            CurrentNode = GetNodeFromWindowID(RootNode, FocusedWindow->WID);
         }
         else
         {
@@ -627,14 +621,11 @@ void ResizeWindowToContainerSize(tree_node *Node)
 {
     window_info *Window = GetWindowByID(Node->WindowID);
 
-    int Retries = 0;
-    while(!Window && Retries++ < 3)
-        Window = GetWindowByID(Node->WindowID);
-
     if(Window)
     {
-        Retries = 0;
+        int Retries = 0;
         bool Result = false;
+
         AXUIElementRef WindowRef;
         while(!Result && Retries++ < 3)
             Result = GetWindowRef(Window, &WindowRef);
@@ -646,6 +637,10 @@ void ResizeWindowToContainerSize(tree_node *Node)
                         Node->Container.Width, Node->Container.Height);
 
             CFRelease(WindowRef);
+        }
+        else
+        {
+            DEBUG("GetWindowRef() Failed for window " << Window->Name)
         }
     }
 }
@@ -746,8 +741,8 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
                     CGPoint AppWindowPos = GetWindowPos(AppWindowRef);
 
                     if(Window->X == AppWindowPos.x &&
-                        Window->Y == AppWindowPos.y &&
-                        Window->Name == AppWindowTitle)
+                       Window->Y == AppWindowPos.y &&
+                       Window->Name == AppWindowTitle)
                     {
                         *WindowRef = AppWindowRef;
                         DoNotFree = WindowIndex;
@@ -760,6 +755,11 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
             }
         }
     }
+    else
+    {
+        DEBUG("GetWindowRef() Could not get AppWindowLst")
+    }
+
     CFRelease(App);
     return Found;
 }
