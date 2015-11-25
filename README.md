@@ -100,7 +100,7 @@ Currently these cannot occur simultaneously, and the type of panes created is de
 If the main pane is split using vertical mode, a left and right pane is created.
 If the main pane is split using horizontal mode, an upper and lower pane is created.
 
-By default, Kwm will always split the left-most container, however you can override this
+By default, Kwm will always split the focused container, however you can override this
 by focusing a window to split, and hit the hotkey cmd+alt+ctrl+m.
 This marks the container of the focused window, and will now split this container
 when opening a new window.
