@@ -64,20 +64,35 @@ Scroll down for instructions on how to use.
 
 ### How to use:
 
-Currently does not create an app bundle.
-
 To compile Kwm, simply run the included build.sh script.
-By default, debug prints are enabled, and you can turn 
-these off by opening the build.sh script and getting rid
-of the -DDEBUG_BUILD flag.
+By default, debug prints are enabled, and these can be turned
+off by opening the build.sh script and getting rid of the -DDEBUG_BUILD flag.
 
 Because there is no app bundle, Kwm has to be started from
 a terminal. cd into the containing directory and type ./kwm
 
-IF kwm is added to the path, a launcher script is necessary
+Whenever Kwm is started, it will automatically tile the currently
+opened windows, using binary space partioning.
+
+Kwm mainly consists of three panes so to speak. The main pane is the entire screen.
+(minus whatever screen-padding set in display.cpp)
+
+After at least 1 split has occurred, the screen will consist of a left and right pane.
+The width of the left/right pane can be changed using the hotkeys cmd+alt+ctrl+h/l
+
+By default, Kwm will always split the left-most container, however you can override this
+by focusing a window to split, and hit the hotkey cmd+alt+ctrl+m.
+This marks the container of the focused window, and will now split this container
+when opening a new window.
+
+There are also 2 types of split modes, vertical and horizontal split.
+The user can toggle between these 2 modes using the hotkeys
+cmd+alt+ctrl+7 for | (vertical) split, and cmd+alt+ctrl+- for - (horizontal) split.
+
+If kwm is added to the path, a launcher script is necessary
 because it tries to load hotkeys.so from the executables working-directory.
 
-Example launcher script, that is placed in your path instead of the kwm binary.
+Example launcher script to be placed in the path instead of the kwm binary.
 
     #!/bin/bash
     pushd /path/to/kwm
@@ -94,11 +109,10 @@ Creating a certificate and codesigning the binary works as well.
 
 NOTE:
 Kwm reads com.apple.spaces.plist upon startup.
-spaces.plist is invalidated for some reason when your OSX 
-enters sleep, and so Kwms windowing management often breaks
-because of this. 
+spaces.plist is invalidated for some reason when OSX
+enters sleep, and so Kwms windowing management may break
+because of this.
 
-To fix this, you have to re-create all spaces and just drag
-whatever applications you had opened, to the new spaces.
+To fix this, re-create all spaces and drag applications to the new spaces.
 This causes OSX to update the spaces.plist file.
 Restart Kwm and it should work again.
