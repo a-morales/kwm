@@ -70,7 +70,7 @@ struct export_table
 
     void (*FocusWindowBelowCursor)();
     void (*ResizeWindowToContainerSize)();
-    void (*MoveContainerVerticalSplitter)(int);
+    void (*MoveContainerSplitter)(int, int);
     void (*ToggleFocusedWindowFullscreen)();
     void (*ToggleFocusedWindowParentContainer)();
     void (*SwapFocusedWindowWithNearest)(int);
@@ -153,7 +153,7 @@ void CreateWindowNodeTree();
 void ResizeWindowToContainerSize(tree_node *);
 void ResizeWindowToContainerSize();
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
-void MoveContainerVerticalSplitter(int);
+void MoveContainerSplitter(int, int);
 
 int NumberOfSpaces();
 void AddWindowToSpace(int, int);
