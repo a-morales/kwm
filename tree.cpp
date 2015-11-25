@@ -120,6 +120,7 @@ void SetRootNodeContainer(tree_node *Node, int X, int Y, int Width, int Height)
     Node->Container.Y = Y,
     Node->Container.Width = Width;
     Node->Container.Height = Height;
+    Node->Container.Type = 0;
 }
 
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID, int RightWindowID, int SplitMode)
