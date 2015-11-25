@@ -574,7 +574,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         CFRelease(NewWindowSize);
 }
 
-void MoveContainerVerticalSplitter(int Offset)
+void MoveContainerSplitter(int SplitMode, int Offset)
 {
     if(FocusedWindow)
     {
@@ -588,11 +588,27 @@ void MoveContainerVerticalSplitter(int Offset)
             tree_node *LeftChild = Root->LeftChild;
             tree_node *RightChild = Root->RightChild;
 
-            DEBUG("MoveContainerVerticalSplitter()")
+            if(LeftChild->Container.Type == 1 && SplitMode == 1)
+            {
+                DEBUG("MoveContainerSplitter() Vertical")
 
-            LeftChild->Container.Width += Offset;
-            RightChild->Container.X += Offset;
-            RightChild->Container.Width -= Offset;
+                LeftChild->Container.Width += Offset;
+                RightChild->Container.X += Offset;
+                RightChild->Container.Width -= Offset;
+            }
+            else if(LeftChild->Container.Type == 3 && SplitMode == 2)
+            {
+                DEBUG("MoveContainerSplitter() Horizontal")
+
+                LeftChild->Container.Height += Offset;
+                RightChild->Container.Y += Offset;
+                RightChild->Container.Height -= Offset;
+            }
+            else
+            {
+                DEBUG("MoveContainerSplitter() Invalid")
+                return;
+            }
 
             ResizeNodeContainer(Screen, LeftChild);
             ResizeNodeContainer(Screen, RightChild);
