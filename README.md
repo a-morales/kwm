@@ -21,8 +21,10 @@ Scroll down for instructions on how to use.
         - q: restart kwm
 
         - m: mark the container to use for next window split
-        - 7: set vertical split-mode
-        - -: set horizontal split-mode
+
+        - o: use width/height ratio to determine optimal split (default)
+        - 7: use vertical split-mode
+        - -: use horizontal split-mode
 
         - h: move vertical-splitter left
              (increase width of right-pane containers)
@@ -80,9 +82,12 @@ a terminal. cd into the containing directory and type ./kwm
 Whenever Kwm is started, it will automatically tile the currently
 opened windows, using binary space partitioning.
 
-There are 2 types of split modes available, vertical and horizontal split.
-The user can toggle between these 2 modes using the hotkeys
-cmd+alt+ctrl+7 for vertical split, and cmd+alt+ctrl+- for horizontal split.
+There are 3 types of split modes available, optimal (width/height ratio), vertical and horizontal split.
+The user can toggle between these modes using the hotkeys:
+
+    optimal cmd+alt+ctrl+o
+    vertical cmd+alt+ctrl+7
+    horizontal cmd+alt+ctrl+-
 
 Kwm mainly consists of three panes so to speak. The main pane is the entire screen.
 (minus whatever screen-padding set in display.cpp)
