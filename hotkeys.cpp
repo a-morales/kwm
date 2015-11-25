@@ -193,11 +193,19 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             // Window Resize
             case kVK_ANSI_H:
             {
-                EX->MoveContainerVerticalSplitter(-10);
+                EX->MoveContainerSplitter(1, -10);
             } break;
             case kVK_ANSI_L:
             {
-                EX->MoveContainerVerticalSplitter(10);
+                EX->MoveContainerSplitter(1, 10);
+            } break;
+            case kVK_ANSI_J:
+            {
+                EX->MoveContainerSplitter(2, 10);
+            } break;
+            case kVK_ANSI_K:
+            {
+                EX->MoveContainerSplitter(2, -10);
             } break;
             case kVK_ANSI_F:
             {
