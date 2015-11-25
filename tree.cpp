@@ -7,7 +7,7 @@ extern std::vector<window_info> WindowLst;
        *
     *     *
   *   * *   *
-*  *       * *
+*   *     *   *
 
 */
 
