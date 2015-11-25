@@ -141,6 +141,7 @@ node_container RightVerticalContainerSplit(screen_info *, tree_node *);
 node_container UpperHorizontalContainerSplit(screen_info *, tree_node *);
 node_container LowerHorizontalContainerSplit(screen_info *, tree_node *);
 void ResizeNodeContainer(screen_info *, tree_node *);
+int GetOptimalSplitMode(tree_node *);
 
 void GetActiveDisplays();
 screen_info *GetDisplayOfWindow(window_info *);
