@@ -30,6 +30,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
     {
         switch(Keycode)
         {
+            // Toggle Focus-Mode
             case kVK_ANSI_T:
             {
                 if(EX->KwmFocusMode == FocusFollowsMouse)
@@ -48,10 +49,12 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
                     DEBUG("KwmFocusMode: Focus-follows-mouse")
                 }
             } break;
+            // Mark Container to split
             case kVK_ANSI_M:
             {
                 EX->MarkWindowContainer();
             } break;
+            // Toggle window floating
             case kVK_ANSI_W:
             {
                 bool Found = false;
@@ -74,26 +77,122 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
                     EX->RemoveWindowFromTree();
                 }
             } break;
+            // Reapply node container to window 
             case kVK_ANSI_R:
             {
                 EX->ResizeWindowToContainerSize();
             } break;
+            // Restart Kwm
             case kVK_ANSI_Q:
             {
                 EX->KwmRestart();
             } break;
+            // Vertical Split-Mode
             case kVK_ANSI_7:
             {
                 EX->KwmSplitMode = 1;
             } break;
+            // Horizontal Split-Mode
             case kVK_ANSI_Slash:
             {
                 EX->KwmSplitMode = 2;
+            } break;
+            // Resize Panes
+            case kVK_ANSI_H:
+            {
+                EX->MoveContainerSplitter(1, -10);
+            } break;
+            case kVK_ANSI_L:
+            {
+                EX->MoveContainerSplitter(1, 10);
+            } break;
+            case kVK_ANSI_J:
+            {
+                EX->MoveContainerSplitter(2, 10);
+            } break;
+            case kVK_ANSI_K:
+            {
+                EX->MoveContainerSplitter(2, -10);
+            } break;
+            // Toggle Fullscreen / Parent Container
+            case kVK_ANSI_F:
+            {
+                EX->ToggleFocusedWindowFullscreen();
+            } break;
+            case kVK_ANSI_P:
+            {
+                EX->ToggleFocusedWindowParentContainer();
             } break;
             default:
             {
                 Result = false;
             } break;
+        }
+    }
+    else if(CmdKey && AltKey && !CtrlKey)
+    {
+        switch(Keycode)
+        {
+            // Swap focused window with the previous window
+            case kVK_ANSI_P:
+            {
+                EX->SwapFocusedWindowWithNearest(-1);
+            } break;
+            // Swap focused window with the next window
+            case kVK_ANSI_N:
+            {
+                EX->SwapFocusedWindowWithNearest(1);
+            } break;
+            // Shift focus to the previous window
+            case kVK_ANSI_H:
+            {
+                if(EX->FocusedWindow)
+                {
+                    EX->ShiftWindowFocus(-1);
+                }
+            } break;
+            // Shift focus to the next window
+            case kVK_ANSI_L:
+            {
+                if(EX->FocusedWindow)
+                {
+                    EX->ShiftWindowFocus(1);
+                }
+            } break;
+            default:
+            {
+                Result = false;
+            } break;
+        }
+    }
+    else if(CmdKey && CtrlKey && !AltKey)
+    {
+        switch(Keycode)
+        {
+            // Send window to previous screen
+            case kVK_ANSI_P:
+            {
+                EX->CycleFocusedWindowDisplay(-1);
+            } break;
+            // Send window to next screen
+            case kVK_ANSI_N:
+            {
+                EX->CycleFocusedWindowDisplay(1);
+            } break;
+            /*
+            case kVK_ANSI_H:
+            {
+                //ReflectTreeVertically
+            } break;
+            case kVK_ANSI_L:
+            {
+                //ReflectTreeVertically
+            } break;
+            */
+            default:
+            {
+                Result = false;
+            };
         }
     }
     else
@@ -190,31 +289,6 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             {
                 SysCommand = "ytc fav";
             } break;
-            // Window Resize
-            case kVK_ANSI_H:
-            {
-                EX->MoveContainerSplitter(1, -10);
-            } break;
-            case kVK_ANSI_L:
-            {
-                EX->MoveContainerSplitter(1, 10);
-            } break;
-            case kVK_ANSI_J:
-            {
-                EX->MoveContainerSplitter(2, 10);
-            } break;
-            case kVK_ANSI_K:
-            {
-                EX->MoveContainerSplitter(2, -10);
-            } break;
-            case kVK_ANSI_F:
-            {
-                EX->ToggleFocusedWindowFullscreen();
-            } break;
-            case kVK_ANSI_P:
-            {
-                EX->ToggleFocusedWindowParentContainer();
-            } break;
             default:
             {
                 Result = false;
@@ -224,68 +298,6 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
         if(SysCommand != "")
         {
             system(SysCommand.c_str());
-        }
-    }
-    else if(CmdKey && CtrlKey && !AltKey)
-    {
-        switch(Keycode)
-        {
-            // Multiple Screens
-            case kVK_ANSI_P:
-            {
-                EX->CycleFocusedWindowDisplay(-1);
-            } break;
-            case kVK_ANSI_N:
-            {
-                EX->CycleFocusedWindowDisplay(1);
-            } break;
-            // Move Window
-            case kVK_ANSI_H:
-            {
-                //ReflectTreeVertically
-            } break;
-            case kVK_ANSI_L:
-            {
-                //ReflectTreeVertically
-            } break;
-            default:
-            {
-                Result = false;
-            };
-        }
-    }
-    else if(CmdKey && AltKey && !CtrlKey)
-    {
-        switch(Keycode)
-        {
-            // Cycle focused window layout
-            case kVK_ANSI_P:
-            {
-                EX->SwapFocusedWindowWithNearest(-1);
-            } break;
-            case kVK_ANSI_N:
-            {
-                EX->SwapFocusedWindowWithNearest(1);
-            } break;
-            // Focus a window
-            case kVK_ANSI_H:
-            {
-                if(EX->FocusedWindow)
-                {
-                    EX->ShiftWindowFocus(-1);
-                }
-            } break;
-            case kVK_ANSI_L:
-            {
-                if(EX->FocusedWindow)
-                {
-                    EX->ShiftWindowFocus(1);
-                }
-            } break;
-            default:
-            {
-                Result = false;
-            } break;
         }
     }
     else if(CmdKey && !AltKey && !CtrlKey)
