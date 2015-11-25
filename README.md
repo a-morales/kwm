@@ -30,6 +30,12 @@ Scroll down for instructions on how to use.
         - l: move vertical-splitter right
              (increase width of left-pane containers)
 
+        - j: move horizontal-splitter down
+             (increase height of upper-pane containers)
+
+        - k: move horizontal-splitter up
+             (increase height of lower-pane containers)
+
         - f: toggle window fullscreen
         - p: toggle window parent container
         - w: toggle window floating
@@ -74,20 +80,25 @@ a terminal. cd into the containing directory and type ./kwm
 Whenever Kwm is started, it will automatically tile the currently
 opened windows, using binary space partitioning.
 
+There are 2 types of split modes available, vertical and horizontal split.
+The user can toggle between these 2 modes using the hotkeys
+cmd+alt+ctrl+7 for vertical split, and cmd+alt+ctrl+- for horizontal split.
+
 Kwm mainly consists of three panes so to speak. The main pane is the entire screen.
 (minus whatever screen-padding set in display.cpp)
 
-After at least 1 split has occurred, the screen will consist of a left and right pane.
+After at least 1 split has occurred, the screen will consist of left/right or upper/lower panes.
 The width of the left/right pane can be changed using the hotkeys cmd+alt+ctrl+h/l
+The height of the upper/lower pane can be changed using the hotkeys cmd+alt+ctrl+j/k
+
+Currently these cannot occur simultaneously, and the type of panes created is decided by the main pane split.
+If the main pane is split using vertical mode, a left and right pane is created.
+If the main pane is split using horizontal mode, an upper and lower pane is created.
 
 By default, Kwm will always split the left-most container, however you can override this
 by focusing a window to split, and hit the hotkey cmd+alt+ctrl+m.
 This marks the container of the focused window, and will now split this container
 when opening a new window.
-
-There are also 2 types of split modes, vertical and horizontal split.
-The user can toggle between these 2 modes using the hotkeys
-cmd+alt+ctrl+7 for | (vertical) split, and cmd+alt+ctrl+- for - (horizontal) split.
 
 If kwm is added to the path, a launcher script is necessary
 because it tries to load hotkeys.so from the executables working-directory.
