@@ -87,6 +87,11 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 EX->KwmRestart();
             } break;
+            // Use Width/Height ratio to determine split mode
+            case kVK_ANSI_O:
+            {
+                EX->KwmSplitMode = -1;
+            } break;
             // Vertical Split-Mode
             case kVK_ANSI_7:
             {
