@@ -114,12 +114,12 @@ tree_node *CreateRootNode()
     return RootNode;
 }
 
-void SetRootNodeContainer(tree_node *Node, int X, int Y, int Width, int Height)
+void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
 {
-    Node->Container.X = X;
-    Node->Container.Y = Y,
-    Node->Container.Width = Width;
-    Node->Container.Height = Height;
+    Node->Container.X = Screen->X + Screen->PaddingLeft;
+    Node->Container.Y = Screen->Y + Screen->PaddingTop;
+    Node->Container.Width = Screen->Width - Screen->PaddingLeft - Screen->PaddingRight;
+    Node->Container.Height = Screen->Height - Screen->PaddingTop - Screen->PaddingBottom;
     Node->Container.Type = 0;
 }
 
@@ -145,9 +145,7 @@ bool IsLeafNode(tree_node *Node)
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Windows)
 {
     tree_node *RootNode = CreateRootNode();
-    SetRootNodeContainer(RootNode, Screen->X + Screen->PaddingLeft, Screen->Y + Screen->PaddingTop,
-                         Screen->Width - Screen->PaddingLeft - Screen->PaddingRight,
-                         Screen->Height - Screen->PaddingTop - Screen->PaddingBottom);
+    SetRootNodeContainer(Screen, RootNode);
 
     if(Windows.size() > 1)
     {
