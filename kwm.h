@@ -129,7 +129,7 @@ bool IsLeafNode(tree_node *);
 void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void CreateNodeContainer(screen_info *, tree_node *, int);
-void SetRootNodeContainer(tree_node *, int, int, int, int);
+void SetRootNodeContainer(screen_info *, tree_node *);
 void ApplyNodeContainer(tree_node *);
 void AddWindowToTree(int WindowID);
 void AddWindowToTree();
