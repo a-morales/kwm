@@ -59,31 +59,41 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
     return LowerContainer;
 }
 
+void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType)
+{
+    switch(ContainerType)
+    {
+        case 1:
+        {
+            Node->Container = LeftVerticalContainerSplit(Screen, Node->Parent);
+        } break;
+        case 2:
+        {
+            Node->Container = RightVerticalContainerSplit(Screen, Node->Parent);
+        } break;
+        case 3:
+        {
+            Node->Container = UpperHorizontalContainerSplit(Screen, Node->Parent);
+        } break;
+        case 4:
+        {
+            Node->Container = LowerHorizontalContainerSplit(Screen, Node->Parent);
+        } break;
+    }
+
+    if(ContainerType != -1)
+    {
+        Node->Container.Type = ContainerType;
+    }
+}
+
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType)
 {
     tree_node *Leaf = (tree_node*) malloc(sizeof(tree_node));
     Leaf->Parent = Parent;
     Leaf->WindowID = WindowID;
 
-    switch(ContainerType)
-    {
-        case 1:
-        {
-            Leaf->Container = LeftVerticalContainerSplit(Screen, Leaf->Parent);
-        } break;
-        case 2:
-        {
-            Leaf->Container = RightVerticalContainerSplit(Screen, Leaf->Parent);
-        } break;
-        case 3:
-        {
-            Leaf->Container = UpperHorizontalContainerSplit(Screen, Leaf->Parent);
-        } break;
-        case 4:
-        {
-            Leaf->Container = LowerHorizontalContainerSplit(Screen, Leaf->Parent);
-        } break;
-    }
+    CreateNodeContainer(Screen, Leaf, ContainerType);
 
     Leaf->LeftChild = NULL;
     Leaf->RightChild = NULL;
@@ -211,32 +221,23 @@ void ReflectTreeVertically(tree_node *Node)
     DEBUG("NYI")
 }
 
-void ResizeLeftNodeContainer(tree_node *Node, int Offset)
+void ResizeNodeContainer(screen_info *Screen, tree_node *Node)
 {
     if(Node)
     {
-        Node->Container.Width += Offset;
-
         if(Node->LeftChild)
-            ResizeLeftNodeContainer(Node->LeftChild, Offset);
+        {
+            int ContainerType = Node->LeftChild->Container.Type;
+            CreateNodeContainer(Screen, Node->LeftChild, ContainerType);
+            ResizeNodeContainer(Screen, Node->LeftChild);
+        }
 
         if(Node->RightChild)
-            ResizeLeftNodeContainer(Node->RightChild, Offset);
-    }
-}
-
-void ResizeRightNodeContainer(tree_node *Node, int Offset)
-{
-    if(Node)
-    {
-        Node->Container.X += Offset;
-        Node->Container.Width += -Offset;
-
-        if(Node->LeftChild)
-            ResizeRightNodeContainer(Node->LeftChild, Offset);
-
-        if(Node->RightChild)
-            ResizeRightNodeContainer(Node->RightChild, Offset);
+        {
+            int ContainerType = Node->RightChild->Container.Type;
+            CreateNodeContainer(Screen, Node->RightChild, ContainerType);
+            ResizeNodeContainer(Screen, Node->RightChild);
+        }
     }
 }
 

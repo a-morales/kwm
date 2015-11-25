@@ -588,8 +588,15 @@ void MoveContainerVerticalSplitter(int Offset)
             tree_node *LeftChild = Root->LeftChild;
             tree_node *RightChild = Root->RightChild;
 
-            ResizeLeftNodeContainer(LeftChild, Offset);
-            ResizeRightNodeContainer(RightChild, Offset);
+            DEBUG("MoveContainerVerticalSplitter()")
+
+            LeftChild->Container.Width += Offset;
+            RightChild->Container.X += Offset;
+            RightChild->Container.Width -= Offset;
+
+            ResizeNodeContainer(Screen, LeftChild);
+            ResizeNodeContainer(Screen, RightChild);
+
             ApplyNodeContainer(Root);
         }
     }
