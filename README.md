@@ -72,7 +72,7 @@ Because there is no app bundle, Kwm has to be started from
 a terminal. cd into the containing directory and type ./kwm
 
 Whenever Kwm is started, it will automatically tile the currently
-opened windows, using binary space partioning.
+opened windows, using binary space partitioning.
 
 Kwm mainly consists of three panes so to speak. The main pane is the entire screen.
 (minus whatever screen-padding set in display.cpp)
