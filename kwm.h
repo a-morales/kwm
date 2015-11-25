@@ -86,6 +86,7 @@ struct node_container
 {    
     double X,Y;
     double Width, Height;
+    int Type;
 };
 
 struct tree_node
@@ -127,6 +128,7 @@ tree_node *GetNodeFromWindowID(tree_node *, int);
 bool IsLeafNode(tree_node *);
 void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
+void CreateNodeContainer(screen_info *, tree_node *, int);
 void SetRootNodeContainer(tree_node *, int, int, int, int);
 void ApplyNodeContainer(tree_node *);
 void AddWindowToTree(int WindowID);
@@ -138,8 +140,7 @@ node_container LeftVerticalContainerSplit(screen_info *, tree_node *);
 node_container RightVerticalContainerSplit(screen_info *, tree_node *);
 node_container UpperHorizontalContainerSplit(screen_info *, tree_node *);
 node_container LowerHorizontalContainerSplit(screen_info *, tree_node *);
-void ResizeLeftNodeContainer(tree_node *, int);
-void ResizeRightNodeContainer(tree_node *, int);
+void ResizeNodeContainer(screen_info *, tree_node *);
 
 void GetActiveDisplays();
 screen_info *GetDisplayOfWindow(window_info *);
