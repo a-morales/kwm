@@ -149,7 +149,6 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
 
     if(Windows.size() > 1)
     {
-        int splitmode = 1;
         tree_node *Root = RootNode;
         Root->WindowID = Windows[0];
         for(int WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
@@ -165,7 +164,7 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
                 }
 
                 DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
-                CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex], splitmode++ % 3);
+                CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex], GetOptimalSplitMode(Root));
                 Root->WindowID = -1;
                 Root = RootNode;
             }
@@ -177,6 +176,18 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
     }
 
     return RootNode;
+}
+
+int GetOptimalSplitMode(tree_node *Node)
+{
+    int SplitMode;
+
+    if(Node->Container.Width > Node->Container.Height)
+        SplitMode = 1;
+    else
+        SplitMode = 2;
+
+    return SplitMode;
 }
 
 void SwapNodeWindowIDs(tree_node *A, tree_node *B)
