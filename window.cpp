@@ -112,7 +112,9 @@ bool IsSpaceTransitionInProgress()
     bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)Display);
 
     if(Result)
+    {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
+    }
 
     return Result;
 }
@@ -170,6 +172,12 @@ void UpdateActiveWindowList()
 
         PrevSpace = CurrentSpace;
         CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
+
+        if(PrevSpace != CurrentSpace)
+        {
+            DEBUG("UpdateActiveWindowList() Space transition occurred")
+            FocusWindowBelowCursor();
+        }
     }
 }
 
@@ -250,6 +258,7 @@ void CreateWindowNodeTree()
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
                 Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
                 ApplyNodeContainer(Screen->Space[CurrentSpace]);
+                FocusWindowBelowCursor();
             }
         }
     }
