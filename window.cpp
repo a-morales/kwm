@@ -17,6 +17,9 @@ extern int MarkedWindowID;
 window_info FocusedWindowCache;
 int OldWindowListCount = -1;
 
+extern "C" CGSConnectionID _CGSDefaultConnection(void);
+#define CGSDefaultConnection _CGSDefaultConnection()
+
 void WriteNameOfFocusedWindowToFile()
 {
     std::string Command = "echo '" + FocusedWindow->Owner + " - " + FocusedWindow->Name + "' > focus.kwm";
@@ -105,44 +108,13 @@ bool IsWindowBelowCursor(window_info *Window)
 
 bool IsSpaceTransitionInProgress()
 {
-    bool Result = false;
-    int Space = -1;
+    CFStringRef display = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, (CGSSpaceID)776);
+    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)display);
 
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
-    {
-        int SpaceOfWindow = GetSpaceOfWindow(&WindowLst[WindowIndex]);
-        if(Space == -1 && SpaceOfWindow != -1)
-            Space = SpaceOfWindow;
-
-        if(Space != -1 && SpaceOfWindow != -1)
-        {
-            if(Space != SpaceOfWindow)
-            {
-                DEBUG("IsSpaceTransitionInProgress() Space transition detected")
-                Result = true;
-                break;
-            }
-        }
-    }
+    if(Result)
+        DEBUG("IsSpaceTransitionInProgress() Space transition detected")
 
     return Result;
-}
-
-void CheckIfSpaceTransitionOccurred()
-{
-    if(!WindowLst.empty())
-    {
-        PrevSpace = CurrentSpace;
-        for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
-        {
-            int Temp = GetSpaceOfWindow(&WindowLst[WindowIndex]);
-            if(Temp != -1)
-            {
-                CurrentSpace = Temp;
-                break;
-            }
-        }
-    }
 }
 
 void FocusWindowBelowCursor()
@@ -155,10 +127,6 @@ void FocusWindowBelowCursor()
             {
                 if(!WindowsAreEqual(FocusedWindow, &WindowLst[WindowIndex]))
                 {
-                    int NewSpace = GetSpaceOfWindow(&WindowLst[WindowIndex]);
-                    if(NewSpace == -1)
-                        AddWindowToSpace(WindowLst[WindowIndex].WID, CurrentSpace);
-
                     // Note: Memory leak related to this function-call
                     SetWindowFocus(&WindowLst[WindowIndex]);
                     DEBUG("FocusWindowBelowCursor() Current space: " << CurrentSpace)
@@ -178,10 +146,7 @@ void UpdateWindowTree()
     UpdateActiveWindowList();
     if(!IsSpaceTransitionInProgress() && FilterWindowList())
     {
-        CheckIfSpaceTransitionOccurred();
-        if(CurrentSpace != -1)
-            CreateWindowNodeTree();
-
+        CreateWindowNodeTree();
         ShouldWindowNodeTreeUpdate();
     }
 }
@@ -202,12 +167,22 @@ void UpdateActiveWindowList()
             CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
         }
         CFRelease(OsxWindowLst);
+
+        PrevSpace = CurrentSpace;
+        CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
     }
 }
 
 void ShouldWindowNodeTreeUpdate()
 {
-    if(WindowLst.empty() || !FocusedWindow || OldWindowListCount == -1)
+    if(WindowLst.empty())
+    {
+        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+        Screen->Space.erase(CurrentSpace);
+        return;
+    }
+
+    if(!FocusedWindow || OldWindowListCount == -1)
         return;
 
     if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
@@ -268,7 +243,8 @@ void CreateWindowNodeTree()
         screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
         if(Screen)
         {
-            if(Screen->Space[CurrentSpace] == NULL)
+            std::map<int, tree_node*>::iterator It = Screen->Space.find(CurrentSpace);
+            if(It == Screen->Space.end())
             {
                 DEBUG("CreateWindowNodeTree() Create Tree")
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
