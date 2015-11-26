@@ -133,16 +133,3 @@ Kwm also requires access to the accessibility API.
 There should be a prompt asking to enable it on startup.
 
 Creating a certificate and codesigning the binary works as well.
-
-## Note:
-
-Kwm reads com.apple.spaces.plist upon startup.
-
-spaces.plist is invalidated for some reason when OSX enters sleep, and so Kwms windowing management may break
-because of this.
-
-To fix this, re-create all spaces and drag applications to the new spaces.
-
-This causes OSX to update the spaces.plist file.
-
-Restart Kwm and it should work again.
