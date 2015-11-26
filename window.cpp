@@ -108,7 +108,7 @@ bool IsWindowBelowCursor(window_info *Window)
 
 bool IsSpaceTransitionInProgress()
 {
-    CFStringRef display = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, (CGSSpaceID)776);
+    CFStringRef display = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, (CGSSpaceID)CurrentSpace);
     bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)display);
 
     if(Result)
