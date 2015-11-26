@@ -184,16 +184,10 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 EX->CycleFocusedWindowDisplay(1);
             } break;
-            /*
-            case kVK_ANSI_H:
+            case kVK_ANSI_R:
             {
-                //ReflectTreeVertically
+                EX->ReflectWindowNodeTreeVertically();
             } break;
-            case kVK_ANSI_L:
-            {
-                //ReflectTreeVertically
-            } break;
-            */
             default:
             {
                 Result = false;
