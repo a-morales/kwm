@@ -18,6 +18,8 @@
 #include <sys/types.h>
 #include <time.h>
 
+#include "CGSSpace.h"
+
 struct kwm_code;
 struct export_table;
 
@@ -117,7 +119,7 @@ struct screen_info
     double PaddingTop, PaddingBottom;
     double PaddingLeft, PaddingRight;
     double VerticalGap, HorizontalGap;
-    std::vector<tree_node*> Space;
+    std::map<int, tree_node*> Space;
 };
 
 tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<int>);
