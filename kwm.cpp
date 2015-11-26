@@ -1,5 +1,6 @@
 #include "kwm.h"
 
+CFMachPortRef EventTap;
 kwm_code KWMCode;
 export_table ExportTable;
 std::string KwmFilePath;
@@ -25,6 +26,12 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 {
     switch(Type)
     {
+        case kCGEventTapDisabledByTimeout:
+        case kCGEventTapDisabledByUserInput:
+        {
+            DEBUG("Restarting Event Tap")
+            CGEventTapEnable(EventTap, true);
+        } break;
         case kCGEventKeyDown:
         {
             CGEventFlags Flags = CGEventGetFlags(Event);
@@ -221,7 +228,6 @@ int main(int argc, char **argv)
 {
     KwmInit();
 
-    CFMachPortRef EventTap;
     CGEventMask EventMask;
     CFRunLoopSourceRef RunLoopSource;
 
