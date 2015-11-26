@@ -241,11 +241,6 @@ tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID)
     return NULL;
 }
 
-void ReflectTreeVertically(tree_node *Node)
-{
-    DEBUG("NYI")
-}
-
 void ResizeNodeContainer(screen_info *Screen, tree_node *Node)
 {
     if(Node)
@@ -328,6 +323,22 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node)
     }
 
     return NULL;
+}
+
+void SwapNodeChildPositions(tree_node *Node)
+{
+    if(Node && Node->LeftChild && Node->RightChild)
+    {
+        if(Node->LeftChild->Container.Type == 1)
+        {
+            tree_node *Temp = Node->LeftChild;
+            Node->LeftChild = Node->RightChild;
+            Node->RightChild = Temp;
+        }
+
+        SwapNodeChildPositions(Node->LeftChild);
+        SwapNodeChildPositions(Node->RightChild);
+    }
 }
 
 void CreateNodeContainers(screen_info *Screen, tree_node *Node)
