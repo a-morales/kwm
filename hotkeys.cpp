@@ -164,6 +164,10 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
                     EX->ShiftWindowFocus(1);
                 }
             } break;
+            case kVK_ANSI_R:
+            {
+                EX->ReflectWindowNodeTreeVertically();
+            } break;
             default:
             {
                 Result = false;
@@ -183,10 +187,6 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             case kVK_ANSI_N:
             {
                 EX->CycleFocusedWindowDisplay(1);
-            } break;
-            case kVK_ANSI_R:
-            {
-                EX->ReflectWindowNodeTreeVertically();
             } break;
             default:
             {
