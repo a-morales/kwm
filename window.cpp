@@ -244,7 +244,7 @@ void CreateWindowNodeTree()
         if(Screen)
         {
             std::map<int, tree_node*>::iterator It = Screen->Space.find(CurrentSpace);
-            if(It == Screen->Space.end())
+            if(It == Screen->Space.end() && !WindowLst.empty())
             {
                 DEBUG("CreateWindowNodeTree() Create Tree")
                 std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
