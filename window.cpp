@@ -348,7 +348,15 @@ void RemoveWindowFromTree(int WindowID, bool Center)
                     DEBUG("RemoveWindowFromTree() " << FocusedWindow->Name)
                     Parent->WindowID = AccessChild->WindowID;
                     if(AccessChild->LeftChild && AccessChild->RightChild)
-                        CreateLeafNodePair(Screen, Parent, AccessChild->LeftChild->WindowID, AccessChild->RightChild->WindowID, GetOptimalSplitMode(Parent));
+                    {
+                        Parent->LeftChild = AccessChild->LeftChild;
+                        Parent->LeftChild->Parent = Parent;
+
+                        Parent->RightChild = AccessChild->RightChild;
+                        Parent->RightChild->Parent = Parent;
+
+                        CreateNodeContainers(Screen, Parent);
+                    }
 
                     free(AccessChild);
                     free(WindowNode);
