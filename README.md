@@ -5,16 +5,16 @@ Scroll down for instructions on how to use.
 
 ![alt tag](https://cloud.githubusercontent.com/assets/6175959/11390251/8c8b6952-9348-11e5-9e4d-e77152f7536f.png)
 
-### Features:
+## Features:
 - Enables focus-follows-mouse
 - Binary space partitioning window management
 - System wide hotkeys (supports instantaneous live code editing)
 - Remapping of keys (supports instantaneous live code editing)
 
-### Requirements:
+## Requirements:
 - Access to osx accessibility
 
-### Hotkeys:
+## Hotkeys:
 - ctrl+alt+cmd:
     - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
     - r: manually resize window to its containersize
@@ -72,7 +72,7 @@ Scroll down for instructions on how to use.
 
     - r: reflect/mirror window-tree vertically
 
-### How to use:
+## Build:
 
 To compile Kwm, simply run the included build.sh script.
 By default, debug prints are enabled, and these can be turned
@@ -80,6 +80,8 @@ off by opening the build.sh script and getting rid of the -DDEBUG_BUILD flag.
 
 Because there is no app bundle, Kwm has to be started from
 a terminal. cd into the containing directory and type ./kwm
+
+## Usage:
 
 Whenever Kwm is started, it will automatically tile the currently
 opened windows, using binary space partitioning.
