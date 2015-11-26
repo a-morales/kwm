@@ -1,7 +1,7 @@
-## Kwm
+## Description
 
-Started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
-Scroll down for instructions on how to use.
+Kwm started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
+It is a tiling window manager that represents windows as the leaves of a binary tree.
 
 ![alt tag](https://cloud.githubusercontent.com/assets/6175959/11390251/8c8b6952-9348-11e5-9e4d-e77152f7536f.png)
 
@@ -109,6 +109,8 @@ by focusing a window to split, and hit the hotkey cmd+alt+ctrl+m.
 This marks the container of the focused window, and will now split this container
 when opening a new window.
 
+## Launch from Path:
+
 If kwm is added to the path, a launcher script is necessary
 because it tries to load hotkeys.so from the executables working-directory.
 
@@ -127,7 +129,8 @@ Kwm also requires access to the accessibility API.
 There should be a prompt asking to enable it on startup.
 Creating a certificate and codesigning the binary works as well.
 
-NOTE:
+## Note:
+
 Kwm reads com.apple.spaces.plist upon startup.
 spaces.plist is invalidated for some reason when OSX
 enters sleep, and so Kwms windowing management may break
