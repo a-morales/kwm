@@ -70,6 +70,8 @@ Scroll down for instructions on how to use.
         - p: swap with the previous window
         - n: swap with the next window
 
+        - r: reflect/mirror window-tree vertically
+
 ### How to use:
 
 To compile Kwm, simply run the included build.sh script.
