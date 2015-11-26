@@ -385,6 +385,23 @@ void RemoveWindowFromTree()
     RemoveWindowFromTree(FocusedWindow->WID, true);
 }
 
+void ReflectWindowNodeTreeVertically()
+{
+    if(FocusedWindow)
+    {
+        screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+        if(Screen && Screen->Space[CurrentSpace])
+        {
+            DEBUG("ReflectWindowNodeTreeVertically()")
+            tree_node *Node = Screen->Space[CurrentSpace];
+
+            SwapNodeChildPositions(Node);
+            CreateNodeContainers(Screen, Node);
+            ApplyNodeContainer(Node);
+        }
+    }
+}
+
 void ToggleFocusedWindowParentContainer()
 {
     if(FocusedWindow)
