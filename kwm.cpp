@@ -7,7 +7,6 @@ std::string HotkeySOFullFilePath;
 
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
-std::map<int, std::vector<int> > SpacesOfWindow;
 int CurrentSpace = 0;
 int PrevSpace = -1;
 
@@ -191,9 +190,7 @@ void KwmInit()
     KWMCode = LoadKwmCode();
     BuildExportTable();
 
-    GetActiveSpaces();
     GetActiveDisplays();
-
     UpdateWindowTree();
     FocusWindowBelowCursor();
 
