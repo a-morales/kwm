@@ -125,6 +125,8 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
 
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID, int RightWindowID, int SplitMode)
 {
+    Parent->WindowID = -1;
+
     if(SplitMode == 1)
     {
         Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 1);
@@ -165,7 +167,6 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
 
                 DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
                 CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex], GetOptimalSplitMode(Root));
-                Root->WindowID = -1;
                 Root = RootNode;
             }
         }
