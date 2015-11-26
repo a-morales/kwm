@@ -87,6 +87,20 @@ void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType
     }
 }
 
+void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, int SplitMode)
+{
+    if(SplitMode == 1)
+    {
+        CreateNodeContainer(Screen, LeftNode, 1);
+        CreateNodeContainer(Screen, RightNode, 2);
+    }
+    else
+    {
+        CreateNodeContainer(Screen, LeftNode, 3);
+        CreateNodeContainer(Screen, RightNode, 4);
+    }
+}
+
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType)
 {
     tree_node *Leaf = (tree_node*) malloc(sizeof(tree_node));
@@ -314,6 +328,18 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node)
     }
 
     return NULL;
+}
+
+void CreateNodeContainers(screen_info *Screen, tree_node *Node)
+{
+    if(Node && Node->LeftChild && Node->RightChild)
+    {
+        int SplitMode = GetOptimalSplitMode(Node);
+        CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, SplitMode);
+
+        CreateNodeContainers(Screen, Node->LeftChild);
+        CreateNodeContainers(Screen, Node->RightChild);
+    }
 }
 
 void ApplyNodeContainer(tree_node *Node)
