@@ -287,6 +287,9 @@ void AddWindowToTree(int WindowID)
         tree_node *RootNode = Screen->Space[CurrentSpace];
         tree_node *CurrentNode = RootNode;
 
+        if(MarkedWindowID == -1 && WindowID == FocusedWindow->WID)
+            return;
+
         DEBUG("AddWindowToTree() Create pair of leafs")
         if(MarkedWindowID == -1)
         {
@@ -298,12 +301,8 @@ void AddWindowToTree(int WindowID)
             MarkedWindowID = -1;
         }
 
-        if(ExportTable.KwmSplitMode == -1)
-            CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, GetOptimalSplitMode(CurrentNode));
-        else
-            CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, ExportTable.KwmSplitMode);
-
-        CurrentNode->WindowID = -1;
+        int SplitMode = ExportTable.KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : ExportTable.KwmSplitMode;
+        CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
         ApplyNodeContainer(CurrentNode);
     }
 }
