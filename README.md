@@ -15,62 +15,62 @@ Scroll down for instructions on how to use.
 - Access to osx accessibility
 
 ### Hotkeys:
-    - ctrl+alt+cmd:
-        - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
-        - r: manually resize window to its containersize
-        - q: restart kwm
+- ctrl+alt+cmd:
+    - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
+    - r: manually resize window to its containersize
+    - q: restart kwm
 
-        - m: mark the container to use for next window split
+    - m: mark the container to use for next window split
 
-        - o: use width/height ratio to determine optimal split (default)
-        - 7: use vertical split-mode
-        - -: use horizontal split-mode
+    - o: use width/height ratio to determine optimal split (default)
+    - 7: use vertical split-mode
+    - -: use horizontal split-mode
 
-        - h: move vertical-splitter left
-             (increase width of right-pane containers)
+    - h: move vertical-splitter left
+         (increase width of right-pane containers)
 
-        - l: move vertical-splitter right
-             (increase width of left-pane containers)
+    - l: move vertical-splitter right
+         (increase width of left-pane containers)
 
-        - j: move horizontal-splitter down
-             (increase height of upper-pane containers)
+    - j: move horizontal-splitter down
+         (increase height of upper-pane containers)
 
-        - k: move horizontal-splitter up
-             (increase height of lower-pane containers)
+    - k: move horizontal-splitter up
+         (increase height of lower-pane containers)
 
-        - f: toggle window fullscreen
-        - p: toggle window parent container
-        - w: toggle window floating
-        - enter: opens a new iTerm window
+    - f: toggle window fullscreen
+    - p: toggle window parent container
+    - w: toggle window floating
+    - enter: opens a new iTerm window
 
-        YTD player controls:
-        - <: toggle playback mode (fav / default)
-        - x: toggle play/pause
-        - v: stop player
+    YTD player controls:
+    - <: toggle playback mode (fav / default)
+    - x: toggle play/pause
+    - v: stop player
 
-        - s: star / favorite playing song
+    - s: star / favorite playing song
 
-        - a: increase volume
-        - d: decrease volume
-        
-        - z: play previous video
-        - c: play next video
+    - a: increase volume
+    - d: decrease volume
+    
+    - z: play previous video
+    - c: play next video
 
-        - larrow: seek backward
-        - rarrow: seek forward
+    - larrow: seek backward
+    - rarrow: seek forward
 
-    - ctrl+alt:
-        - p: send window to previous screen
-        - n: send window to next screen
+- ctrl+alt:
+    - p: send window to previous screen
+    - n: send window to next screen
 
-    - alt+cmd
-        - h: focus previous window
-        - l: focus next window
+- alt+cmd
+    - h: focus previous window
+    - l: focus next window
 
-        - p: swap with the previous window
-        - n: swap with the next window
+    - p: swap with the previous window
+    - n: swap with the next window
 
-        - r: reflect/mirror window-tree vertically
+    - r: reflect/mirror window-tree vertically
 
 ### How to use:
 
