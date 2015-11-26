@@ -4,7 +4,6 @@ extern uint32_t MaxDisplayCount;
 extern uint32_t ActiveDisplaysCount;
 extern CGDirectDisplayID ActiveDisplays[];
 
-extern std::map<int, std::vector<int> > SpacesOfWindow;
 extern std::vector<screen_info> DisplayLst;
 extern std::vector<window_info> WindowLst;
 extern AXUIElementRef FocusedWindowRef;
@@ -31,9 +30,6 @@ void GetActiveDisplays()
 
         Screen.VerticalGap = 10;
         Screen.HorizontalGap = 10;
-
-        for(int Count = 0; Count < NumberOfSpaces(); ++Count)
-            Screen.Space.push_back(NULL);
 
         DisplayLst.push_back(Screen);
     }
