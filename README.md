@@ -4,6 +4,8 @@ Kwm started as a simple project to get true focus-follows-mouse support on OSX t
 
 It is a tiling window manager that represents windows as the leaves of a binary tree.
 
+Tested on Osx El Capitan (10.11.1).
+
 ![alt tag](https://cloud.githubusercontent.com/assets/6175959/11390251/8c8b6952-9348-11e5-9e4d-e77152f7536f.png)
 
 ## Features:
