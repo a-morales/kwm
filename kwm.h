@@ -87,7 +87,7 @@ struct export_table
 
 struct node_container
 {    
-    double X,Y;
+    double X, Y;
     double Width, Height;
     int Type;
 };
@@ -122,32 +122,35 @@ struct screen_info
     std::map<int, tree_node*> Space;
 };
 
-tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<int>);
-tree_node *CreateRootNode();
-tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
-tree_node *GetNearestNodeToTheLeft(tree_node *);
-tree_node *GetNearestNodeToTheRight(tree_node *);
-tree_node *GetNodeFromWindowID(tree_node *, int);
-bool IsLeafNode(tree_node *);
-void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
-void SwapNodeWindowIDs(tree_node *, tree_node *);
-void SwapNodeChildPositions(tree_node *);
-void CreateNodeContainer(screen_info *, tree_node *, int);
-void CreateNodeContainerPair(screen_info *, tree_node *, tree_node *, int);
-void CreateNodeContainers(screen_info *, tree_node *);
-void SetRootNodeContainer(screen_info *, tree_node *);
-void ApplyNodeContainer(tree_node *);
-void AddWindowToTree(int WindowID);
-void AddWindowToTree();
-void RemoveWindowFromTree(int, bool);
-void RemoveWindowFromTree();
-void DestroyNodeTree(tree_node *);
 node_container LeftVerticalContainerSplit(screen_info *, tree_node *);
 node_container RightVerticalContainerSplit(screen_info *, tree_node *);
 node_container UpperHorizontalContainerSplit(screen_info *, tree_node *);
 node_container LowerHorizontalContainerSplit(screen_info *, tree_node *);
+
+void SetRootNodeContainer(screen_info *, tree_node *);
+void CreateNodeContainer(screen_info *, tree_node *, int);
+void CreateNodeContainerPair(screen_info *, tree_node *, tree_node *, int);
+void CreateNodeContainers(screen_info *, tree_node *);
 void ResizeNodeContainer(screen_info *, tree_node *);
+void ApplyNodeContainer(tree_node *);
 int GetOptimalSplitMode(tree_node *);
+
+tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<int>);
+tree_node *CreateRootNode();
+tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
+void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
+void DestroyNodeTree(tree_node *);
+
+tree_node *GetNearestNodeToTheLeft(tree_node *);
+tree_node *GetNearestNodeToTheRight(tree_node *);
+tree_node *GetNodeFromWindowID(tree_node *, int);
+void SwapNodeWindowIDs(tree_node *, tree_node *);
+void SwapNodeChildPositions(tree_node *);
+void AddWindowToTree(int WindowID);
+void AddWindowToTree();
+void RemoveWindowFromTree(int, bool);
+void RemoveWindowFromTree();
+bool IsLeafNode(tree_node *);
 
 void GetActiveDisplays();
 screen_info *GetDisplayOfWindow(window_info *);
@@ -155,34 +158,28 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
 void CycleFocusedWindowDisplay(int);
 
-void ShouldWindowNodeTreeUpdate();
 void CreateWindowNodeTree();
+void ShouldWindowNodeTreeUpdate();
 void ResizeWindowToContainerSize(tree_node *);
 void ResizeWindowToContainerSize();
 void ReflectWindowNodeTreeVertically();
-void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 void MoveContainerSplitter(int, int);
 
-int NumberOfSpaces();
-void AddWindowToSpace(int, int);
-int GetSpaceOfWindow(window_info *);
-void GetActiveSpaces();
-void GetSpaceInfo(const void *, const void *, void *);
+bool IsWindowBelowCursor(window_info *);
+bool IsWindowFloating(int);
+bool IsSpaceTransitionInProgress();
+bool WindowsAreEqual(window_info *, window_info *);
 
+void UpdateWindowTree();
+void UpdateActiveWindowList();
+bool FilterWindowList();
+void MarkWindowContainer();
+void ShiftWindowFocus(int);
+void SwapFocusedWindowWithNearest(int);
+void FocusWindowBelowCursor();
 void ToggleFocusedWindowFullscreen();
 void ToggleFocusedWindowParentContainer();
-void SwapFocusedWindowWithNearest(int);
-void ShiftWindowFocus(int);
-void MarkWindowContainer();
-bool WindowsAreEqual(window_info *, window_info *);
-bool IsWindowFloating(int);
-bool FilterWindowList();
-bool IsWindowBelowCursor(window_info *);
-void FocusWindowBelowCursor();
-void CheckIfSpaceTransitionOccurred();
-bool IsSpaceTransitionInProgress();
-void UpdateActiveWindowList();
-void UpdateWindowTree();
+void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 
 void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
