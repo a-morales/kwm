@@ -22,7 +22,7 @@ extern "C" CGSConnectionID _CGSDefaultConnection(void);
 
 void WriteNameOfFocusedWindowToFile()
 {
-    std::string Command = "echo '" + FocusedWindow->Owner + " - " + FocusedWindow->Name + "' > focus.kwm";
+    std::string Command = "echo \"" + FocusedWindow->Owner + " - " + FocusedWindow->Name + "\" > focus.kwm";
     system(Command.c_str());
 }
 
@@ -56,9 +56,6 @@ bool FilterWindowList()
 
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-        if(WindowLst[WindowIndex].Owner == "Dock")
-            Result = false;
-
         if(WindowLst[WindowIndex].Layer == 0)
             FilteredWindowLst.push_back(WindowLst[WindowIndex]);
     }
