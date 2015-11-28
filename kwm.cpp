@@ -150,6 +150,8 @@ void BuildExportTable()
     ExportTable.FocusedWindow = FocusedWindow;
 
     ExportTable.FocusWindowBelowCursor = &FocusWindowBelowCursor;
+    ExportTable.ChangeGapOfDisplay = &ChangeGapOfDisplay;
+    ExportTable.ChangePaddingOfDisplay = &ChangePaddingOfDisplay;
     ExportTable.ReflectWindowNodeTreeVertically = &ReflectWindowNodeTreeVertically;
     ExportTable.ResizeWindowToContainerSize = &ResizeWindowToContainerSize;;
     ExportTable.MoveContainerSplitter = &MoveContainerSplitter;
