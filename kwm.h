@@ -70,6 +70,8 @@ struct export_table
     focus_option KwmFocusMode;
     int KwmSplitMode;
 
+    void (*ChangeGapOfDisplay)(const std::string &, int);
+    void (*ChangePaddingOfDisplay)(const std::string &, int);
     void (*FocusWindowBelowCursor)();
     void (*ReflectWindowNodeTreeVertically)();
     void (*ResizeWindowToContainerSize)();
@@ -157,6 +159,8 @@ screen_info *GetDisplayOfWindow(window_info *);
 std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
 void CycleFocusedWindowDisplay(int);
+void ChangeGapOfDisplay(const std::string &, int);
+void ChangePaddingOfDisplay(const std::string &, int);
 
 void CreateWindowNodeTree();
 void ShouldWindowNodeTreeUpdate();
