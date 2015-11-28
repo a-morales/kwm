@@ -191,7 +191,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             } break;
         }
     }
-    else if(CmdKey && CtrlKey && !AltKey)
+    else if(!CmdKey && CtrlKey && AltKey)
     {
         switch(Keycode)
         {
@@ -205,7 +205,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 EX->CycleFocusedWindowDisplay(1);
             } break;
-            // Decrease screen padding
+            // Increase screen padding
             case kVK_LeftArrow:
             {
                 EX->ChangePaddingOfDisplay("Left", 10);
