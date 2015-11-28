@@ -168,6 +168,23 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 EX->ReflectWindowNodeTreeVertically();
             } break;
+            // Decrease screen padding
+            case kVK_LeftArrow:
+            {
+                EX->ChangePaddingOfDisplay("Left", -10);
+            } break;
+            case kVK_RightArrow:
+            {
+                EX->ChangePaddingOfDisplay("Right", -10);
+            } break;
+            case kVK_UpArrow:
+            {
+                EX->ChangePaddingOfDisplay("Top", -10);
+            } break;
+            case kVK_DownArrow:
+            {
+                EX->ChangePaddingOfDisplay("Bottom", -10);
+            } break;
             default:
             {
                 Result = false;
@@ -187,6 +204,23 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             case kVK_ANSI_N:
             {
                 EX->CycleFocusedWindowDisplay(1);
+            } break;
+            // Decrease screen padding
+            case kVK_LeftArrow:
+            {
+                EX->ChangePaddingOfDisplay("Left", 10);
+            } break;
+            case kVK_RightArrow:
+            {
+                EX->ChangePaddingOfDisplay("Right", 10);
+            } break;
+            case kVK_UpArrow:
+            {
+                EX->ChangePaddingOfDisplay("Top", 10);
+            } break;
+            case kVK_DownArrow:
+            {
+                EX->ChangePaddingOfDisplay("Bottom", 10);
             } break;
             default:
             {
