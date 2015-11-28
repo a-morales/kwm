@@ -62,14 +62,23 @@ Tested on Osx El Capitan (10.11.1).
     - p: send window to previous screen
     - n: send window to next screen
 
+    - larrow: increase screen padding-left 
+    - rarrow: increase screen padding-right 
+    - uarrow: increase screen padding-top 
+    - darrow: increase screen padding-bottom 
+
 - alt+cmd
     - h: focus previous window
     - l: focus next window
 
     - p: swap with the previous window
     - n: swap with the next window
+    - r: reflect window-tree vertically
 
-    - r: reflect/mirror window-tree vertically
+    - larrow: decrease screen padding-left 
+    - rarrow: decrease screen padding-right 
+    - uarrow: decrease screen padding-top 
+    - darrow: decrease screen padding-bottom 
 
 ## Build:
 
