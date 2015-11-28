@@ -176,7 +176,7 @@ void UpdateActiveWindowList()
 
         if(PrevSpace != CurrentSpace)
         {
-            DEBUG("UpdateActiveWindowList() Space transition occurred")
+            DEBUG("UpdateActiveWindowList() Space transition ended")
             FocusWindowBelowCursor();
         }
     }
