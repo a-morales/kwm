@@ -8,6 +8,7 @@ extern std::vector<screen_info> DisplayLst;
 extern std::vector<window_info> WindowLst;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
+extern int CurrentSpace;
 
 void GetActiveDisplays()
 {
@@ -76,6 +77,35 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
     }
 
     return ScreenWindowIDLst;
+}
+
+void ChangePaddingOfDisplay(const std::string &Side, int Offset)
+{
+    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+    if(Side == "Left")
+        Screen->PaddingLeft += Offset;
+    else if(Side == "Right")
+        Screen->PaddingRight += Offset;
+    else if(Side == "Top")
+        Screen->PaddingTop += Offset;
+    else if(Side == "Bottom")
+        Screen->PaddingBottom += Offset;
+
+    SetRootNodeContainer(Screen, Screen->Space[CurrentSpace]);
+    CreateNodeContainers(Screen, Screen->Space[CurrentSpace]);
+    ApplyNodeContainer(Screen->Space[CurrentSpace]);
+}
+
+void ChangeGapOfDisplay(const std::string &Side, int Offset)
+{
+    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+    if(Side == "Vertical")
+        Screen->VerticalGap += Offset;
+    else if(Side == "Horizontal")
+        Screen->HorizontalGap += Offset;
+
+    CreateNodeContainers(Screen, Screen->Space[CurrentSpace]);
+    ApplyNodeContainer(Screen->Space[CurrentSpace]);
 }
 
 void CycleFocusedWindowDisplay(int Shift)
