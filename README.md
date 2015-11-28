@@ -30,11 +30,8 @@ Tested on Osx El Capitan (10.11.1).
         - -: use horizontal split-mode
 
         - h: move vertical-splitter left (increase width of right-pane containers)
-
         - l: move vertical-splitter right (increase width of left-pane containers)
-
         - j: move horizontal-splitter down (increase height of upper-pane containers)
-
         - k: move horizontal-splitter up (increase height of lower-pane containers)
 
         - f: toggle window fullscreen
