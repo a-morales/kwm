@@ -56,6 +56,9 @@ bool FilterWindowList()
 
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
+        if(WindowLst[WindowIndex].Owner == "Dock")
+            Result = false;
+
         if(WindowLst[WindowIndex].Layer == 0)
             FilteredWindowLst.push_back(WindowLst[WindowIndex]);
     }
