@@ -199,62 +199,60 @@ void UpdateActiveWindowList()
 
 void ShouldWindowNodeTreeUpdate()
 {
-    if(WindowLst.empty())
+    if(FocusedWindow)
     {
         screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-        Screen->Space.erase(CurrentSpace);
-        return;
-    }
-
-    if(!FocusedWindow || OldWindowListCount == -1)
-        return;
-
-    if(CurrentSpace != -1 && PrevSpace == CurrentSpace)
-    {
-        if(WindowLst.size() > OldWindowListCount)
+        if(WindowLst.empty())
         {
-            DEBUG("ShouldWindowNodeTreeUpdate() Add Window")
-            screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-            for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
-            {
-                if(GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowLst[WindowIndex].WID) == NULL)
-                {
-                    AddWindowToTree(WindowLst[WindowIndex].WID);
-                    SetWindowFocus(&WindowLst[WindowIndex]);
-                }
-            }
+            Screen->Space.erase(CurrentSpace);
+            return;
         }
-        else if(WindowLst.size() < OldWindowListCount)
+
+        if(CurrentSpace != -1 && PrevSpace == CurrentSpace && OldWindowListCount != -1)
         {
-            DEBUG("ShouldWindowNodeTreeUpdate() Remove Window")
-            screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-            tree_node *RootNode = Screen->Space[CurrentSpace];
-            std::vector<int> WindowIDsInTree;
-
-            tree_node *CurrentNode = RootNode;
-            while(CurrentNode->LeftChild)
-                CurrentNode = CurrentNode->LeftChild;
-
-            while(CurrentNode)
+            if(WindowLst.size() > OldWindowListCount)
             {
-                WindowIDsInTree.push_back(CurrentNode->WindowID);
-                CurrentNode = GetNearestNodeToTheRight(CurrentNode);
-            }
-
-            for(int IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
-            {
-                bool Found = false;
+                DEBUG("ShouldWindowNodeTreeUpdate() Add Window")
                 for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
                 {
-                    if(WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
+                    if(GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowLst[WindowIndex].WID) == NULL)
                     {
-                        Found = true;
-                        break;
+                        AddWindowToTree(WindowLst[WindowIndex].WID);
+                        SetWindowFocus(&WindowLst[WindowIndex]);
                     }
                 }
+            }
+            else if(WindowLst.size() < OldWindowListCount)
+            {
+                DEBUG("ShouldWindowNodeTreeUpdate() Remove Window")
+                tree_node *RootNode = Screen->Space[CurrentSpace];
+                std::vector<int> WindowIDsInTree;
 
-                if(!Found)
-                    RemoveWindowFromTree(WindowIDsInTree[IDIndex], false);
+                tree_node *CurrentNode = RootNode;
+                while(CurrentNode->LeftChild)
+                    CurrentNode = CurrentNode->LeftChild;
+
+                while(CurrentNode)
+                {
+                    WindowIDsInTree.push_back(CurrentNode->WindowID);
+                    CurrentNode = GetNearestNodeToTheRight(CurrentNode);
+                }
+
+                for(int IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
+                {
+                    bool Found = false;
+                    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+                    {
+                        if(WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
+                        {
+                            Found = true;
+                            break;
+                        }
+                    }
+
+                    if(!Found)
+                        RemoveWindowFromTree(WindowIDsInTree[IDIndex], false);
+                }
             }
         }
     }
