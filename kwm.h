@@ -167,8 +167,8 @@ void CycleFocusedWindowDisplay(int);
 void ChangeGapOfDisplay(const std::string &, int);
 void ChangePaddingOfDisplay(const std::string &, int);
 
-void CreateWindowNodeTree();
-void ShouldWindowNodeTreeUpdate();
+void CreateWindowNodeTree(screen_info *);
+void ShouldWindowNodeTreeUpdate(screen_info *);
 void ResizeWindowToContainerSize(tree_node *);
 void ResizeWindowToContainerSize();
 void ReflectWindowNodeTreeVertically();
