@@ -181,7 +181,7 @@ bool IsSpaceTransitionInProgress();
 bool WindowsAreEqual(window_info *, window_info *);
 
 void UpdateWindowTree();
-void UpdateActiveWindowList();
+void UpdateActiveWindowList(screen_info *);
 bool FilterWindowList();
 void MarkWindowContainer();
 void ShiftWindowFocus(int);
