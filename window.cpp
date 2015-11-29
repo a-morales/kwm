@@ -162,8 +162,15 @@ void UpdateWindowTree()
     UpdateActiveWindowList();
     if(!IsSpaceTransitionInProgress() && FilterWindowList())
     {
-        CreateWindowNodeTree();
-        ShouldWindowNodeTreeUpdate();
+        screen_info *Screen = GetDisplayOfMousePointer();
+        if(Screen)
+        {
+            std::map<int, tree_node*>::iterator It = Screen->Space.find(CurrentSpace);
+            if(It == Screen->Space.end() && !WindowLst.empty())
+                CreateWindowNodeTree(Screen);
+            else if(It != Screen->Space.end())
+                ShouldWindowNodeTreeUpdate(Screen);
+        }
     }
 }
 
@@ -196,9 +203,8 @@ void UpdateActiveWindowList()
     }
 }
 
-void ShouldWindowNodeTreeUpdate()
+void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 {
-    screen_info *Screen = GetDisplayOfMousePointer();
     if(WindowLst.empty())
     {
         Screen->Space.erase(CurrentSpace);
@@ -254,21 +260,13 @@ void ShouldWindowNodeTreeUpdate()
     }
 }
 
-void CreateWindowNodeTree()
+void CreateWindowNodeTree(screen_info *Screen)
 {
-    screen_info *Screen = GetDisplayOfMousePointer();
-    if(Screen)
-    {
-        std::map<int, tree_node*>::iterator It = Screen->Space.find(CurrentSpace);
-        if(It == Screen->Space.end() && !WindowLst.empty())
-        {
-            DEBUG("CreateWindowNodeTree() Create Tree")
-            std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
-            Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
-            ApplyNodeContainer(Screen->Space[CurrentSpace]);
-            FocusWindowBelowCursor();
-        }
-    }
+    DEBUG("CreateWindowNodeTree() Create Tree")
+    std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
+    Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
+    ApplyNodeContainer(Screen->Space[CurrentSpace]);
+    FocusWindowBelowCursor();
 }
 
 void AddWindowToTree(int WindowID)
