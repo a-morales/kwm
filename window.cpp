@@ -159,11 +159,11 @@ void FocusWindowBelowCursor()
 
 void UpdateWindowTree()
 {
-    UpdateActiveWindowList();
-    if(!IsSpaceTransitionInProgress() && FilterWindowList())
+    screen_info *Screen = GetDisplayOfMousePointer();
+    if(Screen)
     {
-        screen_info *Screen = GetDisplayOfMousePointer();
-        if(Screen)
+        UpdateActiveWindowList(Screen);
+        if(!IsSpaceTransitionInProgress() && FilterWindowList())
         {
             std::map<int, tree_node*>::iterator It = Screen->Space.find(CurrentSpace);
             if(It == Screen->Space.end() && !WindowLst.empty())
@@ -176,9 +176,8 @@ void UpdateWindowTree()
     }
 }
 
-void UpdateActiveWindowList()
+void UpdateActiveWindowList(screen_info *Screen)
 {
-    screen_info *Screen = GetDisplayOfMousePointer();
     Screen->OldWindowListCount = WindowLst.size();
     WindowLst.clear();
 
