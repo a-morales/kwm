@@ -78,7 +78,7 @@ Currently does not support multiple monitors.
         - r: reflect window-tree vertically
 
         - x: decrease horizontal gap
-        - y: decease vertical gap
+        - y: decrease vertical gap
 
         - larrow: decrease screen padding-left 
         - rarrow: decrease screen padding-right 
