@@ -168,8 +168,10 @@ void UpdateWindowTree()
             std::map<int, tree_node*>::iterator It = Screen->Space.find(CurrentSpace);
             if(It == Screen->Space.end() && !WindowLst.empty())
                 CreateWindowNodeTree(Screen);
-            else if(It != Screen->Space.end())
+            else if(It != Screen->Space.end() && !WindowLst.empty())
                 ShouldWindowNodeTreeUpdate(Screen);
+            else if(It != Screen->Space.end() && WindowLst.empty())
+                Screen->Space.erase(CurrentSpace);
         }
     }
 }
@@ -205,12 +207,6 @@ void UpdateActiveWindowList()
 
 void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 {
-    if(WindowLst.empty())
-    {
-        Screen->Space.erase(CurrentSpace);
-        return;
-    }
-
     if(CurrentSpace != -1 && PrevSpace == CurrentSpace && Screen->OldWindowListCount != -1)
     {
         if(WindowLst.size() > Screen->OldWindowListCount)
