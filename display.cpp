@@ -36,6 +36,23 @@ void GetActiveDisplays()
     }
 }
 
+screen_info *GetDisplayOfMousePointer()
+{
+    CGEventRef Event = CGEventCreate(NULL);
+    CGPoint Cursor = CGEventGetLocation(Event);
+    CFRelease(Event);
+
+    for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
+    {
+        screen_info *Screen = &DisplayLst[DisplayIndex];
+        if(Cursor.x >= Screen->X && Cursor.x <= Screen->X + Screen->Width &&
+           Cursor.y >= Screen->Y && Cursor.y <= Screen->Y + Screen->Height)
+               return Screen;
+    }
+
+    return NULL;
+}
+
 screen_info *GetDisplayOfWindow(window_info *Window)
 {
     if(Window)
