@@ -98,7 +98,7 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
 
 void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 {
-    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+    screen_info *Screen = GetDisplayOfMousePointer();
     if(Side == "Left")
         Screen->PaddingLeft += Offset;
     else if(Side == "Right")
@@ -115,7 +115,7 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 
 void ChangeGapOfDisplay(const std::string &Side, int Offset)
 {
-    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+    screen_info *Screen = GetDisplayOfMousePointer();
     if(Side == "Vertical")
         Screen->VerticalGap += Offset;
     else if(Side == "Horizontal")
