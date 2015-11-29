@@ -17,9 +17,6 @@ extern int MarkedWindowID;
 window_info FocusedWindowCache;
 int OldWindowListCount = -1;
 
-extern "C" CGSConnectionID _CGSDefaultConnection(void);
-#define CGSDefaultConnection _CGSDefaultConnection()
-
 void WriteNameOfFocusedWindowToFile()
 {
     std::string Command = "echo \"" + FocusedWindow->Owner + " - " + FocusedWindow->Name + "\" > focus.kwm";
@@ -581,7 +578,6 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
 
     CGSize WindowSize = CGSizeMake(Width, Height);
     CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
-
 
     AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
     AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
