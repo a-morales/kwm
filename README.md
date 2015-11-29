@@ -6,6 +6,8 @@ It is a tiling window manager that represents windows as the leaves of a binary 
 
 Tested on Osx El Capitan (10.11.1).
 
+Currently does not support multiple monitors.
+
 ![alt tag](https://cloud.githubusercontent.com/assets/6175959/11390251/8c8b6952-9348-11e5-9e4d-e77152f7536f.png)
 
 ## Features:
