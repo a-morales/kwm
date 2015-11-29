@@ -168,6 +168,15 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 EX->ReflectWindowNodeTreeVertically();
             } break;
+            // Decrease screen gaps
+            case kVK_ANSI_X:
+            {
+                EX->ChangeGapOfDisplay("Horizontal", -10);
+            } break;
+            case kVK_ANSI_Y:
+            {
+                EX->ChangeGapOfDisplay("Vertical", -10);
+            } break;
             // Decrease screen padding
             case kVK_LeftArrow:
             {
@@ -204,6 +213,15 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             case kVK_ANSI_N:
             {
                 EX->CycleFocusedWindowDisplay(1);
+            } break;
+            // Increase screen gaps
+            case kVK_ANSI_X:
+            {
+                EX->ChangeGapOfDisplay("Horizontal", 10);
+            } break;
+            case kVK_ANSI_Y:
+            {
+                EX->ChangeGapOfDisplay("Vertical", 10);
             } break;
             // Increase screen padding
             case kVK_LeftArrow:
