@@ -155,6 +155,7 @@ void RemoveWindowFromTree();
 bool IsLeafNode(tree_node *);
 
 void GetActiveDisplays();
+screen_info *GetDisplayOfMousePointer();
 screen_info *GetDisplayOfWindow(window_info *);
 std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
