@@ -45,12 +45,11 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
     return Result;
 }
 
-bool FilterWindowList()
+bool FilterWindowList(screen_info *Screen)
 {
     bool Result = true;
     std::vector<window_info> FilteredWindowLst;
 
-    screen_info *Screen = GetDisplayOfMousePointer();
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         if(WindowLst[WindowIndex].Owner == "Dock" &&
@@ -163,7 +162,7 @@ void UpdateWindowTree()
     if(Screen)
     {
         UpdateActiveWindowList(Screen);
-        if(!IsSpaceTransitionInProgress() && FilterWindowList())
+        if(!IsSpaceTransitionInProgress() && FilterWindowList(Screen))
         {
             std::map<int, tree_node*>::iterator It = Screen->Space.find(CurrentSpace);
             if(It == Screen->Space.end() && !WindowLst.empty())
@@ -215,7 +214,7 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
             {
                 if(GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowLst[WindowIndex].WID) == NULL)
                 {
-                    AddWindowToTree(WindowLst[WindowIndex].WID);
+                    AddWindowToTree(Screen, WindowLst[WindowIndex].WID);
                     SetWindowFocus(&WindowLst[WindowIndex]);
                 }
             }
@@ -249,7 +248,7 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
                 }
 
                 if(!Found)
-                    RemoveWindowFromTree(WindowIDsInTree[IDIndex], false);
+                    RemoveWindowFromTree(Screen, WindowIDsInTree[IDIndex], false);
             }
         }
     }
@@ -264,10 +263,9 @@ void CreateWindowNodeTree(screen_info *Screen)
     FocusWindowBelowCursor();
 }
 
-void AddWindowToTree(int WindowID)
+void AddWindowToTree(screen_info *Screen, int WindowID)
 {
-    screen_info *Screen = GetDisplayOfMousePointer();
-    if(Screen && Screen->Space[CurrentSpace])
+    if(Screen->Space[CurrentSpace])
     {
         tree_node *RootNode = Screen->Space[CurrentSpace];
         tree_node *CurrentNode = RootNode;
@@ -306,13 +304,15 @@ void AddWindowToTree(int WindowID)
 
 void AddWindowToTree()
 {
-    AddWindowToTree(FocusedWindow->WID);
+    screen_info *Screen = GetDisplayOfMousePointer();
+
+    if(Screen)
+        AddWindowToTree(Screen, FocusedWindow->WID);
 }
 
-void RemoveWindowFromTree(int WindowID, bool Center)
+void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
 {
-    screen_info *Screen = GetDisplayOfMousePointer();
-    if(Screen && Screen->Space[CurrentSpace])
+    if(Screen->Space[CurrentSpace])
     {
         tree_node *RootNode = Screen->Space[CurrentSpace];
         tree_node *WindowNode = GetNodeFromWindowID(RootNode, WindowID);
@@ -379,7 +379,10 @@ void RemoveWindowFromTree(int WindowID, bool Center)
 
 void RemoveWindowFromTree()
 {
-    RemoveWindowFromTree(FocusedWindow->WID, true);
+    screen_info *Screen = GetDisplayOfMousePointer();
+
+    if(Screen)
+        RemoveWindowFromTree(Screen, FocusedWindow->WID, true);
 }
 
 void ReflectWindowNodeTreeVertically()
