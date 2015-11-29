@@ -107,6 +107,21 @@ bool IsWindowBelowCursor(window_info *Window)
     return Result;
 }
 
+bool IsWindowOnActiveSpace(window_info *Window)
+{
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    {
+        if(WindowsAreEqual(Window, &WindowLst[WindowIndex]))
+        {
+            DEBUG("IsWindowOnActiveSpace() window found")
+            return true;
+        }
+    }
+
+    DEBUG("IsWindowOnActiveSpace() window was not found")
+    return false;
+}
+
 bool IsSpaceTransitionInProgress()
 {
     CFStringRef Display = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, (CGSSpaceID)CurrentSpace);
@@ -277,9 +292,21 @@ void AddWindowToTree(int WindowID)
             return;
 
         DEBUG("AddWindowToTree() Create pair of leafs")
-        if(MarkedWindowID == -1)
+        bool UseFocusedContainer = IsWindowOnActiveSpace(FocusedWindow);
+
+        if(MarkedWindowID == -1 && UseFocusedContainer)
         {
             CurrentNode = GetNodeFromWindowID(RootNode, FocusedWindow->WID);
+        }
+        else if(MarkedWindowID == -1 && !UseFocusedContainer)
+        {
+            while(!IsLeafNode(CurrentNode))
+            {
+                if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
+                    CurrentNode = CurrentNode->RightChild;
+                else
+                    CurrentNode = CurrentNode->LeftChild;
+            }
         }
         else
         {
