@@ -267,14 +267,12 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
     bool Result = true;
     if(CmdKey && AltKey && CtrlKey)
     {
-        // Launch Application
-        std::string SysCommand = "";
         switch(Keycode)
         {
             // Open New iTerm Window
             case kVK_Return:
             {
-                SysCommand = "/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window &";
+                system("/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window &");
             } break;
             // Rebuild Hotkeys
             // case kVK_ANSI_R:
@@ -284,53 +282,48 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             // YTD - Media Player Controls
             case kVK_ANSI_Z:
             {
-                SysCommand = "ytc prev";
+                system("ytc prev");
             } break;
             case kVK_ANSI_X:
             {
-                SysCommand = "ytc play";
+                system("ytc play");
             } break;
             case kVK_ANSI_C:
             {
-                SysCommand = "ytc next";
+                system("ytc next");
             } break;
             case kVK_ANSI_V:
             {
-                SysCommand = "ytc stop";
+                system("ytc stop");
             } break;
             case kVK_ANSI_A:
             {
-                SysCommand = "ytc volup";
+                system("ytc volup");
             } break;
             case kVK_ANSI_D:
             {
-                SysCommand = "ytc voldown";
+                system("ytc voldown");
             } break;
             case kVK_ANSI_S:
             {
-                SysCommand = "ytc mkfav";
+                system("ytc mkfav");
             } break;
             case kVK_LeftArrow:
             {
-                SysCommand = "ytc seekbk";
+                system("ytc seekbk");
             } break;
             case kVK_RightArrow:
             {
-                SysCommand = "ytc seekfw";
+                system("ytc seekfw");
             } break;
             case kVK_ANSI_Grave:
             {
-                SysCommand = "ytc fav";
+                system("ytc fav");
             } break;
             default:
             {
                 Result = false;
             } break;
-        }
-
-        if(SysCommand != "")
-        {
-            system(SysCommand.c_str());
         }
     }
     else if(CmdKey && !AltKey && !CtrlKey)
