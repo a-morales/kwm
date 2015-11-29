@@ -178,6 +178,7 @@ bool IsWindowBelowCursor(window_info *);
 bool IsWindowFloating(int);
 bool IsWindowOnActiveSpace(window_info *);
 bool IsSpaceTransitionInProgress();
+bool IsSpaceSystemOrFullscreen();
 bool WindowsAreEqual(window_info *, window_info *);
 
 void UpdateWindowTree();
