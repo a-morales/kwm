@@ -152,9 +152,9 @@ tree_node *GetNearestNodeToTheRight(tree_node *);
 tree_node *GetNodeFromWindowID(tree_node *, int);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void SwapNodeChildPositions(tree_node *);
-void AddWindowToTree(int WindowID);
+void AddWindowToTree(screen_info *, int WindowID);
 void AddWindowToTree();
-void RemoveWindowFromTree(int, bool);
+void RemoveWindowFromTree(screen_info *, int, bool);
 void RemoveWindowFromTree();
 bool IsLeafNode(tree_node *);
 
