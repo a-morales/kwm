@@ -123,10 +123,20 @@ bool IsSpaceTransitionInProgress()
 {
     CFStringRef Display = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, (CGSSpaceID)CurrentSpace);
     bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)Display);
-
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
+    }
+
+    return Result;
+}
+
+bool IsSpaceSystemOrFullscreen()
+{
+    bool Result = CGSSpaceGetType(CGSDefaultConnection, CurrentSpace) != CGSSpaceTypeUser;
+    if(Result)
+    {
+        DEBUG("IsSpaceSystemOrFullscreen() Space is not user created")
     }
 
     return Result;
@@ -162,7 +172,7 @@ void UpdateWindowTree()
     if(Screen)
     {
         UpdateActiveWindowList(Screen);
-        if(!IsSpaceTransitionInProgress() && FilterWindowList(Screen))
+        if(!IsSpaceTransitionInProgress() && !IsSpaceSystemOrFullscreen() && FilterWindowList(Screen))
         {
             std::map<int, tree_node*>::iterator It = Screen->Space.find(CurrentSpace);
             if(It == Screen->Space.end() && !WindowLst.empty())
