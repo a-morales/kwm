@@ -125,6 +125,7 @@ struct screen_info
     double PaddingLeft, PaddingRight;
     double VerticalGap, HorizontalGap;
     std::map<int, tree_node*> Space;
+    int OldWindowListCount;
 };
 
 node_container LeftVerticalContainerSplit(screen_info *, tree_node *);

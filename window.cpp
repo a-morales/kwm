@@ -15,7 +15,6 @@ extern int PrevSpace;
 extern int MarkedWindowID;
 
 window_info FocusedWindowCache;
-int OldWindowListCount = -1;
 
 void WriteNameOfFocusedWindowToFile()
 {
@@ -51,14 +50,16 @@ bool FilterWindowList()
     bool Result = true;
     std::vector<window_info> FilteredWindowLst;
 
+    screen_info *Screen = GetDisplayOfMousePointer();
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         if(WindowLst[WindowIndex].Owner == "Dock" &&
            WindowLst[WindowIndex].Name == "")
                Result = false;
 
-        if(WindowLst[WindowIndex].Layer == 0)
-            FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+        if(WindowLst[WindowIndex].Layer == 0 &&
+           Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]))
+               FilteredWindowLst.push_back(WindowLst[WindowIndex]);
     }
 
     WindowLst = FilteredWindowLst;
@@ -168,7 +169,8 @@ void UpdateWindowTree()
 
 void UpdateActiveWindowList()
 {
-    OldWindowListCount = WindowLst.size();
+    screen_info *Screen = GetDisplayOfMousePointer();
+    Screen->OldWindowListCount = WindowLst.size();
     WindowLst.clear();
 
     CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
@@ -203,9 +205,9 @@ void ShouldWindowNodeTreeUpdate()
         return;
     }
 
-    if(CurrentSpace != -1 && PrevSpace == CurrentSpace && OldWindowListCount != -1)
+    if(CurrentSpace != -1 && PrevSpace == CurrentSpace && Screen->OldWindowListCount != -1)
     {
-        if(WindowLst.size() > OldWindowListCount)
+        if(WindowLst.size() > Screen->OldWindowListCount)
         {
             DEBUG("ShouldWindowNodeTreeUpdate() Add Window")
             for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
@@ -217,7 +219,7 @@ void ShouldWindowNodeTreeUpdate()
                 }
             }
         }
-        else if(WindowLst.size() < OldWindowListCount)
+        else if(WindowLst.size() < Screen->OldWindowListCount)
         {
             DEBUG("ShouldWindowNodeTreeUpdate() Remove Window")
             tree_node *RootNode = Screen->Space[CurrentSpace];

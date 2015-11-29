@@ -18,6 +18,8 @@ void GetActiveDisplays()
         CGRect DisplayRect = CGDisplayBounds(ActiveDisplays[DisplayIndex]);
         screen_info Screen;
         Screen.ID = DisplayIndex;
+        Screen.OldWindowListCount = -1;
+
         Screen.X = DisplayRect.origin.x;
         Screen.Y = DisplayRect.origin.y;
         Screen.Width = DisplayRect.size.width;
