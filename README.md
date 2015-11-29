@@ -61,6 +61,9 @@ Currently does not support multiple monitors.
         - p: send window to previous screen
         - n: send window to next screen
 
+        - x: increase horizontal gap
+        - y: increase vertical gap
+
         - larrow: increase screen padding-left 
         - rarrow: increase screen padding-right 
         - uarrow: increase screen padding-top 
@@ -73,6 +76,9 @@ Currently does not support multiple monitors.
         - p: swap with the previous window
         - n: swap with the next window
         - r: reflect window-tree vertically
+
+        - x: decrease horizontal gap
+        - y: decease vertical gap
 
         - larrow: decrease screen padding-left 
         - rarrow: decrease screen padding-right 
