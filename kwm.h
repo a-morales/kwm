@@ -171,7 +171,7 @@ void ReflectWindowNodeTreeVertically();
 void MoveContainerSplitter(int, int);
 
 bool IsWindowBelowCursor(window_info *);
-bool IsWindowFloating(int);
+bool IsWindowFloating(int, int *);
 bool IsWindowOnActiveSpace(window_info *);
 bool IsSpaceTransitionInProgress();
 bool IsSpaceSystemOrFullscreen();
