@@ -156,10 +156,6 @@ void FocusWindowBelowCursor()
                     SetWindowFocus(&WindowLst[WindowIndex]);
                     DEBUG("FocusWindowBelowCursor() Current space: " << CurrentSpace)
                 }
-                else
-                {
-                    WriteNameOfFocusedWindowToFile();
-                }
                 break;
             }
         }
