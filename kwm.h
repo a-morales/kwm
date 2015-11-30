@@ -40,6 +40,7 @@ typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
 #define KWM_KEY_REMAP(name) void name(CGEventRef Event, bool *CmdKey, bool *CtrlKey, bool *AltKey, CGKeyCode Keycode, int *Result)
 typedef KWM_KEY_REMAP(kwm_key_remap);
 
+extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);
 extern "C" CGSConnectionID _CGSDefaultConnection(void);
 #define CGSDefaultConnection _CGSDefaultConnection()
 
