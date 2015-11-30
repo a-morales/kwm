@@ -57,25 +57,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Toggle window floating
             case kVK_ANSI_W:
             {
-                bool Found = false;
-                for(int Index = 0; Index < EX->FloatingWindowLst.size(); ++Index)
-                {
-                    if(EX->FloatingWindowLst[Index] == EX->FocusedWindow->WID)
-                    {
-                        EX->FloatingWindowLst.erase(EX->FloatingWindowLst.begin() + Index);
-                        Found = true;
-                        EX->KwmFocusMode = FocusAutoraise;
-                        EX->AddWindowToTree();
-                        break;
-                    }
-                }
-
-                if(!Found)
-                {
-                    EX->FloatingWindowLst.push_back(EX->FocusedWindow->WID);
-                    EX->KwmFocusMode = FocusFollowsMouse;
-                    EX->RemoveWindowFromTree();
-                }
+                EX->ToggleFocusedWindowFloating();
             } break;
             // Reapply node container to window 
             case kVK_ANSI_R:
