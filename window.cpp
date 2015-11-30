@@ -155,7 +155,6 @@ void FocusWindowBelowCursor()
                     // Note: Memory leak related to this function-call
                     SetWindowFocus(&WindowLst[WindowIndex]);
                     DEBUG("FocusWindowBelowCursor() Current space: " << CurrentSpace)
-
                 }
                 else
                 {
