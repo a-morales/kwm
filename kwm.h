@@ -66,7 +66,6 @@ struct kwm_code
 struct export_table
 {
     std::string KwmFilePath;
-    std::vector<int> FloatingWindowLst;
 
     AXUIElementRef FocusedWindowRef;
     window_info *FocusedWindow;
@@ -84,8 +83,7 @@ struct export_table
     void (*SwapFocusedWindowWithNearest)(int);
     void (*ShiftWindowFocus)(int);
     void (*CycleFocusedWindowDisplay)(int);
-    void (*AddWindowToTree)();
-    void (*RemoveWindowFromTree)();
+    void (*ToggleFocusedWindowFloating)();
     void (*MarkWindowContainer)();
     void (*KwmRestart)();
 };
@@ -188,6 +186,7 @@ void MarkWindowContainer();
 void ShiftWindowFocus(int);
 void SwapFocusedWindowWithNearest(int);
 void FocusWindowBelowCursor();
+void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowFullscreen();
 void ToggleFocusedWindowParentContainer();
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
