@@ -147,8 +147,6 @@ void BuildExportTable()
     ExportTable.KwmFilePath = KwmFilePath;
     ExportTable.KwmFocusMode = FocusAutoraise;;
     ExportTable.KwmSplitMode = -1;
-    ExportTable.FocusedWindowRef = FocusedWindowRef;
-    ExportTable.FocusedWindow = FocusedWindow;
 
     ExportTable.FocusWindowBelowCursor = &FocusWindowBelowCursor;
     ExportTable.ChangeGapOfDisplay = &ChangeGapOfDisplay;

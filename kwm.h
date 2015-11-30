@@ -66,9 +66,6 @@ struct kwm_code
 struct export_table
 {
     std::string KwmFilePath;
-
-    AXUIElementRef FocusedWindowRef;
-    window_info *FocusedWindow;
     focus_option KwmFocusMode;
     int KwmSplitMode;
 

@@ -578,9 +578,6 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     FocusedWindowCache = *Window;
     FocusedWindow = &FocusedWindowCache;
 
-    ExportTable.FocusedWindowRef = FocusedWindowRef;
-    ExportTable.FocusedWindow = FocusedWindow;
-
     AXUIElementSetAttributeValue(FocusedWindowRef, kAXMainAttribute, kCFBooleanTrue);
     AXUIElementSetAttributeValue(FocusedWindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(FocusedWindowRef, kAXRaiseAction);

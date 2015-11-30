@@ -133,18 +133,12 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Shift focus to the previous window
             case kVK_ANSI_H:
             {
-                if(EX->FocusedWindow)
-                {
-                    EX->ShiftWindowFocus(-1);
-                }
+                EX->ShiftWindowFocus(-1);
             } break;
             // Shift focus to the next window
             case kVK_ANSI_L:
             {
-                if(EX->FocusedWindow)
-                {
-                    EX->ShiftWindowFocus(1);
-                }
+                EX->ShiftWindowFocus(1);
             } break;
             case kVK_ANSI_R:
             {
