@@ -3,6 +3,7 @@
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 
 extern std::vector<window_info> WindowLst;
+extern std::vector<int> FloatingWindowLst;
 extern export_table ExportTable;
 
 extern ProcessSerialNumber FocusedPSN;
