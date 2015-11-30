@@ -69,9 +69,9 @@ bool IsWindowFloating(int WindowID)
 {
     bool Result = false;
 
-    for(int WindowIndex = 0; WindowIndex < ExportTable.FloatingWindowLst.size(); ++WindowIndex)
+    for(int WindowIndex = 0; WindowIndex < FloatingWindowLst.size(); ++WindowIndex)
     {
-        if(WindowID == ExportTable.FloatingWindowLst[WindowIndex])
+        if(WindowID == FloatingWindowLst[WindowIndex])
         {
             DEBUG("IsWindowFloating(): floating " << WindowID)
             Result = true;
@@ -411,7 +411,7 @@ void ToggleFocusedWindowFloating()
     bool Found = false;
     for(int WindowIndex = 0; WindowIndex < FloatingWindowLst.size(); ++WindowIndex)
     {
-        if(FloatingWindowLst[Index] == FocusedWindow->WID)
+        if(FloatingWindowLst[WindowIndex] == FocusedWindow->WID)
         {
             FloatingWindowLst.erase(FloatingWindowLst.begin() + WindowIndex);
             ExportTable.KwmFocusMode = FocusAutoraise;
