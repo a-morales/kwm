@@ -8,6 +8,7 @@ std::string HotkeySOFullFilePath;
 
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
+std::vector<int> FloatingWindowLst;
 int CurrentSpace = 0;
 int PrevSpace = -1;
 
@@ -155,13 +156,12 @@ void BuildExportTable()
     ExportTable.ReflectWindowNodeTreeVertically = &ReflectWindowNodeTreeVertically;
     ExportTable.ResizeWindowToContainerSize = &ResizeWindowToContainerSize;;
     ExportTable.MoveContainerSplitter = &MoveContainerSplitter;
+    ExportTable.ToggleFocusedWindowFloating = &ToggleFocusedWindowFloating;
     ExportTable.ToggleFocusedWindowFullscreen = &ToggleFocusedWindowFullscreen;
     ExportTable.ToggleFocusedWindowParentContainer = &ToggleFocusedWindowParentContainer;
     ExportTable.SwapFocusedWindowWithNearest = &SwapFocusedWindowWithNearest;
     ExportTable.ShiftWindowFocus = &ShiftWindowFocus;
     ExportTable.CycleFocusedWindowDisplay = &CycleFocusedWindowDisplay;
-    ExportTable.AddWindowToTree = &AddWindowToTree;
-    ExportTable.RemoveWindowFromTree = &RemoveWindowFromTree;
     ExportTable.MarkWindowContainer = &MarkWindowContainer;
     ExportTable.KwmRestart = &KwmRestart;
 }
