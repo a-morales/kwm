@@ -1,7 +1,6 @@
 #include "kwm.h"
 
-static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly |
-                                                kCGWindowListExcludeDesktopElements;
+static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 
 extern std::vector<window_info> WindowLst;
 extern export_table ExportTable;
@@ -213,6 +212,15 @@ void UpdateActiveWindowList(screen_info *Screen)
     }
 }
 
+void CreateWindowNodeTree(screen_info *Screen)
+{
+    DEBUG("CreateWindowNodeTree() Create Tree")
+    std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
+    Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
+    ApplyNodeContainer(Screen->Space[CurrentSpace]);
+    FocusWindowBelowCursor();
+}
+
 void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 {
     if(CurrentSpace != -1 && PrevSpace == CurrentSpace && Screen->OldWindowListCount != -1)
@@ -232,10 +240,9 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
         else if(WindowLst.size() < Screen->OldWindowListCount)
         {
             DEBUG("ShouldWindowNodeTreeUpdate() Remove Window")
-            tree_node *RootNode = Screen->Space[CurrentSpace];
             std::vector<int> WindowIDsInTree;
 
-            tree_node *CurrentNode = RootNode;
+            tree_node *CurrentNode = Screen->Space[CurrentSpace];
             while(CurrentNode->LeftChild)
                 CurrentNode = CurrentNode->LeftChild;
 
@@ -262,15 +269,6 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
             }
         }
     }
-}
-
-void CreateWindowNodeTree(screen_info *Screen)
-{
-    DEBUG("CreateWindowNodeTree() Create Tree")
-    std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
-    Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
-    ApplyNodeContainer(Screen->Space[CurrentSpace]);
-    FocusWindowBelowCursor();
 }
 
 void AddWindowToTree(screen_info *Screen, int WindowID)
@@ -324,8 +322,7 @@ void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
 {
     if(Screen->Space[CurrentSpace])
     {
-        tree_node *RootNode = Screen->Space[CurrentSpace];
-        tree_node *WindowNode = GetNodeFromWindowID(RootNode, WindowID);
+        tree_node *WindowNode = GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowID);
 
         if(WindowNode)
         {
@@ -401,11 +398,33 @@ void ReflectWindowNodeTreeVertically()
     if(Screen && Screen->Space[CurrentSpace])
     {
         DEBUG("ReflectWindowNodeTreeVertically()")
-        tree_node *Node = Screen->Space[CurrentSpace];
 
-        SwapNodeChildPositions(Node);
-        CreateNodeContainers(Screen, Node);
-        ApplyNodeContainer(Node);
+        SwapNodeChildPositions(Screen->Space[CurrentSpace]);
+        CreateNodeContainers(Screen, Screen->Space[CurrentSpace]);
+        ApplyNodeContainer(Screen->Space[CurrentSpace]);
+    }
+}
+
+void ToggleFocusedWindowFloating()
+{
+    bool Found = false;
+    for(int WindowIndex = 0; WindowIndex < FloatingWindowLst.size(); ++WindowIndex)
+    {
+        if(FloatingWindowLst[Index] == FocusedWindow->WID)
+        {
+            FloatingWindowLst.erase(FloatingWindowLst.begin() + WindowIndex);
+            ExportTable.KwmFocusMode = FocusAutoraise;
+            AddWindowToTree();
+            Found = true;
+            break;
+        }
+    }
+
+    if(!Found)
+    {
+        FloatingWindowLst.push_back(FocusedWindow->WID);
+        ExportTable.KwmFocusMode = FocusFollowsMouse;
+        RemoveWindowFromTree();
     }
 }
 
