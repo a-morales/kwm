@@ -155,6 +155,7 @@ void FocusWindowBelowCursor()
                     // Note: Memory leak related to this function-call
                     SetWindowFocus(&WindowLst[WindowIndex]);
                     DEBUG("FocusWindowBelowCursor() Current space: " << CurrentSpace)
+
                 }
                 else
                 {
@@ -781,12 +782,9 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
             {
                 if(!Found)
                 {
-                    std::string AppWindowTitle = GetWindowTitle(AppWindowRef);
-                    CGPoint AppWindowPos = GetWindowPos(AppWindowRef);
-
-                    if(Window->X == AppWindowPos.x &&
-                       Window->Y == AppWindowPos.y &&
-                       Window->Name == AppWindowTitle)
+                    int AppWindowRefWID = -1;
+                    _AXUIElementGetWindow(AppWindowRef, &AppWindowRefWID);
+                    if(AppWindowRefWID == Window->WID)
                     {
                         *WindowRef = AppWindowRef;
                         DoNotFree = WindowIndex;
