@@ -84,10 +84,10 @@ If the main pane is split using vertical mode, a left and right pane is created.
 
 If the main pane is split using horizontal mode, an upper and lower pane is created.
 
-If kwm is added to the path, a launcher script is necessary
+If *Kwm* is added to the path, a launcher script is necessary
 because it tries to load hotkeys.so from the executables working-directory.
 
-Example launcher script to be placed in the path instead of the kwm binary.
+Example launcher script to be placed in the path instead of the *Kwm* binary.
 
     #!/bin/bash
     pushd /path/to/kwm
