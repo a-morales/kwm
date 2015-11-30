@@ -8,7 +8,7 @@ It is a tiling window manager that represents windows as the leaves of a binary 
 prior to their delivery to a foreground application.
 
 This allows for functionality such as focus-follows-mouse, remapping keys, and most importantly 
-global hotkeys, mainly to be used for interaction with the parts of Kwm that are exposed to hotkeys.cpp
+global hotkeys, mainly to be used for interaction with the parts of *Kwm* that are exposed to hotkeys.cpp
 through the export_table struct, and so hotkeys.cpp can and should be customized by the user.
 
 hotkeys.cpp can be edited and recompiled separately, thus any changes made does not require *Kwm* to be restarted.
@@ -95,7 +95,7 @@ Example launcher script to be placed in the path instead of the kwm binary.
     popd
 
 The reason for this is that hotkeys.cpp can edited and rebuild separately,
-and Kwm will reload this library without having to be restarted and so
+and *Kwm* will reload this library without having to be restarted and so
 hotkeys can be edited live.
 
 ## Default Hotkeys:
