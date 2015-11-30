@@ -65,7 +65,7 @@ bool FilterWindowList(screen_info *Screen)
     return Result;
 }
 
-bool IsWindowFloating(int WindowID)
+bool IsWindowFloating(int WindowID, int *Index)
 {
     bool Result = false;
 
@@ -75,6 +75,10 @@ bool IsWindowFloating(int WindowID)
         {
             DEBUG("IsWindowFloating(): floating " << WindowID)
             Result = true;
+
+            if(Index)
+                *Index = WindowIndex;
+
             break;
         }
     }
@@ -275,17 +279,19 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
         tree_node *RootNode = Screen->Space[CurrentSpace];
         tree_node *CurrentNode = RootNode;
 
+        /*
         if(MarkedWindowID == -1 && WindowID == FocusedWindow->WID)
             return;
+        */
 
         DEBUG("AddWindowToTree() Create pair of leafs")
-        bool UseFocusedContainer = FocusedWindow ? IsWindowOnActiveSpace(FocusedWindow) : false;
+        bool UseFocusedContainer = FocusedWindow && IsWindowOnActiveSpace(FocusedWindow);
 
-        if(MarkedWindowID == -1 && UseFocusedContainer)
+        if(MarkedWindowID == -1 && UseFocusedContainer && WindowID != FocusedWindow->WID)
         {
             CurrentNode = GetNodeFromWindowID(RootNode, FocusedWindow->WID);
         }
-        else if(MarkedWindowID == -1 && !UseFocusedContainer)
+        else if(MarkedWindowID == -1 && (!UseFocusedContainer || WindowID == FocusedWindow->WID))
         {
             while(!IsLeafNode(CurrentNode))
             {
@@ -404,24 +410,21 @@ void ReflectWindowNodeTreeVertically()
 
 void ToggleFocusedWindowFloating()
 {
-    bool Found = false;
-    for(int WindowIndex = 0; WindowIndex < FloatingWindowLst.size(); ++WindowIndex)
+    if(IsWindowOnActiveSpace(FocusedWindow))
     {
-        if(FloatingWindowLst[WindowIndex] == FocusedWindow->WID)
+        int WindowIndex;
+        if(IsWindowFloating(FocusedWindow->WID, &WindowIndex))
         {
             FloatingWindowLst.erase(FloatingWindowLst.begin() + WindowIndex);
             ExportTable.KwmFocusMode = FocusAutoraise;
             AddWindowToTree();
-            Found = true;
-            break;
         }
-    }
-
-    if(!Found)
-    {
-        FloatingWindowLst.push_back(FocusedWindow->WID);
-        ExportTable.KwmFocusMode = FocusFollowsMouse;
-        RemoveWindowFromTree();
+        else
+        {
+            FloatingWindowLst.push_back(FocusedWindow->WID);
+            ExportTable.KwmFocusMode = FocusFollowsMouse;
+            RemoveWindowFromTree();
+        }
     }
 }
 
