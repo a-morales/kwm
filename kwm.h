@@ -121,6 +121,8 @@ struct screen_info
     double PaddingLeft, PaddingRight;
     double VerticalGap, HorizontalGap;
     std::map<int, tree_node*> Space;
+    bool ForceContainerUpdate;
+    int ActiveSpace;
     int OldWindowListCount;
 };
 
@@ -148,6 +150,7 @@ tree_node *GetNearestNodeToTheRight(tree_node *);
 tree_node *GetNodeFromWindowID(tree_node *, int);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void SwapNodeChildPositions(tree_node *);
+void AddWindowToTreeOfUnfocusedMonitor(screen_info *);
 void AddWindowToTree(screen_info *, int WindowID);
 void AddWindowToTree();
 void RemoveWindowFromTree(screen_info *, int, bool);
