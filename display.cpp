@@ -8,6 +8,7 @@ extern std::vector<screen_info> DisplayLst;
 extern std::vector<window_info> WindowLst;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
+extern screen_info *Screen;
 extern int CurrentSpace;
 
 void GetActiveDisplays()
@@ -36,6 +37,8 @@ void GetActiveDisplays()
 
         DisplayLst.push_back(Screen);
     }
+
+    Screen = GetDisplayOfMousePointer();
 }
 
 screen_info *GetDisplayOfMousePointer()

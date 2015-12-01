@@ -9,6 +9,7 @@ std::string HotkeySOFullFilePath;
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
 std::vector<int> FloatingWindowLst;
+screen_info *Screen;
 int CurrentSpace = 0;
 int PrevSpace = -1;
 

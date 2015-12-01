@@ -13,7 +13,9 @@ extern window_info *FocusedWindow;
 extern int CurrentSpace;
 extern int PrevSpace;
 extern int MarkedWindowID;
+extern screen_info *Screen;
 
+int OldScreenID = -1;
 window_info FocusedWindowCache;
 
 void WriteNameOfFocusedWindowToFile()
@@ -168,7 +170,8 @@ void FocusWindowBelowCursor()
 
 void UpdateWindowTree()
 {
-    screen_info *Screen = GetDisplayOfMousePointer();
+    OldScreenID = Screen->ID;
+    Screen = GetDisplayOfMousePointer();
     if(Screen)
     {
         UpdateActiveWindowList(Screen);
@@ -204,6 +207,16 @@ void UpdateActiveWindowList(screen_info *Screen)
 
         PrevSpace = CurrentSpace;
         CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
+
+        if(OldScreenID != Screen->ID)
+        {
+            do
+            {
+                CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
+                usleep(200000);
+            } while(PrevSpace == CurrentSpace);
+            DEBUG("UpdateActiveWindowList() Active Display Changed")
+        }
 
         if(PrevSpace != CurrentSpace)
         {
@@ -278,11 +291,6 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
     {
         tree_node *RootNode = Screen->Space[CurrentSpace];
         tree_node *CurrentNode = RootNode;
-
-        /*
-        if(MarkedWindowID == -1 && WindowID == FocusedWindow->WID)
-            return;
-        */
 
         DEBUG("AddWindowToTree() Create pair of leafs")
         bool UseFocusedContainer = FocusedWindow && IsWindowOnActiveSpace(FocusedWindow);
