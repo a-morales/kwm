@@ -32,12 +32,6 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
     {
         if(Window->PID == Match->PID &&
            Window->WID == Match->WID &&
-           Window->Owner == Match->Owner &&
-           Window->Name == Match->Name &&
-           Window->X == Match->X &&
-           Window->Y == Match->Y &&
-           Window->Width == Match->Width &&
-           Window->Height == Match->Height &&
            Window->Layer == Match->Layer)
         {
             Result = true;
