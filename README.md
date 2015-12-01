@@ -23,6 +23,7 @@ To send a window to the prev/next monitor, the hotkeys ctrl+alt+p/n can be used.
 
 Moving a window with the mouse WILL BREAK the window-trees of both monitors, however a window CAN be toggled
 floating, which frees it from the tree. It can then be moved and made not floating on the other monitor.
+This applies when moving a window between spaces on the same monitor as well.
 
 Spaces will eventually get their own padding and gap settings.
 
