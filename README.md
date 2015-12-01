@@ -19,8 +19,11 @@ hotkeys.cpp can be edited and recompiled separately, thus any changes made does 
 Currently *Kwm* only looks for active monitors upon startup, and so if a monitor is connected or disconnected
 while *Kwm* is running, it has to be restarted.
     
-There is no built-in way to send a window to a different monitor as of now, however a workaround for this is
-by first toggling thewindow focused and then dragging it to whatever monitor.
+To send a window to the prev/next monitor, the hotkeys ctrl+alt+p/n can be used. The window tree of the monitor
+that originally had the window will be rebalanced properly, however the receiving monitor will currently not.
+Opening a new window and closing it again on the receiving monitor will force the window tree to update and
+it will again tile windows as expected.
+This will hopefully be fixed in a future update.
 
 Spaces will eventually get their own padding and gap settings.
 
