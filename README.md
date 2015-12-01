@@ -15,6 +15,7 @@ hotkeys.cpp can be edited and recompiled separately, thus any changes made does 
 
 
 *Multiple monitor support:*
+
 Currently *Kwm* only looks for active monitors upon startup, and so if a monitor is connected or disconnected
 while *Kwm* is running, it has to be restarted.
     
