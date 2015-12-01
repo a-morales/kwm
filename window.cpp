@@ -67,9 +67,10 @@ bool IsWindowPartOfWebBrowser(window_info *Window)
 
     // Any Safari window that has a width lower than 500 is not a 
     // browser window, but items such as the searchbar and so on
-    else if(Window->Owner == "Safari" &&
-            Window->Name == "" &&
-            Window->Width < 500) 
+    else if((Window->Owner == "Safari" &&
+            Window->Name == "") &&
+            (Window->Width < 500 ||
+             Window->Height < 232))
                  Result = true;
 
     // Any Google Chrome  window that has a width lower than 400
@@ -94,6 +95,17 @@ bool FilterWindowList(screen_info *Screen)
         if(WindowLst[WindowIndex].Owner == "Dock" &&
            WindowLst[WindowIndex].Name == "")
                Result = false;
+
+        /*
+        if(WindowLst[WindowIndex].Owner == "Safari" &&
+           WindowLst[WindowIndex].Name == "")
+        {
+             DEBUG("WINDOW INFO: " << WindowLst[WindowIndex].Owner << " " <<
+                                      WindowLst[WindowIndex].Name << " " <<
+                                      WindowLst[WindowIndex].Width << " " <<
+                                      WindowLst[WindowIndex].Height)
+        }
+        */
 
         if(WindowLst[WindowIndex].Layer == 0 &&
            Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]) &&
