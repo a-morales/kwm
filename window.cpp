@@ -41,6 +41,20 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
     return Result;
 }
 
+bool IsWindowAnElementOfAWindow(window_info *Window)
+{
+    bool Result = false;
+
+    // Not a valid finder window, probably ui-element
+    if((Window->Owner == "Finder" &&
+       Window->Name == "") &&
+       (Window->Width < 316 ||
+        Window->Height < 268))
+             Result = true;
+
+    return Result || IsWindowPartOfWebBrowser(Window);
+}
+
 bool IsWindowPartOfWebBrowser(window_info *Window)
 {
     bool Result = false;
@@ -76,7 +90,6 @@ bool FilterWindowList(screen_info *Screen)
 
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
-
         // Mission-Control mode is on and so we do not try to tile windows
         if(WindowLst[WindowIndex].Owner == "Dock" &&
            WindowLst[WindowIndex].Name == "")
@@ -84,7 +97,7 @@ bool FilterWindowList(screen_info *Screen)
 
         if(WindowLst[WindowIndex].Layer == 0 &&
            Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]) &&
-           !IsWindowPartOfWebBrowser(&WindowLst[WindowIndex]))
+           !IsWindowAnElementOfAWindow(&WindowLst[WindowIndex]))
                FilteredWindowLst.push_back(WindowLst[WindowIndex]);
     }
 
