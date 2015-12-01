@@ -386,8 +386,8 @@ void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
 
                     if(Center)
                     {
-                        int NewX = Screen->Width / 4;
-                        int NewY = Screen->Height / 4;
+                        int NewX = Screen->X + Screen->Width / 4;
+                        int NewY = Screen->Y + Screen->Height / 4;
                         int NewWidth = Screen->Width / 2;
                         int NewHeight = Screen->Height / 2;
                         SetWindowDimensions(FocusedWindowRef, FocusedWindow, NewX, NewY, NewWidth, NewHeight);
