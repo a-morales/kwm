@@ -216,12 +216,19 @@ void UpdateActiveWindowList(screen_info *Screen)
                 usleep(200000);
             } while(PrevSpace == CurrentSpace);
             DEBUG("UpdateActiveWindowList() Active Display Changed")
+            Screen->ActiveSpace = CurrentSpace;
         }
 
         if(PrevSpace != CurrentSpace)
         {
             DEBUG("UpdateActiveWindowList() Space transition ended")
             FocusWindowBelowCursor();
+        }
+
+        if(Screen->ForceContainerUpdate)
+        {
+            ApplyNodeContainer(Screen->Space[Screen->ActiveSpace]);
+            Screen->ForceContainerUpdate = false;
         }
     }
 }
@@ -401,6 +408,30 @@ void RemoveWindowFromTree()
 
     if(Screen)
         RemoveWindowFromTree(Screen, FocusedWindow->WID, true);
+}
+
+void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
+{
+    if(Screen->Space[Screen->ActiveSpace])
+    {
+        tree_node *RootNode = Screen->Space[Screen->ActiveSpace];
+        tree_node *CurrentNode = RootNode;
+
+        DEBUG("AddWindowToTreeOfUnfocusedMonitor() Create pair of leafs")
+
+            while(!IsLeafNode(CurrentNode))
+            {
+                if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
+                    CurrentNode = CurrentNode->RightChild;
+                else
+                    CurrentNode = CurrentNode->LeftChild;
+            }
+
+        int SplitMode = ExportTable.KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : ExportTable.KwmSplitMode;
+        CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, FocusedWindow->WID, SplitMode);
+        ResizeWindowToContainerSize(CurrentNode->RightChild);
+        Screen->ForceContainerUpdate = true;
+    }
 }
 
 void ReflectWindowNodeTreeVertically()
