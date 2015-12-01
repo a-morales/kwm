@@ -15,13 +15,13 @@ hotkeys.cpp can be edited and recompiled separately, thus any changes made does 
 
 
 *Multiple monitor support:*
-    Currently *Kwm* only looks for active monitors upon startup, and so if a monitor is connected or disconnected
-    while *Kwm* is running, it has to be restarted.
+Currently *Kwm* only looks for active monitors upon startup, and so if a monitor is connected or disconnected
+while *Kwm* is running, it has to be restarted.
     
-    There is no built-in way to send a window to a different monitor as of now, however a workaround for this is
-    by first toggling thewindow focused and then dragging it to whatever monitor.
+There is no built-in way to send a window to a different monitor as of now, however a workaround for this is
+by first toggling thewindow focused and then dragging it to whatever monitor.
 
-    Spaces will eventually get their own padding and gap settings.
+Spaces will eventually get their own padding and gap settings.
 
 
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.
