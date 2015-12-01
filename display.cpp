@@ -133,20 +133,21 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
 void CycleFocusedWindowDisplay(int Shift)
 {
     screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-    int NewScreenIndex;
+    int NewScreenIndex = -1;
 
     if(Shift == 1)
         NewScreenIndex = (Screen->ID + 1 >= ActiveDisplaysCount) ? 0 : Screen->ID + 1;
     else if(Shift == -1)
         NewScreenIndex = (Screen->ID - 1 < 0) ? ActiveDisplaysCount - 1 : Screen->ID - 1;
-    else
-        return;
 
-    screen_info *NewScreen = &DisplayLst[NewScreenIndex];
-    SetWindowDimensions(FocusedWindowRef,
-            FocusedWindow,
-            NewScreen->X + 30,
-            NewScreen->Y + 40,
-            FocusedWindow->Width,
-            FocusedWindow->Height);
+    if(NewScreenIndex != Screen->ID)
+    {
+        screen_info *NewScreen = &DisplayLst[NewScreenIndex];
+        SetWindowDimensions(FocusedWindowRef,
+                FocusedWindow,
+                NewScreen->X + 30,
+                NewScreen->Y + 40,
+                FocusedWindow->Width,
+                FocusedWindow->Height);
+    }
 }
