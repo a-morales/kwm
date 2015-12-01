@@ -19,6 +19,8 @@ void GetActiveDisplays()
         CGRect DisplayRect = CGDisplayBounds(ActiveDisplays[DisplayIndex]);
         screen_info Screen;
         Screen.ID = DisplayIndex;
+        Screen.ForceContainerUpdate = false;
+        Screen.ActiveSpace = -1;
         Screen.OldWindowListCount = -1;
 
         Screen.X = DisplayRect.origin.x;
@@ -143,11 +145,6 @@ void CycleFocusedWindowDisplay(int Shift)
     if(NewScreenIndex != Screen->ID)
     {
         screen_info *NewScreen = &DisplayLst[NewScreenIndex];
-        SetWindowDimensions(FocusedWindowRef,
-                FocusedWindow,
-                NewScreen->X + 30,
-                NewScreen->Y + 40,
-                FocusedWindow->Width,
-                FocusedWindow->Height);
+        AddWindowToTreeOfUnfocusedMonitor(NewScreen);
     }
 }
