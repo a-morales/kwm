@@ -32,7 +32,7 @@ Spaces will eventually get their own padding and gap settings.
 
 Tested on Osx El Capitan (10.11.1).
 
-![alt tag](https://cloud.githubusercontent.com/assets/6175959/11390251/8c8b6952-9348-11e5-9e4d-e77152f7536f.png)
+![kwm mov](https://cloud.githubusercontent.com/assets/6175959/11498553/6ccedee6-9820-11e5-8830-96e0bf19b4f2.gif)
 
 ## Build:
 
