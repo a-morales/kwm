@@ -178,6 +178,7 @@ bool IsWindowFloating(int, int *);
 bool IsWindowOnActiveSpace(window_info *);
 bool IsSpaceTransitionInProgress();
 bool IsSpaceSystemOrFullscreen();
+bool IsWindowPartOfWebBrowser(window_info *);
 bool WindowsAreEqual(window_info *, window_info *);
 
 void UpdateWindowTree();
