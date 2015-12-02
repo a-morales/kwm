@@ -33,20 +33,20 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Toggle Focus-Mode
             case kVK_ANSI_T:
             {
-                if(EX->KwmFocusMode == FocusFollowsMouse)
+                if(EX->KwmFocusMode == FocusModeAutofocus)
                 {
-                    EX->KwmFocusMode = FocusAutoraise;
+                    EX->KwmFocusMode = FocusModeAutoraise;
                     DEBUG("KwmFocusMode: Autoraise")
                 }
-                else if(EX->KwmFocusMode == FocusAutoraise)
+                else if(EX->KwmFocusMode == FocusModeAutoraise)
                 {
-                    EX->KwmFocusMode = FocusDisabled;
+                    EX->KwmFocusMode = FocusModeDisabled;
                     DEBUG("KwmFocusMode: Disabled")
                 }
-                else if(EX->KwmFocusMode == FocusDisabled)
+                else if(EX->KwmFocusMode == FocusModeDisabled)
                 {
-                    EX->KwmFocusMode = FocusFollowsMouse;
-                    DEBUG("KwmFocusMode: Focus-follows-mouse")
+                    EX->KwmFocusMode = FocusModeAutofocus;
+                    DEBUG("KwmFocusMode: Autofocus")
                 }
             } break;
             // Mark Container to split

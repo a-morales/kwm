@@ -79,7 +79,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 }
             }
 
-            if(ExportTable.KwmFocusMode == FocusFollowsMouse)
+            if(ExportTable.KwmFocusMode == FocusModeAutofocus)
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&FocusedPSN, Event);
@@ -88,7 +88,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
-            if(ExportTable.KwmFocusMode != FocusDisabled)
+            if(ExportTable.KwmFocusMode != FocusModeDisabled)
             {
                 FocusWindowBelowCursor();
             }
@@ -146,7 +146,7 @@ std::string KwmGetFileTime(const char *File)
 void BuildExportTable()
 {
     ExportTable.KwmFilePath = KwmFilePath;
-    ExportTable.KwmFocusMode = FocusAutoraise;;
+    ExportTable.KwmFocusMode = FocusModeAutoraise;;
     ExportTable.KwmSplitMode = -1;
 
     ExportTable.FocusWindowBelowCursor = &FocusWindowBelowCursor;
@@ -180,7 +180,7 @@ void * KwmWindowMonitor(void*)
     while(1)
     {
         //DEBUG("KwmWindowMonitor()")
-        if(ExportTable.KwmFocusMode != FocusDisabled)
+        if(ExportTable.KwmFocusMode != FocusModeDisabled)
             UpdateWindowTree();
 
         usleep(200000);

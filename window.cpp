@@ -508,13 +508,13 @@ void ToggleFocusedWindowFloating()
         if(IsWindowFloating(FocusedWindow->WID, &WindowIndex))
         {
             FloatingWindowLst.erase(FloatingWindowLst.begin() + WindowIndex);
-            ExportTable.KwmFocusMode = FocusAutoraise;
+            ExportTable.KwmFocusMode = FocusModeAutoraise;
             AddWindowToTree();
         }
         else
         {
             FloatingWindowLst.push_back(FocusedWindow->WID);
-            ExportTable.KwmFocusMode = FocusFollowsMouse;
+            ExportTable.KwmFocusMode = FocusModeAutofocus;
             RemoveWindowFromTree();
         }
     }
@@ -673,7 +673,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     AXUIElementSetAttributeValue(FocusedWindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(FocusedWindowRef, kAXRaiseAction);
 
-    if(ExportTable.KwmFocusMode == FocusAutoraise)
+    if(ExportTable.KwmFocusMode == FocusModeAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
     WriteNameOfFocusedWindowToFile();

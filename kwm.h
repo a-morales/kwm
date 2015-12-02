@@ -46,9 +46,9 @@ extern "C" CGSConnectionID _CGSDefaultConnection(void);
 
 enum focus_option
 { 
-    FocusFollowsMouse, 
-    FocusAutoraise, 
-    FocusDisabled 
+    FocusModeAutofocus, 
+    FocusModeAutoraise, 
+    FocusModeDisabled 
 };
 
 struct kwm_code
