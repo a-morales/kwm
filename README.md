@@ -2,7 +2,11 @@
 
 *Kwm* started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
 
-It is a tiling window manager that represents windows as the leaves of a binary tree.
+It is now a tiling window manager that represents windows as the leaves of a binary tree.
+
+Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,
+the menubar is not accessible. By default *Kwm* is set to use autoraise as it is meant to be used alongside
+the tiling functionality, and so windows should not overlap unless a window is specifically made floating.
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events
 prior to their delivery to a foreground application.
@@ -12,7 +16,6 @@ global hotkeys, mainly to be used for interaction with the parts of *Kwm* that a
 through the export_table struct, and so hotkeys.cpp can and should be customized by the user.
 
 hotkeys.cpp can be edited and recompiled separately, thus any changes made does not require *Kwm* to be restarted.
-
 
 *Multiple monitor support:*
 
@@ -26,7 +29,6 @@ floating, which frees it from the tree. It can then be moved and made not floati
 This applies when moving a window between spaces on the same monitor as well.
 
 Spaces will eventually get their own padding and gap settings.
-
 
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.
 
@@ -113,7 +115,7 @@ hotkeys can be edited live.
 
 ## Default Hotkeys:
     - ctrl+alt+cmd:
-        - t: toggle focus mode (focus-follows-mouse -> autoraise -> disabled)
+        - t: toggle focus-mode (autofocus -> autoraise -> disabled)
         - r: manually resize window to its containersize
         - q: restart kwm
 
