@@ -353,13 +353,13 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
         tree_node *CurrentNode = RootNode;
 
         DEBUG("AddWindowToTree() Create pair of leafs")
-        bool UseFocusedContainer = FocusedWindow && IsWindowOnActiveSpace(FocusedWindow);
+        bool UseFocusedContainer = FocusedWindow && IsWindowOnActiveSpace(FocusedWindow) && FocusedWindow->WID != WindowID;
 
-        if(MarkedWindowID == -1 && UseFocusedContainer && WindowID != FocusedWindow->WID)
+        if(MarkedWindowID == -1 && UseFocusedContainer)
         {
             CurrentNode = GetNodeFromWindowID(RootNode, FocusedWindow->WID);
         }
-        else if(MarkedWindowID == -1 && (!UseFocusedContainer || WindowID == FocusedWindow->WID))
+        else if(MarkedWindowID == -1 && !UseFocusedContainer)
         {
             while(!IsLeafNode(CurrentNode))
             {
