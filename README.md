@@ -28,6 +28,11 @@ Moving a window with the mouse WILL BREAK the window-trees of both monitors, how
 floating, which frees it from the tree. It can then be moved and made not floating on the other monitor.
 This applies when moving a window between spaces on the same monitor as well.
 
+NOTE: The API used to detect which monitor is active does not actually return the correct value unless
+the monitor has been activated by the user. Simply moving the mouse over is not enough for the OSX API
+to update. The user HAS TO CLICK somewhere on the new monitor after mousing oveer for the API to properly
+return the expected value to *Kwm*.
+
 Spaces will eventually get their own padding and gap settings.
 
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.
