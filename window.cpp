@@ -353,13 +353,18 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
         tree_node *CurrentNode = RootNode;
 
         DEBUG("AddWindowToTree() Create pair of leafs")
-        bool UseFocusedContainer = FocusedWindow && IsWindowOnActiveSpace(FocusedWindow) && FocusedWindow->WID != WindowID;
+        bool UseFocusedContainer = FocusedWindow &&
+                                   IsWindowOnActiveSpace(FocusedWindow) &&
+                                   FocusedWindow->WID != WindowID;
+
+        bool DoNotUseMarkedContainer = IsWindowFloating(MarkedWindowID, NULL) ||
+                                       (MarkedWindowID == WindowID);
 
         if(MarkedWindowID == -1 && UseFocusedContainer)
         {
             CurrentNode = GetNodeFromWindowID(RootNode, FocusedWindow->WID);
         }
-        else if(MarkedWindowID == -1 && !UseFocusedContainer)
+        else if(DoNotUseMarkedContainer || (MarkedWindowID == -1 && !UseFocusedContainer))
         {
             while(!IsLeafNode(CurrentNode))
             {
