@@ -17,7 +17,7 @@ through the export_table struct, and so hotkeys.cpp can and should be customized
 
 hotkeys.cpp can be edited and recompiled separately, thus any changes made does not require *Kwm* to be restarted.
 
-*Multiple monitor support:*
+*EARLY multiple monitor support:*
 
 Currently *Kwm* only looks for active monitors upon startup, and so if a monitor is connected or disconnected
 while *Kwm* is running, it has to be restarted.
@@ -31,7 +31,8 @@ This applies when moving a window between spaces on the same monitor as well.
 NOTE: The API used to detect which monitor is active does not actually return the correct value unless
 the monitor has been activated by the user. Simply moving the mouse over is not enough for the OSX API
 to update. The user HAS TO CLICK somewhere on the new monitor after mousing oveer for the API to properly
-return the expected value to *Kwm*.
+return the expected value to *Kwm*. In addition to this, a lot of Mac Applications will start at the position
+they were in previously, and will appear on the wrong monitor. This will most likely crash *Kwm* as of now.
 
 Spaces will eventually get their own padding and gap settings.
 
