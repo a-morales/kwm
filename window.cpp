@@ -380,9 +380,12 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
             MarkedWindowID = -1;
         }
 
-        int SplitMode = ExportTable.KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : ExportTable.KwmSplitMode;
-        CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
-        ApplyNodeContainer(CurrentNode);
+        if(CurrentNode)
+        {
+            int SplitMode = ExportTable.KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : ExportTable.KwmSplitMode;
+            CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
+            ApplyNodeContainer(CurrentNode);
+        }
     }
 }
 
