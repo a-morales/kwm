@@ -560,7 +560,7 @@ void ToggleFocusedWindowFullscreen()
     if(FocusedWindow)
     {
         //screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-        if(Screen && Screen->Space[CurrentSpace])
+        if(Screen && Screen->Space[CurrentSpace] && !IsLeafNode(Screen->Space[CurrentSpace]))
         {
             tree_node *Node;
             if(Screen->Space[CurrentSpace]->WindowID == -1)
