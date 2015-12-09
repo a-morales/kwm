@@ -30,6 +30,7 @@ struct export_table;
 
 struct window_info;
 struct screen_info;
+struct space_info;
 struct node_container;
 struct tree_node;
 
@@ -117,6 +118,15 @@ struct window_info
     int Width, Height;
 };
 
+struct space_info
+{
+    double PaddingTop, PaddingBottom;
+    double PaddingLeft, PaddingRight;
+    double VerticalGap, HorizontalGap;
+
+    tree_node *RootNode;
+};
+
 struct screen_info
 {
     int ID;
@@ -125,7 +135,7 @@ struct screen_info
     double PaddingTop, PaddingBottom;
     double PaddingLeft, PaddingRight;
     double VerticalGap, HorizontalGap;
-    std::map<int, tree_node*> Space;
+    std::map<int, space_info> Space;
     bool ForceContainerUpdate;
     int ActiveSpace;
     int OldWindowListCount;
@@ -170,6 +180,7 @@ std::vector<int> GetAllWindowIDsOnDisplay(int);
 void CycleFocusedWindowDisplay(int);
 void ChangeGapOfDisplay(const std::string &, int);
 void ChangePaddingOfDisplay(const std::string &, int);
+bool DoesSpaceExistInMapOfScreen(screen_info *);
 
 void CreateWindowNodeTree(screen_info *);
 void ShouldWindowNodeTreeUpdate(screen_info *);

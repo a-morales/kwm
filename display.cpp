@@ -107,29 +107,29 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 {
     screen_info *Screen = GetDisplayOfMousePointer();
     if(Side == "Left")
-        Screen->PaddingLeft += Offset;
+        Screen->Space[CurrentSpace].PaddingLeft += Offset;
     else if(Side == "Right")
-        Screen->PaddingRight += Offset;
+        Screen->Space[CurrentSpace].PaddingRight += Offset;
     else if(Side == "Top")
-        Screen->PaddingTop += Offset;
+        Screen->Space[CurrentSpace].PaddingTop += Offset;
     else if(Side == "Bottom")
-        Screen->PaddingBottom += Offset;
+        Screen->Space[CurrentSpace].PaddingBottom += Offset;
 
-    SetRootNodeContainer(Screen, Screen->Space[CurrentSpace]);
-    CreateNodeContainers(Screen, Screen->Space[CurrentSpace]);
-    ApplyNodeContainer(Screen->Space[CurrentSpace]);
+    SetRootNodeContainer(Screen, Screen->Space[CurrentSpace].RootNode);
+    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode);
+    ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
 }
 
 void ChangeGapOfDisplay(const std::string &Side, int Offset)
 {
     screen_info *Screen = GetDisplayOfMousePointer();
     if(Side == "Vertical")
-        Screen->VerticalGap += Offset;
+        Screen->Space[CurrentSpace].VerticalGap += Offset;
     else if(Side == "Horizontal")
-        Screen->HorizontalGap += Offset;
+        Screen->Space[CurrentSpace].HorizontalGap += Offset;
 
-    CreateNodeContainers(Screen, Screen->Space[CurrentSpace]);
-    ApplyNodeContainer(Screen->Space[CurrentSpace]);
+    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode);
+    ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
 }
 
 void CycleFocusedWindowDisplay(int Shift)

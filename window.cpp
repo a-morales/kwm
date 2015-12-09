@@ -160,6 +160,15 @@ bool IsWindowBelowCursor(window_info *Window)
     return Result;
 }
 
+bool DoesSpaceExistInMapOfScreen(screen_info *Screen)
+{
+    std::map<int, space_info>::iterator It = Screen->Space.find(CurrentSpace);
+    if(It == Screen->Space.end())
+        return false;
+    else
+        return It->second.RootNode != NULL;
+}
+
 bool IsWindowOnActiveSpace(window_info *Window)
 {
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
@@ -227,7 +236,7 @@ void UpdateWindowTree()
         UpdateActiveWindowList(Screen);
         if(!IsSpaceTransitionInProgress() && !IsSpaceSystemOrFullscreen() && FilterWindowList(Screen))
         {
-            std::map<int, tree_node*>::iterator It = Screen->Space.find(CurrentSpace);
+            std::map<int, space_info>::iterator It = Screen->Space.find(CurrentSpace);
             if(It == Screen->Space.end() && !WindowLst.empty())
                 CreateWindowNodeTree(Screen);
             else if(It != Screen->Space.end() && !WindowLst.empty())
@@ -277,7 +286,7 @@ void UpdateActiveWindowList(screen_info *Screen)
 
         if(Screen->ForceContainerUpdate)
         {
-            ApplyNodeContainer(Screen->Space[Screen->ActiveSpace]);
+            ApplyNodeContainer(Screen->Space[Screen->ActiveSpace].RootNode);
             Screen->ForceContainerUpdate = false;
         }
     }
@@ -287,8 +296,20 @@ void CreateWindowNodeTree(screen_info *Screen)
 {
     DEBUG("CreateWindowNodeTree() Create Tree")
     std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
-    Screen->Space[CurrentSpace] = CreateTreeFromWindowIDList(Screen, WindowIDs);
-    ApplyNodeContainer(Screen->Space[CurrentSpace]);
+
+    space_info SpaceInfo;
+    SpaceInfo.RootNode = CreateTreeFromWindowIDList(Screen, WindowIDs);
+
+    SpaceInfo.PaddingTop = Screen->PaddingTop;
+    SpaceInfo.PaddingBottom = Screen->PaddingBottom;
+    SpaceInfo.PaddingLeft = Screen->PaddingLeft;
+    SpaceInfo.PaddingRight = Screen->PaddingRight;
+
+    SpaceInfo.VerticalGap = Screen->VerticalGap;
+    SpaceInfo.HorizontalGap = Screen->HorizontalGap;
+
+    Screen->Space[CurrentSpace] = SpaceInfo;
+    ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
     FocusWindowBelowCursor();
 }
 
@@ -301,7 +322,7 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
             DEBUG("ShouldWindowNodeTreeUpdate() Add Window")
             for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
             {
-                if(GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowLst[WindowIndex].WID) == NULL)
+                if(GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, WindowLst[WindowIndex].WID) == NULL)
                 {
                     if(!IsWindowFloating(WindowLst[WindowIndex].WID, NULL))
                     {
@@ -316,7 +337,7 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
             DEBUG("ShouldWindowNodeTreeUpdate() Remove Window")
             std::vector<int> WindowIDsInTree;
 
-            tree_node *CurrentNode = Screen->Space[CurrentSpace];
+            tree_node *CurrentNode = Screen->Space[CurrentSpace].RootNode;
             while(CurrentNode->LeftChild)
                 CurrentNode = CurrentNode->LeftChild;
 
@@ -347,9 +368,9 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 
 void AddWindowToTree(screen_info *Screen, int WindowID)
 {
-    if(Screen->Space[CurrentSpace])
+    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
     {
-        tree_node *RootNode = Screen->Space[CurrentSpace];
+        tree_node *RootNode = Screen->Space[CurrentSpace].RootNode;
         tree_node *CurrentNode = RootNode;
 
         DEBUG("AddWindowToTree() Create pair of leafs")
@@ -391,17 +412,15 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
 
 void AddWindowToTree()
 {
-    //screen_info *Screen = GetDisplayOfMousePointer();
-
     if(Screen)
         AddWindowToTree(Screen, FocusedWindow->WID);
 }
 
 void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
 {
-    if(Screen->Space[CurrentSpace])
+    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
     {
-        tree_node *WindowNode = GetNodeFromWindowID(Screen->Space[CurrentSpace], WindowID);
+        tree_node *WindowNode = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, WindowID);
 
         if(WindowNode)
         {
@@ -465,17 +484,15 @@ void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
 
 void RemoveWindowFromTree()
 {
-    //screen_info *Screen = GetDisplayOfMousePointer();
-
     if(Screen)
         RemoveWindowFromTree(Screen, FocusedWindow->WID, true);
 }
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
 {
-    if(Screen->Space[Screen->ActiveSpace])
+    if(Screen->Space[Screen->ActiveSpace].RootNode)
     {
-        tree_node *RootNode = Screen->Space[Screen->ActiveSpace];
+        tree_node *RootNode = Screen->Space[Screen->ActiveSpace].RootNode;
         tree_node *CurrentNode = RootNode;
 
         DEBUG("AddWindowToTreeOfUnfocusedMonitor() Create pair of leafs")
@@ -497,14 +514,13 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
 
 void ReflectWindowNodeTreeVertically()
 {
-    //screen_info *Screen = GetDisplayOfMousePointer();
-    if(Screen && Screen->Space[CurrentSpace])
+    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
     {
         DEBUG("ReflectWindowNodeTreeVertically()")
 
-        SwapNodeChildPositions(Screen->Space[CurrentSpace]);
-        CreateNodeContainers(Screen, Screen->Space[CurrentSpace]);
-        ApplyNodeContainer(Screen->Space[CurrentSpace]);
+        SwapNodeChildPositions(Screen->Space[CurrentSpace].RootNode);
+        CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode);
+        ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
     }
 }
 
@@ -532,10 +548,9 @@ void ToggleFocusedWindowParentContainer()
 {
     if(FocusedWindow)
     {
-        //screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-        if(Screen && Screen->Space[CurrentSpace])
+        if(Screen && DoesSpaceExistInMapOfScreen(Screen))
         {
-            tree_node *Node = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
+            tree_node *Node = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, FocusedWindow->WID);
             if(Node && Node->Parent)
             {
                 if(IsLeafNode(Node) && Node->Parent->WindowID == -1)
@@ -559,26 +574,25 @@ void ToggleFocusedWindowFullscreen()
 {
     if(FocusedWindow)
     {
-        //screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-        if(Screen && Screen->Space[CurrentSpace] && !IsLeafNode(Screen->Space[CurrentSpace]))
+        if(Screen && DoesSpaceExistInMapOfScreen(Screen) && !IsLeafNode(Screen->Space[CurrentSpace].RootNode))
         {
             tree_node *Node;
-            if(Screen->Space[CurrentSpace]->WindowID == -1)
+            if(Screen->Space[CurrentSpace].RootNode->WindowID == -1)
             {
-                Node = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
+                Node = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, FocusedWindow->WID);
                 if(Node)
                 {
                     DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
-                    Screen->Space[CurrentSpace]->WindowID = Node->WindowID;
-                    ResizeWindowToContainerSize(Screen->Space[CurrentSpace]);
+                    Screen->Space[CurrentSpace].RootNode->WindowID = Node->WindowID;
+                    ResizeWindowToContainerSize(Screen->Space[CurrentSpace].RootNode);
                 }
             }
             else
             {
                 DEBUG("ToggleFocusedWindowFullscreen() Restore old size")
-                Screen->Space[CurrentSpace]->WindowID = -1;
+                Screen->Space[CurrentSpace].RootNode->WindowID = -1;
 
-                Node = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
+                Node = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, FocusedWindow->WID);
                 if(Node)
                     ResizeWindowToContainerSize(Node);
             }
@@ -590,10 +604,9 @@ void SwapFocusedWindowWithNearest(int Shift)
 {
     if(FocusedWindow)
     {
-        //screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-        if(Screen && Screen->Space[CurrentSpace])
+        if(Screen && DoesSpaceExistInMapOfScreen(Screen))
         {
-            tree_node *FocusedWindowNode = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
+            tree_node *FocusedWindowNode = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, FocusedWindow->WID);
             if(FocusedWindowNode)
             {
                 tree_node *NewFocusNode;
@@ -614,10 +627,9 @@ void ShiftWindowFocus(int Shift)
 {
     if(FocusedWindow)
     {
-        //screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-        if(Screen && Screen->Space[CurrentSpace])
+        if(Screen && DoesSpaceExistInMapOfScreen(Screen))
         {
-            tree_node *FocusedWindowNode = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
+            tree_node *FocusedWindowNode = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, FocusedWindow->WID);
             if(FocusedWindowNode)
             {
                 tree_node *NewFocusNode;
@@ -721,10 +733,9 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
 
 void MoveContainerSplitter(int SplitMode, int Offset)
 {
-    //screen_info *Screen = GetDisplayOfMousePointer();
-    if(Screen && Screen->Space[CurrentSpace])
+    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
     {
-        tree_node *Root = Screen->Space[CurrentSpace];
+        tree_node *Root = Screen->Space[CurrentSpace].RootNode;
         if(IsLeafNode(Root) || Root->WindowID != -1)
             return;
 
@@ -792,10 +803,9 @@ void ResizeWindowToContainerSize()
 {
     if(FocusedWindow)
     {
-        //screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
-        if(Screen && Screen->Space[CurrentSpace])
+        if(Screen && DoesSpaceExistInMapOfScreen(Screen))
         {
-            tree_node *Node = GetNodeFromWindowID(Screen->Space[CurrentSpace], FocusedWindow->WID);
+            tree_node *Node = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, FocusedWindow->WID);
             if(Node)
                 ResizeWindowToContainerSize(Node);
         }
