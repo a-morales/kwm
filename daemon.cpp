@@ -45,7 +45,6 @@ void KwmDaemonHandleConnection()
 
         if(Message == "focused")
         {
-            std::cout << "write to socket" << std::endl;
             KwmWriteToSocket(ClientSockFD, FocusedWindow->Name);
         }
 
