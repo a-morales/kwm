@@ -21,7 +21,6 @@ std::string KwmReadFromSocket(int ClientSockFD)
 
 void KwmWriteToSocket(int ClientSockFD, std::string Msg)
 {
-    Msg += "\n";
     send(ClientSockFD, Msg.c_str(), Msg.size(), 0);
 }
 
