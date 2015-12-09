@@ -1,1 +1,1 @@
-g++ kwmc.cpp -o kwmc --std=c++11
+g++ kwmc.cpp -o kwmc
