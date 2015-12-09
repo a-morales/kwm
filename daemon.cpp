@@ -81,6 +81,6 @@ void KwmStartDaemon()
         Fatal("Could not start listening!");
 
     KwmDaemonIsRunning = true;
-    std::cout << "Local Daemon is now running.." << std::endl;
+    DEBUG("Local Daemon is now running.." << std::endl)
 }
 
