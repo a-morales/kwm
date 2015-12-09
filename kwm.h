@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <sstream>
 #include <string>
 
 #include <stdlib.h>
@@ -17,6 +18,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include "CGSSpace.h"
 
@@ -211,6 +216,11 @@ kwm_code LoadKwmCode();
 void UnloadKwmCode(kwm_code *);
 void BuildExportTable();
 std::string KwmGetFileTime(const char *);
+
+void KwmStartDaemon();
+void KwmDaemonHandleConnection();
+void * KwmDaemonHandleConnectionBG(void *);
+void KwmTerminateDaemon();
 
 void KwmInit();
 void KwmRestart();

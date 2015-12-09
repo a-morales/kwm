@@ -23,6 +23,7 @@ uint32_t ActiveDisplaysCount;
 CGDirectDisplayID ActiveDisplays[5];
 
 pthread_t BackgroundThread;
+pthread_t DaemonThread;
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
@@ -198,10 +199,13 @@ void KwmInit()
     KWMCode = LoadKwmCode();
     BuildExportTable();
 
+    KwmStartDaemon();
+
     GetActiveDisplays();
     UpdateWindowTree();
     FocusWindowBelowCursor();
 
+    pthread_create(&DaemonThread, NULL, &KwmDaemonHandleConnectionBG, NULL);
     pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }
 
