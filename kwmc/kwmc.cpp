@@ -28,35 +28,11 @@ std::string ReadFromSocket(int SockFD)
     return Message;
 }
 
-bool StringsAreEqual(const char *A, const char *B)
+void KwmcForwardMessageThroughSocket(std::string Msg)
 {
-    bool Result = (A == B);
-
-    if(A && B)
-    {
-        while(*A && *B && *A == *B)
-        {
-            ++A;
-            ++B;
-        }
-
-        Result = ((*A == 0) && (*B == 0));
-    }
-
-    return Result;
-}
-
-void KwmcGetNameOfFocusedWindow()
-{
-    send(KwmcSockFD, "focused\n", 8, 0);
-    std::string Current = ReadFromSocket(KwmcSockFD);
-    std::cout << Current << std::endl;
-}
-
-void KwmcHandleCommand(int argc, char **argv)
-{
-    if(StringsAreEqual(argv[1], "focused"))
-        KwmcGetNameOfFocusedWindow();
+    Msg += "\n";
+    send(KwmcSockFD, Msg.c_str(), Msg.size(), 0);
+    std::cout << ReadFromSocket(KwmcSockFD) << std::endl;
 }
 
 void KwmcConnectToDaemon()
@@ -79,9 +55,16 @@ void KwmcConnectToDaemon()
 
 int main(int argc, char **argv)
 {
-    KwmcConnectToDaemon();
-    KwmcHandleCommand(argc, argv);
-    close(KwmcSockFD);
+    if(argc == 2)
+    {
+        KwmcConnectToDaemon();
+        KwmcForwardMessageThroughSocket(argv[1]);
+        close(KwmcSockFD);
+    }
+    else
+    {
+        std::cout << "Usage: kwmc <command>" << std::endl;
+    }
 
     return 0;
 }
