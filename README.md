@@ -34,8 +34,6 @@ to update. The user HAS TO CLICK somewhere on the new monitor after mousing ovee
 return the expected value to *Kwm*. In addition to this, a lot of Mac Applications will start at the position
 they were in previously, and will appear on the wrong monitor. This will most likely crash *Kwm* as of now.
 
-Spaces will eventually get their own padding and gap settings.
-
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.
 
 Tested on Osx El Capitan (10.11.1).
