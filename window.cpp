@@ -45,12 +45,16 @@ bool IsWindowAnElementOfAWindow(window_info *Window)
 {
     bool Result = false;
 
-    // Not a valid finder window, probably ui-element
-    if((Window->Owner == "Finder" &&
-       Window->Name == "") &&
-       (Window->Width < 316 ||
-        Window->Height < 268))
-             Result = true;
+    // If the window is not a webbrowser,
+    // a window that is not an element of
+    // an existing window should have a title.
+    if(Window->Owner != "Firefox" &&
+       Window->Owner != "Google Chrome" &&
+       Window->Owner != "Safari" &&
+       Window->Name == "")
+    {
+        Result = true;
+    }
 
     return Result || IsWindowPartOfWebBrowser(Window);
 }
@@ -108,9 +112,13 @@ bool FilterWindowList(screen_info *Screen)
         */
 
         if(WindowLst[WindowIndex].Layer == 0 &&
-           Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]) &&
-           !IsWindowAnElementOfAWindow(&WindowLst[WindowIndex]))
-               FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+           Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]))
+        {
+            if(IsWindowAnElementOfAWindow(&WindowLst[WindowIndex]))
+                FloatingWindowLst.push_back(WindowLst[WindowIndex].WID);
+
+            FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+        }
     }
 
     WindowLst = FilteredWindowLst;
