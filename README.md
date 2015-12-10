@@ -36,7 +36,7 @@ they were in previously, and will appear on the wrong monitor. This will most li
 
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.
 
-Tested on Osx El Capitan (10.11.1).
+Tested on Osx El Capitan (10.11.1 / 10.11.2).
 
 ![kwm mov](https://cloud.githubusercontent.com/assets/6175959/11498553/6ccedee6-9820-11e5-8830-96e0bf19b4f2.gif)
 
