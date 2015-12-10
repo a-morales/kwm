@@ -45,12 +45,13 @@ bool IsWindowAnElementOfAWindow(window_info *Window)
 {
     bool Result = false;
 
-    // If the window is not a webbrowser,
-    // a window that is not an element of
-    // an existing window should have a title.
+    // A window that is not an element of
+    // an existing window should (almost always)
+    // have a title.
     if(Window->Owner != "Firefox" &&
        Window->Owner != "Google Chrome" &&
        Window->Owner != "Safari" &&
+       Window->Owner != "Xcode" &&
        Window->Name == "")
     {
         Result = true;
