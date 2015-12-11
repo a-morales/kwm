@@ -3,28 +3,18 @@
 extern std::vector<window_info> WindowLst;
 extern int CurrentSpace;
 
-/*
-
-       *
-    *     *
-  *   * *   *
-*   *     *   *
-
-*/
-
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
     node_container LeftContainer;
 
     LeftContainer.X = Node->Container.X;
     LeftContainer.Y = Node->Container.Y;
+    LeftContainer.Height = Node->Container.Height;
 
     if(DoesSpaceExistInMapOfScreen(Screen))
         LeftContainer.Width = (Node->Container.Width / 2) - (Screen->Space[CurrentSpace].VerticalGap / 2);
     else
         LeftContainer.Width = (Node->Container.Width / 2) - (Screen->VerticalGap / 2);
-
-    LeftContainer.Height = Node->Container.Height;
     
     return LeftContainer;
 }
@@ -32,6 +22,9 @@ node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
     node_container RightContainer;
+
+    RightContainer.Y = Node->Container.Y;
+    RightContainer.Height = Node->Container.Height;
 
     if(DoesSpaceExistInMapOfScreen(Screen))
     {
@@ -43,9 +36,6 @@ node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
         RightContainer.X = Node->Container.X + (Node->Container.Width / 2) + (Screen->VerticalGap / 2);
         RightContainer.Width = (Node->Container.Width / 2) - (Screen->VerticalGap / 2);
     }
-
-    RightContainer.Y = Node->Container.Y;
-    RightContainer.Height = Node->Container.Height;
 
     return RightContainer;
 }
@@ -70,6 +60,9 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 {
     node_container LowerContainer;
 
+    LowerContainer.X = Node->Container.X;
+    LowerContainer.Width = Node->Container.Width;
+
     if(DoesSpaceExistInMapOfScreen(Screen))
     {
         LowerContainer.Y = Node->Container.Y + (Node->Container.Height / 2) + (Screen->Space[CurrentSpace].HorizontalGap / 2);
@@ -80,9 +73,6 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
         LowerContainer.Y = Node->Container.Y + (Node->Container.Height / 2) + (Screen->HorizontalGap / 2);
         LowerContainer.Height = (Node->Container.Height / 2) - (Screen->HorizontalGap / 2);
     }
-
-    LowerContainer.X = Node->Container.X;
-    LowerContainer.Width = Node->Container.Width;
 
     return LowerContainer;
 }
@@ -110,9 +100,7 @@ void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType
     }
 
     if(ContainerType != -1)
-    {
         Node->Container.Type = ContainerType;
-    }
 }
 
 void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, int SplitMode)
