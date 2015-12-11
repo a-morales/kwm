@@ -779,14 +779,8 @@ void ResizeWindowToContainerSize(tree_node *Node)
 
     if(Window)
     {
-        int Retries = 0;
-        bool Result = false;
-
         AXUIElementRef WindowRef;
-        while(!Result && Retries++ < 3)
-            Result = GetWindowRef(Window, &WindowRef);
-
-        if(Result)
+        if(GetWindowRef(Window, &WindowRef))
         {
             SetWindowDimensions(WindowRef, Window,
                         Node->Container.X, Node->Container.Y, 
