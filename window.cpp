@@ -18,6 +18,15 @@ extern screen_info *Screen;
 int OldScreenID = -1;
 window_info FocusedWindowCache;
 
+std::map<int, std::vector<AXUIElementRef> > ApplicationWindowRefs;
+
+bool DoesApplicationExist(int PID, std::vector<AXUIElementRef> *Elements)
+{
+    std::map<int, std::vector<AXUIElementRef> >::iterator It = ApplicationWindowRefs.find(PID);
+    *Elements = It->second;
+    return It != ApplicationWindowRefs.end();
+}
+
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
     bool Result = false;
@@ -266,7 +275,7 @@ void UpdateActiveWindowList(screen_info *Screen)
             do
             {
                 CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
-                usleep(200000);
+                usleep(250000);
             } while(PrevSpace == CurrentSpace);
             DEBUG("UpdateActiveWindowList() Active Display Changed")
             Screen->ActiveSpace = CurrentSpace;
@@ -675,8 +684,8 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
-    if(FocusedWindowRef != NULL)
-        CFRelease(FocusedWindowRef);
+    //if(FocusedWindowRef != NULL)
+        //CFRelease(FocusedWindowRef);
 
     FocusedPSN = NewPSN;
     FocusedWindowRef = WindowRef;
@@ -777,7 +786,7 @@ void ResizeWindowToContainerSize(tree_node *Node)
                         Node->Container.X, Node->Container.Y, 
                         Node->Container.Width, Node->Container.Height);
 
-            CFRelease(WindowRef);
+            //CFRelease(WindowRef);
         }
         else
         {
@@ -861,7 +870,7 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role)
     if(GetWindowRef(Window, &WindowRef))
     {
         AXUIElementCopyAttributeValue(WindowRef, kAXRoleAttribute, (CFTypeRef *)Role);
-        CFRelease(WindowRef);
+        //CFRelease(WindowRef);
         Result = true;
     }
 
@@ -870,26 +879,44 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role)
 
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 {
-    AXUIElementRef App = AXUIElementCreateApplication(Window->PID);
+    std::vector<AXUIElementRef> Elements;
     bool Found = false;
-    
+    if(DoesApplicationExist(Window->PID, &Elements))
+    {
+        for(int ElementIndex = 0; ElementIndex < Elements.size(); ++ElementIndex)
+        {
+            int AppWindowRefWID = -1;
+            _AXUIElementGetWindow(Elements[ElementIndex], &AppWindowRefWID);
+            if(AppWindowRefWID == Window->WID)
+            {
+                *WindowRef = Elements[ElementIndex];
+                return true;
+            }
+        }
+    }
+
+    AXUIElementRef App = AXUIElementCreateApplication(Window->PID);
     if(!App)
     {
         DEBUG("GetWindowRef() Failed to get App for: " << Window->Name)
         return false;
     }
 
+    ApplicationWindowRefs[Window->PID] = std::vector<AXUIElementRef>();
+
     CFArrayRef AppWindowLst;
     AXUIElementCopyAttributeValue(App, kAXWindowsAttribute, (CFTypeRef*)&AppWindowLst);
     if(AppWindowLst)
     {
-        CFIndex DoNotFree = -1;
+        //CFIndex DoNotFree = -1;
         CFIndex AppWindowCount = CFArrayGetCount(AppWindowLst);
         for(CFIndex WindowIndex = 0; WindowIndex < AppWindowCount; ++WindowIndex)
         {
             AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
             if(AppWindowRef != NULL)
             {
+                ApplicationWindowRefs[Window->PID].push_back(AppWindowRef);
+
                 if(!Found)
                 {
                     int AppWindowRefWID = -1;
@@ -897,13 +924,13 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
                     if(AppWindowRefWID == Window->WID)
                     {
                         *WindowRef = AppWindowRef;
-                        DoNotFree = WindowIndex;
+                        //DoNotFree = WindowIndex;
                         Found = true;
                     }
                 }
 
-                if(WindowIndex != DoNotFree)
-                    CFRelease(AppWindowRef);
+                //if(WindowIndex != DoNotFree)
+                //    CFRelease(AppWindowRef);
             }
         }
     }
