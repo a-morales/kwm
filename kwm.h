@@ -222,6 +222,7 @@ window_info *GetWindowByID(int);
 bool GetWindowRef(window_info *, AXUIElementRef *);
 bool GetWindowRole(window_info *, CFTypeRef *);
 void GetWindowInfo(const void *, const void *, void *);
+bool DoesApplicationExist(int, std::vector<AXUIElementRef> *);
 
 kwm_code LoadKwmCode();
 void UnloadKwmCode(kwm_code *);
