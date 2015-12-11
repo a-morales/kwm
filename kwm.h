@@ -220,6 +220,7 @@ CGPoint GetWindowPos(AXUIElementRef);
 CGSize GetWindowSize(AXUIElementRef);
 window_info *GetWindowByID(int);
 bool GetWindowRef(window_info *, AXUIElementRef *);
+bool GetWindowRole(window_info *, CFTypeRef *);
 void GetWindowInfo(const void *, const void *, void *);
 
 kwm_code LoadKwmCode();
