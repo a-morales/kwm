@@ -55,6 +55,7 @@ bool IsWindowAnElementOfAWindow(window_info *Window)
        Window->Owner != "Google Chrome" &&
        Window->Owner != "Safari" &&
        Window->Owner != "Xcode" &&
+       Window->Owner != "Terminal" &&
        Window->Owner != "mpv" &&
        Window->Name == "")
     {
@@ -275,7 +276,7 @@ void UpdateActiveWindowList(screen_info *Screen)
             do
             {
                 CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
-                usleep(250000);
+                usleep(200000);
             } while(PrevSpace == CurrentSpace);
             DEBUG("UpdateActiveWindowList() Active Display Changed")
             Screen->ActiveSpace = CurrentSpace;
