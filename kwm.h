@@ -37,7 +37,7 @@ struct tree_node;
 #ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
 #else
-    #define DEBUG(x)
+    #define DEBUG(x) do {} while (0);
 #endif
 
 #define KWM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
