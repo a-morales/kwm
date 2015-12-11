@@ -43,7 +43,7 @@ struct tree_node;
 #define KWM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
 typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
 
-#define KWM_KEY_REMAP(name) void name(CGEventRef Event, bool *CmdKey, bool *CtrlKey, bool *AltKey, CGKeyCode Keycode, int *Result)
+#define KWM_KEY_REMAP(name) void name(CGEventRef Event, bool *CmdKey, bool *CtrlKey, bool *AltKey, bool *ShiftKey, CGKeyCode Keycode, int *Result)
 typedef KWM_KEY_REMAP(kwm_key_remap);
 
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);

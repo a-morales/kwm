@@ -41,6 +41,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
             bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
             bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
+            bool ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
+
             CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
             std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
@@ -66,15 +68,22 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                     return Event;
 
                 int NewKeycode;
-                KWMCode.RemapKeys(Event, &CmdKey, &CtrlKey, &AltKey, Keycode, &NewKeycode);
+                KWMCode.RemapKeys(Event, &CmdKey, &CtrlKey, &AltKey, &ShiftKey, Keycode, &NewKeycode);
                 if(NewKeycode != -1)
                 {
+                    CGEventSetFlags(Event, 0);
+
                     if(CmdKey)
                         CGEventSetFlags(Event, kCGEventFlagMaskCommand);
-                    if(CtrlKey)
-                        CGEventSetFlags(Event, kCGEventFlagMaskControl);
+
                     if(AltKey)
                         CGEventSetFlags(Event, kCGEventFlagMaskAlternate);
+
+                    if(CtrlKey)
+                        CGEventSetFlags(Event, kCGEventFlagMaskControl);
+
+                    if(ShiftKey)
+                        CGEventSetFlags(Event, kCGEventFlagMaskShift);
 
                     CGEventSetIntegerValueField(Event, kCGKeyboardEventKeycode, NewKeycode);
                 }

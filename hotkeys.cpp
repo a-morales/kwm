@@ -9,6 +9,7 @@ extern "C" KWM_KEY_REMAP(RemapKeys)
     *Result = -1;
 
     /*
+
     if(*CmdKey && *AltKey && *CtrlKey)
     {
     }
@@ -20,6 +21,16 @@ extern "C" KWM_KEY_REMAP(RemapKeys)
             *Result = kVK_ANSI_S;
         } break;
     }
+
+    Change wether a modifier flag should be set or not.
+    If a modifier is not changed, the value already set for
+    the event will be used.
+
+    *CmdKey = true;
+    *AltKey = true;
+    *CtrlKey = true;
+    *ShiftKey = true;
+
     */
 }
 
