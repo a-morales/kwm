@@ -93,25 +93,17 @@ bool FilterWindowList(screen_info *Screen)
            WindowLst[WindowIndex].Name == "")
                Result = false;
 
-        /*
-        if(WindowLst[WindowIndex].Owner == "Safari" &&
-           WindowLst[WindowIndex].Name == "")
-        {
-             DEBUG("WINDOW INFO: " << WindowLst[WindowIndex].Owner << " " <<
-                                      WindowLst[WindowIndex].Name << " " <<
-                                      WindowLst[WindowIndex].Width << " " <<
-                                      WindowLst[WindowIndex].Height)
-        }
-        */
-
         if(WindowLst[WindowIndex].Layer == 0 &&
+           !IsWindowAnElementOfAWindow(&WindowLst[WindowIndex]) &&
            !IsWindowPartOfWebBrowser(&WindowLst[WindowIndex]) &&
            Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]))
         {
-            if(IsWindowAnElementOfAWindow(&WindowLst[WindowIndex]))
-                FloatingWindowLst.push_back(WindowLst[WindowIndex].WID);
-
-            FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+            CFTypeRef Role;
+            if(GetWindowRole(&WindowLst[WindowIndex], &Role))
+            {
+                if(CFEqual(Role, kAXWindowRole))
+                    FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+            }
         }
     }
 
@@ -859,6 +851,21 @@ window_info *GetWindowByID(int WindowID)
     }
 
     return NULL;
+}
+
+bool GetWindowRole(window_info *Window, CFTypeRef *Role)
+{
+    bool Result = false;
+
+    AXUIElementRef WindowRef;
+    if(GetWindowRef(Window, &WindowRef))
+    {
+        AXUIElementCopyAttributeValue(WindowRef, kAXRoleAttribute, (CFTypeRef *)Role);
+        CFRelease(WindowRef);
+        Result = true;
+    }
+
+    return Result;
 }
 
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
