@@ -45,7 +45,8 @@ void KwmDaemonHandleConnection()
 
         if(Message == "focused")
         {
-            KwmWriteToSocket(ClientSockFD, FocusedWindow->Owner + " - " + FocusedWindow->Name);
+            if(FocusedWindow)
+                KwmWriteToSocket(ClientSockFD, FocusedWindow->Owner + " - " + FocusedWindow->Name);
         }
 
         close(ClientSockFD);
