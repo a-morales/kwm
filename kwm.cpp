@@ -190,7 +190,7 @@ void * KwmWindowMonitor(void*)
         if(ExportTable.KwmFocusMode != FocusModeDisabled)
             UpdateWindowTree();
 
-        usleep(200000);
+        usleep(250000);
     }
 }
 
@@ -204,10 +204,7 @@ void KwmInit()
     
     KWMCode = LoadKwmCode();
     BuildExportTable();
-
     GetActiveDisplays();
-    UpdateWindowTree();
-    FocusWindowBelowCursor();
 
     if(KwmStartDaemon())
         pthread_create(&DaemonThread, NULL, &KwmDaemonHandleConnectionBG, NULL);
