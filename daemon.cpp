@@ -58,13 +58,13 @@ void KwmTerminateDaemon()
     close(KwmSockFD);
 }
 
-void KwmStartDaemon()
+bool KwmStartDaemon()
 {
     struct sockaddr_in SrvAddr;
     int _True = 1;
 
     if((KwmSockFD = socket(PF_INET, SOCK_STREAM, 0)) == -1)
-        Fatal("Could not create socket!");
+        return false;
 
     if(setsockopt(KwmSockFD, SOL_SOCKET, SO_REUSEADDR, &_True, sizeof(int)) == -1)
         std::cout << "Could not set socket option: SO_REUSEADDR!" << std::endl;
@@ -75,12 +75,12 @@ void KwmStartDaemon()
     std::memset(&SrvAddr.sin_zero, '\0', 8);
 
     if(bind(KwmSockFD, (struct sockaddr*)&SrvAddr, sizeof(struct sockaddr)) == -1)
-        Fatal("Could not bind to port!");
+        return false;
 
     if(listen(KwmSockFD, 10) == -1)
-        Fatal("Could not start listening!");
+        return false;
 
     KwmDaemonIsRunning = true;
     DEBUG("Local Daemon is now running.." << std::endl)
+    return true;
 }
-

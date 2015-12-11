@@ -53,11 +53,11 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
             if(KWMCode.IsValid)
             {
-                // Toggle keytap on | off
+                // Hotkeys specific to Kwms functionality
                 if(KWMCode.KWMHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
                     return NULL;
 
-                // capture custom hotkeys
+                // Capture custom hotkeys specified by the user
                 if(KWMCode.CustomHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
                     return NULL;
 
@@ -117,16 +117,14 @@ kwm_code LoadKwmCode()
         DEBUG("LoadKwmCode() Could not open '" << HotkeySOFullFilePath << "'")
     }
 
-    Code.IsValid = (Code.KWMHotkeyCommands && Code.SystemHotkeyCommands && Code.CustomHotkeyCommands);
+    Code.IsValid = (Code.KWMHotkeyCommands && Code.SystemHotkeyCommands && Code.CustomHotkeyCommands && Code.RemapKeys);
     return Code;
 }
 
 void UnloadKwmCode(kwm_code *Code)
 {
     if(Code->KwmHotkeySO)
-    {
         dlclose(Code->KwmHotkeySO);
-    }
 
     Code->HotkeySOFileTime = "";
     Code->KWMHotkeyCommands = 0;
@@ -180,7 +178,6 @@ void * KwmWindowMonitor(void*)
 {
     while(1)
     {
-        //DEBUG("KwmWindowMonitor()")
         if(ExportTable.KwmFocusMode != FocusModeDisabled)
             UpdateWindowTree();
 
@@ -199,13 +196,15 @@ void KwmInit()
     KWMCode = LoadKwmCode();
     BuildExportTable();
 
-    KwmStartDaemon();
-
     GetActiveDisplays();
     UpdateWindowTree();
     FocusWindowBelowCursor();
 
-    pthread_create(&DaemonThread, NULL, &KwmDaemonHandleConnectionBG, NULL);
+    if(KwmStartDaemon())
+        pthread_create(&DaemonThread, NULL, &KwmDaemonHandleConnectionBG, NULL);
+    else
+        DEBUG("Kwm: Could not start daemon..")
+
     pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }
 

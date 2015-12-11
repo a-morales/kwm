@@ -227,7 +227,7 @@ void UnloadKwmCode(kwm_code *);
 void BuildExportTable();
 std::string KwmGetFileTime(const char *);
 
-void KwmStartDaemon();
+bool KwmStartDaemon();
 void KwmDaemonHandleConnection();
 void * KwmDaemonHandleConnectionBG(void *);
 void KwmTerminateDaemon();
