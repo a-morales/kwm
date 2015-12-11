@@ -18,12 +18,6 @@ extern screen_info *Screen;
 int OldScreenID = -1;
 window_info FocusedWindowCache;
 
-void WriteNameOfFocusedWindowToFile()
-{
-    std::string Command = "echo \"" + FocusedWindow->Owner + " - " + FocusedWindow->Name + "\" > focus.kwm";
-    system(Command.c_str());
-}
-
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
     bool Result = false;
@@ -705,7 +699,6 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     if(ExportTable.KwmFocusMode == FocusModeAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
-    WriteNameOfFocusedWindowToFile();
     DEBUG("SetWindowRefFocus() Focused Window: " << FocusedWindow->Name)
 }
 
