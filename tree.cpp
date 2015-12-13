@@ -222,14 +222,7 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Wind
 
 int GetOptimalSplitMode(tree_node *Node)
 {
-    int SplitMode;
-
-    if(Node->Container.Width / Node->Container.Height >= 1.618)
-        SplitMode = 1;
-    else
-        SplitMode = 2;
-
-    return SplitMode;
+    return (Node->Container.Width / Node->Container.Height) >= 1.618 ? 1 : 2;
 }
 
 void SwapNodeWindowIDs(tree_node *A, tree_node *B)
@@ -274,15 +267,13 @@ void ResizeNodeContainer(screen_info *Screen, tree_node *Node)
     {
         if(Node->LeftChild)
         {
-            int ContainerType = Node->LeftChild->Container.Type;
-            CreateNodeContainer(Screen, Node->LeftChild, ContainerType);
+            CreateNodeContainer(Screen, Node->LeftChild, Node->LeftChild->Container.Type);
             ResizeNodeContainer(Screen, Node->LeftChild);
         }
 
         if(Node->RightChild)
         {
-            int ContainerType = Node->RightChild->Container.Type;
-            CreateNodeContainer(Screen, Node->RightChild, ContainerType);
+            CreateNodeContainer(Screen, Node->RightChild, Node->RightChild->Container.Type);
             ResizeNodeContainer(Screen, Node->RightChild);
         }
     }
