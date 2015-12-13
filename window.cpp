@@ -15,6 +15,7 @@ extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
 
 window_info FocusedWindowCache;
+CFStringRef DisplayIdentifier;
 int OldScreenID = -1;
 
 std::map<int, std::vector<AXUIElementRef> > ApplicationWindowRefs;
@@ -198,8 +199,7 @@ bool IsWindowOnActiveSpace(window_info *Window)
 
 bool IsSpaceTransitionInProgress()
 {
-    CFStringRef Display = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, (CGSSpaceID)CurrentSpace);
-    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)Display);
+    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)DisplayIdentifier);
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
@@ -293,6 +293,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         if(PrevSpace != CurrentSpace)
         {
             DEBUG("UpdateActiveWindowList() Space transition ended")
+            DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, (CGSSpaceID)CurrentSpace);
             FocusWindowBelowCursor();
         }
 
