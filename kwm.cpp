@@ -1,26 +1,28 @@
 #include "kwm.h"
 
 CFMachPortRef EventTap;
+
 kwm_code KWMCode;
 export_table ExportTable;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
 
-std::vector<screen_info> DisplayLst;
-std::vector<window_info> WindowLst;
-std::vector<int> FloatingWindowLst;
+uint32_t MaxDisplayCount = 5;
+uint32_t ActiveDisplaysCount;
+CGDirectDisplayID ActiveDisplays[5];
+
 screen_info *Screen;
 int CurrentSpace = 0;
 int PrevSpace = -1;
+
+std::vector<screen_info> DisplayLst;
+std::vector<window_info> WindowLst;
+std::vector<int> FloatingWindowLst;
 
 ProcessSerialNumber FocusedPSN;
 AXUIElementRef FocusedWindowRef;
 window_info *FocusedWindow;
 int MarkedWindowID = -1;
-
-uint32_t MaxDisplayCount = 5;
-uint32_t ActiveDisplaysCount;
-CGDirectDisplayID ActiveDisplays[5];
 
 pthread_t BackgroundThread;
 pthread_t DaemonThread;
@@ -190,7 +192,7 @@ void * KwmWindowMonitor(void*)
         if(ExportTable.KwmFocusMode != FocusModeDisabled)
             UpdateWindowTree();
 
-        usleep(250000);
+        usleep(200000);
     }
 }
 
