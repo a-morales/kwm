@@ -26,6 +26,8 @@ int MarkedWindowID = -1;
 pthread_t BackgroundThread;
 pthread_t DaemonThread;
 
+pthread_mutex_t BackgroundLock;
+
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
     switch(Type)
@@ -101,7 +103,9 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             if(ExportTable.KwmFocusMode != FocusModeDisabled)
             {
+                pthread_mutex_lock(&BackgroundLock);
                 FocusWindowBelowCursor();
+                pthread_mutex_unlock(&BackgroundLock);
             }
         } break;
     }
@@ -189,7 +193,11 @@ void * KwmWindowMonitor(void*)
     while(1)
     {
         if(ExportTable.KwmFocusMode != FocusModeDisabled)
+        {
+            pthread_mutex_lock(&BackgroundLock);
             UpdateWindowTree();
+            pthread_mutex_unlock(&BackgroundLock);
+        }
 
         usleep(200000);
     }
@@ -199,6 +207,9 @@ void KwmInit()
 {
     if(!CheckPrivileges())
         Fatal("Could not access OSX Accessibility!"); 
+
+    if (pthread_mutex_init(&BackgroundLock, NULL) != 0)
+        Fatal("Could not create mutex!");
 
     KwmFilePath = getcwd(NULL, 0);
     HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
