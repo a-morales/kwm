@@ -380,7 +380,7 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 
 void AddWindowToTree(screen_info *Screen, int WindowID)
 {
-    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
+    if(DoesSpaceExistInMapOfScreen(Screen))
     {
         tree_node *RootNode = Screen->Space[CurrentSpace].RootNode;
         tree_node *CurrentNode = RootNode;
@@ -430,7 +430,7 @@ void AddWindowToTree()
 
 void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
 {
-    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
+    if(DoesSpaceExistInMapOfScreen(Screen))
     {
         tree_node *WindowNode = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, WindowID);
 
@@ -501,13 +501,13 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
 
         DEBUG("AddWindowToTreeOfUnfocusedMonitor() Create pair of leafs")
 
-            while(!IsLeafNode(CurrentNode))
-            {
-                if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
-                    CurrentNode = CurrentNode->RightChild;
-                else
-                    CurrentNode = CurrentNode->LeftChild;
-            }
+        while(!IsLeafNode(CurrentNode))
+        {
+            if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
+                CurrentNode = CurrentNode->RightChild;
+            else
+                CurrentNode = CurrentNode->LeftChild;
+        }
 
         int SplitMode = ExportTable.KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : ExportTable.KwmSplitMode;
         CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, FocusedWindow->WID, SplitMode);
