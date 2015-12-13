@@ -2,21 +2,20 @@
 
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 
+extern export_table ExportTable;
+extern screen_info *Screen;
+extern int PrevSpace, CurrentSpace;
+extern int MarkedWindowID;
+
 extern std::vector<window_info> WindowLst;
 extern std::vector<int> FloatingWindowLst;
-extern export_table ExportTable;
 
 extern ProcessSerialNumber FocusedPSN;
 extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
 
-extern int CurrentSpace;
-extern int PrevSpace;
-extern int MarkedWindowID;
-extern screen_info *Screen;
-
-int OldScreenID = -1;
 window_info FocusedWindowCache;
+int OldScreenID = -1;
 
 std::map<int, std::vector<AXUIElementRef> > ApplicationWindowRefs;
 
@@ -25,6 +24,15 @@ bool DoesApplicationExist(int PID, std::vector<AXUIElementRef> *Elements)
     std::map<int, std::vector<AXUIElementRef> >::iterator It = ApplicationWindowRefs.find(PID);
     *Elements = It->second;
     return It != ApplicationWindowRefs.end();
+}
+
+void FreeApplicationWindowRefCache(int PID)
+{
+    int NumElements = ApplicationWindowRefs[PID].size();
+    for(int RefIndex = 0; RefIndex < NumElements; ++RefIndex)
+        CFRelease(ApplicationWindowRefs[PID][RefIndex]);
+
+    ApplicationWindowRefs[PID].clear();
 }
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
@@ -685,9 +693,6 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
-    //if(FocusedWindowRef != NULL)
-        //CFRelease(FocusedWindowRef);
-
     FocusedPSN = NewPSN;
     FocusedWindowRef = WindowRef;
     FocusedWindowCache = *Window;
@@ -786,8 +791,6 @@ void ResizeWindowToContainerSize(tree_node *Node)
             SetWindowDimensions(WindowRef, Window,
                         Node->Container.X, Node->Container.Y, 
                         Node->Container.Width, Node->Container.Height);
-
-            //CFRelease(WindowRef);
         }
         else
         {
@@ -871,7 +874,6 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role)
     if(GetWindowRef(Window, &WindowRef))
     {
         AXUIElementCopyAttributeValue(WindowRef, kAXRoleAttribute, (CFTypeRef *)Role);
-        //CFRelease(WindowRef);
         Result = true;
     }
 
@@ -895,6 +897,10 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
             }
         }
     }
+    else
+    {
+        ApplicationWindowRefs[Window->PID] = std::vector<AXUIElementRef>();
+    }
 
     AXUIElementRef App = AXUIElementCreateApplication(Window->PID);
     if(!App)
@@ -903,13 +909,11 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
         return false;
     }
 
-    ApplicationWindowRefs[Window->PID] = std::vector<AXUIElementRef>();
-
     CFArrayRef AppWindowLst;
     AXUIElementCopyAttributeValue(App, kAXWindowsAttribute, (CFTypeRef*)&AppWindowLst);
     if(AppWindowLst)
     {
-        //CFIndex DoNotFree = -1;
+        FreeApplicationWindowRefCache(Window->PID);
         CFIndex AppWindowCount = CFArrayGetCount(AppWindowLst);
         for(CFIndex WindowIndex = 0; WindowIndex < AppWindowCount; ++WindowIndex)
         {
@@ -917,7 +921,6 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
             if(AppWindowRef != NULL)
             {
                 ApplicationWindowRefs[Window->PID].push_back(AppWindowRef);
-
                 if(!Found)
                 {
                     int AppWindowRefWID = -1;
@@ -925,13 +928,9 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
                     if(AppWindowRefWID == Window->WID)
                     {
                         *WindowRef = AppWindowRef;
-                        //DoNotFree = WindowIndex;
                         Found = true;
                     }
                 }
-
-                //if(WindowIndex != DoNotFree)
-                //    CFRelease(AppWindowRef);
             }
         }
     }
