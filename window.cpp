@@ -11,7 +11,6 @@ extern std::vector<window_info> WindowLst;
 extern std::vector<int> FloatingWindowLst;
 
 extern ProcessSerialNumber FocusedPSN;
-extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
 
 window_info FocusedWindowCache;
@@ -478,17 +477,9 @@ void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
                     ApplyNodeContainer(Parent);
 
                     if(Center)
-                    {
-                        int NewX = Screen->X + Screen->Width / 4;
-                        int NewY = Screen->Y + Screen->Height / 4;
-                        int NewWidth = Screen->Width / 2;
-                        int NewHeight = Screen->Height / 2;
-                        SetWindowDimensions(FocusedWindowRef, FocusedWindow, NewX, NewY, NewWidth, NewHeight);
-                    }
+                        CenterWindow(Screen);
                     else
-                    {
                         FocusWindowBelowCursor();
-                    }
                 }
             }
         }
@@ -695,13 +686,12 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     GetProcessForPID(Window->PID, &NewPSN);
 
     FocusedPSN = NewPSN;
-    FocusedWindowRef = WindowRef;
     FocusedWindowCache = *Window;
     FocusedWindow = &FocusedWindowCache;
 
-    AXUIElementSetAttributeValue(FocusedWindowRef, kAXMainAttribute, kCFBooleanTrue);
-    AXUIElementSetAttributeValue(FocusedWindowRef, kAXFocusedAttribute, kCFBooleanTrue);
-    AXUIElementPerformAction(FocusedWindowRef, kAXRaiseAction);
+    AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
+    AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
+    AXUIElementPerformAction(WindowRef, kAXRaiseAction);
 
     if(ExportTable.KwmFocusMode == FocusModeAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
@@ -738,6 +728,19 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         CFRelease(NewWindowPos);
     if(NewWindowSize != NULL)
         CFRelease(NewWindowSize);
+}
+
+void CenterWindow(screen_info *Screen)
+{
+    AXUIElementRef WindowRef;
+    if(GetWindowRef(FocusedWindow, &WindowRef))
+    {
+        int NewX = Screen->X + Screen->Width / 4;
+        int NewY = Screen->Y + Screen->Height / 4;
+        int NewWidth = Screen->Width / 2;
+        int NewHeight = Screen->Height / 2;
+        SetWindowDimensions(WindowRef, FocusedWindow, NewX, NewY, NewWidth, NewHeight);
+    }
 }
 
 void MoveContainerSplitter(int SplitMode, int Offset)

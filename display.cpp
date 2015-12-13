@@ -9,8 +9,6 @@ extern int CurrentSpace;
 
 extern std::vector<screen_info> DisplayLst;
 extern std::vector<window_info> WindowLst;
-
-extern AXUIElementRef FocusedWindowRef;
 extern window_info *FocusedWindow;
 
 void GetActiveDisplays()

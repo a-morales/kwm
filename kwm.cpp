@@ -20,7 +20,6 @@ std::vector<window_info> WindowLst;
 std::vector<int> FloatingWindowLst;
 
 ProcessSerialNumber FocusedPSN;
-AXUIElementRef FocusedWindowRef;
 window_info *FocusedWindow;
 int MarkedWindowID = -1;
 
