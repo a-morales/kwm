@@ -4,12 +4,14 @@ extern uint32_t MaxDisplayCount;
 extern uint32_t ActiveDisplaysCount;
 extern CGDirectDisplayID ActiveDisplays[];
 
-extern std::vector<screen_info> DisplayLst;
-extern std::vector<window_info> WindowLst;
-extern AXUIElementRef FocusedWindowRef;
-extern window_info *FocusedWindow;
 extern screen_info *Screen;
 extern int CurrentSpace;
+
+extern std::vector<screen_info> DisplayLst;
+extern std::vector<window_info> WindowLst;
+
+extern AXUIElementRef FocusedWindowRef;
+extern window_info *FocusedWindow;
 
 void GetActiveDisplays()
 {
@@ -32,7 +34,7 @@ void GetActiveDisplays()
         Screen.PaddingTop = 40;
         Screen.PaddingLeft = 20;
         Screen.PaddingRight = 20;
-        Screen.PaddingBottom = 40;
+        Screen.PaddingBottom = 20;
 
         Screen.VerticalGap = 10;
         Screen.HorizontalGap = 10;
