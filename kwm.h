@@ -206,7 +206,6 @@ void FreeApplicationWindowRefCache(int);
 
 kwm_code LoadKwmCode();
 void UnloadKwmCode(kwm_code *);
-void BuildExportTable();
 std::string KwmGetFileTime(const char *);
 
 bool KwmStartDaemon();
