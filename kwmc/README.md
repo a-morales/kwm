@@ -13,6 +13,9 @@
     Set window-tiling mode
         kwmc window -t fullscreen|parent|float|mark
 
+    Manually resize window to container
+        kwmc window -c refresh
+
     Change window focus
         kwmc window -f prev|next
 
