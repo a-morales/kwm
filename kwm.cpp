@@ -199,7 +199,7 @@ void KwmInit()
     if(KwmStartDaemon())
         pthread_create(&DaemonThread, NULL, &KwmDaemonHandleConnectionBG, NULL);
     else
-        DEBUG("Kwm: Could not start daemon..")
+        Fatal("Kwm: Could not start daemon..");
 
     pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }
