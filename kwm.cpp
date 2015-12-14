@@ -3,7 +3,6 @@
 CFMachPortRef EventTap;
 
 kwm_code KWMCode;
-export_table ExportTable;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
 
@@ -21,6 +20,8 @@ std::vector<int> FloatingWindowLst;
 
 ProcessSerialNumber FocusedPSN;
 window_info *FocusedWindow;
+focus_option KwmFocusMode;
+int KwmSplitMode = -1;
 int MarkedWindowID = -1;
 
 pthread_t BackgroundThread;
@@ -59,15 +60,15 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             if(KWMCode.IsValid)
             {
                 // Hotkeys specific to Kwms functionality
-                if(KWMCode.KWMHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+                if(KWMCode.KWMHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
                     return NULL;
 
                 // Capture custom hotkeys specified by the user
-                if(KWMCode.CustomHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+                if(KWMCode.CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
                     return NULL;
 
                 // Let system hotkeys pass through as normal
-                if(KWMCode.SystemHotkeyCommands(&ExportTable, CmdKey, CtrlKey, AltKey, Keycode))
+                if(KWMCode.SystemHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
                     return Event;
 
                 int NewKeycode;
@@ -92,7 +93,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 }
             }
 
-            if(ExportTable.KwmFocusMode == FocusModeAutofocus)
+            if(KwmFocusMode == FocusModeAutofocus)
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&FocusedPSN, Event);
@@ -101,7 +102,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
-            if(ExportTable.KwmFocusMode != FocusModeDisabled)
+            if(KwmFocusMode != FocusModeDisabled)
             {
                 pthread_mutex_lock(&BackgroundLock);
                 FocusWindowBelowCursor();
@@ -156,28 +157,6 @@ std::string KwmGetFileTime(const char *File)
     return ctime(&attr.st_mtime);
 }
 
-void BuildExportTable()
-{
-    ExportTable.KwmFilePath = KwmFilePath;
-    ExportTable.KwmFocusMode = FocusModeAutoraise;;
-    ExportTable.KwmSplitMode = -1;
-
-    ExportTable.FocusWindowBelowCursor = &FocusWindowBelowCursor;
-    ExportTable.ChangeGapOfDisplay = &ChangeGapOfDisplay;
-    ExportTable.ChangePaddingOfDisplay = &ChangePaddingOfDisplay;
-    ExportTable.ReflectWindowNodeTreeVertically = &ReflectWindowNodeTreeVertically;
-    ExportTable.ResizeWindowToContainerSize = &ResizeWindowToContainerSize;;
-    ExportTable.MoveContainerSplitter = &MoveContainerSplitter;
-    ExportTable.ToggleFocusedWindowFloating = &ToggleFocusedWindowFloating;
-    ExportTable.ToggleFocusedWindowFullscreen = &ToggleFocusedWindowFullscreen;
-    ExportTable.ToggleFocusedWindowParentContainer = &ToggleFocusedWindowParentContainer;
-    ExportTable.SwapFocusedWindowWithNearest = &SwapFocusedWindowWithNearest;
-    ExportTable.ShiftWindowFocus = &ShiftWindowFocus;
-    ExportTable.CycleFocusedWindowDisplay = &CycleFocusedWindowDisplay;
-    ExportTable.MarkWindowContainer = &MarkWindowContainer;
-    ExportTable.KwmRestart = &KwmRestart;
-}
-
 void KwmRestart()
 {
     DEBUG("KWM Restarting..")
@@ -192,7 +171,7 @@ void * KwmWindowMonitor(void*)
 {
     while(1)
     {
-        if(ExportTable.KwmFocusMode != FocusModeDisabled)
+        if(KwmFocusMode != FocusModeDisabled)
         {
             pthread_mutex_lock(&BackgroundLock);
             UpdateWindowTree();
@@ -215,7 +194,6 @@ void KwmInit()
     HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
     
     KWMCode = LoadKwmCode();
-    BuildExportTable();
     GetActiveDisplays();
 
     if(KwmStartDaemon())

@@ -1,7 +1,8 @@
 #include "kwm.h"
 
 extern window_info *FocusedWindow;
-extern export_table ExportTable;
+extern focus_option KwmFocusMode;
+extern int KwmSplitMode;
 
 int KwmSockFD;
 bool KwmDaemonIsRunning;
@@ -70,19 +71,19 @@ void KwmDaemonHandleConnection()
             {
                 if(Tokens[2] == "toggle")
                 {
-                    if(ExportTable.KwmFocusMode == FocusModeDisabled)
-                        ExportTable.KwmFocusMode = FocusModeAutofocus;
-                    else if(ExportTable.KwmFocusMode == FocusModeAutofocus)
-                        ExportTable.KwmFocusMode = FocusModeAutoraise;
-                    else if(ExportTable.KwmFocusMode == FocusModeAutoraise)
-                        ExportTable.KwmFocusMode = FocusModeDisabled;
+                    if(KwmFocusMode == FocusModeDisabled)
+                        KwmFocusMode = FocusModeAutofocus;
+                    else if(KwmFocusMode == FocusModeAutofocus)
+                        KwmFocusMode = FocusModeAutoraise;
+                    else if(KwmFocusMode == FocusModeAutoraise)
+                        KwmFocusMode = FocusModeDisabled;
                 }
                 else if(Tokens[2] == "autofocus")
-                    ExportTable.KwmFocusMode = FocusModeAutofocus;
+                    KwmFocusMode = FocusModeAutofocus;
                 else if(Tokens[2] == "autoraise")
-                    ExportTable.KwmFocusMode = FocusModeAutoraise;
+                    KwmFocusMode = FocusModeAutoraise;
                 else if(Tokens[2] == "disabled")
-                    ExportTable.KwmFocusMode = FocusModeDisabled;
+                    KwmFocusMode = FocusModeDisabled;
             }
         }
         else if(Tokens[0] == "window") 
@@ -118,11 +119,11 @@ void KwmDaemonHandleConnection()
             if(Tokens[1] == "-s")
             {
                 if(Tokens[2] == "optimal")
-                    ExportTable.KwmSplitMode = -1;
+                    KwmSplitMode = -1;
                 else if(Tokens[2] == "vertical")
-                    ExportTable.KwmSplitMode = 1;
+                    KwmSplitMode = 1;
                 else if(Tokens[2] == "horizontal")
-                    ExportTable.KwmSplitMode = 2;
+                    KwmSplitMode = 2;
             }
             else if(Tokens[1] == "-m")
             {

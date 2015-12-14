@@ -2,7 +2,6 @@
 
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 
-extern export_table ExportTable;
 extern screen_info *Screen;
 extern int PrevSpace, CurrentSpace;
 extern int MarkedWindowID;
@@ -12,6 +11,8 @@ extern std::vector<int> FloatingWindowLst;
 
 extern ProcessSerialNumber FocusedPSN;
 extern window_info *FocusedWindow;
+extern focus_option KwmFocusMode;
+extern int KwmSplitMode;
 
 window_info FocusedWindowCache;
 CFStringRef DisplayIdentifier;
@@ -415,7 +416,7 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
 
         if(CurrentNode)
         {
-            int SplitMode = ExportTable.KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : ExportTable.KwmSplitMode;
+            int SplitMode = KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KwmSplitMode;
             CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
             ApplyNodeContainer(CurrentNode);
         }
@@ -509,7 +510,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
                 CurrentNode = CurrentNode->LeftChild;
         }
 
-        int SplitMode = ExportTable.KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : ExportTable.KwmSplitMode;
+        int SplitMode = KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KwmSplitMode;
         CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, FocusedWindow->WID, SplitMode);
         ResizeWindowToContainerSize(CurrentNode->RightChild);
         Screen->ForceContainerUpdate = true;
@@ -536,13 +537,13 @@ void ToggleFocusedWindowFloating()
         if(IsWindowFloating(FocusedWindow->WID, &WindowIndex))
         {
             FloatingWindowLst.erase(FloatingWindowLst.begin() + WindowIndex);
-            ExportTable.KwmFocusMode = FocusModeAutoraise;
+            KwmFocusMode = FocusModeAutoraise;
             AddWindowToTree();
         }
         else
         {
             FloatingWindowLst.push_back(FocusedWindow->WID);
-            ExportTable.KwmFocusMode = FocusModeAutofocus;
+            KwmFocusMode = FocusModeAutofocus;
             RemoveWindowFromTree();
         }
     }
@@ -693,7 +694,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(WindowRef, kAXRaiseAction);
 
-    if(ExportTable.KwmFocusMode == FocusModeAutoraise)
+    if(KwmFocusMode == FocusModeAutoraise)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
     DEBUG("SetWindowRefFocus() Focused Window: " << FocusedWindow->Name)
@@ -887,7 +888,6 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role)
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 {
     std::vector<AXUIElementRef> Elements;
-    bool Found = false;
     if(DoesApplicationExist(Window->PID, &Elements))
     {
         for(int ElementIndex = 0; ElementIndex < Elements.size(); ++ElementIndex)
@@ -906,6 +906,7 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
         ApplicationWindowRefs[Window->PID] = std::vector<AXUIElementRef>();
     }
 
+    bool Found = false;
     AXUIElementRef App = AXUIElementCreateApplication(Window->PID);
     if(!App)
     {

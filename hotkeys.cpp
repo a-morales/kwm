@@ -59,7 +59,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Reapply node container to window 
             case kVK_ANSI_R:
             {
-                EX->ResizeWindowToContainerSize();
+                //ResizeWindowToContainerSize();
             } break;
             // Restart Kwm
             case kVK_ANSI_Q:
@@ -237,7 +237,6 @@ extern "C" KWM_HOTKEY_COMMANDS(SystemHotkeyCommands)
             // Spotlight fix
             case kVK_Space:
             {
-                //EX->KwmFocusMode = FocusAutoraise;
             } break;
             default:
             {
@@ -265,11 +264,6 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             {
                 system("/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window &");
             } break;
-            // Rebuild Hotkeys
-            // case kVK_ANSI_R:
-            // {
-            //     SysCommand = "sh " + EX->KwmFilePath + "/sobuild.sh";
-            // } break;
             // YTD - Media Player Controls
             case kVK_ANSI_Z:
             {

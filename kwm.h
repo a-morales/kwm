@@ -26,7 +26,6 @@
 #include "CGSSpace.h"
 
 struct kwm_code;
-struct export_table;
 
 struct window_info;
 struct screen_info;
@@ -40,7 +39,7 @@ struct tree_node;
     #define DEBUG(x) do {} while (0);
 #endif
 
-#define KWM_HOTKEY_COMMANDS(name) bool name(export_table *EX, bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
+#define KWM_HOTKEY_COMMANDS(name) bool name(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
 typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
 
 #define KWM_KEY_REMAP(name) void name(CGEventRef Event, bool *CmdKey, bool *CtrlKey, bool *AltKey, bool *ShiftKey, CGKeyCode Keycode, int *Result)
@@ -68,28 +67,6 @@ struct kwm_code
     kwm_key_remap *RemapKeys;
 
     bool IsValid;
-};
-
-struct export_table
-{
-    std::string KwmFilePath;
-    focus_option KwmFocusMode;
-    int KwmSplitMode;
-
-    void (*ChangeGapOfDisplay)(const std::string &, int);
-    void (*ChangePaddingOfDisplay)(const std::string &, int);
-    void (*FocusWindowBelowCursor)();
-    void (*ReflectWindowNodeTreeVertically)();
-    void (*ResizeWindowToContainerSize)();
-    void (*MoveContainerSplitter)(int, int);
-    void (*ToggleFocusedWindowFullscreen)();
-    void (*ToggleFocusedWindowParentContainer)();
-    void (*SwapFocusedWindowWithNearest)(int);
-    void (*ShiftWindowFocus)(int);
-    void (*CycleFocusedWindowDisplay)(int);
-    void (*ToggleFocusedWindowFloating)();
-    void (*MarkWindowContainer)();
-    void (*KwmRestart)();
 };
 
 struct node_container
