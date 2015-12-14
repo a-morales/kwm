@@ -106,13 +106,13 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
 void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 {
     screen_info *Screen = GetDisplayOfMousePointer();
-    if(Side == "Left")
+    if(Side == "left")
         Screen->Space[CurrentSpace].PaddingLeft += Offset;
-    else if(Side == "Right")
+    else if(Side == "right")
         Screen->Space[CurrentSpace].PaddingRight += Offset;
-    else if(Side == "Top")
+    else if(Side == "top")
         Screen->Space[CurrentSpace].PaddingTop += Offset;
-    else if(Side == "Bottom")
+    else if(Side == "bottom")
         Screen->Space[CurrentSpace].PaddingBottom += Offset;
 
     SetRootNodeContainer(Screen, Screen->Space[CurrentSpace].RootNode);
@@ -123,9 +123,9 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 void ChangeGapOfDisplay(const std::string &Side, int Offset)
 {
     screen_info *Screen = GetDisplayOfMousePointer();
-    if(Side == "Vertical")
+    if(Side == "vertical")
         Screen->Space[CurrentSpace].VerticalGap += Offset;
-    else if(Side == "Horizontal")
+    else if(Side == "horizontal")
         Screen->Space[CurrentSpace].HorizontalGap += Offset;
 
     CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode);
