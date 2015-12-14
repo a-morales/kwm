@@ -7,7 +7,7 @@ It is now a tiling window manager that represents windows as the leaves of a bin
 among other things.
 
 *Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define mapping
-between keys and these functions. *Kwmc* should be placed in your path to ensure that this works as expected.
+between keys and these functions. *Kwmc* should be placed in your path to ensure that this works as expected.  
 For information, check the readme located within the *kwmc* folder.
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events
@@ -15,7 +15,7 @@ prior to their delivery to a foreground application.
 
 This allows for functionality such as focus-follows-mouse, remapping keys, and most importantly 
 global hotkeys, mainly to be used for interaction with the parts of *Kwm* that are exposed to hotkeys.cpp 
-through the daemon, and so hotkeys.cpp can and should be customized by the user.
+through the daemon, and so hotkeys.cpp can and should be customized by the user.  
 The user may also use any other program that allows for running a specific command on keypress.
 
 hotkeys.cpp can be edited and recompiled separately, thus any changes made does not require *Kwm* to be restarted.
@@ -55,26 +55,22 @@ To compile *Kwm*, simply run the included build.sh script.
 By default, debug prints are enabled, and these can be turned off by opening the build.sh script and
 getting rid of the -DDEBUG_BUILD flag.
 
-If any changes have been made to hotkeys.cpp, run the sobuild.sh script to recompile this file separately.
-
+If any changes have been made to hotkeys.cpp, run the sobuild.sh script to recompile this file separately.  
 Because there is no app bundle, *Kwm* has to be started from a terminal.
 
 ## Usage:
 
-When *Kwm* is started, it will automatically tile the windows of the current space, using binary space partitioning.
-
+When *Kwm* is started, it will automatically tile the windows of the current space, using binary space partitioning.  
 This will also happen once for any other space the user might switch to.
 
 When *Kwm* detects a new window, it inserts it into a window tree at the specified point using the split-mode
-specified.
-
+specified.  
 When a window is closed, it will be removed from the window tree and the tree will be rebalanced.
 
 By default, the insertion point is the focused window, but the user can mark a temporary insertion point to be
 used instead for the next insertion.
 
-There are 3 types of split-modes available, these are optimal (width/height ratio), vertical and horizontal.
-
+There are 3 types of split-modes available, these are optimal (width/height ratio), vertical and horizontal.  
 The default split-mode is set to optimal (width/height ratio).
 
 Example:
@@ -100,18 +96,15 @@ Example:
 
 ```
 
-*Kwm* mainly consists of three panes so to speak. The main pane being the entire screen.
-
+*Kwm* mainly consists of three panes so to speak. The main pane being the entire screen.  
 After at least 1 window insertion has occurred, the screen will consist of either a left and right pane,
 or an upper and lower pane.
 
-The width of the left/right pane can be changed, as well as the height of the upper/lower pane
-
+The width of the left/right pane can be changed, as well as the height of the upper/lower pane  
 Currently these cannot occur simultaneously, and the type of panes created is decided by the main pane split-mode.
 
-If the main pane is split using vertical mode, a left and right pane is created.
-
-If the main pane is split using horizontal mode, an upper and lower pane is created.
+If the main pane is split using vertical mode, a left and right pane is created.  
+If the main pane is split using horizontal mode, an upper and lower pane is created.  
 
 If *Kwm* is added to the path, a launcher script is necessary
 because it tries to load hotkeys.so from the executables working-directory.
