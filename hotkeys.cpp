@@ -44,31 +44,17 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Toggle Focus-Mode
             case kVK_ANSI_T:
             {
-                if(EX->KwmFocusMode == FocusModeAutofocus)
-                {
-                    EX->KwmFocusMode = FocusModeAutoraise;
-                    DEBUG("KwmFocusMode: Autoraise")
-                }
-                else if(EX->KwmFocusMode == FocusModeAutoraise)
-                {
-                    EX->KwmFocusMode = FocusModeDisabled;
-                    DEBUG("KwmFocusMode: Disabled")
-                }
-                else if(EX->KwmFocusMode == FocusModeDisabled)
-                {
-                    EX->KwmFocusMode = FocusModeAutofocus;
-                    DEBUG("KwmFocusMode: Autofocus")
-                }
+                system("kwmc focus -t toggle");
             } break;
             // Mark Container to split
             case kVK_ANSI_M:
             {
-                EX->MarkWindowContainer();
+                system("kwmc window -t mark");
             } break;
             // Toggle window floating
             case kVK_ANSI_W:
             {
-                EX->ToggleFocusedWindowFloating();
+                system("kwmc window -t float");
             } break;
             // Reapply node container to window 
             case kVK_ANSI_R:
@@ -78,48 +64,48 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Restart Kwm
             case kVK_ANSI_Q:
             {
-                EX->KwmRestart();
+                system("kwmc restart");
             } break;
             // Use Width/Height ratio to determine split mode
             case kVK_ANSI_O:
             {
-                EX->KwmSplitMode = -1;
+                system("kwmc screen -s optimal");
             } break;
             // Vertical Split-Mode
             case kVK_ANSI_7:
             {
-                EX->KwmSplitMode = 1;
+                system("kwmc screen -s vertical");
             } break;
             // Horizontal Split-Mode
             case kVK_ANSI_Slash:
             {
-                EX->KwmSplitMode = 2;
+                system("kwmc screen -s horizontal");
             } break;
             // Resize Panes
             case kVK_ANSI_H:
             {
-                EX->MoveContainerSplitter(1, -10);
+                system("kwmc screen -m left");
             } break;
             case kVK_ANSI_L:
             {
-                EX->MoveContainerSplitter(1, 10);
+                system("kwmc screen -m right");
             } break;
             case kVK_ANSI_J:
             {
-                EX->MoveContainerSplitter(2, 10);
+                system("kwmc screen -m down");
             } break;
             case kVK_ANSI_K:
             {
-                EX->MoveContainerSplitter(2, -10);
+                system("kwmc screen -m up");
             } break;
             // Toggle Fullscreen / Parent Container
             case kVK_ANSI_F:
             {
-                EX->ToggleFocusedWindowFullscreen();
+                system("kwmc window -t fullscreen");
             } break;
             case kVK_ANSI_P:
             {
-                EX->ToggleFocusedWindowParentContainer();
+                system("kwmc window -t parent");
             } break;
             default:
             {
@@ -134,52 +120,52 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Swap focused window with the previous window
             case kVK_ANSI_P:
             {
-                EX->SwapFocusedWindowWithNearest(-1);
+                system("kwmc window -s prev");
             } break;
             // Swap focused window with the next window
             case kVK_ANSI_N:
             {
-                EX->SwapFocusedWindowWithNearest(1);
+                system("kwmc window -s next");
             } break;
             // Shift focus to the previous window
             case kVK_ANSI_H:
             {
-                EX->ShiftWindowFocus(-1);
+                system("kwmc window -f prev");
             } break;
             // Shift focus to the next window
             case kVK_ANSI_L:
             {
-                EX->ShiftWindowFocus(1);
+                system("kwmc window -f next");
             } break;
             case kVK_ANSI_R:
             {
-                EX->ReflectWindowNodeTreeVertically();
+                system("kwmc screen -m reflect");
             } break;
             // Decrease screen gaps
             case kVK_ANSI_X:
             {
-                EX->ChangeGapOfDisplay("Horizontal", -10);
+                system("kwmc screen -g decrease horizontal");
             } break;
             case kVK_ANSI_Y:
             {
-                EX->ChangeGapOfDisplay("Vertical", -10);
+                system("kwmc screen -g decrease vertical");
             } break;
             // Decrease screen padding
             case kVK_LeftArrow:
             {
-                EX->ChangePaddingOfDisplay("Left", -10);
+                system("kwmc screen -p decrease left");
             } break;
             case kVK_RightArrow:
             {
-                EX->ChangePaddingOfDisplay("Right", -10);
+                system("kwmc screen -p decrease right");
             } break;
             case kVK_UpArrow:
             {
-                EX->ChangePaddingOfDisplay("Top", -10);
+                system("kwmc screen -p decrease top");
             } break;
             case kVK_DownArrow:
             {
-                EX->ChangePaddingOfDisplay("Bottom", -10);
+                system("kwmc screen -p decrease bottom");
             } break;
             default:
             {
@@ -194,38 +180,38 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Send window to previous screen
             case kVK_ANSI_P:
             {
-                EX->CycleFocusedWindowDisplay(-1);
+                system("kwmc screen -m prev");
             } break;
             // Send window to next screen
             case kVK_ANSI_N:
             {
-                EX->CycleFocusedWindowDisplay(1);
+                system("kwmc screen -m next");
             } break;
             // Increase screen gaps
             case kVK_ANSI_X:
             {
-                EX->ChangeGapOfDisplay("Horizontal", 10);
+                system("kwmc screen -g increase horizontal");
             } break;
             case kVK_ANSI_Y:
             {
-                EX->ChangeGapOfDisplay("Vertical", 10);
+                system("kwmc screen -g increase vertical");
             } break;
             // Increase screen padding
             case kVK_LeftArrow:
             {
-                EX->ChangePaddingOfDisplay("Left", 10);
+                system("kwmc screen -p increase left");
             } break;
             case kVK_RightArrow:
             {
-                EX->ChangePaddingOfDisplay("Right", 10);
+                system("kwmc screen -p increase right");
             } break;
             case kVK_UpArrow:
             {
-                EX->ChangePaddingOfDisplay("Top", 10);
+                system("kwmc screen -p increase top");
             } break;
             case kVK_DownArrow:
             {
-                EX->ChangePaddingOfDisplay("Bottom", 10);
+                system("kwmc screen -p increase bottom");
             } break;
             default:
             {
