@@ -1,4 +1,4 @@
-*Kwmc* is a program used to write to kwms socket
+*Kwmc* is a program used to write to *Kwm*'s socket
 
 ## Kwmc Info:
     Restart Kwm
