@@ -28,11 +28,23 @@ std::string ReadFromSocket(int SockFD)
     return Message;
 }
 
-void KwmcForwardMessageThroughSocket(std::string Msg)
+void KwmcForwardMessageThroughSocket(int argc, char **argv)
 {
+    std::string Msg;
+    for(int i = 1; i < argc; ++i)
+    {
+        Msg += argv[i];
+
+        if(i < argc - 1)
+            Msg += " ";
+    }
     Msg += "\n";
+
     send(KwmcSockFD, Msg.c_str(), Msg.size(), 0);
-    std::cout << ReadFromSocket(KwmcSockFD) << std::endl;
+
+    std::string Response = ReadFromSocket(KwmcSockFD);
+    if(!Response.empty())
+        std::cout << Response << std::endl;
 }
 
 void KwmcConnectToDaemon()
@@ -55,10 +67,10 @@ void KwmcConnectToDaemon()
 
 int main(int argc, char **argv)
 {
-    if(argc == 2)
+    if(argc >= 2)
     {
         KwmcConnectToDaemon();
-        KwmcForwardMessageThroughSocket(argv[1]);
+        KwmcForwardMessageThroughSocket(argc, argv);
         close(KwmcSockFD);
     }
     else
