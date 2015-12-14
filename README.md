@@ -1,7 +1,6 @@
 ## Description
 
-*Kwm* started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
-
+*Kwm* started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
 It is now a tiling window manager that represents windows as the leaves of a binary tree.
 
 *Kwm* runs a local daemon to read messages and trigger functions that affect focus management and tiling
