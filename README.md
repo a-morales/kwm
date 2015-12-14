@@ -97,10 +97,10 @@ Example:
 ```
 
 *Kwm* mainly consists of three panes so to speak. The main pane being the entire screen.  
-After at least 1 window insertion has occurred, the screen will consist of either a left and right pane,
+After at least 1 window insertion has occurred, the screen will consist of either a left and right pane,  
 or an upper and lower pane.
 
-The width of the left/right pane can be changed, as well as the height of the upper/lower pane  
+The width of the left/right pane can be changed, as well as the height of the upper/lower pane.  
 Currently these cannot occur simultaneously, and the type of panes created is decided by the main pane split-mode.
 
 If the main pane is split using vertical mode, a left and right pane is created.  
