@@ -192,6 +192,7 @@ void KwmInit()
 
     KwmFilePath = getcwd(NULL, 0);
     HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
+    KwmFocusMode = FocusModeAutoraise;
     
     KWMCode = LoadKwmCode();
     GetActiveDisplays();
