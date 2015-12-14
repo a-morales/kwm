@@ -9,6 +9,7 @@ among other things.
 
 *Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define mapping
 between keys and these functions. *Kwmc* should be placed in your path to ensure that this works as expected.
+For information, check the readme located within the *kwmc* folder.
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events
 prior to their delivery to a foreground application.
@@ -126,43 +127,6 @@ Example launcher script to be placed in the path instead of the *Kwm* binary.
 The reason for this is that hotkeys.cpp can edited and rebuild separately,
 and *Kwm* will reload this library without having to be restarted and so
 hotkeys can be edited live.
-
-## Kwmc Info:
-    Restart Kwm
-        kwmc restart 
-
-    Get owner and title of focused window
-        kwmc focused 
-
-    Set focus-mode
-        kwmc focus -t toggle|autofocus|autoraise|disabled
-
-    Set window-tiling mode
-        kwmc window -t fullscreen|parent|float|mark
-
-    Change window focus
-        kwmc window -f prev|next
-
-    Swap window position
-        kwmc window -s prev|next
-
-    Set split-mode
-        kwmc screen -s optimal|vertical|horizontal
-
-    Reflect windows vertically
-        kwmc screen -m reflect
-
-    Move container splitter
-        kwmc screen -m left|right|up|down
-
-    Move window between monitors
-        kwmc screen -m prev|next
-
-    Change screen padding
-        kwmc screen -p increase|decrease left|right|top|bottom 
-
-    Change screen container gaps
-        kwmc screen -g increase|decrease vertical|horizontal
 
 ## Default Hotkeys:
     - ctrl+alt+cmd:
