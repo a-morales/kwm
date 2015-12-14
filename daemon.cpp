@@ -99,6 +99,11 @@ void KwmDaemonHandleConnection()
                 else if(Tokens[2] == "mark")
                     MarkWindowContainer();
             }
+            else if(Tokens[1] == "-c")
+            {
+                if(Tokens[2] == "refresh")
+                    ResizeWindowToContainerSize();
+            }
             else if(Tokens[1] == "-f")
             {
                 if(Tokens[2] == "prev")

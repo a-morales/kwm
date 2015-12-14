@@ -59,7 +59,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Reapply node container to window 
             case kVK_ANSI_R:
             {
-                //ResizeWindowToContainerSize();
+                system("kwmc window -c refresh");
             } break;
             // Restart Kwm
             case kVK_ANSI_Q:
