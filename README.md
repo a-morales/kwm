@@ -4,18 +4,26 @@
 
 It is now a tiling window manager that represents windows as the leaves of a binary tree.
 
-Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,
-the menubar is not accessible. By default *Kwm* is set to use autoraise as it is meant to be used alongside
-the tiling functionality, and so windows should not overlap unless a window is specifically made floating.
+*Kwm* runs a local daemon to read messages and trigger functions that affect focus management and tiling
+among other things.
+
+*Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define mapping
+between keys and these functions. *Kwmc* should be placed in your path to ensure that this works as expected.
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events
 prior to their delivery to a foreground application.
 
 This allows for functionality such as focus-follows-mouse, remapping keys, and most importantly 
-global hotkeys, mainly to be used for interaction with the parts of *Kwm* that are exposed to hotkeys.cpp
-through the export_table struct, and so hotkeys.cpp can and should be customized by the user.
+global hotkeys, mainly to be used for interaction with the parts of *Kwm* that are exposed to hotkeys.cpp 
+through the daemon, and so hotkeys.cpp can and should be customized by the user.
+The user may also use any other program that allows for running a specific command on keypress.
 
 hotkeys.cpp can be edited and recompiled separately, thus any changes made does not require *Kwm* to be restarted.
+
+Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,
+the menubar is not accessible. By default *Kwm* is set to use autoraise as it is meant to be used alongside
+the tiling functionality, and so windows should not overlap unless a window is specifically made floating.
+
 
 *EARLY multiple monitor support:*
 
@@ -46,6 +54,8 @@ To compile *Kwm*, simply run the included build.sh script.
 
 By default, debug prints are enabled, and these can be turned off by opening the build.sh script and
 getting rid of the -DDEBUG_BUILD flag.
+
+If any changes have been made to hotkeys.cpp, run the sobuild.sh script to recompile this file separately.
 
 Because there is no app bundle, *Kwm* has to be started from a terminal.
 
@@ -116,6 +126,43 @@ Example launcher script to be placed in the path instead of the *Kwm* binary.
 The reason for this is that hotkeys.cpp can edited and rebuild separately,
 and *Kwm* will reload this library without having to be restarted and so
 hotkeys can be edited live.
+
+## Kwmc Info:
+    Restart Kwm
+        kwmc restart 
+
+    Get owner and title of focused window
+        kwmc focused 
+
+    Set focus-mode
+        kwmc focus -t toggle|autofocus|autoraise|disabled
+
+    Set window-tiling mode
+        kwmc window -t fullscreen|parent|float|mark
+
+    Change window focus
+        kwmc window -f prev|next
+
+    Swap window position
+        kwmc window -s prev|next
+
+    Set split-mode
+        kwmc screen -s optimal|vertical|horizontal
+
+    Reflect windows vertically
+        kwmc screen -m reflect
+
+    Move container splitter
+        kwmc screen -m left|right|up|down
+
+    Move window between monitors
+        kwmc screen -m prev|next
+
+    Change screen padding
+        kwmc screen -p increase|decrease left|right|top|bottom 
+
+    Change screen container gaps
+        kwmc screen -g increase|decrease vertical|horizontal
 
 ## Default Hotkeys:
     - ctrl+alt+cmd:
