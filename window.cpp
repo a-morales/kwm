@@ -515,13 +515,13 @@ void ToggleFocusedWindowFloating()
         if(IsWindowFloating(FocusedWindow->WID, &WindowIndex))
         {
             FloatingWindowLst.erase(FloatingWindowLst.begin() + WindowIndex);
-            KwmFocusMode = FocusModeAutoraise;
+            //KwmFocusMode = FocusModeAutoraise;
             AddWindowToTree();
         }
         else
         {
             FloatingWindowLst.push_back(FocusedWindow->WID);
-            KwmFocusMode = FocusModeAutofocus;
+            //KwmFocusMode = FocusModeAutofocus;
             RemoveWindowFromTree();
         }
     }
