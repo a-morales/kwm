@@ -12,6 +12,10 @@ extern std::vector<window_info> WindowLst;
 extern std::vector<window_info> FloatingAppLst;
 extern window_info *FocusedWindow;
 
+extern int DefaultPaddingLeft, DefaultPaddingRight;
+extern int DefaultPaddingTop, DefaultPaddingBottom;
+extern int DefaultGapVertical, DefaultGapHorizontal;
+
 void GetActiveDisplays()
 {
     CGGetActiveDisplayList(MaxDisplayCount, (CGDirectDisplayID*)&ActiveDisplays, &ActiveDisplaysCount);
@@ -29,14 +33,13 @@ void GetActiveDisplays()
         Screen.Width = DisplayRect.size.width;
         Screen.Height = DisplayRect.size.height;
 
-        // Read from config at some point
-        Screen.PaddingTop = 40;
-        Screen.PaddingLeft = 20;
-        Screen.PaddingRight = 20;
-        Screen.PaddingBottom = 20;
+        Screen.PaddingTop = DefaultPaddingTop;
+        Screen.PaddingLeft = DefaultPaddingLeft;
+        Screen.PaddingRight = DefaultPaddingRight;
+        Screen.PaddingBottom = DefaultPaddingBottom;
 
-        Screen.VerticalGap = 10;
-        Screen.HorizontalGap = 10;
+        Screen.VerticalGap = DefaultGapVertical;
+        Screen.HorizontalGap = DefaultGapHorizontal;
 
         DisplayLst.push_back(Screen);
     }
@@ -108,6 +111,26 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
     }
 
     return ScreenWindowIDLst;
+}
+
+void SetDefaultPaddingOfDisplay(const std::string &Side, int Offset)
+{
+    if(Side == "left")
+        DefaultPaddingLeft = Offset;
+    else if(Side == "right")
+        DefaultPaddingRight = Offset;
+    else if(Side == "top")
+        DefaultPaddingTop = Offset;
+    else if(Side == "bottom")
+        DefaultPaddingBottom = Offset;
+}
+
+void SetDefaultGapOfDisplay(const std::string &Side, int Offset)
+{
+    if(Side == "vertical")
+        DefaultGapVertical = Offset;
+    else if(Side == "horizontal")
+        DefaultGapHorizontal = Offset;
 }
 
 void ChangePaddingOfDisplay(const std::string &Side, int Offset)

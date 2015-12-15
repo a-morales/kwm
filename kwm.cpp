@@ -11,8 +11,10 @@ uint32_t ActiveDisplaysCount;
 CGDirectDisplayID ActiveDisplays[5];
 
 screen_info *Screen;
-int CurrentSpace = 0;
-int PrevSpace = -1;
+int DefaultPaddingTop = 40, DefaultPaddingBottom = 20;
+int DefaultPaddingLeft = 20, DefaultPaddingRight = 20;
+int DefaultGapVertical = 10, DefaultGapHorizontal = 10;
+int PrevSpace = -1, CurrentSpace = 0;
 
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;

@@ -74,6 +74,27 @@ void KwmDaemonHandleConnection()
                 }
                 FloatingAppLst.push_back(AppName);
             }
+            else if(Tokens[1] == "padding")
+            {
+                if(Tokens[2] == "left" || Tokens[2] == "right" ||
+                   Tokens[2] == "top" || Tokens[2] == "bottom")
+                {
+                    int Value = 0;
+                    std::stringstream Stream(Tokens[3]);
+                    Stream >> Value;
+                    SetDefaultPaddingOfDisplay(Tokens[2], Value);
+                }
+            }
+            else if(Tokens[1] == "gap")
+            {
+                if(Tokens[2] == "vertical" || Tokens[2] == "horizontal")
+                {
+                    int Value = 0;
+                    std::stringstream Stream(Tokens[3]);
+                    Stream >> Value;
+                    SetDefaultGapOfDisplay(Tokens[2], Value);
+                }
+            }
         }
         else if(Tokens[0] == "focused")
         {

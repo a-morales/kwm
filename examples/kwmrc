@@ -2,6 +2,18 @@
 # The commands listed here will be executed as system
 # commands when Kwm starts
 
+# Set default values for screen padding
+
+kwmc config padding top 40
+kwmc config padding bottom 40
+kwmc config padding left 20
+kwmc config padding right 20
+
+# Set default values for container gaps
+
+kwmc config gap vertical 20
+kwmc config gap horizontal 20
+
 # The following command blacklists a specific application
 # from Kwms tiling (PS: The app name is case-sensitive)
 # If the name consist of multiple words, the command
