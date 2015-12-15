@@ -183,6 +183,34 @@ void * KwmWindowMonitor(void*)
     }
 }
 
+void KwmExecuteConfig()
+{
+    char *HomeP = std::getenv("HOME");
+    if(!HomeP)
+        Fatal("Failed to get environment variable 'HOME'");
+
+    std::string ENV_HOME = HomeP;
+    std::string KWM_CONFIG_FILE = ".kwmrc";
+
+    std::ifstream ConfigFD(ENV_HOME + "/" + KWM_CONFIG_FILE);
+    if(ConfigFD.fail())
+    {
+        std::cout << "Could not open "
+                  << ENV_HOME
+                  << "/"
+                  << KWM_CONFIG_FILE
+                  << ", make sure the file exists.";
+        return;
+    }
+
+    std::string Line;
+    while(std::getline(ConfigFD, Line))
+    {
+        if(!Line.empty() && Line[0] != '#')
+            system(Line.c_str());
+    }
+}
+
 void KwmInit()
 {
     if(!CheckPrivileges())
@@ -200,6 +228,7 @@ void KwmInit()
     HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
     KwmFocusMode = FocusModeAutoraise;
     
+    KwmExecuteConfig();
     KWMCode = LoadKwmCode();
     GetActiveDisplays();
 
