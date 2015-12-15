@@ -62,16 +62,19 @@ Because there is no app bundle, *Kwm* has to be started from a terminal.
 In addition to this, for *Kwm* to work properly, the user also has to compile *Kwmc* and place it in the path.  
 Simply run the build.sh script located in the *kwmc* folder, and move / symlink the binary.
 
+## Configuration:
+
+The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands that will be executed when *Kwm* starts.  
+This file can be used to blacklist applications and specify other settings, as well as run any command not restricted to *Kwmc*.  
+
+A sample config can be found within the [examples](examples) directory.
+
 ## Usage:
 
-When *Kwm* is started, it executes commands listed in a file .kwmrc located in the users home directory.  
-This file can be used to blacklist applications and specify other settings using the *kwmc* program.  
-
-It will then proceed to automatically tile the windows of the current space, using binary space partitioning.  
+When *Kwm* starts, it will automatically tile the windows of the current space, using binary space partitioning.  
 This will also happen once for any other space the user might switch to.
 
-When *Kwm* detects a new window, it inserts it into a window tree at the specified point using the split-mode
-specified.  
+When *Kwm* detects a new window, it inserts it into a window tree at the specified point using the split-mode specified.  
 When a window is closed, it will be removed from the window tree and the tree will be rebalanced.
 
 By default, the insertion point is the focused window, but the user can mark a temporary insertion point to be
