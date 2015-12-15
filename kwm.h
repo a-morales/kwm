@@ -156,10 +156,12 @@ screen_info *GetDisplayOfMousePointer();
 screen_info *GetDisplayOfWindow(window_info *);
 std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
+bool DoesSpaceExistInMapOfScreen(screen_info *);
 void CycleFocusedWindowDisplay(int);
 void ChangeGapOfDisplay(const std::string &, int);
 void ChangePaddingOfDisplay(const std::string &, int);
-bool DoesSpaceExistInMapOfScreen(screen_info *);
+void SetDefaultPaddingOfDisplay(const std::string &, int);
+void SetDefaultGapOfDisplay(const std::string &, int);
 
 void CreateWindowNodeTree(screen_info *, std::vector<window_info*> *);
 void ShouldWindowNodeTreeUpdate(screen_info *);
@@ -213,6 +215,7 @@ bool KwmStartDaemon();
 void KwmDaemonHandleConnection();
 void * KwmDaemonHandleConnectionBG(void *);
 void KwmTerminateDaemon();
+std::vector<std::string> SplitString(std::string, char);
 
 void KwmInit();
 void KwmRestart();
