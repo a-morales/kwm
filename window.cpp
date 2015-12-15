@@ -53,49 +53,19 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
     return Result;
 }
 
-bool IsWindowAnElementOfAWindow(window_info *Window)
+bool IsWindowNotAStandardWindow(window_info *Window)
 {
     bool Result = false;
 
-    // A window that is not an element of
-    // an existing window should (almost always)
-    // have a title.
-    if(Window->Owner != "Firefox" &&
-       Window->Owner != "Google Chrome" &&
-       Window->Owner != "Safari" &&
-       Window->Owner != "Xcode" &&
-       Window->Owner != "Terminal" &&
-       Window->Owner != "mpv" &&
-       Window->Name == "")
+    // A non standard window is a window that
+    // doesnot have a subrole equal to
+    // kAXStandardWindowSubrole
+    // This is usually windows that do not have
+    // a title-bar.
+    if(Window->Owner == "iTerm2")
     {
         Result = true;
     }
-
-    return Result;
-}
-
-bool IsWindowPartOfWebBrowser(window_info *Window)
-{
-    bool Result = false;
-
-    // Any Firefox window that has a width lower than 335 is not a browser window
-    if(Window->Owner == "Firefox" &&
-       Window->Width < 335) 
-            Result = true;
-
-    // Any Safari window that has a width lower than 500 is not a 
-    // browser window, but items such as the searchbar and so on
-    else if(Window->Owner == "Safari" &&
-            (Window->Width < 500 ||
-             Window->Height < 232))
-                 Result = true;
-
-    // Any Google Chrome  window that has a width lower than 400
-    // or height lower than 272 is not a browser window
-    else if(Window->Owner == "Google Chrome" &&
-            (Window->Width < 400 || 
-            Window->Height < 272))
-                 Result = true;
 
     return Result;
 }
@@ -113,15 +83,23 @@ bool FilterWindowList(screen_info *Screen)
                Result = false;
 
         if(WindowLst[WindowIndex].Layer == 0 &&
-           !IsWindowAnElementOfAWindow(&WindowLst[WindowIndex]) &&
-           !IsWindowPartOfWebBrowser(&WindowLst[WindowIndex]) &&
            Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]))
         {
-            CFTypeRef Role;
-            if(GetWindowRole(&WindowLst[WindowIndex], &Role))
+            CFTypeRef Role, SubRole;
+            if(GetWindowRole(&WindowLst[WindowIndex], &Role, &SubRole))
             {
                 if(CFEqual(Role, kAXWindowRole))
-                    FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+                {
+                    if(!IsWindowNotAStandardWindow(&WindowLst[WindowIndex]))
+                    {
+                        if(CFEqual(SubRole, kAXStandardWindowSubrole))
+                            FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+                    }
+                    else
+                    {
+                        FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+                    }
+                }
             }
         }
     }
@@ -871,7 +849,7 @@ window_info *GetWindowByID(int WindowID)
     return NULL;
 }
 
-bool GetWindowRole(window_info *Window, CFTypeRef *Role)
+bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole)
 {
     bool Result = false;
 
@@ -879,6 +857,7 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role)
     if(GetWindowRef(Window, &WindowRef))
     {
         AXUIElementCopyAttributeValue(WindowRef, kAXRoleAttribute, (CFTypeRef *)Role);
+        AXUIElementCopyAttributeValue(WindowRef, kAXSubroleAttribute, (CFTypeRef *)SubRole);
         Result = true;
     }
 
