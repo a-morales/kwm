@@ -172,8 +172,7 @@ bool IsWindowFloating(int, int *);
 bool IsWindowOnActiveSpace(window_info *);
 bool IsSpaceTransitionInProgress();
 bool IsSpaceSystemOrFullscreen();
-bool IsWindowPartOfWebBrowser(window_info *);
-bool IsWindowAnElementOfAWindow(window_info *);
+bool IsWindowNotAStandardWindow(window_info *);
 bool WindowsAreEqual(window_info *, window_info *);
 
 void UpdateWindowTree();
@@ -199,7 +198,7 @@ CGPoint GetWindowPos(AXUIElementRef);
 CGSize GetWindowSize(AXUIElementRef);
 window_info *GetWindowByID(int);
 bool GetWindowRef(window_info *, AXUIElementRef *);
-bool GetWindowRole(window_info *, CFTypeRef *);
+bool GetWindowRole(window_info *, CFTypeRef *, CFTypeRef *);
 void GetWindowInfo(const void *, const void *, void *);
 bool DoesApplicationExist(int, std::vector<AXUIElementRef> *);
 void FreeApplicationWindowRefCache(int);
