@@ -60,7 +60,10 @@ Because there is no app bundle, *Kwm* has to be started from a terminal.
 
 ## Usage:
 
-When *Kwm* is started, it will automatically tile the windows of the current space, using binary space partitioning.  
+When *Kwm* is started, it executes commands listed in a file .kwmrc located in the users home directory.  
+This file can be used to blacklist applications and specify other settings using the *kwmc* program.  
+
+It will then proceed to automatically tile the windows of the current space, using binary space partitioning.  
 This will also happen once for any other space the user might switch to.
 
 When *Kwm* detects a new window, it inserts it into a window tree at the specified point using the split-mode
