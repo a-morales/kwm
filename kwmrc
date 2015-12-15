@@ -1,0 +1,11 @@
+# This is a sample config for Kwm
+# The commands listed here will be executed as system
+# commands when Kwm starts
+
+# The following command blacklists a specific application
+# from Kwms tiling (PS: The app name is case-sensitive)
+# If the name consist of multiple words, the command
+# looks like: kwmc config float Google Chrome
+
+kwmc config float Steam
+kwmc config float Photoshop
