@@ -7,7 +7,8 @@ It is now a tiling window manager that represents windows as the leaves of a bin
 among other things.
 
 *Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define mapping
-between keys and these functions. *Kwmc* should be placed in your path to ensure that this works as expected.  
+between keys and these functions. The config file ".kwmrc" also uses *Kwmc* to apply initial settings upon startup.  
+Because of this, *Kwmc* needs to be placed in your path to ensure that this works as expected.  
 For information, check the readme located within the *kwmc* folder.
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events
