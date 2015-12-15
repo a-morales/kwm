@@ -1,5 +1,6 @@
 #include "kwm.h"
 
+extern std::vector<std::string> FloatingAppLst;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int KwmSplitMode;
@@ -59,6 +60,20 @@ void KwmDaemonHandleConnection()
         if(Tokens[0] == "restart")
         {
             KwmRestart();
+        }
+        else if(Tokens[0] == "config")
+        {
+            if(Tokens[1] == "float")
+            {
+                std::string AppName;
+                for(int TokenIndex = 2; TokenIndex < Tokens.size(); ++TokenIndex)
+                {
+                    AppName += Tokens[TokenIndex];
+                    if(TokenIndex < Tokens.size() - 1)
+                        AppName += " ";
+                }
+                FloatingAppLst.push_back(AppName);
+            }
         }
         else if(Tokens[0] == "focused")
         {
