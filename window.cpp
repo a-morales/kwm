@@ -486,6 +486,17 @@ void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
                         FocusWindowBelowCursor();
                 }
             }
+            else if(!Parent)
+            {
+                DEBUG("RemoveWindowFromTree() " << FocusedWindow->Name)
+
+                free(WindowNode);
+                Screen->Space[CurrentSpace].RootNode = NULL;
+                if(Center)
+                    CenterWindow(Screen);
+
+                Screen->Space.erase(CurrentSpace);
+            }
         }
     }
 }
