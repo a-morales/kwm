@@ -59,6 +59,9 @@ getting rid of the -DDEBUG_BUILD flag.
 If any changes have been made to hotkeys.cpp, run the sobuild.sh script to recompile this file separately.  
 Because there is no app bundle, *Kwm* has to be started from a terminal.
 
+In addition to this, for *Kwm* to work properly, the user also has to compile *Kwmc* and place it in the path.  
+Simply run the build.sh script located in the *kwmc* folder, and move / symlink the binary.
+
 ## Usage:
 
 When *Kwm* is started, it executes commands listed in a file .kwmrc located in the users home directory.  
