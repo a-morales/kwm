@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <fstream>
 #include <sstream>
 #include <string>
 
@@ -215,6 +216,7 @@ void KwmTerminateDaemon();
 
 void KwmInit();
 void KwmRestart();
+void KwmExecuteConfig();
 bool CheckPrivileges();
 void Fatal(const std::string &);
 CGEventRef CGEventCallback(CGEventTapProxy, CGEventType, CGEventRef, void *);
