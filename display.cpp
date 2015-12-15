@@ -9,6 +9,7 @@ extern int CurrentSpace;
 
 extern std::vector<screen_info> DisplayLst;
 extern std::vector<window_info> WindowLst;
+extern std::vector<window_info> FloatingAppLst;
 extern window_info *FocusedWindow;
 
 void GetActiveDisplays()
@@ -82,8 +83,11 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         window_info *Window = &WindowLst[WindowIndex];
-        if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
-            ScreenWindowLst.push_back(Window);
+        if(!IsApplicationFloating(&WindowLst[WindowIndex]))
+        {
+            if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
+                ScreenWindowLst.push_back(Window);
+        }
     }
 
     return ScreenWindowLst;
@@ -96,8 +100,11 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         window_info *Window = &WindowLst[WindowIndex];
-        if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
-            ScreenWindowIDLst.push_back(Window->WID);
+        if(!IsApplicationFloating(&WindowLst[WindowIndex]))
+        {
+            if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
+                ScreenWindowIDLst.push_back(Window->WID);
+        }
     }
 
     return ScreenWindowIDLst;

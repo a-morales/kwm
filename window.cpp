@@ -7,6 +7,7 @@ extern int PrevSpace, CurrentSpace;
 extern int MarkedWindowID;
 
 extern std::vector<window_info> WindowLst;
+extern std::vector<std::string> FloatingAppLst;
 extern std::vector<int> FloatingWindowLst;
 
 extern ProcessSerialNumber FocusedPSN;
@@ -105,6 +106,22 @@ bool FilterWindowList(screen_info *Screen)
     }
 
     WindowLst = FilteredWindowLst;
+    return Result;
+}
+
+bool IsApplicationFloating(window_info *Window)
+{
+    bool Result = false;
+
+    for(int WindowIndex = 0; WindowIndex < FloatingAppLst.size(); ++WindowIndex)
+    {
+        if(Window->Owner == FloatingAppLst[WindowIndex])
+        {
+            Result = true;
+            break;
+        }
+    }
+
     return Result;
 }
 
@@ -226,12 +243,13 @@ void UpdateWindowTree()
         UpdateActiveWindowList(Screen);
         if(!IsSpaceTransitionInProgress() && !IsSpaceSystemOrFullscreen() && FilterWindowList(Screen))
         {
+            std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(Screen->ID);
             std::map<int, space_info>::iterator It = Screen->Space.find(CurrentSpace);
-            if(It == Screen->Space.end() && !WindowLst.empty())
-                CreateWindowNodeTree(Screen);
-            else if(It != Screen->Space.end() && !WindowLst.empty())
+            if(It == Screen->Space.end() && !WindowsOnDisplay.empty())
+                CreateWindowNodeTree(Screen, &WindowsOnDisplay);
+            else if(It != Screen->Space.end() && !WindowsOnDisplay.empty())
                 ShouldWindowNodeTreeUpdate(Screen);
-            else if(It != Screen->Space.end() && WindowLst.empty())
+            else if(It != Screen->Space.end() && WindowsOnDisplay.empty())
                 Screen->Space.erase(CurrentSpace);
         }
     }
@@ -283,25 +301,31 @@ void UpdateActiveWindowList(screen_info *Screen)
     }
 }
 
-void CreateWindowNodeTree(screen_info *Screen)
+void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)
 {
     DEBUG("CreateWindowNodeTree() Create Tree")
-    std::vector<int> WindowIDs = GetAllWindowIDsOnDisplay(Screen->ID);
 
     space_info SpaceInfo;
-    SpaceInfo.RootNode = CreateTreeFromWindowIDList(Screen, WindowIDs);
+    SpaceInfo.RootNode = CreateTreeFromWindowIDList(Screen, Windows);
 
-    SpaceInfo.PaddingTop = Screen->PaddingTop;
-    SpaceInfo.PaddingBottom = Screen->PaddingBottom;
-    SpaceInfo.PaddingLeft = Screen->PaddingLeft;
-    SpaceInfo.PaddingRight = Screen->PaddingRight;
+    if(SpaceInfo.RootNode)
+    {
+        SpaceInfo.PaddingTop = Screen->PaddingTop;
+        SpaceInfo.PaddingBottom = Screen->PaddingBottom;
+        SpaceInfo.PaddingLeft = Screen->PaddingLeft;
+        SpaceInfo.PaddingRight = Screen->PaddingRight;
 
-    SpaceInfo.VerticalGap = Screen->VerticalGap;
-    SpaceInfo.HorizontalGap = Screen->HorizontalGap;
+        SpaceInfo.VerticalGap = Screen->VerticalGap;
+        SpaceInfo.HorizontalGap = Screen->HorizontalGap;
 
-    Screen->Space[CurrentSpace] = SpaceInfo;
-    ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
-    FocusWindowBelowCursor();
+        Screen->Space[CurrentSpace] = SpaceInfo;
+        ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
+        FocusWindowBelowCursor();
+    }
+    else
+    {
+        Screen->Space.erase(CurrentSpace);
+    }
 }
 
 void ShouldWindowNodeTreeUpdate(screen_info *Screen)
@@ -315,7 +339,8 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
             {
                 if(GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, WindowLst[WindowIndex].WID) == NULL)
                 {
-                    if(!IsWindowFloating(WindowLst[WindowIndex].WID, NULL))
+                    if(!IsApplicationFloating(&WindowLst[WindowIndex]) &&
+                       !IsWindowFloating(WindowLst[WindowIndex].WID, NULL))
                     {
                         AddWindowToTree(Screen, WindowLst[WindowIndex].WID);
                         SetWindowFocus(&WindowLst[WindowIndex]);

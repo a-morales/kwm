@@ -132,7 +132,7 @@ void ResizeNodeContainer(screen_info *, tree_node *);
 void ApplyNodeContainer(tree_node *);
 int GetOptimalSplitMode(tree_node *);
 
-tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<int>);
+tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<window_info*> *);
 tree_node *CreateRootNode();
 tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
 void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
@@ -160,7 +160,7 @@ void ChangeGapOfDisplay(const std::string &, int);
 void ChangePaddingOfDisplay(const std::string &, int);
 bool DoesSpaceExistInMapOfScreen(screen_info *);
 
-void CreateWindowNodeTree(screen_info *);
+void CreateWindowNodeTree(screen_info *, std::vector<window_info*> *);
 void ShouldWindowNodeTreeUpdate(screen_info *);
 void ResizeWindowToContainerSize(tree_node *);
 void ResizeWindowToContainerSize();
@@ -168,6 +168,7 @@ void ReflectWindowNodeTreeVertically();
 void MoveContainerSplitter(int, int);
 
 bool IsWindowBelowCursor(window_info *);
+bool IsApplicationFloating(window_info *);
 bool IsWindowFloating(int, int *);
 bool IsWindowOnActiveSpace(window_info *);
 bool IsSpaceTransitionInProgress();

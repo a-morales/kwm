@@ -16,6 +16,7 @@ int PrevSpace = -1;
 
 std::vector<screen_info> DisplayLst;
 std::vector<window_info> WindowLst;
+std::vector<std::string> FloatingAppLst;
 std::vector<int> FloatingWindowLst;
 
 ProcessSerialNumber FocusedPSN;
@@ -190,17 +191,17 @@ void KwmInit()
     if (pthread_mutex_init(&BackgroundLock, NULL) != 0)
         Fatal("Could not create mutex!");
 
+    if(KwmStartDaemon())
+        pthread_create(&DaemonThread, NULL, &KwmDaemonHandleConnectionBG, NULL);
+    else
+        Fatal("Kwm: Could not start daemon..");
+
     KwmFilePath = getcwd(NULL, 0);
     HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
     KwmFocusMode = FocusModeAutoraise;
     
     KWMCode = LoadKwmCode();
     GetActiveDisplays();
-
-    if(KwmStartDaemon())
-        pthread_create(&DaemonThread, NULL, &KwmDaemonHandleConnectionBG, NULL);
-    else
-        Fatal("Kwm: Could not start daemon..");
 
     pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }

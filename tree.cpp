@@ -185,36 +185,41 @@ bool IsLeafNode(tree_node *Node)
     return Node->LeftChild == NULL && Node->RightChild == NULL ? true : false;
 }
 
-tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<int> Windows)
+tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
+    std::vector<window_info*> &Windows = *WindowsPtr;
     tree_node *RootNode = CreateRootNode();
     SetRootNodeContainer(Screen, RootNode);
+
 
     if(Windows.size() > 1)
     {
         tree_node *Root = RootNode;
-        Root->WindowID = Windows[0];
+        Root->WindowID = Windows[0]->WID;
+
         for(int WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
         {
-            if(!IsWindowFloating(Windows[WindowIndex], NULL))
+            while(!IsLeafNode(Root))
             {
-                while(!IsLeafNode(Root))
-                {
-                    if(!IsLeafNode(Root->LeftChild) && IsLeafNode(Root->RightChild))
-                        Root = Root->RightChild;
-                    else
-                        Root = Root->LeftChild;
-                }
-
-                DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
-                CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex], GetOptimalSplitMode(Root));
-                Root = RootNode;
+                if(!IsLeafNode(Root->LeftChild) && IsLeafNode(Root->RightChild))
+                    Root = Root->RightChild;
+                else
+                    Root = Root->LeftChild;
             }
+
+            DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
+            CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, GetOptimalSplitMode(Root));
+            Root = RootNode;
         }
     }
     else if(Windows.size() == 1)
     {
-        RootNode->WindowID = Windows[0];
+        RootNode->WindowID = Windows[0]->WID;
+    }
+    else
+    {
+        free(RootNode);
+        RootNode = NULL;
     }
 
     return RootNode;
