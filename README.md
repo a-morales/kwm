@@ -62,6 +62,20 @@ Because there is no app bundle, *Kwm* has to be started from a terminal.
 In addition to this, for *Kwm* to work properly, the user also has to compile *Kwmc* and place it in the path.  
 Simply run the build.sh script located in the *kwmc* folder, and move / symlink the binary.
 
+If *Kwm* is added to the path, a launcher script is necessary
+because it tries to load hotkeys.so from the executables working-directory.
+
+Example launcher script to be placed in the path instead of the *Kwm* binary.
+
+    #!/bin/bash
+    pushd /path/to/kwm
+    ./kwm
+    popd
+
+The reason for this is that hotkeys.cpp can edited and rebuild separately,
+and *Kwm* will reload this library without having to be restarted and so
+hotkeys can be edited live.
+
 ## Configuration:
 
 The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands  
@@ -117,20 +131,6 @@ Currently these cannot occur simultaneously, and the type of panes created is de
 
 If the main pane is split using vertical mode, a left and right pane is created.  
 If the main pane is split using horizontal mode, an upper and lower pane is created.  
-
-If *Kwm* is added to the path, a launcher script is necessary
-because it tries to load hotkeys.so from the executables working-directory.
-
-Example launcher script to be placed in the path instead of the *Kwm* binary.
-
-    #!/bin/bash
-    pushd /path/to/kwm
-    ./kwm
-    popd
-
-The reason for this is that hotkeys.cpp can edited and rebuild separately,
-and *Kwm* will reload this library without having to be restarted and so
-hotkeys can be edited live.
 
 ## Default Hotkeys:
     - ctrl+alt+cmd:
