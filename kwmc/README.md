@@ -1,6 +1,16 @@
 *Kwmc* is a program used to write to *Kwm*'s socket
 
 ## Kwmc Info:
+    Configure Kwm
+        Set default padding
+            kwmc config padding top|bottom|left|right value
+
+        Set default container gaps
+            kwmc config gap vertical|horizontal value
+
+        Always float application
+            kwmc config float application
+
     Restart Kwm
         kwmc restart 
 
