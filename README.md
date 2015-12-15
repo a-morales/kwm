@@ -64,8 +64,10 @@ Simply run the build.sh script located in the *kwmc* folder, and move / symlink 
 
 ## Configuration:
 
-The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands that will be executed when *Kwm* starts.  
-This file can be used to blacklist applications and specify other settings, as well as run any command not restricted to *Kwmc*.  
+The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands  
+to be executed when *Kwm* starts.  
+This file can be used to blacklist applications and specify other settings, as well as run any  
+command not restricted to *Kwmc*.  
 
 A sample config can be found within the [examples](examples) directory.
 
