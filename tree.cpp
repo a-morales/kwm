@@ -195,9 +195,25 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
     if(Windows.size() > 1)
     {
         tree_node *Root = RootNode;
-        Root->WindowID = Windows[0]->WID;
+        int FirstIndex;
+        bool FoundValidWindow = false;
+        for(FirstIndex = 0; FirstIndex < Windows.size(); ++FirstIndex)
+        {
+            if(!IsWindowFloating(Windows[FirstIndex]->WID, NULL))
+            {
+                Root->WindowID = Windows[FirstIndex]->WID;
+                FoundValidWindow = true;
+                break;
+            }
+        }
 
-        for(int WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
+        if(!FoundValidWindow)
+        {
+            free(RootNode);
+            return NULL;
+        }
+
+        for(int WindowIndex = FirstIndex + 1; WindowIndex < Windows.size(); ++WindowIndex)
         {
             if(!IsWindowFloating(Windows[WindowIndex]->WID, NULL))
             {
