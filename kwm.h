@@ -140,6 +140,7 @@ void CreateNodeContainers(screen_info *, tree_node *);
 void ResizeNodeContainer(screen_info *, tree_node *);
 void ApplyNodeContainer(tree_node *);
 int GetOptimalSplitMode(tree_node *);
+void ToggleNodeSplitMode(screen_info *, tree_node *);
 
 tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<window_info*> *);
 tree_node *CreateRootNode();
