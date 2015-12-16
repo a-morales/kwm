@@ -1,5 +1,8 @@
 #include "kwm.h"
 
+extern screen_info *Screen;
+extern int CurrentSpace;
+
 extern std::vector<std::string> FloatingAppLst;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
@@ -174,11 +177,21 @@ void KwmDaemonHandleConnection()
                 else if(Tokens[2] == "horizontal")
                     KwmSplitMode = 2;
             }
+            else if(Tokens[1] == "-r")
+            {
+                if(Tokens[2] == "90" || Tokens[2] == "270" || Tokens[2] == "180")
+                {
+                    int Deg = 0;
+                    std::stringstream Stream(Tokens[2]);
+                    Stream >> Deg;
+                    RotateTree(Screen->Space[CurrentSpace].RootNode, Deg);
+                    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode);
+                    ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
+                }
+            }
             else if(Tokens[1] == "-m")
             {
-                if(Tokens[2] == "reflect")
-                    ReflectWindowNodeTreeVertically();
-                else if(Tokens[2] == "left")
+                if(Tokens[2] == "left")
                     MoveContainerSplitter(1, -10);
                 else if(Tokens[2] == "right")
                     MoveContainerSplitter(1, 10);
