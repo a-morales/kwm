@@ -85,6 +85,7 @@ struct tree_node
     tree_node *Parent;
     tree_node *LeftChild;
     tree_node *RightChild;
+    int SplitMode;
 };
 
 struct window_info
@@ -150,7 +151,6 @@ tree_node *GetNearestNodeToTheLeft(tree_node *);
 tree_node *GetNearestNodeToTheRight(tree_node *);
 tree_node *GetNodeFromWindowID(tree_node *, int);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
-void SwapNodeChildPositions(tree_node *);
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *);
 void AddWindowToTree(screen_info *, int WindowID);
 void AddWindowToTree();
@@ -174,7 +174,7 @@ void CreateWindowNodeTree(screen_info *, std::vector<window_info*> *);
 void ShouldWindowNodeTreeUpdate(screen_info *);
 void ResizeWindowToContainerSize(tree_node *);
 void ResizeWindowToContainerSize();
-void ReflectWindowNodeTreeVertically();
+void RotateTree(tree_node *, int);
 void MoveContainerSplitter(int, int);
 
 bool IsWindowBelowCursor(window_info *);
