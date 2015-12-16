@@ -11,6 +11,9 @@
         Always float application
             kwmc config float application
 
+        Set state of Kwm's hotkeys
+            kwmc config hotkeys enable|disable
+
     Restart Kwm
         kwmc restart 
 
