@@ -141,6 +141,7 @@ tree_node *CreateRootNode()
     RootNode->Parent = NULL;
     RootNode->LeftChild = NULL;
     RootNode->RightChild = NULL;
+    RootNode->SplitMode = 0;
 
     return RootNode;
 }
@@ -163,7 +164,6 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
     }
 
     Node->Container.Type = 0;
-    Node->SplitMode = 0;
 }
 
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID, int RightWindowID, int SplitMode)
