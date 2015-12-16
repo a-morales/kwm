@@ -229,8 +229,7 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
                 }
 
                 DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
-                int SplitMode = GetOptimalSplitMode(Root);
-                CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, SplitMode);
+                CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, GetOptimalSplitMode(Root));
                 Root = RootNode;
             }
         }
@@ -375,8 +374,7 @@ void CreateNodeContainers(screen_info *Screen, tree_node *Node)
 {
     if(Node && Node->LeftChild && Node->RightChild)
     {
-        int SplitMode = Node->SplitMode;
-        CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, SplitMode);
+        CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, Node->SplitMode);
 
         CreateNodeContainers(Screen, Node->LeftChild);
         CreateNodeContainers(Screen, Node->RightChild);
