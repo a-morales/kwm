@@ -532,18 +532,6 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
     }
 }
 
-void ReflectWindowNodeTreeVertically()
-{
-    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
-    {
-        DEBUG("ReflectWindowNodeTreeVertically()")
-
-        SwapNodeChildPositions(Screen->Space[CurrentSpace].RootNode);
-        CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode);
-        ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
-    }
-}
-
 void ToggleFocusedWindowFloating()
 {
     if(FocusedWindow && IsWindowOnActiveSpace(FocusedWindow))
