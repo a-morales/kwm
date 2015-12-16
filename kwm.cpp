@@ -5,6 +5,7 @@ CFMachPortRef EventTap;
 kwm_code KWMCode;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
+bool KwmUseBuiltinHotkeys;
 
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
@@ -44,55 +45,58 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyDown:
         {
-            CGEventFlags Flags = CGEventGetFlags(Event);
-            bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
-            bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
-            bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
-            bool ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
-
-            CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
-
-            std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
-            if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
+            if(KwmUseBuiltinHotkeys)
             {
-                DEBUG("Reloading hotkeys.so")
-                UnloadKwmCode(&KWMCode);
-                KWMCode = LoadKwmCode();
-            }
+                CGEventFlags Flags = CGEventGetFlags(Event);
+                bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
+                bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
+                bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
+                bool ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
 
-            if(KWMCode.IsValid)
-            {
-                // Hotkeys specific to Kwms functionality
-                if(KWMCode.KWMHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
-                    return NULL;
+                CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
-                // Capture custom hotkeys specified by the user
-                if(KWMCode.CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
-                    return NULL;
-
-                // Let system hotkeys pass through as normal
-                if(KWMCode.SystemHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
-                    return Event;
-
-                int NewKeycode;
-                KWMCode.RemapKeys(Event, &CmdKey, &CtrlKey, &AltKey, &ShiftKey, Keycode, &NewKeycode);
-                if(NewKeycode != -1)
+                std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
+                if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
                 {
-                    CGEventSetFlags(Event, 0);
+                    DEBUG("Reloading hotkeys.so")
+                    UnloadKwmCode(&KWMCode);
+                    KWMCode = LoadKwmCode();
+                }
 
-                    if(CmdKey)
-                        CGEventSetFlags(Event, kCGEventFlagMaskCommand);
+                if(KWMCode.IsValid)
+                {
+                    // Hotkeys specific to Kwms functionality
+                    if(KWMCode.KWMHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                        return NULL;
 
-                    if(AltKey)
-                        CGEventSetFlags(Event, kCGEventFlagMaskAlternate);
+                    // Capture custom hotkeys specified by the user
+                    if(KWMCode.CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                        return NULL;
 
-                    if(CtrlKey)
-                        CGEventSetFlags(Event, kCGEventFlagMaskControl);
+                    // Let system hotkeys pass through as normal
+                    if(KWMCode.SystemHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                        return Event;
 
-                    if(ShiftKey)
-                        CGEventSetFlags(Event, kCGEventFlagMaskShift);
+                    int NewKeycode;
+                    KWMCode.RemapKeys(Event, &CmdKey, &CtrlKey, &AltKey, &ShiftKey, Keycode, &NewKeycode);
+                    if(NewKeycode != -1)
+                    {
+                        CGEventSetFlags(Event, 0);
 
-                    CGEventSetIntegerValueField(Event, kCGKeyboardEventKeycode, NewKeycode);
+                        if(CmdKey)
+                            CGEventSetFlags(Event, kCGEventFlagMaskCommand);
+
+                        if(AltKey)
+                            CGEventSetFlags(Event, kCGEventFlagMaskAlternate);
+
+                        if(CtrlKey)
+                            CGEventSetFlags(Event, kCGEventFlagMaskControl);
+
+                        if(ShiftKey)
+                            CGEventSetFlags(Event, kCGEventFlagMaskShift);
+
+                        CGEventSetIntegerValueField(Event, kCGKeyboardEventKeycode, NewKeycode);
+                    }
                 }
             }
 
@@ -189,7 +193,10 @@ void KwmExecuteConfig()
 {
     char *HomeP = std::getenv("HOME");
     if(!HomeP)
-        Fatal("Failed to get environment variable 'HOME'");
+    {
+        DEBUG("Failed to get environment variable 'HOME'")
+        return;
+    }
 
     std::string ENV_HOME = HomeP;
     std::string KWM_CONFIG_FILE = ".kwmrc";
@@ -197,11 +204,8 @@ void KwmExecuteConfig()
     std::ifstream ConfigFD(ENV_HOME + "/" + KWM_CONFIG_FILE);
     if(ConfigFD.fail())
     {
-        std::cout << "Could not open "
-                  << ENV_HOME
-                  << "/"
-                  << KWM_CONFIG_FILE
-                  << ", make sure the file exists.";
+        DEBUG("Could not open " << ENV_HOME << "/" << KWM_CONFIG_FILE
+              << ", make sure the file exists." << std::endl)
         return;
     }
 
@@ -226,14 +230,15 @@ void KwmInit()
     else
         Fatal("Kwm: Could not start daemon..");
 
+    KwmFocusMode = FocusModeAutoraise;
     KwmFilePath = getcwd(NULL, 0);
     HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
-    KwmFocusMode = FocusModeAutoraise;
-    
+    KwmUseBuiltinHotkeys = true;
+
     KwmExecuteConfig();
     KWMCode = LoadKwmCode();
-    GetActiveDisplays();
 
+    GetActiveDisplays();
     pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }
 
