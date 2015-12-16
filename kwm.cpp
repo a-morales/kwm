@@ -35,6 +35,8 @@ pthread_mutex_t BackgroundLock;
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
+    pthread_mutex_lock(&BackgroundLock);
+
     switch(Type)
     {
         case kCGEventTapDisabledByTimeout:
@@ -67,15 +69,24 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 {
                     // Hotkeys specific to Kwms functionality
                     if(KWMCode.KWMHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                    {
+                        pthread_mutex_unlock(&BackgroundLock);
                         return NULL;
+                    }
 
                     // Capture custom hotkeys specified by the user
                     if(KWMCode.CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                    {
+                        pthread_mutex_unlock(&BackgroundLock);
                         return NULL;
+                    }
 
                     // Let system hotkeys pass through as normal
                     if(KWMCode.SystemHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                    {
+                        pthread_mutex_unlock(&BackgroundLock);
                         return Event;
+                    }
 
                     int NewKeycode;
                     KWMCode.RemapKeys(Event, &CmdKey, &CtrlKey, &AltKey, &ShiftKey, Keycode, &NewKeycode);
@@ -104,20 +115,18 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&FocusedPSN, Event);
+                pthread_mutex_unlock(&BackgroundLock);
                 return NULL;
             }
         } break;
         case kCGEventMouseMoved:
         {
             if(KwmFocusMode != FocusModeDisabled)
-            {
-                pthread_mutex_lock(&BackgroundLock);
                 FocusWindowBelowCursor();
-                pthread_mutex_unlock(&BackgroundLock);
-            }
         } break;
     }
 
+    pthread_mutex_unlock(&BackgroundLock);
     return Event;
 }
 
@@ -178,13 +187,11 @@ void * KwmWindowMonitor(void*)
 {
     while(1)
     {
+        pthread_mutex_lock(&BackgroundLock);
         if(KwmFocusMode != FocusModeDisabled)
-        {
-            pthread_mutex_lock(&BackgroundLock);
             UpdateWindowTree();
-            pthread_mutex_unlock(&BackgroundLock);
-        }
 
+        pthread_mutex_unlock(&BackgroundLock);
         usleep(200000);
     }
 }
