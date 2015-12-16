@@ -137,9 +137,10 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 system("kwmc window -f next");
             } break;
+            // Rotate window-tree by 180 degrees
             case kVK_ANSI_R:
             {
-                system("kwmc screen -m reflect");
+                system("kwmc screen -r 180");
             } break;
             // Decrease screen gaps
             case kVK_ANSI_X:

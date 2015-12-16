@@ -188,7 +188,7 @@ If the main pane is split using horizontal mode, an upper and lower pane is crea
 
         - p: swap with the previous window
         - n: swap with the next window
-        - r: reflect window-tree vertically
+        - r: rotate window-tree by 180 degrees
 
         - x: decrease horizontal gap
         - y: decrease vertical gap
