@@ -383,7 +383,7 @@ void CreateNodeContainers(screen_info *Screen, tree_node *Node)
 
 void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node)
 {
-    if(IsLeafNode(Node))
+    if(Node|| IsLeafNode(Node))
         return;
 
     Node->SplitMode = Node->SplitMode == 1 ? 2 : 1;
