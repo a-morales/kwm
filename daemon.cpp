@@ -148,8 +148,14 @@ void KwmDaemonHandleConnection()
             }
             else if(Tokens[1] == "-c")
             {
-                if(Tokens[2] == "refresh")
+                if(Tokens[2] == "split")
+                {
+                    tree_node *Node = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, FocusedWindow->WID);
+                    ToggleNodeSplitMode(Screen, Node->Parent);
+                }
+                else if(Tokens[2] == "refresh")
                     ResizeWindowToContainerSize();
+
             }
             else if(Tokens[1] == "-f")
             {

@@ -381,6 +381,16 @@ void CreateNodeContainers(screen_info *Screen, tree_node *Node)
     }
 }
 
+void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node)
+{
+    if(IsLeafNode(Node))
+        return;
+
+    Node->SplitMode = Node->SplitMode == 1 ? 2 : 1;
+    CreateNodeContainers(Screen, Node);
+    ApplyNodeContainer(Node);
+}
+
 void ApplyNodeContainer(tree_node *Node)
 {
     if(Node)
