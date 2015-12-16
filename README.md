@@ -143,6 +143,7 @@ If the main pane is split using horizontal mode, an upper and lower pane is crea
         - o: use width/height ratio to determine optimal split (default)
         - 7: use vertical split-mode
         - -: use horizontal split-mode
+        - s: toggle split-type of existing container
 
         - h: move vertical-splitter left (increase width of right-pane containers)
         - l: move vertical-splitter right (increase width of left-pane containers)
@@ -158,8 +159,6 @@ If the main pane is split using horizontal mode, an upper and lower pane is crea
         - <: toggle playback mode (fav / default)
         - x: toggle play/pause
         - v: stop player
-
-        - s: star / favorite playing song
 
         - a: increase volume
         - d: decrease volume
