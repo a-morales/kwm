@@ -38,8 +38,8 @@
     Set split-mode
         kwmc screen -s optimal|vertical|horizontal
 
-    Reflect windows vertically
-        kwmc screen -m reflect
+    Rotate window-tree
+        kwmc screen -r 90|180|270
 
     Move container splitter
         kwmc screen -m left|right|up|down
