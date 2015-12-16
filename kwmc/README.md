@@ -29,6 +29,9 @@
     Manually resize window to container
         kwmc window -c refresh
 
+    Toggle between vertical and horizontal split for an existing container
+        kwmc window -c split
+
     Change window focus
         kwmc window -f prev|next
 
