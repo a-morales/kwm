@@ -29,6 +29,7 @@
 struct kwm_code;
 
 struct window_info;
+struct window_role;
 struct screen_info;
 struct space_info;
 struct node_container;
@@ -94,6 +95,12 @@ struct window_info
     int Layer;
     int X, Y;
     int Width, Height;
+};
+
+struct window_role
+{
+    CFTypeRef Role;
+    CFTypeRef SubRole;
 };
 
 struct space_info

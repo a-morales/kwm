@@ -19,22 +19,23 @@ window_info FocusedWindowCache;
 CFStringRef DisplayIdentifier;
 int OldScreenID = -1;
 
-std::map<int, std::vector<AXUIElementRef> > ApplicationWindowRefs;
+std::map<int, window_role> WindowRoleCache;
+std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
 
 bool DoesApplicationExist(int PID, std::vector<AXUIElementRef> *Elements)
 {
-    std::map<int, std::vector<AXUIElementRef> >::iterator It = ApplicationWindowRefs.find(PID);
+    std::map<int, std::vector<AXUIElementRef> >::iterator It = WindowRefsCache.find(PID);
     *Elements = It->second;
-    return It != ApplicationWindowRefs.end();
+    return It != WindowRefsCache.end();
 }
 
 void FreeApplicationWindowRefCache(int PID)
 {
-    int NumElements = ApplicationWindowRefs[PID].size();
+    int NumElements = WindowRefsCache[PID].size();
     for(int RefIndex = 0; RefIndex < NumElements; ++RefIndex)
-        CFRelease(ApplicationWindowRefs[PID][RefIndex]);
+        CFRelease(WindowRefsCache[PID][RefIndex]);
 
-    ApplicationWindowRefs[PID].clear();
+    WindowRefsCache[PID].clear();
 }
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
@@ -889,12 +890,24 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole)
 {
     bool Result = false;
 
-    AXUIElementRef WindowRef;
-    if(GetWindowRef(Window, &WindowRef))
+    std::map<int, window_role>::iterator It = WindowRoleCache.find(Window->WID);
+    if(It != WindowRoleCache.end())
     {
-        AXUIElementCopyAttributeValue(WindowRef, kAXRoleAttribute, (CFTypeRef *)Role);
-        AXUIElementCopyAttributeValue(WindowRef, kAXSubroleAttribute, (CFTypeRef *)SubRole);
+        *Role = WindowRoleCache[Window->WID].Role;
+        *SubRole = WindowRoleCache[Window->WID].SubRole;
         Result = true;
+    }
+    else
+    {
+        AXUIElementRef WindowRef;
+        if(GetWindowRef(Window, &WindowRef))
+        {
+            AXUIElementCopyAttributeValue(WindowRef, kAXRoleAttribute, (CFTypeRef *)Role);
+            AXUIElementCopyAttributeValue(WindowRef, kAXSubroleAttribute, (CFTypeRef *)SubRole);
+            window_role RoleEntry = { *Role, *SubRole };
+            WindowRoleCache[Window->WID] = RoleEntry;
+            Result = true;
+        }
     }
 
     return Result;
@@ -918,7 +931,7 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
     }
     else
     {
-        ApplicationWindowRefs[Window->PID] = std::vector<AXUIElementRef>();
+        WindowRefsCache[Window->PID] = std::vector<AXUIElementRef>();
     }
 
     bool Found = false;
@@ -940,7 +953,7 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
             AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
             if(AppWindowRef != NULL)
             {
-                ApplicationWindowRefs[Window->PID].push_back(AppWindowRef);
+                WindowRefsCache[Window->PID].push_back(AppWindowRef);
                 if(!Found)
                 {
                     int AppWindowRefWID = -1;
