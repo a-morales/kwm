@@ -99,6 +99,7 @@ void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType
         } break;
     }
 
+    Node->SplitMode = 0;
     if(ContainerType != -1)
         Node->Container.Type = ContainerType;
 }
@@ -162,11 +163,13 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
     }
 
     Node->Container.Type = 0;
+    Node->SplitMode = 0;
 }
 
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID, int RightWindowID, int SplitMode)
 {
     Parent->WindowID = -1;
+    Parent->SplitMode = SplitMode;
 
     if(SplitMode == 1)
     {
@@ -226,7 +229,8 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
                 }
 
                 DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
-                    CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, GetOptimalSplitMode(Root));
+                int SplitMode = GetOptimalSplitMode(Root);
+                CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, SplitMode);
                 Root = RootNode;
             }
         }
@@ -367,27 +371,11 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node)
     return NULL;
 }
 
-void SwapNodeChildPositions(tree_node *Node)
-{
-    if(Node && Node->LeftChild && Node->RightChild)
-    {
-        if(Node->LeftChild->Container.Type == 1)
-        {
-            tree_node *Temp = Node->LeftChild;
-            Node->LeftChild = Node->RightChild;
-            Node->RightChild = Temp;
-        }
-
-        SwapNodeChildPositions(Node->LeftChild);
-        SwapNodeChildPositions(Node->RightChild);
-    }
-}
-
 void CreateNodeContainers(screen_info *Screen, tree_node *Node)
 {
     if(Node && Node->LeftChild && Node->RightChild)
     {
-        int SplitMode = GetOptimalSplitMode(Node);
+        int SplitMode = Node->SplitMode;
         CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, SplitMode);
 
         CreateNodeContainers(Screen, Node->LeftChild);
@@ -422,4 +410,32 @@ void DestroyNodeTree(tree_node *Node)
 
         free(Node);
     }
+}
+
+void RotateTree(tree_node *Node, int Deg)
+{
+    if (Node == NULL || IsLeafNode(Node) || Deg == 0)
+        return;
+
+    DEBUG("RotateTree() " << Deg << " degrees")
+
+    if((Deg == 90 && Node->SplitMode == 1) ||
+       (Deg == 270 && Node->SplitMode == 2) ||
+       Deg == 180)
+    {
+        tree_node *Temp = Node->LeftChild;
+        Node->LeftChild = Node->RightChild;
+        Node->RightChild = Temp;
+    }
+
+    if(Deg != 180)
+    {
+       if(Node->SplitMode == 2)
+           Node->SplitMode = 1;
+       else
+           Node->SplitMode = 2;
+    }
+
+    RotateTree(Node->LeftChild, Deg);
+    RotateTree(Node->RightChild, Deg);
 }
