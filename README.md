@@ -47,7 +47,7 @@ they were in previously, and will appear on the wrong monitor. This will most li
 
 Tested on Osx El Capitan (10.11.1 / 10.11.2).
 
-![kwm mov](https://cloud.githubusercontent.com/assets/6175959/11498553/6ccedee6-9820-11e5-8830-96e0bf19b4f2.gif)
+![kwm img](https://cloud.githubusercontent.com/assets/6175959/11850244/6e59e84c-a42c-11e5-832b-6ee3e5ebd8b5.png)
 
 ## Build:
 
