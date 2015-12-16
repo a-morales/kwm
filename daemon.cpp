@@ -4,6 +4,7 @@ extern std::vector<std::string> FloatingAppLst;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int KwmSplitMode;
+extern bool KwmUseBuiltinHotkeys;
 
 int KwmSockFD;
 bool KwmDaemonIsRunning;
@@ -63,7 +64,14 @@ void KwmDaemonHandleConnection()
         }
         else if(Tokens[0] == "config")
         {
-            if(Tokens[1] == "float")
+            if(Tokens[1] == "hotkeys")
+            {
+                if(Tokens[2] == "disable")
+                    KwmUseBuiltinHotkeys = false;
+                else if(Tokens[2] == "enable")
+                    KwmUseBuiltinHotkeys = true;
+            }
+            else if(Tokens[1] == "float")
             {
                 std::string AppName;
                 for(int TokenIndex = 2; TokenIndex < Tokens.size(); ++TokenIndex)
