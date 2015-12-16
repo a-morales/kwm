@@ -81,6 +81,11 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 system("kwmc screen -s horizontal");
             } break;
+            // Toggle Split-Type of existing container
+            case kVK_ANSI_S:
+            {
+                system("kwmc window -c split");
+            } break;
             // Resize Panes
             case kVK_ANSI_H:
             {
@@ -289,10 +294,6 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             case kVK_ANSI_D:
             {
                 system("ytc voldown");
-            } break;
-            case kVK_ANSI_S:
-            {
-                system("ytc mkfav");
             } break;
             case kVK_LeftArrow:
             {
