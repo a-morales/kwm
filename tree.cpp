@@ -412,7 +412,7 @@ void DestroyNodeTree(tree_node *Node)
 
 void RotateTree(tree_node *Node, int Deg)
 {
-    if (Node == NULL || IsLeafNode(Node) || Deg == 0)
+    if (Node == NULL || IsLeafNode(Node))
         return;
 
     DEBUG("RotateTree() " << Deg << " degrees")
