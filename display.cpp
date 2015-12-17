@@ -146,7 +146,7 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
         Screen->Space[CurrentSpace].PaddingBottom += Offset;
 
     SetRootNodeContainer(Screen, Screen->Space[CurrentSpace].RootNode);
-    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode);
+    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode, true);
     ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
 }
 
@@ -158,7 +158,7 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
     else if(Side == "horizontal")
         Screen->Space[CurrentSpace].HorizontalGap += Offset;
 
-    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode);
+    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode, true);
     ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
 }
 

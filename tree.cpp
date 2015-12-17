@@ -370,14 +370,15 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node)
     return NULL;
 }
 
-void CreateNodeContainers(screen_info *Screen, tree_node *Node)
+void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSplit)
 {
     if(Node && Node->LeftChild && Node->RightChild)
     {
-        CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, Node->SplitMode);
+        int SplitMode = OptimalSplit ? GetOptimalSplitMode(Node) : Node->SplitMode;
+        CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, SplitMode);
 
-        CreateNodeContainers(Screen, Node->LeftChild);
-        CreateNodeContainers(Screen, Node->RightChild);
+        CreateNodeContainers(Screen, Node->LeftChild, OptimalSplit);
+        CreateNodeContainers(Screen, Node->RightChild, OptimalSplit);
     }
 }
 
@@ -387,7 +388,7 @@ void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node)
         return;
 
     Node->SplitMode = Node->SplitMode == 1 ? 2 : 1;
-    CreateNodeContainers(Screen, Node);
+    CreateNodeContainers(Screen, Node, false);
     ApplyNodeContainer(Node);
 }
 

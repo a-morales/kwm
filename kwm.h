@@ -136,7 +136,7 @@ node_container LowerHorizontalContainerSplit(screen_info *, tree_node *);
 void SetRootNodeContainer(screen_info *, tree_node *);
 void CreateNodeContainer(screen_info *, tree_node *, int);
 void CreateNodeContainerPair(screen_info *, tree_node *, tree_node *, int);
-void CreateNodeContainers(screen_info *, tree_node *);
+void CreateNodeContainers(screen_info *, tree_node *, bool);
 void ResizeNodeContainer(screen_info *, tree_node *);
 void ApplyNodeContainer(tree_node *);
 int GetOptimalSplitMode(tree_node *);

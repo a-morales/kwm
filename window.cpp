@@ -474,7 +474,7 @@ void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
                         Parent->RightChild = AccessChild->RightChild;
                         Parent->RightChild->Parent = Parent;
 
-                        CreateNodeContainers(Screen, Parent);
+                        CreateNodeContainers(Screen, Parent, true);
                     }
 
                     free(AccessChild);

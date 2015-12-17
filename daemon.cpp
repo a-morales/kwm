@@ -193,7 +193,7 @@ void KwmDaemonHandleConnection()
                     std::stringstream Stream(Tokens[2]);
                     Stream >> Deg;
                     RotateTree(Screen->Space[CurrentSpace].RootNode, Deg);
-                    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode);
+                    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode, false);
                     ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
                 }
             }
