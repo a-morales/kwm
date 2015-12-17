@@ -374,8 +374,9 @@ void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSpli
 {
     if(Node && Node->LeftChild && Node->RightChild)
     {
-        int SplitMode = OptimalSplit ? GetOptimalSplitMode(Node) : Node->SplitMode;
-        CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, SplitMode);
+        int OptimalSplitMode = GetOptimalSplitMode(Node);
+        Node->SplitMode = OptimalSplit ? OptimalSplitMode : Node->SplitMode;
+        CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, Node->SplitMode);
 
         CreateNodeContainers(Screen, Node->LeftChild, OptimalSplit);
         CreateNodeContainers(Screen, Node->RightChild, OptimalSplit);
