@@ -132,6 +132,11 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 system("kwmc window -s next");
             } break;
+            // Swap focused window with the marked window
+            case kVK_ANSI_M:
+            {
+                system("kwmc window -s mark");
+            } break;
             // Shift focus to the previous window
             case kVK_ANSI_H:
             {
