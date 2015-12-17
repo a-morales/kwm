@@ -608,6 +608,27 @@ void ToggleFocusedWindowFullscreen()
     }
 }
 
+void SwapFocusedWindowWithMarked()
+{
+    if(FocusedWindow &&
+       MarkedWindowID != FocusedWindow->WID &&
+       MarkedWindowID != -1)
+    {
+        if(Screen && DoesSpaceExistInMapOfScreen(Screen))
+        {
+            tree_node *FocusedWindowNode = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, FocusedWindow->WID);
+            if(FocusedWindowNode)
+            {
+                tree_node *NewFocusNode = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, MarkedWindowID);;
+                if(NewFocusNode)
+                    SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
+            }
+        }
+
+        MarkedWindowID = -1;
+    }
+}
+
 void SwapFocusedWindowWithNearest(int Shift)
 {
     if(FocusedWindow)

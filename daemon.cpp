@@ -170,6 +170,8 @@ void KwmDaemonHandleConnection()
                     SwapFocusedWindowWithNearest(-1);
                 else if(Tokens[2] == "next")
                     SwapFocusedWindowWithNearest(1);
+                else if(Tokens[2] == "mark")
+                    SwapFocusedWindowWithMarked();
             }
         }
         else if(Tokens[0] == "screen")
