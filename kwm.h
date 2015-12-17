@@ -193,6 +193,7 @@ bool FilterWindowList();
 void MarkWindowContainer();
 void ShiftWindowFocus(int);
 void SwapFocusedWindowWithNearest(int);
+void SwapFocusedWindowWithMarked();
 void FocusWindowBelowCursor();
 void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowFullscreen();
