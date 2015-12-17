@@ -36,7 +36,7 @@
         kwmc window -f prev|next
 
     Swap window position
-        kwmc window -s prev|next
+        kwmc window -s prev|next|mark
 
     Set split-mode
         kwmc screen -s optimal|vertical|horizontal
