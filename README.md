@@ -182,12 +182,14 @@ If the main pane is split using horizontal mode, an upper and lower pane is crea
         - darrow: increase screen padding-bottom 
 
     - alt+cmd
+        - r: rotate window-tree by 180 degrees
+
         - h: focus previous window
         - l: focus next window
 
         - p: swap with the previous window
         - n: swap with the next window
-        - r: rotate window-tree by 180 degrees
+        - m: swap with the marked window
 
         - x: decrease horizontal gap
         - y: decrease vertical gap
