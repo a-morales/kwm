@@ -22,13 +22,41 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
     if (Flags & kCGDisplayAddFlag)
     {
         // display has been added
+        DisplayMap[Display] = CreateDefaultScreenInfo(Display, ActiveDisplaysCount++);
         DEBUG("New display detected!")
     }
     else if (Flags & kCGDisplayRemoveFlag)
     {
         // display has been removed
+        DisplayMap.erase(Display);
         DEBUG("Display has been removed!")
     }
+}
+
+screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
+{
+    CGRect DisplayRect = CGDisplayBounds(DisplayIndex);
+    screen_info Screen;
+
+    Screen.ID = ScreenIndex;
+    Screen.ForceContainerUpdate = false;
+    Screen.ActiveSpace = -1;
+    Screen.OldWindowListCount = -1;
+
+    Screen.X = DisplayRect.origin.x;
+    Screen.Y = DisplayRect.origin.y;
+    Screen.Width = DisplayRect.size.width;
+    Screen.Height = DisplayRect.size.height;
+
+    Screen.PaddingTop = DefaultPaddingTop;
+    Screen.PaddingLeft = DefaultPaddingLeft;
+    Screen.PaddingRight = DefaultPaddingRight;
+    Screen.PaddingBottom = DefaultPaddingBottom;
+
+    Screen.VerticalGap = DefaultGapVertical;
+    Screen.HorizontalGap = DefaultGapHorizontal;
+
+    return Screen;
 }
 
 void GetActiveDisplays()
@@ -36,29 +64,8 @@ void GetActiveDisplays()
     CGGetActiveDisplayList(MaxDisplayCount, (CGDirectDisplayID*)&ActiveDisplays, &ActiveDisplaysCount);
     for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
     {
-        CGRect DisplayRect = CGDisplayBounds(ActiveDisplays[DisplayIndex]);
         unsigned int DisplayID = ActiveDisplays[DisplayIndex];
-
-        screen_info Screen;
-        Screen.ID = DisplayIndex;
-        Screen.ForceContainerUpdate = false;
-        Screen.ActiveSpace = -1;
-        Screen.OldWindowListCount = -1;
-
-        Screen.X = DisplayRect.origin.x;
-        Screen.Y = DisplayRect.origin.y;
-        Screen.Width = DisplayRect.size.width;
-        Screen.Height = DisplayRect.size.height;
-
-        Screen.PaddingTop = DefaultPaddingTop;
-        Screen.PaddingLeft = DefaultPaddingLeft;
-        Screen.PaddingRight = DefaultPaddingRight;
-        Screen.PaddingBottom = DefaultPaddingBottom;
-
-        Screen.VerticalGap = DefaultGapVertical;
-        Screen.HorizontalGap = DefaultGapHorizontal;
-
-        DisplayMap[DisplayID] = Screen;
+        DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);;
     }
 
     Screen = GetDisplayOfMousePointer();
