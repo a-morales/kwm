@@ -1,5 +1,6 @@
 #include "kwm.h"
 
+
 extern uint32_t MaxDisplayCount;
 extern uint32_t ActiveDisplaysCount;
 extern CGDirectDisplayID ActiveDisplays[];
@@ -7,7 +8,7 @@ extern CGDirectDisplayID ActiveDisplays[];
 extern screen_info *Screen;
 extern int CurrentSpace;
 
-extern std::vector<screen_info> DisplayLst;
+extern std::map<unsigned int, screen_info> DisplayMap;
 extern std::vector<window_info> WindowLst;
 extern std::vector<window_info> FloatingAppLst;
 extern window_info *FocusedWindow;
@@ -21,7 +22,7 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
     if (Flags & kCGDisplayAddFlag)
     {
         // display has been added
-        DEBUG("New Display detected!")
+        DEBUG("New display detected!")
     }
     else if (Flags & kCGDisplayRemoveFlag)
     {
@@ -36,6 +37,8 @@ void GetActiveDisplays()
     for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
     {
         CGRect DisplayRect = CGDisplayBounds(ActiveDisplays[DisplayIndex]);
+        unsigned int DisplayID = ActiveDisplays[DisplayIndex];
+
         screen_info Screen;
         Screen.ID = DisplayIndex;
         Screen.ForceContainerUpdate = false;
@@ -55,11 +58,24 @@ void GetActiveDisplays()
         Screen.VerticalGap = DefaultGapVertical;
         Screen.HorizontalGap = DefaultGapHorizontal;
 
-        DisplayLst.push_back(Screen);
+        DisplayMap[DisplayID] = Screen;
     }
 
     Screen = GetDisplayOfMousePointer();
     CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
+}
+
+screen_info *GetDisplayFromScreenID(int ID)
+{
+    std::map<unsigned int, screen_info>::iterator It;
+    for(It = DisplayMap.begin(); It != DisplayMap.end(); ++It)
+    {
+        screen_info *Screen = &It->second;
+        if(Screen->ID == ID)
+            return Screen;
+    }
+
+    return NULL;
 }
 
 screen_info *GetDisplayOfMousePointer()
@@ -68,9 +84,10 @@ screen_info *GetDisplayOfMousePointer()
     CGPoint Cursor = CGEventGetLocation(Event);
     CFRelease(Event);
 
-    for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
+    std::map<unsigned int, screen_info>::iterator It;
+    for(It = DisplayMap.begin(); It != DisplayMap.end(); ++It)
     {
-        screen_info *Screen = &DisplayLst[DisplayIndex];
+        screen_info *Screen = &It->second;
         if(Cursor.x >= Screen->X && Cursor.x <= Screen->X + Screen->Width &&
            Cursor.y >= Screen->Y && Cursor.y <= Screen->Y + Screen->Height)
                return Screen;
@@ -83,9 +100,10 @@ screen_info *GetDisplayOfWindow(window_info *Window)
 {
     if(Window)
     {
-        for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
+        std::map<unsigned int, screen_info>::iterator It;
+        for(It = DisplayMap.begin(); It != DisplayMap.end(); ++It)
         {
-            screen_info *Screen = &DisplayLst[DisplayIndex];
+            screen_info *Screen = &It->second;
             if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
                 return Screen;
         }
@@ -96,7 +114,7 @@ screen_info *GetDisplayOfWindow(window_info *Window)
 
 std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
 {
-    screen_info *Screen = &DisplayLst[ScreenIndex];
+    screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     std::vector<window_info*> ScreenWindowLst;
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
@@ -113,7 +131,7 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
 
 std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
 {
-    screen_info *Screen = &DisplayLst[ScreenIndex];
+    screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     std::vector<int> ScreenWindowIDLst;
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
@@ -189,7 +207,7 @@ void CycleFocusedWindowDisplay(int Shift)
 
     if(NewScreenIndex != Screen->ID)
     {
-        screen_info *NewScreen = &DisplayLst[NewScreenIndex];
+        screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
         AddWindowToTreeOfUnfocusedMonitor(NewScreen);
     }
 }

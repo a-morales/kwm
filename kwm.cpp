@@ -17,7 +17,7 @@ int DefaultPaddingLeft = 20, DefaultPaddingRight = 20;
 int DefaultGapVertical = 10, DefaultGapHorizontal = 10;
 int PrevSpace = -1, CurrentSpace = 0;
 
-std::vector<screen_info> DisplayLst;
+std::map<unsigned int, screen_info> DisplayMap;
 std::vector<window_info> WindowLst;
 std::vector<std::string> FloatingAppLst;
 std::vector<int> FloatingWindowLst;
@@ -32,7 +32,6 @@ pthread_t BackgroundThread;
 pthread_t DaemonThread;
 
 pthread_mutex_t BackgroundLock;
-
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
