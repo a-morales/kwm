@@ -17,7 +17,7 @@ extern int KwmSplitMode;
 
 window_info FocusedWindowCache;
 CFStringRef DisplayIdentifier;
-int OldScreenID = -1;
+int OldScreenID = 0;
 
 std::map<int, window_role> WindowRoleCache;
 std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
@@ -290,7 +290,10 @@ void UpdateActiveWindowList(screen_info *Screen)
         if(PrevSpace != CurrentSpace)
         {
             DEBUG("UpdateActiveWindowList() Space transition ended")
-            DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, (CGSSpaceID)CurrentSpace);
+            if(DisplayIdentifier)
+                CFRelease(DisplayIdentifier);
+
+            DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
             FocusWindowBelowCursor();
         }
 
