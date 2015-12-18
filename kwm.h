@@ -24,8 +24,6 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#include "CGSSpace.h"
-
 struct kwm_code;
 
 struct window_info;
@@ -47,9 +45,17 @@ typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
 #define KWM_KEY_REMAP(name) void name(CGEventRef Event, bool *CmdKey, bool *CtrlKey, bool *AltKey, bool *ShiftKey, CGKeyCode Keycode, int *Result)
 typedef KWM_KEY_REMAP(kwm_key_remap);
 
-extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);
-extern "C" CGSConnectionID _CGSDefaultConnection(void);
+#define CGSSpaceTypeUser 0
+extern "C" int CGSGetActiveSpace(int cid);
+extern "C" int CGSSpaceGetType(int cid, int sid);
+extern "C" bool CGSManagedDisplayIsAnimating(const int cid, CFStringRef display);
+extern "C" CFStringRef CGSCopyManagedDisplayForSpace(const int cid, int space);
+
 #define CGSDefaultConnection _CGSDefaultConnection()
+extern "C" int _CGSDefaultConnection(void);
+
+extern "C" void NSApplicationLoad(void);
+extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);
 
 enum focus_option
 { 
@@ -159,6 +165,7 @@ void RemoveWindowFromTree(screen_info *, int, bool);
 void RemoveWindowFromTree();
 bool IsLeafNode(tree_node *);
 
+void DisplayReconfigurationCallBack(CGDirectDisplayID, CGDisplayChangeSummaryFlags, void *);
 void GetActiveDisplays();
 screen_info *GetDisplayOfMousePointer();
 screen_info *GetDisplayOfWindow(window_info *);
