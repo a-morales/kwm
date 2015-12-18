@@ -29,6 +29,7 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
     {
         // display has been removed
         DisplayMap.erase(Display);
+        --ActiveDisplaysCount;
         DEBUG("Display has been removed!")
     }
 }
@@ -208,9 +209,13 @@ void CycleFocusedWindowDisplay(int Shift)
     int NewScreenIndex = -1;
 
     if(Shift == 1)
+    {
         NewScreenIndex = (Screen->ID + 1 >= ActiveDisplaysCount) ? 0 : Screen->ID + 1;
+    }
     else if(Shift == -1)
+    {
         NewScreenIndex = (Screen->ID - 1 < 0) ? ActiveDisplaysCount - 1 : Screen->ID - 1;
+    }
 
     if(NewScreenIndex != Screen->ID)
     {
