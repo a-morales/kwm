@@ -16,6 +16,20 @@ extern int DefaultPaddingLeft, DefaultPaddingRight;
 extern int DefaultPaddingTop, DefaultPaddingBottom;
 extern int DefaultGapVertical, DefaultGapHorizontal;
 
+void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
+{
+    if (Flags & kCGDisplayAddFlag)
+    {
+        // display has been added
+        DEBUG("New Display detected!")
+    }
+    else if (Flags & kCGDisplayRemoveFlag)
+    {
+        // display has been removed
+        DEBUG("Display has been removed!")
+    }
+}
+
 void GetActiveDisplays()
 {
     CGGetActiveDisplayList(MaxDisplayCount, (CGDirectDisplayID*)&ActiveDisplays, &ActiveDisplaysCount);
@@ -45,6 +59,7 @@ void GetActiveDisplays()
     }
 
     Screen = GetDisplayOfMousePointer();
+    CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
 }
 
 screen_info *GetDisplayOfMousePointer()
