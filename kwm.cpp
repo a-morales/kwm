@@ -33,6 +33,7 @@ pthread_t DaemonThread;
 
 pthread_mutex_t BackgroundLock;
 
+
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
     pthread_mutex_lock(&BackgroundLock);
@@ -285,6 +286,7 @@ int main(int argc, char **argv)
     RunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, EventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), RunLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(EventTap, true);
+    NSApplicationLoad();
     CFRunLoopRun();
     return 0;
 }
