@@ -28,9 +28,6 @@ the tiling functionality, and so windows should not overlap unless a window is s
 
 *EARLY multiple monitor support:*
 
-Currently *Kwm* only looks for active monitors upon startup, and so if a monitor is connected or disconnected
-while *Kwm* is running, it has to be restarted.
-    
 To send a window to the prev/next monitor, the hotkeys ctrl+alt+p/n can be used. 
 
 Moving a window with the mouse WILL BREAK the window-trees of both monitors, however a window CAN be toggled
