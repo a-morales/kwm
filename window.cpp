@@ -293,6 +293,7 @@ void UpdateActiveWindowList(screen_info *Screen)
             if(DisplayIdentifier)
                 CFRelease(DisplayIdentifier);
 
+            Screen->ActiveSpace = CurrentSpace;
             DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
             FocusWindowBelowCursor();
         }
@@ -322,8 +323,8 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         SpaceInfo.VerticalGap = Screen->VerticalGap;
         SpaceInfo.HorizontalGap = Screen->HorizontalGap;
 
-        Screen->Space[CurrentSpace] = SpaceInfo;
-        ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
+        Screen->Space[Screen->ActiveSpace] = SpaceInfo;
+        ApplyNodeContainer(Screen->Space[Screen->ActiveSpace].RootNode);
         FocusWindowBelowCursor();
     }
     else
@@ -532,6 +533,12 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
         CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, FocusedWindow->WID, SplitMode);
         ResizeWindowToContainerSize(CurrentNode->RightChild);
         Screen->ForceContainerUpdate = true;
+    }
+    else if(Screen)
+    {
+        std::vector<window_info*> WindowsOnDisplay;
+        WindowsOnDisplay.push_back(FocusedWindow);
+        CreateWindowNodeTree(Screen, &WindowsOnDisplay);
     }
 }
 
