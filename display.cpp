@@ -20,6 +20,8 @@ extern pthread_mutex_t BackgroundLock;
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
+    pthread_mutex_lock(&BackgroundLock);
+
     if (Flags & kCGDisplayAddFlag)
     {
         // Display has been added
@@ -39,6 +41,8 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
         DisplayMap.erase(Display);
         RefreshActiveDisplays();
     }
+
+    pthread_mutex_unlock(&BackgroundLock);
 }
 
 screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
@@ -205,13 +209,25 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 {
     screen_info *Screen = GetDisplayOfMousePointer();
     if(Side == "left")
-        Screen->Space[CurrentSpace].PaddingLeft += Offset;
+    {
+        if(Screen->Space[CurrentSpace].PaddingLeft + Offset >= 0)
+            Screen->Space[CurrentSpace].PaddingLeft += Offset;
+    }
     else if(Side == "right")
-        Screen->Space[CurrentSpace].PaddingRight += Offset;
+    {
+        if(Screen->Space[CurrentSpace].PaddingRight + Offset >= 0)
+            Screen->Space[CurrentSpace].PaddingRight += Offset;
+    }
     else if(Side == "top")
-        Screen->Space[CurrentSpace].PaddingTop += Offset;
+    {
+        if(Screen->Space[CurrentSpace].PaddingTop + Offset >= 0)
+            Screen->Space[CurrentSpace].PaddingTop += Offset;
+    }
     else if(Side == "bottom")
-        Screen->Space[CurrentSpace].PaddingBottom += Offset;
+    {
+        if(Screen->Space[CurrentSpace].PaddingBottom + Offset >= 0)
+            Screen->Space[CurrentSpace].PaddingBottom += Offset;
+    }
 
     SetRootNodeContainer(Screen, Screen->Space[CurrentSpace].RootNode);
     CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode, true);
@@ -222,9 +238,15 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
 {
     screen_info *Screen = GetDisplayOfMousePointer();
     if(Side == "vertical")
-        Screen->Space[CurrentSpace].VerticalGap += Offset;
+    {
+        if(Screen->Space[CurrentSpace].VerticalGap + Offset >= 0)
+            Screen->Space[CurrentSpace].VerticalGap += Offset;
+    }
     else if(Side == "horizontal")
-        Screen->Space[CurrentSpace].HorizontalGap += Offset;
+    {
+        if(Screen->Space[CurrentSpace].HorizontalGap + Offset >= 0)
+            Screen->Space[CurrentSpace].HorizontalGap += Offset;
+    }
 
     CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode, true);
     ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
