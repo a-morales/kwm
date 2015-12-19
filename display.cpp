@@ -1,6 +1,5 @@
 #include "kwm.h"
 
-
 extern uint32_t MaxDisplayCount;
 extern uint32_t ActiveDisplaysCount;
 extern CGDirectDisplayID ActiveDisplays[];
@@ -17,24 +16,28 @@ extern int DefaultPaddingLeft, DefaultPaddingRight;
 extern int DefaultPaddingTop, DefaultPaddingBottom;
 extern int DefaultGapVertical, DefaultGapHorizontal;
 
+extern pthread_mutex_t BackgroundLock;
+
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
     if (Flags & kCGDisplayAddFlag)
     {
         // Display has been added
+        DEBUG("New display detected! DisplayID: " << Display << " Index: " << ActiveDisplaysCount)
+
         DisplayMap[Display] = CreateDefaultScreenInfo(Display, ActiveDisplaysCount++);
-        DEBUG("New display detected!")
     }
     else if (Flags & kCGDisplayRemoveFlag)
     {
         // Display has been removed
+        DEBUG("Display has been removed! DisplayID: " << Display)
+
         std::map<int, space_info>::iterator It;
         for(It = DisplayMap[Display].Space.begin(); It != DisplayMap[Display].Space.end(); ++It)
             DestroyNodeTree(It->second.RootNode);
 
         DisplayMap.erase(Display);
-        --ActiveDisplaysCount;
-        DEBUG("Display has been removed!")
+        RefreshActiveDisplays();
     }
 }
 
@@ -71,10 +74,30 @@ void GetActiveDisplays()
     {
         unsigned int DisplayID = ActiveDisplays[DisplayIndex];
         DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);;
+
+        DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
     }
 
     Screen = GetDisplayOfMousePointer();
     CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
+}
+
+void RefreshActiveDisplays()
+{
+    CGGetActiveDisplayList(MaxDisplayCount, (CGDirectDisplayID*)&ActiveDisplays, &ActiveDisplaysCount);
+    for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
+    {
+        unsigned int DisplayID = ActiveDisplays[DisplayIndex];
+        std::map<unsigned int, screen_info>::iterator It;
+        if(It != DisplayMap.end())
+            DisplayMap[DisplayID].ID = DisplayIndex;
+        else
+            DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);
+
+        DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
+    }
+
+    Screen = GetDisplayOfMousePointer();
 }
 
 screen_info *GetDisplayFromScreenID(int ID)
