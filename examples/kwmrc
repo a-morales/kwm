@@ -15,6 +15,9 @@ kwmc config gap horizontal 20
 # Let Kwm listen for hotkeys
 kwmc config hotkeys enable
 
+# Set focus-follows-mouse-mode to autoraise
+kwmc focus -t autoraise
+
 # The following command blacklists a specific application
 # from Kwms tiling (PS: The app name is case-sensitive)
 # If the name consist of multiple words, the command
