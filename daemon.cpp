@@ -61,9 +61,9 @@ void KwmDaemonHandleConnection()
         std::string Message = KwmReadFromSocket(ClientSockFD);
         std::vector<std::string> Tokens = SplitString(Message, ' ');
 
-        if(Tokens[0] == "restart")
+        if(Tokens[0] == "quit")
         {
-            KwmRestart();
+            KwmQuit();
         }
         else if(Tokens[0] == "config")
         {
