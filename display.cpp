@@ -21,13 +21,17 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
 {
     if (Flags & kCGDisplayAddFlag)
     {
-        // display has been added
+        // Display has been added
         DisplayMap[Display] = CreateDefaultScreenInfo(Display, ActiveDisplaysCount++);
         DEBUG("New display detected!")
     }
     else if (Flags & kCGDisplayRemoveFlag)
     {
-        // display has been removed
+        // Display has been removed
+        std::map<int, space_info>::iterator It;
+        for(It = DisplayMap[Display].Space.begin(); It != DisplayMap[Display].Space.end(); ++It)
+            DestroyNodeTree(It->second.RootNode);
+
         DisplayMap.erase(Display);
         --ActiveDisplaysCount;
         DEBUG("Display has been removed!")
