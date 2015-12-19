@@ -513,7 +513,7 @@ void RemoveWindowFromTree()
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
 {
-    if(Screen->Space[Screen->ActiveSpace].RootNode)
+    if(Screen && Screen->Space[Screen->ActiveSpace].RootNode)
     {
         tree_node *RootNode = Screen->Space[Screen->ActiveSpace].RootNode;
         tree_node *CurrentNode = RootNode;
