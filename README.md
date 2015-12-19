@@ -3,11 +3,9 @@
 *Kwm* started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
 It is now a tiling window manager that represents windows as the leaves of a binary tree.
 
-*Kwm* runs a local daemon to read messages and trigger functions that affect focus management and tiling
-among other things.
-
-*Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define mapping
-between keys and these functions. The config file ".kwmrc" also uses *Kwmc* to apply initial settings upon startup.  
+*Kwm* runs a local daemon to read messages and trigger functions, *Kwmc* can be used to write to *Kwm*'s socket,  
+and the included hotkeys.cpp uses this program to define mapping between keys and these functions.  
+The config file ".kwmrc" also uses *Kwmc* to apply initial settings upon startup.  
 Because of this, *Kwmc* needs to be placed in your path to ensure that this works as expected.  
 For information, check the readme located within the *kwmc* folder.
 
@@ -26,19 +24,15 @@ the menubar is not accessible. By default *Kwm* is set to use autoraise as it is
 the tiling functionality, and so windows should not overlap unless a window is specifically made floating.
 
 
-*EARLY multiple monitor support:*
+*Multiple monitor support (in progress):*  
+There are two supported ways to move a window between monitors. The first one is by using the ```kwmc screen -m prev|next```  
+The other option is to make the window floating and manually move it with the mouse, then un-float it.  
+Moving a window directly with the mouse WILL BREAK the window-trees of both monitors.  
 
-To send a window to the prev/next monitor, the hotkeys ctrl+alt+p/n can be used. 
-
-Moving a window with the mouse WILL BREAK the window-trees of both monitors, however a window CAN be toggled
-floating, which frees it from the tree. It can then be moved and made not floating on the other monitor.
-This applies when moving a window between spaces on the same monitor as well.
-
-NOTE: The API used to detect which monitor is active does not actually return the correct value unless
-the monitor has been activated by the user. Simply moving the mouse over is not enough for the OSX API
-to update. The user HAS TO CLICK somewhere on the new monitor after mousing oveer for the API to properly
-return the expected value to *Kwm*. In addition to this, a lot of Mac Applications will start at the position
-they were in previously, and will appear on the wrong monitor. This will most likely crash *Kwm* as of now.
+NOTE: The API used to detect which monitor is active does not actually return the correct value unless  
+the monitor has been activated by the user (click somewhere on the screen).  
+In addition to this, a lot of Mac Applications will start at the position they were in previously,  
+and will appear on the wrong monitor. This will most likely crash *Kwm* as of now.  
 
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.
 
