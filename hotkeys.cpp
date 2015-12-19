@@ -64,7 +64,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Restart Kwm
             case kVK_ANSI_Q:
             {
-                system("kwmc restart");
+                system("kwmc quit");
             } break;
             // Use Width/Height ratio to determine split mode
             case kVK_ANSI_O:
