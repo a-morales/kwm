@@ -168,6 +168,7 @@ bool IsLeafNode(tree_node *);
 screen_info CreateDefaultScreenInfo(int, int);
 void DisplayReconfigurationCallBack(CGDirectDisplayID, CGDisplayChangeSummaryFlags, void *);
 void GetActiveDisplays();
+void RefreshActiveDisplays();
 screen_info *GetDisplayOfMousePointer();
 screen_info *GetDisplayOfWindow(window_info *);
 std::vector<window_info*> GetAllWindowsOnDisplay(int);
