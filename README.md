@@ -133,7 +133,7 @@ If the main pane is split using horizontal mode, an upper and lower pane is crea
     - ctrl+alt+cmd:
         - t: toggle focus-mode (autofocus -> autoraise -> disabled)
         - r: manually resize window to its containersize
-        - q: restart kwm
+        - q: Quit Kwm
 
         - m: mark the container to use for next window split
 
