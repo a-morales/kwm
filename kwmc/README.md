@@ -14,8 +14,8 @@
         Set state of Kwm's hotkeys
             kwmc config hotkeys enable|disable
 
-    Restart Kwm
-        kwmc restart 
+    Quit Kwm
+        kwmc quit 
 
     Get owner and title of focused window
         kwmc focused 
