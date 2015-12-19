@@ -173,14 +173,9 @@ std::string KwmGetFileTime(const char *File)
     return ctime(&attr.st_mtime);
 }
 
-void KwmRestart()
+void KwmQuit()
 {
-    DEBUG("KWM Restarting..")
-    const char **ExecArgs = new const char*[2];
-    ExecArgs[0] = "kwm";
-    ExecArgs[1] = NULL;
-    std::string KwmBinPath = KwmFilePath + "/kwm";
-    execv(KwmBinPath.c_str(), (char**)ExecArgs);
+    exit(0);
 }
 
 void * KwmWindowMonitor(void*)

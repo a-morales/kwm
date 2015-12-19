@@ -235,7 +235,7 @@ void KwmTerminateDaemon();
 std::vector<std::string> SplitString(std::string, char);
 
 void KwmInit();
-void KwmRestart();
+void KwmQuit();
 void KwmExecuteConfig();
 bool CheckPrivileges();
 void Fatal(const std::string &);
