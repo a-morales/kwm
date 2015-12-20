@@ -174,7 +174,7 @@ screen_info *GetDisplayOfWindow(window_info *);
 std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
 bool DoesSpaceExistInMapOfScreen(screen_info *);
-void CycleFocusedWindowDisplay(int);
+void CycleFocusedWindowDisplay(int, bool);
 void ChangeGapOfDisplay(const std::string &, int);
 void ChangePaddingOfDisplay(const std::string &, int);
 void SetDefaultPaddingOfDisplay(const std::string &, int);
