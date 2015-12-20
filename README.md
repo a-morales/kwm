@@ -21,7 +21,8 @@ the menubar is not accessible. By default *Kwm* is set to use autoraise as it is
 the tiling functionality, and so windows should not overlap unless a window is specifically made floating.  
 
 *Multiple monitor support (in progress):*  
-There are two supported ways to move a window between monitors. The first one is by using `kwmc screen -m prev|next|id`.  
+There are two supported ways to move a window between monitors.  
+The first one is by using `kwmc screen -m prev|next|id`.  
 The other option is to make the window floating and manually move it with the mouse, then un-float it.  
 Moving a window directly with the mouse WILL BREAK the window-trees of both monitors.  
 
