@@ -274,28 +274,42 @@ void UpdateActiveWindowList(screen_info *Screen)
         CFRelease(OsxWindowLst);
 
         PrevSpace = CurrentSpace;
-        CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
-
         if(OldScreenID != Screen->ID)
         {
-            do
+            if(Screen->ActiveSpace == -1)
             {
-                CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
-                usleep(200000);
-            } while(PrevSpace == CurrentSpace);
-            DEBUG("UpdateActiveWindowList() Active Display Changed")
-            Screen->ActiveSpace = CurrentSpace;
-        }
+                do
+                {
+                    CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
+                    usleep(200000);
+                } while(PrevSpace == CurrentSpace);
+                Screen->ActiveSpace = CurrentSpace;
+            }
+            else
+            {
+                CurrentSpace = Screen->ActiveSpace;
+            }
 
-        if(PrevSpace != CurrentSpace)
-        {
-            DEBUG("UpdateActiveWindowList() Space transition ended")
+            DEBUG("UpdateActiveWindowList() Active Display Changed")
             if(DisplayIdentifier)
                 CFRelease(DisplayIdentifier);
 
-            Screen->ActiveSpace = CurrentSpace;
             DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
             FocusWindowBelowCursor();
+        }
+        else
+        {
+            CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
+            if(PrevSpace != CurrentSpace)
+            {
+                DEBUG("UpdateActiveWindowList() Space transition ended")
+                if(DisplayIdentifier)
+                    CFRelease(DisplayIdentifier);
+
+                Screen->ActiveSpace = CurrentSpace;
+                DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
+                FocusWindowBelowCursor();
+            }
         }
 
         if(Screen->ForceContainerUpdate)
