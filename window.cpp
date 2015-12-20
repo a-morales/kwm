@@ -18,6 +18,7 @@ extern int KwmSplitMode;
 window_info FocusedWindowCache;
 CFStringRef DisplayIdentifier;
 int OldScreenID = 0;
+bool ForceRefreshFocus = false;
 
 std::map<int, window_role> WindowRoleCache;
 std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
@@ -42,7 +43,7 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
     bool Result = false;
 
-    if(Window && Match)
+    if(!ForceRefreshFocus && Window && Match)
     {
         if(Window->PID == Match->PID &&
            Window->WID == Match->WID &&
@@ -273,6 +274,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         }
         CFRelease(OsxWindowLst);
 
+        ForceRefreshFocus = true;
         PrevSpace = CurrentSpace;
         if(OldScreenID != Screen->ID)
         {
@@ -317,6 +319,8 @@ void UpdateActiveWindowList(screen_info *Screen)
             ApplyNodeContainer(Screen->Space[Screen->ActiveSpace].RootNode);
             Screen->ForceContainerUpdate = false;
         }
+
+        ForceRefreshFocus = false;
     }
 }
 
