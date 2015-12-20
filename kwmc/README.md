@@ -47,8 +47,8 @@
     Move container splitter
         kwmc screen -m left|right|up|down
 
-    Move window between monitors
-        kwmc screen -m prev|next
+    Move window between monitors (id of primary monitor is 0 and last monitor n-1)
+        kwmc screen -m prev|next|id
 
     Change screen padding
         kwmc screen -p increase|decrease left|right|top|bottom 
