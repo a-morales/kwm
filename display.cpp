@@ -26,14 +26,12 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
     {
         // Display has been added
         DEBUG("New display detected! DisplayID: " << Display << " Index: " << ActiveDisplaysCount)
-
-        DisplayMap[Display] = CreateDefaultScreenInfo(Display, ActiveDisplaysCount++);
+        RefreshActiveDisplays();
     }
     else if (Flags & kCGDisplayRemoveFlag)
     {
         // Display has been removed
         DEBUG("Display has been removed! DisplayID: " << Display)
-
         std::map<int, space_info>::iterator It;
         for(It = DisplayMap[Display].Space.begin(); It != DisplayMap[Display].Space.end(); ++It)
             DestroyNodeTree(It->second.RootNode);
@@ -94,9 +92,28 @@ void RefreshActiveDisplays()
         unsigned int DisplayID = ActiveDisplays[DisplayIndex];
         std::map<unsigned int, screen_info>::iterator It;
         if(It != DisplayMap.end())
+        {
+            CGRect DisplayRect = CGDisplayBounds(ActiveDisplays[DisplayIndex]);
             DisplayMap[DisplayID].ID = DisplayIndex;
+
+            DisplayMap[DisplayID].X = DisplayRect.origin.x;
+            DisplayMap[DisplayID].Y = DisplayRect.origin.y;
+            DisplayMap[DisplayID].Width = DisplayRect.size.width;
+            DisplayMap[DisplayID].Height = DisplayRect.size.height;
+
+            DisplayMap[DisplayID].PaddingTop = DefaultPaddingTop;
+            DisplayMap[DisplayID].PaddingLeft = DefaultPaddingLeft;
+            DisplayMap[DisplayID].PaddingRight = DefaultPaddingRight;
+            DisplayMap[DisplayID].PaddingBottom = DefaultPaddingBottom;
+
+            DisplayMap[DisplayID].VerticalGap = DefaultGapVertical;
+            DisplayMap[DisplayID].HorizontalGap = DefaultGapHorizontal;
+            DisplayMap[DisplayID].ForceContainerUpdate = true;
+        }
         else
+        {
             DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);
+        }
 
         DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
     }
