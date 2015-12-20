@@ -26,9 +26,7 @@ The other option is to make the window floating and manually move it with the mo
 Moving a window directly with the mouse WILL BREAK the window-trees of both monitors.  
 
 The first time a monitor is connected, the user may have to click several times on the screen for it to register.  
-After this step, moving the mouse to a different monitor should activate the monitor automatically as long as there  
-are at least two windows opened that the user can activate through mouse-over.  
-If less than two windows are open, simply do a single mouseclick on a/the window/desktop.  
+After this step, moving the mouse to a different monitor should activate the monitor automatically.  
 
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.  
 Tested on Osx El Capitan (10.11.1 / 10.11.2).
