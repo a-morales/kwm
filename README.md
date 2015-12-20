@@ -40,14 +40,14 @@ Tested on Osx El Capitan (10.11.1 / 10.11.2).
 To compile *Kwm*, simply run the included build.sh script.  
 Because there is no app bundle, *Kwm* has to be started from a terminal.
 
-By default, debug prints are enabled, and these can be turned off by opening the build.sh script and
-getting rid of the -DDEBUG_BUILD flag.
+By default, debug prints are enabled, and these can be turned off by opening the build.sh script  
+and getting rid of the -DDEBUG_BUILD flag.
 
-In addition to this, for *Kwm* to work properly, the user also has to compile *Kwmc* and place it in the path.  
-Simply run the build.sh script located in the *kwmc* folder, and move / symlink the binary.
+In addition to this, for *Kwm* to work properly, the user also has to compile *Kwmc* and place it in  
+the path. Simply run the build.sh script located in the *kwmc* folder, and move / symlink the binary.
 
-If *Kwm* is added to the path, a launcher script is necessary
-because it tries to load hotkeys.so from the executables working-directory.
+If *Kwm* is added to the path, a launcher script is necessary because it tries to load hotkeys.so from  
+the executables working-directory.
 
 Example launcher script to be placed in the path instead of the *Kwm* binary.
 
@@ -63,7 +63,7 @@ If changes have been made to hotkeys.cpp, run the sobuild.sh script to recompile
 ## Configuration:
 
 The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands  
-to be executed when *Kwm* starts. This file can be used to blacklist applications and specify
+to be executed when *Kwm* starts. This file can be used to blacklist applications and specify  
 other settings, as well as run any command not restricted to *Kwmc*.  
 
 A sample config can be found within the [examples](examples) directory.
