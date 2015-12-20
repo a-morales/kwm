@@ -5,12 +5,12 @@ It is now a tiling window manager that represents windows as the leaves of a bin
 
 *Kwm* runs a local daemon to read messages and trigger functions.  
 *Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define  
-a mapping between keys and these functions.The config file ".kwmrc" also uses *Kwmc* to apply initial
+a mapping between keys and these functions. The config file ".kwmrc" also uses *Kwmc* to apply initial  
 settings upon startup. Because of this, *Kwmc* needs to be placed in your path to ensure that everything  
 works as expected. For information, check the readme located within the *kwmc* folder.  
 
-*Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events
-prior to their delivery to a foreground application.
+*Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events prior  
+to their delivery to a foreground application.
 
 This allows for functionality such as focus-follows-mouse, remapping keys, and most importantly global hotkeys  
 for interacting with *Kwm*, and so hotkeys.cpp can and should be customized by the user.  
@@ -21,7 +21,7 @@ the menubar is not accessible. By default *Kwm* is set to use autoraise as it is
 the tiling functionality, and so windows should not overlap unless a window is specifically made floating.  
 
 *Multiple monitor support (in progress):*  
-There are two supported ways to move a window between monitors. The first one is by using the `kwmc screen -m prev|next`  
+There are two supported ways to move a window between monitors. The first one is by using `kwmc screen -m prev|next`.     
 The other option is to make the window floating and manually move it with the mouse, then un-float it.  
 Moving a window directly with the mouse WILL BREAK the window-trees of both monitors.  
 
