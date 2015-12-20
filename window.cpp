@@ -286,6 +286,11 @@ void UpdateActiveWindowList(screen_info *Screen)
                     usleep(200000);
                 } while(PrevSpace == CurrentSpace);
                 Screen->ActiveSpace = CurrentSpace;
+
+                if(DisplayIdentifier)
+                    CFRelease(DisplayIdentifier);
+
+                DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
             }
             else
             {
@@ -293,10 +298,6 @@ void UpdateActiveWindowList(screen_info *Screen)
             }
 
             DEBUG("UpdateActiveWindowList() Active Display Changed")
-            if(DisplayIdentifier)
-                CFRelease(DisplayIdentifier);
-
-            DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
             FocusWindowBelowCursor();
         }
         else
