@@ -25,8 +25,10 @@ There are two supported ways to move a window between monitors. The first one is
 The other option is to make the window floating and manually move it with the mouse, then un-float it.  
 Moving a window directly with the mouse WILL BREAK the window-trees of both monitors.  
 
-NOTE: The API used to detect which monitor is active does not actually return the correct value unless  
-the monitor has been activated by the user (click somewhere on the screen).  
+The first time a monitor is connected, the user may have to click several times on the screen for it to register.  
+After this step, moving the mouse to a different monitor and focusing a/the window/desktop with a single mouseclick  
+should be enough for the focus to shift.  
+
 In addition to this, a lot of Mac Applications will start at the position they were in previously,  
 and will appear on the wrong monitor. This will most likely crash *Kwm* as of now.  
 
