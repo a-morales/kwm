@@ -198,6 +198,21 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 system("kwmc screen -m next");
             } break;
+            // Send window to screen 0
+            case kVK_ANSI_1:
+            {
+                system("kwmc screen -m 0");
+            } break;
+            // Send window to screen 1
+            case kVK_ANSI_2:
+            {
+                system("kwmc screen -m 1");
+            } break;
+            // Send window to screen 2
+            case kVK_ANSI_3:
+            {
+                system("kwmc screen -m 2");
+            } break;
             // Increase screen gaps
             case kVK_ANSI_X:
             {

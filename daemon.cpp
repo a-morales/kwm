@@ -208,9 +208,16 @@ void KwmDaemonHandleConnection()
                 else if(Tokens[2] == "down")
                     MoveContainerSplitter(2, 10);
                 else if(Tokens[2] == "prev")
-                    CycleFocusedWindowDisplay(-1);
+                    CycleFocusedWindowDisplay(-1, true);
                 else if(Tokens[2] == "next")
-                    CycleFocusedWindowDisplay(1);
+                    CycleFocusedWindowDisplay(1, true);
+                else
+                {
+                    int Index = 0;
+                    std::stringstream Stream(Tokens[2]);
+                    Stream >> Index;
+                    CycleFocusedWindowDisplay(Index, false);
+                }
             }
             else if(Tokens[1] == "-p")
             {
