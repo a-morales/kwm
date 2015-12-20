@@ -553,7 +553,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
         ResizeWindowToContainerSize(CurrentNode->RightChild);
         Screen->ForceContainerUpdate = true;
     }
-    else if(Screen)
+    else if(Screen && Screen->ActiveSpace != 0)
     {
         std::vector<window_info*> WindowsOnDisplay;
         WindowsOnDisplay.push_back(FocusedWindow);
