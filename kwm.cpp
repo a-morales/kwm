@@ -15,7 +15,6 @@ screen_info *Screen;
 int DefaultPaddingTop = 40, DefaultPaddingBottom = 20;
 int DefaultPaddingLeft = 20, DefaultPaddingRight = 20;
 int DefaultGapVertical = 10, DefaultGapHorizontal = 10;
-int PrevSpace = -1, CurrentSpace = 0;
 
 std::map<unsigned int, screen_info> DisplayMap;
 std::vector<window_info> WindowLst;
