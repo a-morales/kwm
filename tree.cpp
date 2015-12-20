@@ -1,7 +1,6 @@
 #include "kwm.h"
 
 extern std::vector<window_info> WindowLst;
-extern int CurrentSpace;
 
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
@@ -12,7 +11,7 @@ node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
     LeftContainer.Height = Node->Container.Height;
 
     if(DoesSpaceExistInMapOfScreen(Screen))
-        LeftContainer.Width = (Node->Container.Width / 2) - (Screen->Space[CurrentSpace].VerticalGap / 2);
+        LeftContainer.Width = (Node->Container.Width / 2) - (Screen->Space[Screen->ActiveSpace].VerticalGap / 2);
     else
         LeftContainer.Width = (Node->Container.Width / 2) - (Screen->VerticalGap / 2);
     
@@ -28,8 +27,8 @@ node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 
     if(DoesSpaceExistInMapOfScreen(Screen))
     {
-        RightContainer.X = Node->Container.X + (Node->Container.Width / 2) + (Screen->Space[CurrentSpace].VerticalGap / 2);
-        RightContainer.Width = (Node->Container.Width / 2) - (Screen->Space[CurrentSpace].VerticalGap / 2);
+        RightContainer.X = Node->Container.X + (Node->Container.Width / 2) + (Screen->Space[Screen->ActiveSpace].VerticalGap / 2);
+        RightContainer.Width = (Node->Container.Width / 2) - (Screen->Space[Screen->ActiveSpace].VerticalGap / 2);
     }
     else
     {
@@ -49,7 +48,7 @@ node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
     UpperContainer.Width = Node->Container.Width;
 
     if(DoesSpaceExistInMapOfScreen(Screen))
-        UpperContainer.Height = (Node->Container.Height / 2) - (Screen->Space[CurrentSpace].HorizontalGap / 2);
+        UpperContainer.Height = (Node->Container.Height / 2) - (Screen->Space[Screen->ActiveSpace].HorizontalGap / 2);
     else
         UpperContainer.Height = (Node->Container.Height / 2) - (Screen->HorizontalGap / 2);
 
@@ -65,8 +64,8 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 
     if(DoesSpaceExistInMapOfScreen(Screen))
     {
-        LowerContainer.Y = Node->Container.Y + (Node->Container.Height / 2) + (Screen->Space[CurrentSpace].HorizontalGap / 2);
-        LowerContainer.Height = (Node->Container.Height / 2) - (Screen->Space[CurrentSpace].HorizontalGap / 2);
+        LowerContainer.Y = Node->Container.Y + (Node->Container.Height / 2) + (Screen->Space[Screen->ActiveSpace].HorizontalGap / 2);
+        LowerContainer.Height = (Node->Container.Height / 2) - (Screen->Space[Screen->ActiveSpace].HorizontalGap / 2);
     }
     else
     {
@@ -150,10 +149,10 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
 {
     if(DoesSpaceExistInMapOfScreen(Screen))
     {
-        Node->Container.X = Screen->X + Screen->Space[CurrentSpace].PaddingLeft;
-        Node->Container.Y = Screen->Y + Screen->Space[CurrentSpace].PaddingTop;
-        Node->Container.Width = Screen->Width - Screen->Space[CurrentSpace].PaddingLeft - Screen->Space[CurrentSpace].PaddingRight;
-        Node->Container.Height = Screen->Height - Screen->Space[CurrentSpace].PaddingTop - Screen->Space[CurrentSpace].PaddingBottom;
+        Node->Container.X = Screen->X + Screen->Space[Screen->ActiveSpace].PaddingLeft;
+        Node->Container.Y = Screen->Y + Screen->Space[Screen->ActiveSpace].PaddingTop;
+        Node->Container.Width = Screen->Width - Screen->Space[Screen->ActiveSpace].PaddingLeft - Screen->Space[Screen->ActiveSpace].PaddingRight;
+        Node->Container.Height = Screen->Height - Screen->Space[Screen->ActiveSpace].PaddingTop - Screen->Space[Screen->ActiveSpace].PaddingBottom;
     }
     else
     {
