@@ -48,7 +48,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
 
     Screen.ID = ScreenIndex;
     Screen.ForceContainerUpdate = false;
-    Screen.ActiveSpace = -1;
+    Screen.ActiveSpace = 0;
     Screen.OldWindowListCount = -1;
 
     Screen.X = DisplayRect.origin.x;

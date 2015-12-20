@@ -278,7 +278,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         PrevSpace = CurrentSpace;
         if(OldScreenID != Screen->ID)
         {
-            if(Screen->ActiveSpace == -1)
+            if(Screen->ActiveSpace == 0)
             {
                 do
                 {
@@ -286,16 +286,16 @@ void UpdateActiveWindowList(screen_info *Screen)
                     usleep(200000);
                 } while(PrevSpace == CurrentSpace);
                 Screen->ActiveSpace = CurrentSpace;
-
-                if(DisplayIdentifier)
-                    CFRelease(DisplayIdentifier);
-
-                DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
             }
             else
             {
                 CurrentSpace = Screen->ActiveSpace;
             }
+
+            if(DisplayIdentifier)
+                CFRelease(DisplayIdentifier);
+
+            DisplayIdentifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
 
             if(Screen->ForceContainerUpdate)
             {
