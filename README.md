@@ -3,29 +3,25 @@
 *Kwm* started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
 It is now a tiling window manager that represents windows as the leaves of a binary tree.
 
-*Kwm* runs a local daemon to read messages and trigger functions, *Kwmc* can be used to write to *Kwm*'s socket,  
-and the included hotkeys.cpp uses this program to define mapping between keys and these functions.  
-The config file ".kwmrc" also uses *Kwmc* to apply initial settings upon startup.  
-Because of this, *Kwmc* needs to be placed in your path to ensure that this works as expected.  
-For information, check the readme located within the *kwmc* folder.
+*Kwm* runs a local daemon to read messages and trigger functions.  
+*Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define  
+a mapping between keys and these functions.The config file ".kwmrc" also uses *Kwmc* to apply initial
+settings upon startup. Because of this, *Kwmc* needs to be placed in your path to ensure that everything  
+works as expected. For information, check the readme located within the *kwmc* folder.  
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events
 prior to their delivery to a foreground application.
 
-This allows for functionality such as focus-follows-mouse, remapping keys, and most importantly 
-global hotkeys, mainly to be used for interaction with the parts of *Kwm* that are exposed to hotkeys.cpp 
-through the daemon, and so hotkeys.cpp can and should be customized by the user.  
-The user may also use any other program that allows for running a specific command on keypress.
-
-hotkeys.cpp can be edited and recompiled separately, thus any changes made does not require *Kwm* to be restarted.
+This allows for functionality such as focus-follows-mouse, remapping keys, and most importantly global hotkeys  
+for interacting with *Kwm*, and so hotkeys.cpp can and should be customized by the user.  
+The user may use an external program for running a specific command on keypress instead.
 
 Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,
 the menubar is not accessible. By default *Kwm* is set to use autoraise as it is meant to be used alongside
-the tiling functionality, and so windows should not overlap unless a window is specifically made floating.
-
+the tiling functionality, and so windows should not overlap unless a window is specifically made floating.  
 
 *Multiple monitor support (in progress):*  
-There are two supported ways to move a window between monitors. The first one is by using the ```kwmc screen -m prev|next```  
+There are two supported ways to move a window between monitors. The first one is by using the `kwmc screen -m prev|next`  
 The other option is to make the window floating and manually move it with the mouse, then un-float it.  
 Moving a window directly with the mouse WILL BREAK the window-trees of both monitors.  
 
@@ -34,21 +30,18 @@ the monitor has been activated by the user (click somewhere on the screen).
 In addition to this, a lot of Mac Applications will start at the position they were in previously,  
 and will appear on the wrong monitor. This will most likely crash *Kwm* as of now.  
 
-*Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.
-
+*Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.  
 Tested on Osx El Capitan (10.11.1 / 10.11.2).
 
 ![kwm img](https://cloud.githubusercontent.com/assets/6175959/11850244/6e59e84c-a42c-11e5-832b-6ee3e5ebd8b5.png)
 
 ## Build:
 
-To compile *Kwm*, simply run the included build.sh script.
+To compile *Kwm*, simply run the included build.sh script.  
+Because there is no app bundle, *Kwm* has to be started from a terminal.
 
 By default, debug prints are enabled, and these can be turned off by opening the build.sh script and
 getting rid of the -DDEBUG_BUILD flag.
-
-If any changes have been made to hotkeys.cpp, run the sobuild.sh script to recompile this file separately.  
-Because there is no app bundle, *Kwm* has to be started from a terminal.
 
 In addition to this, for *Kwm* to work properly, the user also has to compile *Kwmc* and place it in the path.  
 Simply run the build.sh script located in the *kwmc* folder, and move / symlink the binary.
@@ -63,16 +56,15 @@ Example launcher script to be placed in the path instead of the *Kwm* binary.
     ./kwm
     popd
 
-The reason for this is that hotkeys.cpp can edited and rebuild separately,
-and *Kwm* will reload this library without having to be restarted and so
-hotkeys can be edited live.
+The reason for this is that hotkeys.cpp can edited and rebuild separately, and *Kwm* will reload this  
+library without having to be restarted and so hotkeys can be edited live.  
+If changes have been made to hotkeys.cpp, run the sobuild.sh script to recompile this file separately.  
 
 ## Configuration:
 
 The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands  
-to be executed when *Kwm* starts.  
-This file can be used to blacklist applications and specify other settings, as well as run any  
-command not restricted to *Kwmc*.  
+to be executed when *Kwm* starts. This file can be used to blacklist applications and specify
+other settings, as well as run any command not restricted to *Kwmc*.  
 
 A sample config can be found within the [examples](examples) directory.
 
