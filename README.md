@@ -30,9 +30,6 @@ After this step, moving the mouse to a different monitor should activate the mon
 are at least two windows opened that the user can activate through mouse-over.  
 If less than two windows are open, simply do a single mouseclick on a/the window/desktop.  
 
-In addition to this, a lot of Mac Applications will start at the position they were in previously,  
-and will appear on the wrong monitor. This will most likely crash *Kwm* as of now.  
-
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.  
 Tested on Osx El Capitan (10.11.1 / 10.11.2).
 
