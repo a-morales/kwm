@@ -26,8 +26,9 @@ The other option is to make the window floating and manually move it with the mo
 Moving a window directly with the mouse WILL BREAK the window-trees of both monitors.  
 
 The first time a monitor is connected, the user may have to click several times on the screen for it to register.  
-After this step, moving the mouse to a different monitor and focusing a/the window/desktop with a single mouseclick  
-should be enough for the focus to shift.  
+After this step, moving the mouse to a different monitor should activate the monitor automatically as long as there  
+are at least two windows opened that the user can activate through mouse-over.  
+If less than two windows are open, simply do a single mouseclick on a/the window/desktop.  
 
 In addition to this, a lot of Mac Applications will start at the position they were in previously,  
 and will appear on the wrong monitor. This will most likely crash *Kwm* as of now.  
