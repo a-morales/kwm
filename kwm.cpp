@@ -18,6 +18,7 @@ int DefaultGapVertical = 10, DefaultGapHorizontal = 10;
 
 std::map<unsigned int, screen_info> DisplayMap;
 std::vector<window_info> WindowLst;
+std::vector<int> FloatingSpaceLst;
 std::vector<std::string> FloatingAppLst;
 std::vector<int> FloatingWindowLst;
 

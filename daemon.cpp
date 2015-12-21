@@ -248,6 +248,18 @@ void KwmDaemonHandleConnection()
                 }
             }
         }
+        else if(Tokens[0] == "space")
+        {
+            if(Tokens[1] == "-t")
+            {
+                if(Tokens[2] == "toggle")
+                    ToggleFocusedSpaceFloating();
+                else if(Tokens[2] == "float")
+                    FloatFocusedSpace();
+                else if(Tokens[2] == "tile")
+                    TileFocusedSpace();
+            }
+        }
 
         close(ClientSockFD);
     }

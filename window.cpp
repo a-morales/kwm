@@ -6,6 +6,7 @@ extern screen_info *Screen;
 extern int MarkedWindowID;
 
 extern std::vector<window_info> WindowLst;
+extern std::vector<int> FloatingSpaceLst;
 extern std::vector<std::string> FloatingAppLst;
 extern std::vector<int> FloatingWindowLst;
 
@@ -108,6 +109,26 @@ bool FilterWindowList(screen_info *Screen)
     }
 
     WindowLst = FilteredWindowLst;
+    return Result;
+}
+
+bool IsSpaceFloating(int SpaceID, int *Index)
+{
+    bool Result = false;
+
+    for(int SpaceIndex = 0; SpaceIndex < FloatingSpaceLst.size(); ++SpaceIndex)
+    {
+        if(SpaceID == FloatingSpaceLst[SpaceIndex])
+        {
+            Result = true;
+
+            if(Index)
+                *Index = SpaceIndex;
+
+            break;
+        }
+    }
+
     return Result;
 }
 
@@ -247,12 +268,15 @@ void UpdateWindowTree()
         {
             std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(Screen->ID);
             std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
-            if(It == Screen->Space.end() && !WindowsOnDisplay.empty())
-                CreateWindowNodeTree(Screen, &WindowsOnDisplay);
-            else if(It != Screen->Space.end() && !WindowsOnDisplay.empty())
-                ShouldWindowNodeTreeUpdate(Screen);
-            else if(It != Screen->Space.end() && WindowsOnDisplay.empty())
-                Screen->Space.erase(Screen->ActiveSpace);
+            if(!IsSpaceFloating(Screen->ActiveSpace, NULL))
+            {
+                if(It == Screen->Space.end() && !WindowsOnDisplay.empty())
+                    CreateWindowNodeTree(Screen, &WindowsOnDisplay);
+                else if(It != Screen->Space.end() && !WindowsOnDisplay.empty())
+                    ShouldWindowNodeTreeUpdate(Screen);
+                else if(It != Screen->Space.end() && WindowsOnDisplay.empty())
+                    Screen->Space.erase(Screen->ActiveSpace);
+            }
         }
     }
 }
@@ -558,6 +582,40 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
         std::vector<window_info*> WindowsOnDisplay;
         WindowsOnDisplay.push_back(FocusedWindow);
         CreateWindowNodeTree(Screen, &WindowsOnDisplay);
+    }
+}
+
+void FloatFocusedSpace()
+{
+    if(Screen && Screen->ActiveSpace != 0)
+    {
+        if(!IsSpaceFloating(Screen->ActiveSpace, NULL))
+        {
+            DestroyNodeTree(Screen->Space[Screen->ActiveSpace].RootNode);
+            Screen->Space.erase(Screen->ActiveSpace);
+            FloatingSpaceLst.push_back(Screen->ActiveSpace);
+        }
+    }
+}
+
+void TileFocusedSpace()
+{
+    if(Screen && Screen->ActiveSpace != 0)
+    {
+        int SpaceIndex;
+        if(IsSpaceFloating(Screen->ActiveSpace, &SpaceIndex))
+            FloatingSpaceLst.erase(FloatingSpaceLst.begin() + SpaceIndex);
+    }
+}
+
+void ToggleFocusedSpaceFloating()
+{
+    if(Screen && Screen->ActiveSpace != 0)
+    {
+        if(IsSpaceFloating(Screen->ActiveSpace, NULL))
+            TileFocusedSpace();
+        else
+            FloatFocusedSpace();
     }
 }
 

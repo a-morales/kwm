@@ -122,6 +122,11 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
     {
         switch(Keycode)
         {
+            // Toggle space floating/tiling
+            case kVK_ANSI_T:
+            {
+                system("kwmc space -t toggle");
+            } break;
             // Swap focused window with the previous window
             case kVK_ANSI_P:
             {
