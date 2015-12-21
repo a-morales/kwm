@@ -89,19 +89,19 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Resize Panes
             case kVK_ANSI_H:
             {
-                system("kwmc screen -m left");
+                system("kwmc space -m left");
             } break;
             case kVK_ANSI_L:
             {
-                system("kwmc screen -m right");
+                system("kwmc space -m right");
             } break;
             case kVK_ANSI_J:
             {
-                system("kwmc screen -m down");
+                system("kwmc space -m down");
             } break;
             case kVK_ANSI_K:
             {
-                system("kwmc screen -m up");
+                system("kwmc space -m up");
             } break;
             // Toggle Fullscreen / Parent Container
             case kVK_ANSI_F:
@@ -155,33 +155,33 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Rotate window-tree by 180 degrees
             case kVK_ANSI_R:
             {
-                system("kwmc screen -r 180");
+                system("kwmc space -r 180");
             } break;
-            // Decrease screen gaps
+            // Decrease space gaps
             case kVK_ANSI_X:
             {
-                system("kwmc screen -g decrease horizontal");
+                system("kwmc space -g decrease horizontal");
             } break;
             case kVK_ANSI_Y:
             {
-                system("kwmc screen -g decrease vertical");
+                system("kwmc space -g decrease vertical");
             } break;
-            // Decrease screen padding
+            // Decrease space padding
             case kVK_LeftArrow:
             {
-                system("kwmc screen -p decrease left");
+                system("kwmc space -p decrease left");
             } break;
             case kVK_RightArrow:
             {
-                system("kwmc screen -p decrease right");
+                system("kwmc space -p decrease right");
             } break;
             case kVK_UpArrow:
             {
-                system("kwmc screen -p decrease top");
+                system("kwmc space -p decrease top");
             } break;
             case kVK_DownArrow:
             {
-                system("kwmc screen -p decrease bottom");
+                system("kwmc space -p decrease bottom");
             } break;
             default:
             {
@@ -218,31 +218,31 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 system("kwmc screen -m 2");
             } break;
-            // Increase screen gaps
+            // Increase space gaps
             case kVK_ANSI_X:
             {
-                system("kwmc screen -g increase horizontal");
+                system("kwmc space -g increase horizontal");
             } break;
             case kVK_ANSI_Y:
             {
-                system("kwmc screen -g increase vertical");
+                system("kwmc space -g increase vertical");
             } break;
-            // Increase screen padding
+            // Increase space padding
             case kVK_LeftArrow:
             {
-                system("kwmc screen -p increase left");
+                system("kwmc space -p increase left");
             } break;
             case kVK_RightArrow:
             {
-                system("kwmc screen -p increase right");
+                system("kwmc space -p increase right");
             } break;
             case kVK_UpArrow:
             {
-                system("kwmc screen -p increase top");
+                system("kwmc space -p increase top");
             } break;
             case kVK_DownArrow:
             {
-                system("kwmc screen -p increase bottom");
+                system("kwmc space -p increase bottom");
             } break;
             default:
             {

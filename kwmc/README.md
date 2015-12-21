@@ -23,9 +23,6 @@
     Set focus-mode
         kwmc focus -t toggle|autofocus|autoraise|disabled
 
-    Set space-tiling mode (every space is tiled by default)
-        kwmc space -t toggle|tile|float
-
     Set window-tiling mode
         kwmc window -t fullscreen|parent|float|mark
 
@@ -41,20 +38,23 @@
     Swap window position
         kwmc window -s prev|next|mark
 
+    Set space-tiling mode (every space is tiled by default)
+        kwmc space -t toggle|tile|float
+
+    Rotate window-tree
+        kwmc space -r 90|180|270
+
+    Move container splitter
+        kwmc space -m left|right|up|down
+
+    Change space padding
+        kwmc space -p increase|decrease left|right|top|bottom 
+
+    Change space container gaps
+        kwmc space -g increase|decrease vertical|horizontal
+
     Set split-mode
         kwmc screen -s optimal|vertical|horizontal
 
-    Rotate window-tree
-        kwmc screen -r 90|180|270
-
-    Move container splitter
-        kwmc screen -m left|right|up|down
-
     Move window between monitors (id of primary monitor is 0 and last monitor n-1)
         kwmc screen -m prev|next|id
-
-    Change screen padding
-        kwmc screen -p increase|decrease left|right|top|bottom 
-
-    Change screen container gaps
-        kwmc screen -g increase|decrease vertical|horizontal
