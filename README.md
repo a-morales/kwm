@@ -168,6 +168,7 @@ If the main pane is split using horizontal mode, an upper and lower pane is crea
         - darrow: increase screen padding-bottom 
 
     - alt+cmd
+        - t: toggle tiling mode of current space (float|tile)
         - r: rotate window-tree by 180 degrees
 
         - h: focus previous window
