@@ -1,7 +1,5 @@
 #include "kwm.h"
 
-extern std::vector<window_info> WindowLst;
-
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
     node_container LeftContainer;
