@@ -188,6 +188,7 @@ void RotateTree(tree_node *, int);
 void MoveContainerSplitter(int, int);
 
 bool IsWindowBelowCursor(window_info *);
+bool IsSpaceFloating(int, int *);
 bool IsApplicationFloating(window_info *);
 bool IsWindowFloating(int, int *);
 bool IsWindowOnActiveSpace(window_info *);
@@ -204,6 +205,9 @@ void ShiftWindowFocus(int);
 void SwapFocusedWindowWithNearest(int);
 void SwapFocusedWindowWithMarked();
 void FocusWindowBelowCursor();
+void FloatFocusedSpace();
+void TileFocusedSpace();
+void ToggleFocusedSpaceFloating();
 void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowFullscreen();
 void ToggleFocusedWindowParentContainer();
