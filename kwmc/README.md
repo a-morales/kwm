@@ -23,6 +23,9 @@
     Set focus-mode
         kwmc focus -t toggle|autofocus|autoraise|disabled
 
+    Set space-tiling mode (every space is tiled by default)
+        kwmc space -t toggle|tile|float
+
     Set window-tiling mode
         kwmc window -t fullscreen|parent|float|mark
 
