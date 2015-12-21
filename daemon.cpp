@@ -1,8 +1,6 @@
 #include "kwm.h"
 
 extern screen_info *Screen;
-extern int CurrentSpace;
-
 extern std::vector<std::string> FloatingAppLst;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
@@ -150,7 +148,7 @@ void KwmDaemonHandleConnection()
             {
                 if(Tokens[2] == "split")
                 {
-                    tree_node *Node = GetNodeFromWindowID(Screen->Space[CurrentSpace].RootNode, FocusedWindow->WID);
+                    tree_node *Node = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
                     ToggleNodeSplitMode(Screen, Node->Parent);
                 }
                 else if(Tokens[2] == "refresh")
@@ -218,9 +216,9 @@ void KwmDaemonHandleConnection()
                     int Deg = 0;
                     std::stringstream Stream(Tokens[2]);
                     Stream >> Deg;
-                    RotateTree(Screen->Space[CurrentSpace].RootNode, Deg);
-                    CreateNodeContainers(Screen, Screen->Space[CurrentSpace].RootNode, false);
-                    ApplyNodeContainer(Screen->Space[CurrentSpace].RootNode);
+                    RotateTree(Screen->Space[Screen->ActiveSpace].RootNode, Deg);
+                    CreateNodeContainers(Screen, Screen->Space[Screen->ActiveSpace].RootNode, false);
+                    ApplyNodeContainer(Screen->Space[Screen->ActiveSpace].RootNode);
                 }
             }
             else if(Tokens[1] == "-m")
