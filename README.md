@@ -36,14 +36,19 @@ Tested on Osx El Capitan (10.11.1 / 10.11.2).
 
 ## Build:
 
-To compile *Kwm*, simply run the included build.sh script.  
+To compile and run *Kwm*, simply run
+
+      make
+      ./bin/kwm
+
 Because there is no app bundle, *Kwm* has to be started from a terminal.
 
-By default, debug prints are enabled, and these can be turned off by opening the build.sh script  
-and getting rid of the -DDEBUG_BUILD flag.
+By default, debug prints are enabled, and these can be turned off by runnning
 
-In addition to this, for *Kwm* to work properly, the user also has to compile *Kwmc* and place it in  
-the path. Simply run the build.sh script located in the *kwmc* folder, and move / symlink the binary.
+      make install
+
+In addition to this, for *Kwm* to work properly, the user also has to place *Kwmc* in their path.
+Simply move/symlink the `.bin/kwmc` binary to your path.
 
 If *Kwm* is added to the path, a launcher script is necessary because it tries to load hotkeys.so from  
 the executables working-directory.
