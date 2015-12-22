@@ -47,7 +47,7 @@ By default, debug prints are enabled, and these can be turned off by runnning
 
       make install
 
-In addition to this, for *Kwm* to work properly, the user also has to place *Kwmc* in their path.
+In addition to this, for *Kwm* to work properly, the user also has to place *Kwmc* in their path.  
 Simply move/symlink the `.bin/kwmc` binary to your path.
 
 If *Kwm* is added to the path, a launcher script is necessary because it tries to load hotkeys.so from  
@@ -62,7 +62,7 @@ Example launcher script to be placed in the path instead of the *Kwm* binary.
 
 The reason for this is that hotkeys.cpp can edited and rebuild separately, and *Kwm* will reload this  
 library without having to be restarted and so hotkeys can be edited live.  
-If changes have been made to hotkeys.cpp, run the sobuild.sh script to recompile this file separately.  
+If changes have been made to hotkeys.cpp, run `make hotkeys` to recompile this file separately.  
 
 ## Configuration:
 
