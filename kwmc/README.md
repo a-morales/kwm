@@ -15,10 +15,10 @@
             kwmc config hotkeys enable|disable
 
     Quit Kwm
-        kwmc quit 
+        kwmc quit
 
     Get owner and title of focused window
-        kwmc focused 
+        kwmc focused
 
     Set focus-mode
         kwmc focus -t toggle|autofocus|autoraise|disabled
@@ -33,7 +33,7 @@
         kwmc window -c split
 
     Change window focus
-        kwmc window -f prev|next
+        kwmc window -f prev|next|curr
 
     Swap window position
         kwmc window -s prev|next|mark
@@ -48,7 +48,7 @@
         kwmc space -m left|right|up|down
 
     Change space padding
-        kwmc space -p increase|decrease left|right|top|bottom 
+        kwmc space -p increase|decrease left|right|top|bottom
 
     Change space container gaps
         kwmc space -g increase|decrease vertical|horizontal

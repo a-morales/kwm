@@ -131,7 +131,7 @@ void KwmDaemonHandleConnection()
                     KwmFocusMode = FocusModeDisabled;
             }
         }
-        else if(Tokens[0] == "window") 
+        else if(Tokens[0] == "window")
         {
             if(Tokens[1] == "-t")
             {
@@ -161,6 +161,8 @@ void KwmDaemonHandleConnection()
                     ShiftWindowFocus(-1);
                 else if(Tokens[2] == "next")
                     ShiftWindowFocus(1);
+                else if(Tokens[2] == "curr")
+                    FocusWindowBelowCursor();
             }
             else if(Tokens[1] == "-s")
             {
