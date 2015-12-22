@@ -58,7 +58,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
                 std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
-                if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
+                if(NewHotkeySOFileTime != "" &&
+                   NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
                 {
                     DEBUG("Reloading hotkeys.so")
                     UnloadKwmCode(&KWMCode);
@@ -168,9 +169,7 @@ void UnloadKwmCode(kwm_code *Code)
 std::string KwmGetFileTime(const char *File)
 {
     struct stat attr;
-    stat(File, &attr);
-
-    return ctime(&attr.st_mtime);
+    return stat(File, &attr) ? ctime(&attr.st_mtime) : "file not found";
 }
 
 void KwmQuit()
