@@ -53,8 +53,11 @@ Simply move/symlink the `.bin/kwmc` binary to your path.
 To make *Kwm* start automatically on login, update line 9 of kwm.plist to be the full path of the executable  
 on your machine. With that change, just link the plist file via `ln -sf full/path/to/kwm.plist ~/Library/LaunchAgents`.   
 Then logout/login to have Kwm start automatically.  
+
 This will also cause *Kwm* to restart itself when terminated, and no longer requires anything  
 but the *Kwm* binary to have accessibility access.  
+
+Removing the KeepAlive option on line 13-14 prevents kwm from restarting once it is killed manually.  
 
 ## Configuration:
 
