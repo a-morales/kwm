@@ -69,21 +69,21 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 if(KWMCode.IsValid)
                 {
                     // Hotkeys specific to Kwms functionality
-                    if(KWMCode.KWMHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                    if(KWMCode.KWMHotkeyCommands(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
                     {
                         pthread_mutex_unlock(&BackgroundLock);
                         return NULL;
                     }
 
                     // Capture custom hotkeys specified by the user
-                    if(KWMCode.CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                    if(KWMCode.CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
                     {
                         pthread_mutex_unlock(&BackgroundLock);
                         return NULL;
                     }
 
                     // Let system hotkeys pass through as normal
-                    if(KWMCode.SystemHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                    if(KWMCode.SystemHotkeyCommands(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
                     {
                         pthread_mutex_unlock(&BackgroundLock);
                         return Event;
