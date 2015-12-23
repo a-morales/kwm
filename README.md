@@ -62,7 +62,7 @@ Example launcher script to be placed in the path instead of the *Kwm* binary.
 
 The reason for this is that hotkeys.cpp can edited and rebuild separately, and *Kwm* will reload this  
 library without having to be restarted and so hotkeys can be edited live.  
-If changes have been made to hotkeys.cpp, run `make hotkeys` to recompile this file separately.  
+If changes have been made to hotkeys.cpp, run `make` again to recompile this file separately.  
 
 ## Configuration:
 
