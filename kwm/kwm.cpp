@@ -1,4 +1,5 @@
 #include "kwm.h"
+#include <libproc.h>
 
 CFMachPortRef EventTap;
 
@@ -218,6 +219,19 @@ void KwmExecuteConfig()
     }
 }
 
+void GetKwmFilePath()
+{
+    char PathBuf[PROC_PIDPATHINFO_MAXSIZE];
+    pid_t Pid = getpid();
+    int Ret = proc_pidpath(Pid, PathBuf, sizeof(PathBuf));
+    if (Ret > 0)
+        KwmFilePath = PathBuf;
+
+    std::size_t Split = KwmFilePath.find_last_of("/\\");
+    KwmFilePath = KwmFilePath.substr(0, Split);
+    HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
+}
+
 void KwmInit()
 {
     if(!CheckPrivileges())
@@ -232,14 +246,13 @@ void KwmInit()
         Fatal("Kwm: Could not start daemon..");
 
     KwmFocusMode = FocusModeAutoraise;
-    KwmFilePath = getcwd(NULL, 0);
-    HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
     KwmUseBuiltinHotkeys = true;
 
+    GetKwmFilePath();
     KwmExecuteConfig();
     KWMCode = LoadKwmCode();
-
     GetActiveDisplays();
+
     pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }
 

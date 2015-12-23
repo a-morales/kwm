@@ -241,6 +241,7 @@ std::vector<std::string> SplitString(std::string, char);
 
 void KwmInit();
 void KwmQuit();
+void GetKwmFilePath();
 void KwmExecuteConfig();
 bool CheckPrivileges();
 void Fatal(const std::string &);

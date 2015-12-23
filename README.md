@@ -50,23 +50,11 @@ By default, debug prints are enabled, and these can be turned off by runnning
 In addition to this, for *Kwm* to work properly, the user also has to place *Kwmc* in their path.  
 Simply move/symlink the `.bin/kwmc` binary to your path.
 
-If *Kwm* is added to the path, a launcher script is necessary because it tries to load hotkeys.so from  
-the executables working-directory.
-
-Example launcher script to be placed in the path instead of the *Kwm* binary.
-
-    #!/bin/bash
-    pushd /path/to/kwm
-    ./kwm
-    popd
-
-The reason for this is that hotkeys.cpp can edited and rebuild separately, and *Kwm* will reload this  
-library without having to be restarted and so hotkeys can be edited live.  
-If changes have been made to hotkeys.cpp, run `make` again to recompile this file separately.  
-
 To make *Kwm* start automatically on login, update line 9 of kwm.plist to be the full path of the executable  
 on your machine. With that change, just link the plist file via `ln -sf full/path/to/kwm.plist ~/Library/LaunchAgents`.   
-Then logout/login to have Kwm start automatically.
+Then logout/login to have Kwm start automatically.  
+This will also cause *Kwm* to restart itself when terminated, and no longer requires anything  
+but the *Kwm* binary to have accessibility access.  
 
 ## Configuration:
 
