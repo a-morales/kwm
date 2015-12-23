@@ -64,6 +64,10 @@ The reason for this is that hotkeys.cpp can edited and rebuild separately, and *
 library without having to be restarted and so hotkeys can be edited live.  
 If changes have been made to hotkeys.cpp, run `make` again to recompile this file separately.  
 
+To make *Kwm* start automatically on login, update line 9 of kwm.plist to be the full path of the executable  
+on your machine. With that change, just link the plist file via `ln -sf full/path/to/kwm.plist ~/Library/LaunchAgents`.   
+Then logout/login to have Kwm start automatically.
+
 ## Configuration:
 
 The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands  
