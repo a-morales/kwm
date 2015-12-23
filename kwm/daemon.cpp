@@ -45,6 +45,8 @@ void * KwmDaemonHandleConnectionBG(void *)
 {
     while(KwmDaemonIsRunning)
         KwmDaemonHandleConnection();
+
+    return NULL;
 }
 
 void KwmDaemonHandleConnection()
