@@ -1,5 +1,4 @@
 #include "kwm.h"
-#include <libproc.h>
 
 CFMachPortRef EventTap;
 

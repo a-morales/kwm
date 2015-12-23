@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libproc.h>
 
 #include <pthread.h>
 #include <dlfcn.h>
