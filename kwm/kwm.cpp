@@ -58,7 +58,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
                 std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
-                if(NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
+                if(NewHotkeySOFileTime != "" &&
+                   NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
                 {
                     DEBUG("Reloading hotkeys.so")
                     UnloadKwmCode(&KWMCode);
@@ -68,21 +69,21 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 if(KWMCode.IsValid)
                 {
                     // Hotkeys specific to Kwms functionality
-                    if(KWMCode.KWMHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                    if(KWMCode.KWMHotkeyCommands(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
                     {
                         pthread_mutex_unlock(&BackgroundLock);
                         return NULL;
                     }
 
                     // Capture custom hotkeys specified by the user
-                    if(KWMCode.CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                    if(KWMCode.CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
                     {
                         pthread_mutex_unlock(&BackgroundLock);
                         return NULL;
                     }
 
                     // Let system hotkeys pass through as normal
-                    if(KWMCode.SystemHotkeyCommands(CmdKey, CtrlKey, AltKey, Keycode))
+                    if(KWMCode.SystemHotkeyCommands(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
                     {
                         pthread_mutex_unlock(&BackgroundLock);
                         return Event;
@@ -168,9 +169,7 @@ void UnloadKwmCode(kwm_code *Code)
 std::string KwmGetFileTime(const char *File)
 {
     struct stat attr;
-    stat(File, &attr);
-
-    return ctime(&attr.st_mtime);
+    return stat(File, &attr) ? ctime(&attr.st_mtime) : "file not found";
 }
 
 void KwmQuit()

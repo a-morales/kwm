@@ -39,7 +39,7 @@ struct tree_node;
     #define DEBUG(x) do {} while (0);
 #endif
 
-#define KWM_HOTKEY_COMMANDS(name) bool name(bool CmdKey, bool CtrlKey, bool AltKey, CGKeyCode Keycode)
+#define KWM_HOTKEY_COMMANDS(name) bool name(bool CmdKey, bool CtrlKey, bool AltKey, bool ShiftKey, CGKeyCode Keycode)
 typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
 
 #define KWM_KEY_REMAP(name) void name(CGEventRef Event, bool *CmdKey, bool *CtrlKey, bool *AltKey, bool *ShiftKey, CGKeyCode Keycode, int *Result)
