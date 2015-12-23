@@ -285,7 +285,7 @@ bool KwmStartDaemon()
 
     SrvAddr.sin_family = AF_INET;
     SrvAddr.sin_port = htons(KwmDaemonPort);
-    SrvAddr.sin_addr.s_addr = 0;
+    SrvAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     std::memset(&SrvAddr.sin_zero, '\0', 8);
 
     if(bind(KwmSockFD, (struct sockaddr*)&SrvAddr, sizeof(struct sockaddr)) == -1)
