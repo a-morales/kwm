@@ -1,6 +1,14 @@
 # This is a sample config for Kwm
-# The commands listed here will be executed as system
-# commands when Kwm starts
+# The commands listed here can be of
+# two types. 
+#
+# Commands prefixed with 'kwmc' will call
+# local functions corresponding to the
+# kwmc syntax.
+#
+# To run a system command, use the prefix
+# 'sys' and then the requested command
+# e.g 'sys mvim' would open macvim
 
 # Set default values for screen padding
 kwmc config padding top 40
