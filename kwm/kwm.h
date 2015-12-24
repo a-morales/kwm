@@ -238,6 +238,7 @@ bool KwmStartDaemon();
 void KwmDaemonHandleConnection();
 void * KwmDaemonHandleConnectionBG(void *);
 void KwmTerminateDaemon();
+void KwmWriteToSocket(int, std::string);
 std::vector<std::string> SplitString(std::string, char);
 
 void KwmInit();
@@ -247,5 +248,7 @@ void KwmExecuteConfig();
 bool CheckPrivileges();
 void Fatal(const std::string &);
 CGEventRef CGEventCallback(CGEventTapProxy, CGEventType, CGEventRef, void *);
+
+void RunCommand(std::string &, const int);
 
 #endif
