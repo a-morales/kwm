@@ -198,7 +198,6 @@ bool IsPrefixOfString(std::string &Line, std::string Prefix)
     {
         Line = Line.substr(Prefix.size()+1);
         Result = true;
-        std::cout << "command: " << Line << std::endl;
     }
 
     return Result;
