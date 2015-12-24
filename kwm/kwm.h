@@ -238,7 +238,12 @@ bool KwmStartDaemon();
 void KwmDaemonHandleConnection();
 void * KwmDaemonHandleConnectionBG(void *);
 void KwmTerminateDaemon();
+
+std::string KwmReadFromSocket(int);
+void KwmWriteToSocket(int, std::string);
+void KwmInterpretCommand(std::string, int);
 std::vector<std::string> SplitString(std::string, char);
+bool IsPrefixOfString(std::string &, std::string);
 
 void KwmInit();
 void KwmQuit();

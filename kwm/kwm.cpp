@@ -190,6 +190,20 @@ void * KwmWindowMonitor(void*)
     }
 }
 
+bool IsPrefixOfString(std::string &Line, std::string Prefix)
+{
+    bool Result = false;
+
+    if(Line.substr(0, Prefix.size()) == Prefix)
+    {
+        Line = Line.substr(Prefix.size()+1);
+        Result = true;
+        std::cout << "command: " << Line << std::endl;
+    }
+
+    return Result;
+}
+
 void KwmExecuteConfig()
 {
     char *HomeP = std::getenv("HOME");
@@ -214,7 +228,12 @@ void KwmExecuteConfig()
     while(std::getline(ConfigFD, Line))
     {
         if(!Line.empty() && Line[0] != '#')
-            system(Line.c_str());
+        {
+            if(IsPrefixOfString(Line, "kwmc"))
+                KwmInterpretCommand(Line, 0);
+            else if(IsPrefixOfString(Line, "sys"))
+                    system(Line.c_str());
+        }
     }
 }
 
