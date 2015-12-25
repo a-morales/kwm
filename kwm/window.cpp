@@ -112,6 +112,27 @@ bool FilterWindowList(screen_info *Screen)
     return Result;
 }
 
+bool IsCursorInsideFocusedWindow()
+{
+    bool Result = false;
+
+    if(Screen && FocusedWindow)
+    {
+        tree_node *Node = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
+        if(Node)
+        {
+            CGPoint Cursor = GetCursorPos();
+            if((Cursor.x >= Node->Container.X) &&
+                (Cursor.x <= Node->Container.X + Node->Container.Width) &&
+                (Cursor.y >= Node->Container.Y) &&
+                (Cursor.y <= Node->Container.Y + Node->Container.Height))
+                    Result = true;
+        }
+    }
+
+    return Result;
+}
+
 bool FocusedWindowMovedByUser()
 {
     bool Result = false;
@@ -121,8 +142,11 @@ bool FocusedWindowMovedByUser()
         tree_node *Node = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
         if(Node)
         {
-            if((FocusedWindow->X != Node->Container.X) ||
-               (FocusedWindow->Y != Node->Container.Y))
+            CGPoint Cursor = GetCursorPos();
+            if((Cursor.x < Node->Container.X - 1) ||
+               (Cursor.x > Node->Container.X + Node->Container.Width + 1) ||
+               (Cursor.y < Node->Container.Y - 1) ||
+               (Cursor.y > Node->Container.Y + Node->Container.Height + 1))
                 Result = true;
         }
     }
@@ -944,6 +968,15 @@ void ResizeWindowToContainerSize()
                 ResizeWindowToContainerSize(Node);
         }
     }
+}
+
+CGPoint GetCursorPos()
+{
+    CGEventRef Event = CGEventCreate(NULL);
+    CGPoint Cursor = CGEventGetLocation(Event);
+    CFRelease(Event);
+
+    return Cursor;
 }
 
 std::string GetWindowTitle(AXUIElementRef WindowRef)
