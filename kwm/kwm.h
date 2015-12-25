@@ -214,6 +214,7 @@ void ToggleFocusedWindowFullscreen();
 void ToggleFocusedWindowParentContainer();
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 void CenterWindow(screen_info *);
+bool FocusedWindowMovedByUser();
 
 void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
