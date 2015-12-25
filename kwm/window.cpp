@@ -112,6 +112,24 @@ bool FilterWindowList(screen_info *Screen)
     return Result;
 }
 
+bool FocusedWindowMovedByUser()
+{
+    bool Result = false;
+
+    if(Screen && FocusedWindow)
+    {
+        tree_node *Node = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
+        if(Node)
+        {
+            if((FocusedWindow->X != Node->Container.X) ||
+               (FocusedWindow->Y != Node->Container.Y))
+                Result = true;
+        }
+    }
+
+    return Result;
+}
+
 bool IsSpaceFloating(int SpaceID, int *Index)
 {
     bool Result = false;
