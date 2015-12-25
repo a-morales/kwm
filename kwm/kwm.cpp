@@ -27,6 +27,7 @@ window_info *FocusedWindow;
 focus_option KwmFocusMode;
 int KwmSplitMode = -1;
 int MarkedWindowID = -1;
+bool IsWindowDragInProgress = false;
 
 pthread_t BackgroundThread;
 pthread_t DaemonThread;
@@ -128,11 +129,18 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         case kCGEventLeftMouseDown:
         {
             DEBUG("Left mouse button was pressed")
+            if(IsCursorInsideFocusedWindow())
+               IsWindowDragInProgress = true;
         } break;
         case kCGEventLeftMouseUp:
         {
-            if(FocusedWindowMovedByUser())
-                ToggleFocusedWindowFloating();
+            if(IsWindowDragInProgress)
+            {
+                if(FocusedWindowMovedByUser())
+                    ToggleFocusedWindowFloating();
+
+                IsWindowDragInProgress = false;
+            }
 
             DEBUG("Left mouse button was released")
         } break;
