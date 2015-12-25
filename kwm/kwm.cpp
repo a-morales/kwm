@@ -125,6 +125,17 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             if(KwmFocusMode != FocusModeDisabled)
                 FocusWindowBelowCursor();
         } break;
+        case kCGEventLeftMouseDown:
+        {
+            DEBUG("Left mouse button was pressed")
+        } break;
+        case kCGEventLeftMouseUp:
+        {
+            if(FocusedWindowMovedByUser())
+                ToggleFocusedWindowFloating();
+
+            DEBUG("Left mouse button was released")
+        } break;
     }
 
     pthread_mutex_unlock(&BackgroundLock);
@@ -300,7 +311,11 @@ int main(int argc, char **argv)
     CGEventMask EventMask;
     CFRunLoopSourceRef RunLoopSource;
 
-    EventMask = ((1 << kCGEventKeyDown) | (1 << kCGEventMouseMoved));
+    EventMask = ((1 << kCGEventKeyDown) |
+                 (1 << kCGEventMouseMoved) |
+                 (1 << kCGEventLeftMouseDown) |
+                 (1 << kCGEventLeftMouseUp));
+
     EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, EventMask, CGEventCallback, NULL);
 
     if(!EventTap || !CGEventTapIsEnabled(EventTap))
