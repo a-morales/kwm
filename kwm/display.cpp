@@ -134,13 +134,11 @@ screen_info *GetDisplayFromScreenID(int ID)
 
 screen_info *GetDisplayOfMousePointer()
 {
-    CGEventRef Event = CGEventCreate(NULL);
-    CGPoint Cursor = CGEventGetLocation(Event);
-    CFRelease(Event);
 
     std::map<unsigned int, screen_info>::iterator It;
     for(It = DisplayMap.begin(); It != DisplayMap.end(); ++It)
     {
+        CGPoint Cursor = GetCursorPos();
         screen_info *Screen = &It->second;
         if(Cursor.x >= Screen->X && Cursor.x <= Screen->X + Screen->Width &&
            Cursor.y >= Screen->Y && Cursor.y <= Screen->Y + Screen->Height)
