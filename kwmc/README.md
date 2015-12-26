@@ -17,6 +17,9 @@
         Allow drag&drop to make window floating
             kwmc config dragndrop enable|disable
 
+        Prevent focus-follows-mouse if context-menus|menubar is visible
+            kwmc config menu-fix enable|disable
+
     Quit Kwm
         kwmc quit 
 
