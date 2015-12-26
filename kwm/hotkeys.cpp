@@ -265,10 +265,6 @@ extern "C" KWM_HOTKEY_COMMANDS(SystemHotkeyCommands)
     {
         switch(Keycode)
         {
-            // Spotlight fix
-            case kVK_Space:
-            {
-            } break;
             default:
             {
                 Result = false;
@@ -294,65 +290,6 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             case kVK_Return:
             {
                 system("/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window &");
-            } break;
-            // YTD - Media Player Controls
-            case kVK_ANSI_Z:
-            {
-                system("ytc prev");
-            } break;
-            case kVK_ANSI_X:
-            {
-                system("ytc play");
-            } break;
-            case kVK_ANSI_C:
-            {
-                system("ytc next");
-            } break;
-            case kVK_ANSI_V:
-            {
-                system("ytc stop");
-            } break;
-            case kVK_ANSI_A:
-            {
-                system("ytc volup");
-            } break;
-            case kVK_ANSI_D:
-            {
-                system("ytc voldown");
-            } break;
-            case kVK_LeftArrow:
-            {
-                system("ytc seekbk");
-            } break;
-            case kVK_RightArrow:
-            {
-                system("ytc seekfw");
-            } break;
-            case kVK_ANSI_Grave:
-            {
-                system("ytc fav");
-            } break;
-            default:
-            {
-                Result = false;
-            } break;
-        }
-    }
-    else if(CmdKey && !AltKey && !CtrlKey)
-    {
-        switch(Keycode)
-        {
-            // disable retarded hotkey for minimizing an application
-            case kVK_ANSI_M:
-            {
-            } break;
-            // disable retarded hotkey for hiding an application
-            case kVK_ANSI_H:
-            {
-            } break;
-            // disable cmd+tab window-swap
-            case kVK_Tab:
-            {
             } break;
             default:
             {
