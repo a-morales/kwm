@@ -18,6 +18,7 @@ extern int KwmSplitMode;
 int OldScreenID = 0;
 int PrevSpace = -1, CurrentSpace = 0;
 bool ForceRefreshFocus = false;
+bool IsContextualMenusVisible = false;
 window_info FocusedWindowCache;
 CFStringRef DisplayIdentifier;
 
@@ -58,6 +59,24 @@ bool IsWindowNotAStandardWindow(window_info *Window)
     return Result;
 }
 
+bool IsContextMenusAndSimilarVisible()
+{
+    bool Result = false;
+
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    {
+        if((WindowLst[WindowIndex].Owner != "Dock" ||
+            WindowLst[WindowIndex].Name != "Dock") &&
+            WindowLst[WindowIndex].Layer != 0)
+        {
+            Result = true;
+            break;
+        }
+    }
+
+    return Result;
+}
+
 bool FilterWindowList(screen_info *Screen)
 {
     bool Result = true;
@@ -69,6 +88,8 @@ bool FilterWindowList(screen_info *Screen)
         if(WindowLst[WindowIndex].Owner == "Dock" &&
            WindowLst[WindowIndex].Name == "")
                Result = false;
+
+        IsContextualMenusVisible = IsContextMenusAndSimilarVisible();
 
         if(WindowLst[WindowIndex].Layer == 0 &&
            Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]))
@@ -242,7 +263,7 @@ bool IsSpaceSystemOrFullscreen()
 
 void FocusWindowBelowCursor()
 {
-    if(IsSpaceTransitionInProgress())
+    if(IsSpaceTransitionInProgress() || IsContextualMenusVisible)
         return;
 
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
