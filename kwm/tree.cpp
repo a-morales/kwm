@@ -194,7 +194,6 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
     tree_node *RootNode = CreateRootNode();
     SetRootNodeContainer(Screen, RootNode);
 
-
     if(Windows.size() > 1)
     {
         tree_node *Root = RootNode;
@@ -313,25 +312,17 @@ tree_node *GetNearestNodeToTheLeft(tree_node *Node)
         if(Node->Parent)
         {
             tree_node *Root = Node->Parent;
-            if(Root->LeftChild != Node)
-            {
-                if(IsLeafNode(Root->LeftChild))
-                {
-                    return Root->LeftChild;
-                }
-                else
-                {
-                    Root = Root->LeftChild;
-                    while(!IsLeafNode(Root->RightChild))
-                        Root = Root->RightChild;
-                }
-
-                return Root->RightChild;
-            }
-            else
-            {
+            if(Root->LeftChild == Node)
                 return GetNearestNodeToTheLeft(Root);
-            }
+
+            if(IsLeafNode(Root->LeftChild))
+                return Root->LeftChild;
+
+            Root = Root->LeftChild;
+            while(!IsLeafNode(Root->RightChild))
+                Root = Root->RightChild;
+
+            return Root->RightChild;
         }
     }
 
@@ -345,25 +336,17 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node)
         if(Node->Parent)
         {
             tree_node *Root = Node->Parent;
-            if(Root->RightChild != Node)
-            {
-                if(IsLeafNode(Root->RightChild))
-                {
-                    return Root->RightChild;
-                }
-                else
-                {
-                    Root = Root->RightChild;
-                    while(!IsLeafNode(Root->LeftChild))
-                        Root = Root->LeftChild;
-                }
-
-                return Root->LeftChild;
-            }
-            else
-            {
+            if(Root->RightChild == Node)
                 return GetNearestNodeToTheRight(Root);
-            }
+
+            if(IsLeafNode(Root->RightChild))
+                return Root->RightChild;
+
+            Root = Root->RightChild;
+            while(!IsLeafNode(Root->LeftChild))
+                Root = Root->LeftChild;
+
+            return Root->LeftChild;
         }
     }
 
@@ -374,8 +357,7 @@ void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSpli
 {
     if(Node && Node->LeftChild && Node->RightChild)
     {
-        int OptimalSplitMode = GetOptimalSplitMode(Node);
-        Node->SplitMode = OptimalSplit ? OptimalSplitMode : Node->SplitMode;
+        Node->SplitMode = OptimalSplit ? GetOptimalSplitMode(Node) : Node->SplitMode;
         CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, Node->SplitMode);
 
         CreateNodeContainers(Screen, Node->LeftChild, OptimalSplit);
@@ -439,12 +421,7 @@ void RotateTree(tree_node *Node, int Deg)
     }
 
     if(Deg != 180)
-    {
-       if(Node->SplitMode == 2)
-           Node->SplitMode = 1;
-       else
-           Node->SplitMode = 2;
-    }
+        Node->SplitMode = Node->SplitMode == 2 ? 1 : 2;
 
     RotateTree(Node->LeftChild, Deg);
     RotateTree(Node->RightChild, Deg);
