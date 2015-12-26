@@ -137,7 +137,7 @@ bool FocusedWindowMovedByUser()
 {
     bool Result = false;
 
-    if(Screen && FocusedWindow)
+    if(Screen && FocusedWindow && !IsWindowFloating(FocusedWindow->WID, NULL))
     {
         tree_node *Node = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
         if(Node)
