@@ -23,6 +23,12 @@ kwmc config gap horizontal 20
 # Let Kwm listen for hotkeys
 kwmc config hotkeys enable
 
+# Turn off focus-follows-mouse if any
+# context-menus or the menubar is visible.
+# If the menubar is not set to auto-hide,
+# disable this setting.
+kwmc config menu-fix enable
+
 # Set focus-follows-mouse-mode to autoraise
 kwmc focus -t autoraise
 
