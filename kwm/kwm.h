@@ -167,6 +167,7 @@ void RemoveWindowFromTree();
 bool IsLeafNode(tree_node *);
 
 screen_info CreateDefaultScreenInfo(int, int);
+void UpdateExistingScreenInfo(screen_info *, int, int);
 void DisplayReconfigurationCallBack(CGDirectDisplayID, CGDisplayChangeSummaryFlags, void *);
 void GetActiveDisplays();
 void RefreshActiveDisplays();
