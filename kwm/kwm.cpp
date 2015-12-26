@@ -6,6 +6,7 @@ kwm_code KWMCode;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
 bool KwmUseBuiltinHotkeys;
+bool KwmEnableDragAndDrop;
 
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
@@ -129,12 +130,12 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         case kCGEventLeftMouseDown:
         {
             DEBUG("Left mouse button was pressed")
-            if(IsCursorInsideFocusedWindow())
+            if(KwmEnableDragAndDrop && IsCursorInsideFocusedWindow())
                IsWindowDragInProgress = true;
         } break;
         case kCGEventLeftMouseUp:
         {
-            if(IsWindowDragInProgress)
+            if(KwmEnableDragAndDrop && IsWindowDragInProgress)
             {
                 if(!IsCursorInsideFocusedWindow())
                     ToggleFocusedWindowFloating();
@@ -288,6 +289,7 @@ void KwmInit()
 
     KwmFocusMode = FocusModeAutoraise;
     KwmUseBuiltinHotkeys = true;
+    KwmEnableDragAndDrop = true;
 
     GetKwmFilePath();
     KwmExecuteConfig();

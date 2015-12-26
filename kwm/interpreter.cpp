@@ -6,6 +6,7 @@ extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int KwmSplitMode;
 extern bool KwmUseBuiltinHotkeys;
+extern bool KwmEnableDragAndDrop;
 
 std::vector<std::string> SplitString(std::string Line, char Delim)
 {
@@ -35,6 +36,13 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 KwmUseBuiltinHotkeys = false;
             else if(Tokens[2] == "enable")
                 KwmUseBuiltinHotkeys = true;
+        }
+        else if(Tokens[1] == "dragndrop")
+        {
+            if(Tokens[2] == "disable")
+                KwmEnableDragAndDrop = false;
+            else if(Tokens[2] == "enable")
+                KwmEnableDragAndDrop = true;
         }
         else if(Tokens[1] == "float")
         {
