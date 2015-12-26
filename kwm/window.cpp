@@ -14,6 +14,7 @@ extern ProcessSerialNumber FocusedPSN;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int KwmSplitMode;
+extern bool KwmUseContextMenuFix;
 
 int OldScreenID = 0;
 int PrevSpace = -1, CurrentSpace = 0;
@@ -89,7 +90,8 @@ bool FilterWindowList(screen_info *Screen)
            WindowLst[WindowIndex].Name == "")
                Result = false;
 
-        IsContextualMenusVisible = IsContextMenusAndSimilarVisible();
+        if(KwmUseContextMenuFix)
+            IsContextualMenusVisible = IsContextMenusAndSimilarVisible();
 
         if(WindowLst[WindowIndex].Layer == 0 &&
            Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]))
@@ -263,7 +265,7 @@ bool IsSpaceSystemOrFullscreen()
 
 void FocusWindowBelowCursor()
 {
-    if(IsSpaceTransitionInProgress() || IsContextualMenusVisible)
+    if(IsSpaceTransitionInProgress() || (KwmUseContextMenuFix && IsContextualMenusVisible))
         return;
 
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)

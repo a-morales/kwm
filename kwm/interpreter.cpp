@@ -7,6 +7,7 @@ extern focus_option KwmFocusMode;
 extern int KwmSplitMode;
 extern bool KwmUseBuiltinHotkeys;
 extern bool KwmEnableDragAndDrop;
+extern bool KwmUseContextMenuFix;
 
 std::vector<std::string> SplitString(std::string Line, char Delim)
 {
@@ -43,6 +44,13 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 KwmEnableDragAndDrop = false;
             else if(Tokens[2] == "enable")
                 KwmEnableDragAndDrop = true;
+        }
+        else if(Tokens[1] == "menu-fix")
+        {
+            if(Tokens[2] == "disable")
+                KwmUseContextMenuFix = false;
+            else if(Tokens[2] == "enable")
+                KwmUseContextMenuFix = true;
         }
         else if(Tokens[1] == "float")
         {

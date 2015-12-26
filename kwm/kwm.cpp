@@ -7,6 +7,7 @@ std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
 bool KwmUseBuiltinHotkeys;
 bool KwmEnableDragAndDrop;
+bool KwmUseContextMenuFix;
 
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
@@ -290,6 +291,7 @@ void KwmInit()
     KwmFocusMode = FocusModeAutoraise;
     KwmUseBuiltinHotkeys = true;
     KwmEnableDragAndDrop = true;
+    KwmUseContextMenuFix = true;
 
     GetKwmFilePath();
     KwmExecuteConfig();
