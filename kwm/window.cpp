@@ -24,22 +24,6 @@ CFStringRef DisplayIdentifier;
 std::map<int, window_role> WindowRoleCache;
 std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
 
-bool DoesApplicationExist(int PID, std::vector<AXUIElementRef> *Elements)
-{
-    std::map<int, std::vector<AXUIElementRef> >::iterator It = WindowRefsCache.find(PID);
-    *Elements = It->second;
-    return It != WindowRefsCache.end();
-}
-
-void FreeApplicationWindowRefCache(int PID)
-{
-    int NumElements = WindowRefsCache[PID].size();
-    for(int RefIndex = 0; RefIndex < NumElements; ++RefIndex)
-        CFRelease(WindowRefsCache[PID][RefIndex]);
-
-    WindowRefsCache[PID].clear();
-}
-
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
     bool Result = false;
@@ -1038,26 +1022,9 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole)
 
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 {
-    std::vector<AXUIElementRef> Elements;
-    if(DoesApplicationExist(Window->PID, &Elements))
-    {
-        for(int ElementIndex = 0; ElementIndex < Elements.size(); ++ElementIndex)
-        {
-            int AppWindowRefWID = -1;
-            _AXUIElementGetWindow(Elements[ElementIndex], &AppWindowRefWID);
-            if(AppWindowRefWID == Window->WID)
-            {
-                *WindowRef = Elements[ElementIndex];
-                return true;
-            }
-        }
-    }
-    else
-    {
-        WindowRefsCache[Window->PID] = std::vector<AXUIElementRef>();
-    }
+    if(GetWindowRefFromCache(Window, WindowRef))
+        return true;
 
-    bool Found = false;
     AXUIElementRef App = AXUIElementCreateApplication(Window->PID);
     if(!App)
     {
@@ -1067,36 +1034,79 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 
     CFArrayRef AppWindowLst;
     AXUIElementCopyAttributeValue(App, kAXWindowsAttribute, (CFTypeRef*)&AppWindowLst);
-    if(AppWindowLst)
+    if(!AppWindowLst)
     {
-        FreeApplicationWindowRefCache(Window->PID);
-        CFIndex AppWindowCount = CFArrayGetCount(AppWindowLst);
-        for(CFIndex WindowIndex = 0; WindowIndex < AppWindowCount; ++WindowIndex)
+        DEBUG("GetWindowRef() Could not get AppWindowLst")
+        return false;
+    }
+
+    bool Found = false;
+    FreeWindowRefCache(Window->PID);
+    CFIndex AppWindowCount = CFArrayGetCount(AppWindowLst);
+    for(CFIndex WindowIndex = 0; WindowIndex < AppWindowCount; ++WindowIndex)
+    {
+        AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
+        if(AppWindowRef != NULL)
         {
-            AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
-            if(AppWindowRef != NULL)
+            WindowRefsCache[Window->PID].push_back(AppWindowRef);
+            if(!Found)
             {
-                WindowRefsCache[Window->PID].push_back(AppWindowRef);
-                if(!Found)
+                int AppWindowRefWID = -1;
+                _AXUIElementGetWindow(AppWindowRef, &AppWindowRefWID);
+                if(AppWindowRefWID == Window->WID)
                 {
-                    int AppWindowRefWID = -1;
-                    _AXUIElementGetWindow(AppWindowRef, &AppWindowRefWID);
-                    if(AppWindowRefWID == Window->WID)
-                    {
-                        *WindowRef = AppWindowRef;
-                        Found = true;
-                    }
+                    *WindowRef = AppWindowRef;
+                    Found = true;
                 }
             }
         }
     }
-    else
-    {
-        DEBUG("GetWindowRef() Could not get AppWindowLst")
-    }
 
     CFRelease(App);
     return Found;
+}
+
+bool IsApplicationInCache(int PID, std::vector<AXUIElementRef> *Elements)
+{
+    std::map<int, std::vector<AXUIElementRef> >::iterator It = WindowRefsCache.find(PID);
+    *Elements = It->second;
+    return It != WindowRefsCache.end();
+}
+
+bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
+{
+    bool Result = false;
+    std::vector<AXUIElementRef> Elements;
+    bool IsCached = IsApplicationInCache(Window->PID, &Elements);
+
+    if(IsCached)
+    {
+        for(int ElementIndex = 0; ElementIndex < Elements.size(); ++ElementIndex)
+        {
+            int AppWindowRefWID = -1;
+            _AXUIElementGetWindow(Elements[ElementIndex], &AppWindowRefWID);
+            if(AppWindowRefWID == Window->WID)
+            {
+                *WindowRef = Elements[ElementIndex];
+                Result = true;
+                break;
+            }
+        }
+    }
+
+    if(!IsCached)
+        WindowRefsCache[Window->PID] = std::vector<AXUIElementRef>();
+
+    return Result;
+}
+
+void FreeWindowRefCache(int PID)
+{
+    int NumElements = WindowRefsCache[PID].size();
+    for(int RefIndex = 0; RefIndex < NumElements; ++RefIndex)
+        CFRelease(WindowRefsCache[PID][RefIndex]);
+
+    WindowRefsCache[PID].clear();
 }
 
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
