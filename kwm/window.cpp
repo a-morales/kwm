@@ -690,7 +690,7 @@ void ToggleFocusedWindowParentContainer()
 
 void ToggleFocusedWindowFullscreen()
 {
-    if(FocusedWindow || !Screen || !DoesSpaceExistInMapOfScreen(Screen))
+    if(!FocusedWindow || !Screen || !DoesSpaceExistInMapOfScreen(Screen))
         return;
 
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
