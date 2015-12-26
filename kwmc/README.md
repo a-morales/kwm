@@ -14,6 +14,9 @@
         Set state of Kwm's hotkeys
             kwmc config hotkeys enable|disable
 
+        Allow drag&drop to make window floating
+            kwmc config dragndrop enable|disable
+
     Quit Kwm
         kwmc quit 
 
