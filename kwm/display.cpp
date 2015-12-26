@@ -134,7 +134,6 @@ screen_info *GetDisplayFromScreenID(int ID)
 
 screen_info *GetDisplayOfMousePointer()
 {
-
     std::map<unsigned int, screen_info>::iterator It;
     for(It = DisplayMap.begin(); It != DisplayMap.end(); ++It)
     {
