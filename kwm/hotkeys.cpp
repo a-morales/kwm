@@ -289,7 +289,7 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             // Open New iTerm Window
             case kVK_Return:
             {
-                system("/Applications/iTerm.app/Contents/MacOS/iTerm2 --new-window &");
+                system("open -na /Applications/iTerm.app");
             } break;
             default:
             {
