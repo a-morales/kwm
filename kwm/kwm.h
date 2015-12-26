@@ -197,6 +197,7 @@ bool IsWindowOnActiveSpace(window_info *);
 bool IsSpaceTransitionInProgress();
 bool IsSpaceSystemOrFullscreen();
 bool IsWindowNotAStandardWindow(window_info *);
+bool IsContextMenusAndSimilarVisible();
 bool WindowsAreEqual(window_info *, window_info *);
 
 void UpdateWindowTree();
