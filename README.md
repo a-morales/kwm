@@ -24,8 +24,9 @@ the tiling functionality, and so windows should not overlap unless a window is s
 There are different ways to move a window between monitors.  
 The first one is by using `kwmc screen -m prev|next|id`.  
 The other option is to make the window floating and manually move it with the mouse, then un-float it.  
-When Moving a window directly with the mouse, *Kwm* will detect on mouse-release that the window  
-position has changed, and automatically make it floating.  
+When moving a window directly with the mouse, *Kwm* will detect on mouse-release that the window  
+position has changed, and automatically make it floating (Due to technical limitations this event  
+must occur on the monitor which currently holds the window).
 
 The first time a monitor is connected, the user may have to click several times on the screen for it to register.  
 After this step, moving the mouse to a different monitor should activate the monitor automatically.  
