@@ -62,6 +62,7 @@ This will also cause *Kwm* to restart itself when terminated, and no longer requ
 but the *Kwm* binary to have accessibility access.  
 
 Removing the KeepAlive option on line 13-14 prevents *Kwm* from restarting once it is killed manually.  
+If *Kwm* is started using this method, hotkeys.cpp must use the full path to *kwmc* for commands to work.  
 
 ## Configuration:
 
