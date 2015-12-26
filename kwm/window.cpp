@@ -102,7 +102,8 @@ bool IsCursorInsideFocusedWindow()
 
     if(Screen && FocusedWindow)
     {
-        tree_node *Node = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
+        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        tree_node *Node = GetNodeFromWindowID(Space->RootNode, FocusedWindow->WID);
         if(Node)
         {
             CGPoint Cursor = GetCursorPos();
@@ -438,7 +439,8 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
     if(!Screen || !DoesSpaceExistInMapOfScreen(Screen))
         return;
 
-    tree_node *RootNode = Screen->Space[Screen->ActiveSpace].RootNode;
+    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    tree_node *RootNode = Space->RootNode;
     tree_node *CurrentNode = RootNode;
 
     DEBUG("AddWindowToTree() Create pair of leafs")
@@ -710,10 +712,11 @@ void SwapFocusedWindowWithMarked()
 
     if(Screen && DoesSpaceExistInMapOfScreen(Screen))
     {
-        tree_node *FocusedWindowNode = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
+        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, FocusedWindow->WID);
         if(FocusedWindowNode)
         {
-            tree_node *NewFocusNode = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, MarkedWindowID);;
+            tree_node *NewFocusNode = GetNodeFromWindowID(Space->RootNode, MarkedWindowID);;
             if(NewFocusNode)
                 SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
         }
@@ -861,7 +864,8 @@ void MoveContainerSplitter(int SplitMode, int Offset)
 {
     if(Screen && DoesSpaceExistInMapOfScreen(Screen))
     {
-        tree_node *Root = Screen->Space[Screen->ActiveSpace].RootNode;
+        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        tree_node *Root = Space->RootNode;
         if(IsLeafNode(Root) || Root->WindowID != -1)
             return;
 
@@ -923,7 +927,8 @@ void ResizeWindowToContainerSize()
     {
         if(Screen && DoesSpaceExistInMapOfScreen(Screen))
         {
-            tree_node *Node = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
+            space_info *Space = &Screen->Space[Screen->ActiveSpace];
+            tree_node *Node = GetNodeFromWindowID(Space->RootNode, FocusedWindow->WID);
             if(Node)
                 ResizeWindowToContainerSize(Node);
         }
