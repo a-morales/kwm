@@ -136,7 +136,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             if(IsWindowDragInProgress)
             {
-                if(FocusedWindowMovedByUser())
+                if(!IsCursorInsideFocusedWindow())
                     ToggleFocusedWindowFloating();
 
                 IsWindowDragInProgress = false;

@@ -133,27 +133,6 @@ bool IsCursorInsideFocusedWindow()
     return Result;
 }
 
-bool FocusedWindowMovedByUser()
-{
-    bool Result = false;
-
-    if(Screen && FocusedWindow && !IsWindowFloating(FocusedWindow->WID, NULL))
-    {
-        tree_node *Node = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
-        if(Node)
-        {
-            CGPoint Cursor = GetCursorPos();
-            if((Cursor.x < Node->Container.X - 1) ||
-               (Cursor.x > Node->Container.X + Node->Container.Width + 1) ||
-               (Cursor.y < Node->Container.Y - 1) ||
-               (Cursor.y > Node->Container.Y + Node->Container.Height + 1))
-                Result = true;
-        }
-    }
-
-    return Result;
-}
-
 bool IsSpaceFloating(int SpaceID, int *Index)
 {
     bool Result = false;

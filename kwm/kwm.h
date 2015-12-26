@@ -215,7 +215,6 @@ void ToggleFocusedWindowParentContainer();
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 void CenterWindow(screen_info *);
 
-bool FocusedWindowMovedByUser();
 bool IsCursorInsideFocusedWindow();
 CGPoint GetCursorPos();
 
