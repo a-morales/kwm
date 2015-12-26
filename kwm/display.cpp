@@ -7,7 +7,6 @@ extern CGDirectDisplayID ActiveDisplays[];
 extern screen_info *Screen;
 extern std::map<unsigned int, screen_info> DisplayMap;
 extern std::vector<window_info> WindowLst;
-extern std::vector<window_info> FloatingAppLst;
 extern window_info *FocusedWindow;
 
 extern int DefaultPaddingLeft, DefaultPaddingRight;
