@@ -26,6 +26,9 @@ kwmc config hotkeys enable
 # Set focus-follows-mouse-mode to autoraise
 kwmc focus -t autoraise
 
+# Window can be made floating through drag&drop
+kwmc config dragndrop enable
+
 # The following command blacklists a specific application
 # from Kwms tiling (PS: The app name is case-sensitive)
 # If the name consist of multiple words, the command
