@@ -44,7 +44,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             // Toggle Focus-Mode
             case kVK_ANSI_T:
             {
-                system("kwmc focus -t toggle");
+                system("kwmc config focus toggle");
             } break;
             // Mark Container to split
             case kVK_ANSI_M:
