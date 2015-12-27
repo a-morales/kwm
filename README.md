@@ -22,16 +22,16 @@ Tested on Osx El Capitan (10.11.1 / 10.11.2).
 The different features; binary space partitioning, focus-follows-mouse and hotkey-system can all be enabled  
 independently. This allows the user to choose what functionality fits their specific workflow.  
 
-*Binary Space Partitioning:*
+*Binary Space Partitioning:*  
 Kwm tiles windows using a binary-tree structure. For information, check the usage section.  
 
-*Focus-Follows-Mouse:*
+*Focus-Follows-Mouse:*  
 Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,  
 the menubar is not accessible. Autoraise gives a window focus and raises it to the front.  By default *Kwm* is set to  
 use autoraise as it is meant to be used alongside the tiling functionality, and so windows should not overlap unless  
 a window is specifically made floating.  
 
-*System-Wide Hotkeys:*
+*System-Wide Hotkeys:*  
 for interacting with *Kwm*, and so hotkeys.cpp can and should be customized by the user.  
 The user may use an external program for running a specific command on keypress instead.  
 Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.  
