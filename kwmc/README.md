@@ -11,6 +11,12 @@
         Always float application
             kwmc config float application
 
+        Set focus-mode
+            kwmc config focus toggle|autofocus|autoraise|disabled
+
+        Should Kwm perform tiling
+            kwmc config tiling enable|disable
+
         Set state of Kwm's hotkeys
             kwmc config hotkeys enable|disable
 
@@ -25,9 +31,6 @@
 
     Get owner and title of focused window
         kwmc focused 
-
-    Set focus-mode
-        kwmc focus -t toggle|autofocus|autoraise|disabled
 
     Set window-tiling mode
         kwmc window -t fullscreen|parent|float|mark
