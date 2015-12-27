@@ -35,6 +35,9 @@ kwmc focus -t autoraise
 # Window can be made floating through drag&drop
 kwmc config dragndrop enable
 
+# Allow Kwm to tile windows
+kwmc config tiling enable
+
 # The following command blacklists a specific application
 # from Kwms tiling (PS: The app name is case-sensitive)
 # If the name consist of multiple words, the command
