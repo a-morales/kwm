@@ -33,8 +33,8 @@ use autoraise as it is meant to be used alongside the tiling functionality, and 
 a window is specifically made floating.  
 
 *System-Wide Hotkeys:*  
-Kwm provides a hotkey system for interacting with *Kwm*, and this can be customized by editing  
-hotkeys.cpp. The user may use an external program for running a specific command on keypress instead.  
+Kwm provides an instantaneous live-coding hotkey system for interacting with *Kwm*, and this can be customized  
+by editing hotkeys.cpp. The user may use an external program for running a specific command on keypress instead.  
 Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.  
 
 *Multiple monitor support (in progress):*  
@@ -50,12 +50,11 @@ After this step, moving the mouse to a different monitor should activate the mon
 
 ## Build:
 
+Because there is no app bundle, *Kwm* has to be started from a terminal.
 To compile and run *Kwm*, simply run
 
       make
       ./bin/kwm
-
-Because there is no app bundle, *Kwm* has to be started from a terminal.
 
 By default, debug prints are enabled, and these can be turned off by runnning
 
@@ -77,7 +76,7 @@ Removing the KeepAlive option on line 13-14 prevents *Kwm* from restarting once 
 
 The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands  
 to be executed when *Kwm* starts. This file can be used to blacklist applications and specify  
-other settings, as well as run any command not restricted to *Kwmc*.  
+a variety of settings, as well as run any command not restricted to *Kwmc*.  
 
 A sample config can be found within the [examples](examples) directory.
 
