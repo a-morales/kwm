@@ -14,6 +14,7 @@ extern ProcessSerialNumber FocusedPSN;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int KwmSplitMode;
+extern bool KwmUseBSPTilingMode;
 extern bool KwmUseContextMenuFix;
 
 int OldScreenID = 0;
@@ -265,8 +266,10 @@ bool IsSpaceSystemOrFullscreen()
 
 void FocusWindowBelowCursor()
 {
-    if(IsSpaceTransitionInProgress() || (KwmUseContextMenuFix && IsContextualMenusVisible))
-        return;
+    if(IsSpaceTransitionInProgress() ||
+       IsSpaceSystemOrFullscreen() ||
+       (KwmUseContextMenuFix && IsContextualMenusVisible))
+           return;
 
     for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
@@ -291,7 +294,11 @@ void UpdateWindowTree()
         return;
 
     UpdateActiveWindowList(Screen);
-    if(!IsSpaceTransitionInProgress() && !IsSpaceSystemOrFullscreen() && FilterWindowList(Screen))
+
+    if(KwmUseBSPTilingMode &&
+       !IsSpaceTransitionInProgress() &&
+       !IsSpaceSystemOrFullscreen() &&
+       FilterWindowList(Screen))
     {
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(Screen->ID);
         std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);

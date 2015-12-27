@@ -5,6 +5,7 @@ extern std::vector<std::string> FloatingAppLst;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int KwmSplitMode;
+extern bool KwmUseBSPTilingMode;
 extern bool KwmUseBuiltinHotkeys;
 extern bool KwmEnableDragAndDrop;
 extern bool KwmUseContextMenuFix;
@@ -31,7 +32,32 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     }
     else if(Tokens[0] == "config")
     {
-        if(Tokens[1] == "hotkeys")
+        if(Tokens[1] == "tiling")
+        {
+            if(Tokens[2] == "disable")
+                KwmUseBSPTilingMode = false;
+            else if(Tokens[2] == "enable")
+                KwmUseBSPTilingMode = true;
+        }
+        else if(Tokens[1] == "focus")
+        {
+            if(Tokens[2] == "toggle")
+            {
+                if(KwmFocusMode == FocusModeDisabled)
+                    KwmFocusMode = FocusModeAutofocus;
+                else if(KwmFocusMode == FocusModeAutofocus)
+                    KwmFocusMode = FocusModeAutoraise;
+                else if(KwmFocusMode == FocusModeAutoraise)
+                    KwmFocusMode = FocusModeDisabled;
+            }
+            else if(Tokens[2] == "autofocus")
+                KwmFocusMode = FocusModeAutofocus;
+            else if(Tokens[2] == "autoraise")
+                KwmFocusMode = FocusModeAutoraise;
+            else if(Tokens[2] == "disabled")
+                KwmFocusMode = FocusModeDisabled;
+        }
+        else if(Tokens[1] == "hotkeys")
         {
             if(Tokens[2] == "disable")
                 KwmUseBuiltinHotkeys = false;
@@ -89,27 +115,6 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     {
         if(FocusedWindow)
             KwmWriteToSocket(ClientSockFD, FocusedWindow->Owner + " - " + FocusedWindow->Name);
-    }
-    else if(Tokens[0] == "focus")
-    {
-        if(Tokens[1] == "-t")
-        {
-            if(Tokens[2] == "toggle")
-            {
-                if(KwmFocusMode == FocusModeDisabled)
-                    KwmFocusMode = FocusModeAutofocus;
-                else if(KwmFocusMode == FocusModeAutofocus)
-                    KwmFocusMode = FocusModeAutoraise;
-                else if(KwmFocusMode == FocusModeAutoraise)
-                    KwmFocusMode = FocusModeDisabled;
-            }
-            else if(Tokens[2] == "autofocus")
-                KwmFocusMode = FocusModeAutofocus;
-            else if(Tokens[2] == "autoraise")
-                KwmFocusMode = FocusModeAutoraise;
-            else if(Tokens[2] == "disabled")
-                KwmFocusMode = FocusModeDisabled;
-        }
     }
     else if(Tokens[0] == "window") 
     {

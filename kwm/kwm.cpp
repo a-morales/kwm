@@ -5,6 +5,7 @@ CFMachPortRef EventTap;
 kwm_code KWMCode;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
+bool KwmUseBSPTilingMode;
 bool KwmUseBuiltinHotkeys;
 bool KwmEnableDragAndDrop;
 bool KwmUseContextMenuFix;
@@ -208,9 +209,7 @@ void * KwmWindowMonitor(void*)
     while(1)
     {
         pthread_mutex_lock(&BackgroundLock);
-        if(KwmFocusMode != FocusModeDisabled)
-            UpdateWindowTree();
-
+        UpdateWindowTree();
         pthread_mutex_unlock(&BackgroundLock);
         usleep(200000);
     }
@@ -288,10 +287,11 @@ void KwmInit()
     else
         Fatal("Kwm: Could not start daemon..");
 
-    KwmFocusMode = FocusModeAutoraise;
+    KwmUseBSPTilingMode = true;
     KwmUseBuiltinHotkeys = true;
     KwmEnableDragAndDrop = true;
     KwmUseContextMenuFix = true;
+    KwmFocusMode = FocusModeAutoraise;
 
     GetKwmFilePath();
     KwmExecuteConfig();
