@@ -1,4 +1,4 @@
-## Description
+## Description (TL;DR)
 
 *Kwm* started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
 It is now a tiling window manager that represents windows as the leaves of a binary tree.
@@ -9,15 +9,32 @@ a mapping between keys and these functions. Because of this, *Kwmc* needs to be 
 ensure that everything works as expected. For information, check the readme located within the *kwmc* folder.  
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events prior  
-to their delivery to a foreground application.
+to their delivery to a foreground application. This allows for functionality such as focus-follows-mouse,  
+remapping keys, and most importantly global hotkeys.  
 
-This allows for functionality such as focus-follows-mouse, remapping keys, and most importantly global hotkeys  
+*Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.  
+Tested on Osx El Capitan (10.11.1 / 10.11.2).
+
+![kwm img](https://cloud.githubusercontent.com/assets/6175959/11850244/6e59e84c-a42c-11e5-832b-6ee3e5ebd8b5.png)
+
+## Extended Information:
+
+The different features; binary space partitioning, focus-follows-mouse and hotkey-system can all be enabled  
+independently. This allows the user to choose what functionality fits their specific workflow.  
+
+*Binary Space Partitioning:*
+Kwm tiles windows using a binary-tree structure. For information, check the usage section.  
+
+*Focus-Follows-Mouse:*
+Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,  
+the menubar is not accessible. Autoraise gives a window focus and raises it to the front.  By default *Kwm* is set to  
+use autoraise as it is meant to be used alongside the tiling functionality, and so windows should not overlap unless  
+a window is specifically made floating.  
+
+*System-Wide Hotkeys:*
 for interacting with *Kwm*, and so hotkeys.cpp can and should be customized by the user.  
-The user may use an external program for running a specific command on keypress instead.
-
-Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,
-the menubar is not accessible. By default *Kwm* is set to use autoraise as it is meant to be used alongside
-the tiling functionality, and so windows should not overlap unless a window is specifically made floating.  
+The user may use an external program for running a specific command on keypress instead.  
+Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.  
 
 *Multiple monitor support (in progress):*  
 There are different ways to move a window between monitors.  
@@ -29,11 +46,6 @@ must occur on the monitor which currently holds the window).
 
 The first time a monitor is connected, the user may have to click several times on the screen for it to register.  
 After this step, moving the mouse to a different monitor should activate the monitor automatically.  
-
-*Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.  
-Tested on Osx El Capitan (10.11.1 / 10.11.2).
-
-![kwm img](https://cloud.githubusercontent.com/assets/6175959/11850244/6e59e84c-a42c-11e5-832b-6ee3e5ebd8b5.png)
 
 ## Build:
 
