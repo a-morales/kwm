@@ -5,8 +5,7 @@ It is now a tiling window manager that represents windows as the leaves of a bin
 
 *Kwm* runs a local daemon to read messages and trigger functions.  
 *Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define  
-a mapping between keys and these functions. Because of this, *Kwmc* needs to be placed in your path to  
-ensure that everything works as expected. For information, check the readme located within the *kwmc* folder.  
+a mapping between keys and these functions. For information, check the readme located within the *kwmc* folder.  
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events prior  
 to their delivery to a foreground application. This allows for functionality such as focus-follows-mouse,  
@@ -62,9 +61,6 @@ By default, debug prints are enabled, and these can be turned off by runnning
 
       make install
 
-In addition to this, for *Kwm* to work properly, the user also has to place *Kwmc* in their path.  
-Simply move/symlink the `.bin/kwmc` binary to your path.
-
 The hotkeys.cpp file can be edited live and recompiled separately using `make` again.  
 By doing this, the user may change hotkeys without having to restart *Kwm*.  
 
@@ -76,7 +72,6 @@ This will also cause *Kwm* to restart itself when terminated, and no longer requ
 but the *Kwm* binary to have accessibility access.  
 
 Removing the KeepAlive option on line 13-14 prevents *Kwm* from restarting once it is killed manually.  
-If *Kwm* is started using this method, hotkeys.cpp must use the full path to *kwmc* for commands to work.  
 
 ## Configuration:
 
