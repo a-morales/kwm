@@ -1103,9 +1103,16 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 
 bool IsApplicationInCache(int PID, std::vector<AXUIElementRef> *Elements)
 {
+    bool Result = false;
     std::map<int, std::vector<AXUIElementRef> >::iterator It = WindowRefsCache.find(PID);
-    *Elements = It->second;
-    return It != WindowRefsCache.end();
+
+    if(It != WindowRefsCache.end())
+    {
+        Elements = &It->second;
+        Result = true;
+    }
+
+    return Result;
 }
 
 bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
