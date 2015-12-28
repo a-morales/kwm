@@ -3,9 +3,11 @@ FRAMEWORKS=-framework ApplicationServices -framework Carbon -framework Cocoa
 KWM_SRCS=kwm/kwm.cpp kwm/tree.cpp kwm/window.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp
 HOTKEYS_SRCS=kwm/hotkeys.cpp
 KWMC_SRCS=kwmc/kwmc.cpp
+KWM_PLIST=kwm.plist
+SAMPLE_CONFIG=examples/kwmrc
 BUILD_PATH=./bin
 BUILD_FLAGS=-O3
-BINS=$(BUILD_PATH)/hotkeys.so $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist
+BINS=$(BUILD_PATH)/hotkeys.so $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwmrc
 
 all: $(BINS)
 
@@ -36,5 +38,8 @@ $(BUILD_PATH)/kwm: $(KWM_SRCS)
 $(BUILD_PATH)/kwmc: $(KWMC_SRCS)
 	g++ $^ $(DEBUG_BUILD) $(BUILD_FLAGS) -o $@
 
-$(BUILD_PATH)/kwm_template.plist:
-	cp ./kwm.plist $@
+$(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
+	cp $^ $@
+
+$(HOME)/.kwmrc: $(SAMPLE_CONFIG)
+	cp $^ $@
