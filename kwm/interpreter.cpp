@@ -116,7 +116,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         if(FocusedWindow)
             KwmWriteToSocket(ClientSockFD, FocusedWindow->Owner + " - " + FocusedWindow->Name);
     }
-    else if(Tokens[0] == "window") 
+    else if(Tokens[0] == "window")
     {
         if(Tokens[1] == "-t")
         {
@@ -146,6 +146,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 ShiftWindowFocus(-1);
             else if(Tokens[2] == "next")
                 ShiftWindowFocus(1);
+            else if(Tokens[2] == "curr")
+                FocusWindowBelowCursor();
         }
         else if(Tokens[1] == "-s")
         {
