@@ -1,5 +1,7 @@
 #include "kwm.h"
 
+const std::string KwmCurrentVersion = "Kwm Version 1.0.0 RC";
+
 CFMachPortRef EventTap;
 
 kwm_code KWMCode;
@@ -315,6 +317,23 @@ bool CheckPrivileges()
     return AXIsProcessTrustedWithOptions(Options);
 }
 
+bool CheckArguments(int argc, char **argv)
+{
+    bool Result = false;
+
+    if(argc == 2)
+    {
+        std::string Arg = argv[1];
+        if(Arg == "--version")
+        {
+            std::cout << KwmCurrentVersion << std::endl;
+            Result = true;
+        }
+    }
+
+    return Result;
+}
+
 void Fatal(const std::string &Err)
 {
     std::cout << Err << std::endl;
@@ -323,9 +342,12 @@ void Fatal(const std::string &Err)
 
 int main(int argc, char **argv)
 {
-    KwmInit();
+    if(CheckArguments(argc, argv))
+        return 0;
 
+    KwmInit();
     CGEventMask EventMask;
+
     CFRunLoopSourceRef RunLoopSource;
 
     EventMask = ((1 << kCGEventKeyDown) |

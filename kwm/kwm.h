@@ -255,6 +255,7 @@ void KwmInit();
 void KwmQuit();
 void GetKwmFilePath();
 void KwmExecuteConfig();
+bool CheckArguments(int, char **);
 bool CheckPrivileges();
 void Fatal(const std::string &);
 CGEventRef CGEventCallback(CGEventTapProxy, CGEventType, CGEventRef, void *);
