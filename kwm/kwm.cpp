@@ -1,9 +1,8 @@
 #include "kwm.h"
 
-const std::string KwmCurrentVersion = "Kwm Version 1.0.0 RC";
-
 CFMachPortRef EventTap;
 
+const std::string KwmCurrentVersion = "Kwm Version 1.0.0 RC";
 kwm_code KWMCode;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
