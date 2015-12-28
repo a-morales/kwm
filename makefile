@@ -5,7 +5,7 @@ HOTKEYS_SRCS=kwm/hotkeys.cpp
 KWMC_SRCS=kwmc/kwmc.cpp
 BUILD_PATH=./bin
 BUILD_FLAGS=-O3
-BINS=$(BUILD_PATH)/hotkeys.so $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc
+BINS=$(BUILD_PATH)/hotkeys.so $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist
 
 all: $(BINS)
 
@@ -35,3 +35,6 @@ $(BUILD_PATH)/kwm: $(KWM_SRCS)
 
 $(BUILD_PATH)/kwmc: $(KWMC_SRCS)
 	g++ $^ $(DEBUG_BUILD) $(BUILD_FLAGS) -o $@
+
+$(BUILD_PATH)/kwm_template.plist:
+	cp ./kwm.plist $@
