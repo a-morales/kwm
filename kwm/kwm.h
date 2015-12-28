@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libproc.h>
 
 #include <pthread.h>
 #include <dlfcn.h>
@@ -166,6 +167,7 @@ void RemoveWindowFromTree();
 bool IsLeafNode(tree_node *);
 
 screen_info CreateDefaultScreenInfo(int, int);
+void UpdateExistingScreenInfo(screen_info *, int, int);
 void DisplayReconfigurationCallBack(CGDirectDisplayID, CGDisplayChangeSummaryFlags, void *);
 void GetActiveDisplays();
 void RefreshActiveDisplays();
@@ -195,6 +197,7 @@ bool IsWindowOnActiveSpace(window_info *);
 bool IsSpaceTransitionInProgress();
 bool IsSpaceSystemOrFullscreen();
 bool IsWindowNotAStandardWindow(window_info *);
+bool IsContextMenusAndSimilarVisible();
 bool WindowsAreEqual(window_info *, window_info *);
 
 void UpdateWindowTree();
@@ -214,6 +217,9 @@ void ToggleFocusedWindowParentContainer();
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 void CenterWindow(screen_info *);
 
+bool IsCursorInsideFocusedWindow();
+CGPoint GetCursorPos();
+
 void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
 void SetWindowRefFocus(AXUIElementRef, window_info *);
@@ -226,8 +232,9 @@ window_info *GetWindowByID(int);
 bool GetWindowRef(window_info *, AXUIElementRef *);
 bool GetWindowRole(window_info *, CFTypeRef *, CFTypeRef *);
 void GetWindowInfo(const void *, const void *, void *);
-bool DoesApplicationExist(int, std::vector<AXUIElementRef> *);
-void FreeApplicationWindowRefCache(int);
+bool IsApplicationInCache(int, std::vector<AXUIElementRef> *);
+bool GetWindowRefFromCache(window_info *, AXUIElementRef *);
+void FreeWindowRefCache(int);
 
 kwm_code LoadKwmCode();
 void UnloadKwmCode(kwm_code *);
@@ -237,11 +244,18 @@ bool KwmStartDaemon();
 void KwmDaemonHandleConnection();
 void * KwmDaemonHandleConnectionBG(void *);
 void KwmTerminateDaemon();
+
+std::string KwmReadFromSocket(int);
+void KwmWriteToSocket(int, std::string);
+void KwmInterpretCommand(std::string, int);
 std::vector<std::string> SplitString(std::string, char);
+bool IsPrefixOfString(std::string &, std::string);
 
 void KwmInit();
 void KwmQuit();
+void GetKwmFilePath();
 void KwmExecuteConfig();
+bool CheckArguments(int, char **);
 bool CheckPrivileges();
 void Fatal(const std::string &);
 CGEventRef CGEventCallback(CGEventTapProxy, CGEventType, CGEventRef, void *);

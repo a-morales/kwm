@@ -1,74 +1,82 @@
-## Description
+## Description (TL;DR)
 
-*Kwm* started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
+[*Kwm*](https://koekeishiya.github.io/kwm) started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
 It is now a tiling window manager that represents windows as the leaves of a binary tree.
 
 *Kwm* runs a local daemon to read messages and trigger functions.  
 *Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define  
-a mapping between keys and these functions. The config file ".kwmrc" also uses *Kwmc* to apply initial  
-settings upon startup. Because of this, *Kwmc* needs to be placed in your path to ensure that everything  
-works as expected. For information, check the readme located within the *kwmc* folder.  
+a mapping between keys and these functions. For information, check the readme located within the *kwmc* folder.  
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events prior  
-to their delivery to a foreground application.
-
-This allows for functionality such as focus-follows-mouse, remapping keys, and most importantly global hotkeys  
-for interacting with *Kwm*, and so hotkeys.cpp can and should be customized by the user.  
-The user may use an external program for running a specific command on keypress instead.
-
-Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,
-the menubar is not accessible. By default *Kwm* is set to use autoraise as it is meant to be used alongside
-the tiling functionality, and so windows should not overlap unless a window is specifically made floating.  
-
-*Multiple monitor support (in progress):*  
-There are two supported ways to move a window between monitors.  
-The first one is by using `kwmc screen -m prev|next|id`.  
-The other option is to make the window floating and manually move it with the mouse, then un-float it.  
-Moving a window directly with the mouse WILL BREAK the window-trees of both monitors.  
-
-The first time a monitor is connected, the user may have to click several times on the screen for it to register.  
-After this step, moving the mouse to a different monitor should activate the monitor automatically.  
+to their delivery to a foreground application. This allows for functionality such as focus-follows-mouse,  
+remapping keys, and most importantly global hotkeys.  
 
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.  
 Tested on Osx El Capitan (10.11.1 / 10.11.2).
 
-![kwm img](https://cloud.githubusercontent.com/assets/6175959/11850244/6e59e84c-a42c-11e5-832b-6ee3e5ebd8b5.png)
+       Screencast          |       Screenshot          |       Screenshot
+:-------------------------:|:-------------------------:|:-------------------------:
+![mov](https://cloud.githubusercontent.com/assets/6175959/11498553/6ccedee6-9820-11e5-8830-96e0bf19b4f2.gif)  |  ![img](https://cloud.githubusercontent.com/assets/6175959/12011903/1eeb3d6a-ace2-11e5-9c49-0df721e6e83d.png)  |  ![img](https://cloud.githubusercontent.com/assets/6175959/12011916/c8ef1b9c-ace2-11e5-9a5b-0aee3d41347a.jpg)
+
+## Extended Information:
+
+The different features; binary space partitioning, focus-follows-mouse and hotkey-system can all be enabled  
+independently. This allows the user to choose what functionality fits their specific workflow.  
+
+*Binary Space Partitioning:*  
+Kwm tiles windows using a binary-tree structure. For information, check the usage section.  
+
+*Focus-Follows-Mouse:*  
+Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,  
+the menubar is not accessible. Autoraise gives a window focus and raises it to the front.  By default *Kwm* is set to  
+use autoraise as it is meant to be used alongside the tiling functionality, and so windows should not overlap unless  
+a window is specifically made floating.  
+
+*System-Wide Hotkeys:*  
+Kwm provides an instantaneous live-coding hotkey system for interacting with *Kwm*, and this can be customized  
+by editing hotkeys.cpp. The user may use an external program for running a specific command on keypress instead.  
+Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.  
+
+*Multiple monitor support (in progress):*  
+There are different ways to move a window between monitors.  
+The first one is by using `kwmc screen -m prev|next|id`.  
+The other option is to make the window floating and manually move it with the mouse, then un-float it.  
+When moving a window directly with the mouse, *Kwm* will detect on mouse-release that the window  
+position has changed, and automatically make it floating (Due to technical limitations this event  
+must occur on the monitor which currently holds the window).
+
+The first time a monitor is connected, the user may have to click several times on the screen for it to register.  
+After this step, moving the mouse to a different monitor should activate the monitor automatically.  
 
 ## Build:
 
+Because there is no app bundle, *Kwm* has to be started from a terminal.
 To compile and run *Kwm*, simply run
 
       make
       ./bin/kwm
 
-Because there is no app bundle, *Kwm* has to be started from a terminal.
-
 By default, debug prints are enabled, and these can be turned off by runnning
 
       make install
 
-In addition to this, for *Kwm* to work properly, the user also has to place *Kwmc* in their path.  
-Simply move/symlink the `.bin/kwmc` binary to your path.
+The hotkeys.cpp file can be edited live and recompiled separately using `make` again.  
+By doing this, the user may change hotkeys without having to restart *Kwm*.  
 
-If *Kwm* is added to the path, a launcher script is necessary because it tries to load hotkeys.so from  
-the executables working-directory.
+To make *Kwm* start automatically on login, update line 9 of kwm.plist to be the full path of the executable  
+on your machine. With that change, link the plist file `ln -sf full/path/to/kwm.plist ~/Library/LaunchAgents`.   
+Then logout/login to have Kwm start automatically.  
 
-Example launcher script to be placed in the path instead of the *Kwm* binary.
+This will also cause *Kwm* to restart itself when terminated, and no longer requires anything  
+but the *Kwm* binary to have accessibility access.  
 
-    #!/bin/bash
-    pushd /path/to/kwm
-    ./kwm
-    popd
-
-The reason for this is that hotkeys.cpp can edited and rebuild separately, and *Kwm* will reload this  
-library without having to be restarted and so hotkeys can be edited live.  
-If changes have been made to hotkeys.cpp, run `make` again to recompile this file separately.  
+Removing the KeepAlive option on line 13-14 prevents *Kwm* from restarting once it is killed manually.  
 
 ## Configuration:
 
 The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands  
 to be executed when *Kwm* starts. This file can be used to blacklist applications and specify  
-other settings, as well as run any command not restricted to *Kwmc*.  
+a variety of settings, as well as run any command not restricted to *Kwmc*.  
 
 A sample config can be found within the [examples](examples) directory.
 
@@ -141,20 +149,6 @@ If the main pane is split using horizontal mode, an upper and lower pane is crea
         - p: toggle window parent container
         - w: toggle window floating
         - enter: opens a new iTerm window
-
-        YTD player controls:
-        - <: toggle playback mode (fav / default)
-        - x: toggle play/pause
-        - v: stop player
-
-        - a: increase volume
-        - d: decrease volume
-        
-        - z: play previous video
-        - c: play next video
-
-        - larrow: seek backward
-        - rarrow: seek forward
 
     - ctrl+alt:
         - p: send window to previous screen

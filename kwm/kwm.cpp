@@ -1,11 +1,16 @@
 #include "kwm.h"
 
+const std::string KwmCurrentVersion = "Kwm Version 1.0.0 RC";
+
 CFMachPortRef EventTap;
 
 kwm_code KWMCode;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
+bool KwmUseBSPTilingMode;
 bool KwmUseBuiltinHotkeys;
+bool KwmEnableDragAndDrop;
+bool KwmUseContextMenuFix;
 
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
@@ -27,6 +32,7 @@ window_info *FocusedWindow;
 focus_option KwmFocusMode;
 int KwmSplitMode = -1;
 int MarkedWindowID = -1;
+bool IsWindowDragInProgress = false;
 
 pthread_t BackgroundThread;
 pthread_t DaemonThread;
@@ -58,7 +64,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
                 std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
-                if(NewHotkeySOFileTime != "" &&
+                if(NewHotkeySOFileTime != "file not found" &&
                    NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
                 {
                     DEBUG("Reloading hotkeys.so")
@@ -125,6 +131,24 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             if(KwmFocusMode != FocusModeDisabled)
                 FocusWindowBelowCursor();
         } break;
+        case kCGEventLeftMouseDown:
+        {
+            DEBUG("Left mouse button was pressed")
+            if(KwmEnableDragAndDrop && IsCursorInsideFocusedWindow())
+               IsWindowDragInProgress = true;
+        } break;
+        case kCGEventLeftMouseUp:
+        {
+            if(KwmEnableDragAndDrop && IsWindowDragInProgress)
+            {
+                if(!IsCursorInsideFocusedWindow())
+                    ToggleFocusedWindowFloating();
+
+                IsWindowDragInProgress = false;
+            }
+
+            DEBUG("Left mouse button was released")
+        } break;
     }
 
     pthread_mutex_unlock(&BackgroundLock);
@@ -169,7 +193,12 @@ void UnloadKwmCode(kwm_code *Code)
 std::string KwmGetFileTime(const char *File)
 {
     struct stat attr;
-    return stat(File, &attr) ? ctime(&attr.st_mtime) : "file not found";
+
+    int Result = stat(File, &attr);
+    if(Result == -1)
+        return "file not found";
+
+    return ctime(&attr.st_mtime);
 }
 
 void KwmQuit()
@@ -182,12 +211,23 @@ void * KwmWindowMonitor(void*)
     while(1)
     {
         pthread_mutex_lock(&BackgroundLock);
-        if(KwmFocusMode != FocusModeDisabled)
-            UpdateWindowTree();
-
+        UpdateWindowTree();
         pthread_mutex_unlock(&BackgroundLock);
         usleep(200000);
     }
+}
+
+bool IsPrefixOfString(std::string &Line, std::string Prefix)
+{
+    bool Result = false;
+
+    if(Line.substr(0, Prefix.size()) == Prefix)
+    {
+        Line = Line.substr(Prefix.size()+1);
+        Result = true;
+    }
+
+    return Result;
 }
 
 void KwmExecuteConfig()
@@ -214,8 +254,26 @@ void KwmExecuteConfig()
     while(std::getline(ConfigFD, Line))
     {
         if(!Line.empty() && Line[0] != '#')
-            system(Line.c_str());
+        {
+            if(IsPrefixOfString(Line, "kwmc"))
+                KwmInterpretCommand(Line, 0);
+            else if(IsPrefixOfString(Line, "sys"))
+                    system(Line.c_str());
+        }
     }
+}
+
+void GetKwmFilePath()
+{
+    char PathBuf[PROC_PIDPATHINFO_MAXSIZE];
+    pid_t Pid = getpid();
+    int Ret = proc_pidpath(Pid, PathBuf, sizeof(PathBuf));
+    if (Ret > 0)
+        KwmFilePath = PathBuf;
+
+    std::size_t Split = KwmFilePath.find_last_of("/\\");
+    KwmFilePath = KwmFilePath.substr(0, Split);
+    HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
 }
 
 void KwmInit()
@@ -231,15 +289,17 @@ void KwmInit()
     else
         Fatal("Kwm: Could not start daemon..");
 
-    KwmFocusMode = FocusModeAutoraise;
-    KwmFilePath = getcwd(NULL, 0);
-    HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
+    KwmUseBSPTilingMode = true;
     KwmUseBuiltinHotkeys = true;
+    KwmEnableDragAndDrop = true;
+    KwmUseContextMenuFix = true;
+    KwmFocusMode = FocusModeAutoraise;
 
+    GetKwmFilePath();
     KwmExecuteConfig();
     KWMCode = LoadKwmCode();
-
     GetActiveDisplays();
+
     pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }
 
@@ -257,6 +317,23 @@ bool CheckPrivileges()
     return AXIsProcessTrustedWithOptions(Options);
 }
 
+bool CheckArguments(int argc, char **argv)
+{
+    bool Result = false;
+
+    if(argc == 2)
+    {
+        std::string Arg = argv[1];
+        if(Arg == "--version")
+        {
+            std::cout << KwmCurrentVersion << std::endl;
+            Result = true;
+        }
+    }
+
+    return Result;
+}
+
 void Fatal(const std::string &Err)
 {
     std::cout << Err << std::endl;
@@ -265,12 +342,19 @@ void Fatal(const std::string &Err)
 
 int main(int argc, char **argv)
 {
-    KwmInit();
+    if(CheckArguments(argc, argv))
+        return 0;
 
+    KwmInit();
     CGEventMask EventMask;
+
     CFRunLoopSourceRef RunLoopSource;
 
-    EventMask = ((1 << kCGEventKeyDown) | (1 << kCGEventMouseMoved));
+    EventMask = ((1 << kCGEventKeyDown) |
+                 (1 << kCGEventMouseMoved) |
+                 (1 << kCGEventLeftMouseDown) |
+                 (1 << kCGEventLeftMouseUp));
+
     EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, EventMask, CGEventCallback, NULL);
 
     if(!EventTap || !CGEventTapIsEnabled(EventTap))
