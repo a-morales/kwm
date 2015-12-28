@@ -1,10 +1,12 @@
 #include "kwm.h"
 
 const std::string KwmCurrentVersion = "Kwm Version 1.0.0 RC";
+const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
 CFMachPortRef EventTap;
 
 kwm_code KWMCode;
+std::string ENV_HOME;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
 bool KwmUseBSPTilingMode;
@@ -239,7 +241,7 @@ void KwmExecuteConfig()
         return;
     }
 
-    std::string ENV_HOME = HomeP;
+    ENV_HOME = HomeP;
     std::string KWM_CONFIG_FILE = ".kwmrc";
 
     std::ifstream ConfigFD(ENV_HOME + "/" + KWM_CONFIG_FILE);
@@ -263,17 +265,82 @@ void KwmExecuteConfig()
     }
 }
 
+bool IsKwmAlreadyAddedToLaunchd()
+{
+    std::string SymlinkFullPath = ENV_HOME + "/Library/LaunchAgents/" + PlistFile;
+
+    struct stat attr;
+    int Result = stat(SymlinkFullPath.c_str(), &attr);
+    if(Result == -1)
+        return false;
+
+    return true;
+}
+
+void AddKwmToLaunchd()
+{
+    if(IsKwmAlreadyAddedToLaunchd())
+        return;
+
+    std::string PlistFullPath = KwmFilePath + "/" + PlistFile;
+    std::string SymlinkFullPath = ENV_HOME + "/Library/LaunchAgents/" + PlistFile;
+
+    std::ifstream TemplateFD(KwmFilePath + "/kwm_template.plist");
+    if(TemplateFD.fail())
+        return;
+
+    std::ofstream OutFD(PlistFullPath);
+    if(OutFD.fail())
+        return;
+
+    std::string Line;
+    std::vector<std::string> PlistContents;
+    while(std::getline(TemplateFD, Line))
+        PlistContents.push_back(Line);
+
+    DEBUG("AddKwmToLaunchd() Creating file: " << PlistFullPath)
+    for(int LineNumber = 0; LineNumber < PlistContents.size(); ++LineNumber)
+    {
+        if(LineNumber == 8)
+            OutFD << "    <string>" + KwmFilePath + "/kwm</string>" << std::endl;
+        else
+            OutFD << PlistContents[LineNumber] << std::endl;
+    }
+
+    TemplateFD.close();
+    OutFD.close();
+
+    std::string PerformSymlink = "mv " + PlistFullPath + " " + SymlinkFullPath;
+    system(PerformSymlink.c_str());
+
+    DEBUG("AddKwmToLaunchd() Moved plist to: " << SymlinkFullPath)
+}
+
+void RemoveKwmFromLaunchd()
+{
+    if(!IsKwmAlreadyAddedToLaunchd())
+        return;
+
+    std::string SymlinkFullPath = ENV_HOME + "/Library/LaunchAgents/" + PlistFile;
+    std::string RemoveSymlink = "rm " + SymlinkFullPath;
+
+    system(RemoveSymlink.c_str());
+    DEBUG("RemoveKwmFromLaunchd() Removing file: " << SymlinkFullPath)
+}
+
 void GetKwmFilePath()
 {
     char PathBuf[PROC_PIDPATHINFO_MAXSIZE];
     pid_t Pid = getpid();
     int Ret = proc_pidpath(Pid, PathBuf, sizeof(PathBuf));
     if (Ret > 0)
+    {
         KwmFilePath = PathBuf;
 
-    std::size_t Split = KwmFilePath.find_last_of("/\\");
-    KwmFilePath = KwmFilePath.substr(0, Split);
-    HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
+        std::size_t Split = KwmFilePath.find_last_of("/\\");
+        KwmFilePath = KwmFilePath.substr(0, Split);
+        HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
+    }
 }
 
 void KwmInit()

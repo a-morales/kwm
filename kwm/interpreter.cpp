@@ -32,7 +32,14 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     }
     else if(Tokens[0] == "config")
     {
-        if(Tokens[1] == "tiling")
+        if(Tokens[1] == "launchd")
+        {
+            if(Tokens[2] == "disable")
+                RemoveKwmFromLaunchd();
+            else if(Tokens[2] == "enable")
+                AddKwmToLaunchd();
+        }
+        else if(Tokens[1] == "tiling")
         {
             if(Tokens[2] == "disable")
                 KwmUseBSPTilingMode = false;

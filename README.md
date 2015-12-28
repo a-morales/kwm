@@ -63,14 +63,9 @@ By default, debug prints are enabled, and these can be turned off by runnning
 The hotkeys.cpp file can be edited live and recompiled separately using `make` again.  
 By doing this, the user may change hotkeys without having to restart *Kwm*.  
 
-To make *Kwm* start automatically on login, update line 9 of kwm.plist to be the full path of the executable  
-on your machine. With that change, link the plist file `ln -sf full/path/to/kwm.plist ~/Library/LaunchAgents`.   
-Then logout/login to have Kwm start automatically.  
+To make *Kwm* start automatically on login, run the following command the first time *Kwm* starts 
 
-This will also cause *Kwm* to restart itself when terminated, and no longer requires anything  
-but the *Kwm* binary to have accessibility access.  
-
-Removing the KeepAlive option on line 13-14 prevents *Kwm* from restarting once it is killed manually.  
+      kwmc config launchd enable
 
 ## Configuration:
 

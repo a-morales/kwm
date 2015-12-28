@@ -2,6 +2,9 @@
 
 ## Kwmc Info:
     Configure Kwm
+        Let launchd manage Kwm (automatically start on login)
+            kwmc config launchd enable|disable
+
         Set default padding
             kwmc config padding top|bottom|left|right value
 
