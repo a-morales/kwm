@@ -6,7 +6,7 @@
     <string>com.koekeishiya.kwm</string>
     <key>ProgramArguments</key>
     <array>
-      <string>/usr/local/opt/kwm/bin/kwm</string>
+    <string>/path/to/kwm</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
