@@ -42,4 +42,4 @@ $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@
 
 $(HOME)/.kwmrc: $(SAMPLE_CONFIG)
-	cp $^ $@
+	cp -n $^ $@
