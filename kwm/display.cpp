@@ -244,9 +244,12 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
             Space->PaddingBottom += Offset;
     }
 
-    SetRootNodeContainer(Screen, Space->RootNode);
-    CreateNodeContainers(Screen, Space->RootNode, true);
-    ApplyNodeContainer(Space->RootNode);
+    if(Space->RootNode)
+    {
+        SetRootNodeContainer(Screen, Space->RootNode);
+        CreateNodeContainers(Screen, Space->RootNode, true);
+        ApplyNodeContainer(Space->RootNode);
+    }
 }
 
 void ChangeGapOfDisplay(const std::string &Side, int Offset)
@@ -265,8 +268,11 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
             Space->HorizontalGap += Offset;
     }
 
-    CreateNodeContainers(Screen, Space->RootNode, true);
-    ApplyNodeContainer(Space->RootNode);
+    if(Space->RootNode)
+    {
+        CreateNodeContainers(Screen, Space->RootNode, true);
+        ApplyNodeContainer(Space->RootNode);
+    }
 }
 
 void CycleFocusedWindowDisplay(int Shift, bool Relative)
