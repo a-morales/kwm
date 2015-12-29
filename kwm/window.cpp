@@ -1108,7 +1108,7 @@ bool IsApplicationInCache(int PID, std::vector<AXUIElementRef> *Elements)
 
     if(It != WindowRefsCache.end())
     {
-        Elements = &It->second;
+        *Elements = It->second;
         Result = true;
     }
 
