@@ -128,6 +128,16 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 return NULL;
             }
         } break;
+        case kCGEventKeyUp:
+        {
+            if(KwmFocusMode == FocusModeAutofocus)
+            {
+                CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
+                CGEventPostToPSN(&FocusedPSN, Event);
+                pthread_mutex_unlock(&BackgroundLock);
+                return NULL;
+            }
+        } break;
         case kCGEventMouseMoved:
         {
             if(KwmFocusMode != FocusModeDisabled)
@@ -161,16 +171,23 @@ void KwmEmitKeystrokes(std::string Text)
 {
     CFStringRef TextRef = CFStringCreateWithCString(NULL, Text.c_str(), kCFStringEncodingMacRoman);
     CGEventRef EventKeyDown = CGEventCreateKeyboardEvent(NULL, 0, true);
+    CGEventRef EventKeyUp = CGEventCreateKeyboardEvent(NULL, 0, false);
 
     UniChar OutputBuffer;
     for (int CharIndex = 0; CharIndex < Text.size(); ++CharIndex)
     {
         CFStringGetCharacters(TextRef, CFRangeMake(CharIndex, 1), &OutputBuffer);
+
         CGEventSetFlags(EventKeyDown, 0);
         CGEventKeyboardSetUnicodeString(EventKeyDown, 1, &OutputBuffer);
         CGEventPostToPSN(&FocusedPSN, EventKeyDown);
+
+        CGEventSetFlags(EventKeyUp, 0);
+        CGEventKeyboardSetUnicodeString(EventKeyUp, 1, &OutputBuffer);
+        CGEventPostToPSN(&FocusedPSN, EventKeyUp);
     }
 
+    CFRelease(EventKeyUp);
     CFRelease(EventKeyDown);
     CFRelease(TextRef);
 }
@@ -436,6 +453,7 @@ int main(int argc, char **argv)
     CFRunLoopSourceRef RunLoopSource;
 
     EventMask = ((1 << kCGEventKeyDown) |
+                 (1 << kCGEventKeyUp) |
                  (1 << kCGEventMouseMoved) |
                  (1 << kCGEventLeftMouseDown) |
                  (1 << kCGEventLeftMouseUp));
