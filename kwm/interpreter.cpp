@@ -257,14 +257,14 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     }
     else if(Tokens[0] == "write")
     {
-        std::string Text;
+        std::string Text = "";
         for(int TokenIndex = 1; TokenIndex < Tokens.size(); ++TokenIndex)
         {
             Text += Tokens[TokenIndex];
             if(TokenIndex < Tokens.size() - 1)
-                Text += " ";
-
-            KwmEmitKeystrokes(Text);
+              Text += " ";
         }
+
+        KwmEmitKeystrokes(Text);
     }
 }
