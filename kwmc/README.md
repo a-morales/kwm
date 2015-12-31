@@ -36,7 +36,7 @@
         kwmc focused
 
     Automatically emit keystrokes to the focused window
-        kwmc write this is a sequence of letters or words to type
+        kwmc write sentence
 
     Set window-tiling mode
         kwmc window -t fullscreen|parent|float|mark
