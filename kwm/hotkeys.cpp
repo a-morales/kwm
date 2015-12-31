@@ -15,7 +15,6 @@ std::string KwmcCommandToExecute;
 // value of KwmcCommandToExecute.
 //
 // e.g KwmcCommandToExecute = "window -f prev"
-
 void GetKwmcFilePath()
 {
     if(!KwmcFilePath.empty())
@@ -35,6 +34,26 @@ void GetKwmcFilePath()
         KwmcFilePath = Path + "/kwmc";
         std::cout << "GetKwmcFilePath()" << std::endl;
     }
+}
+
+// Takes a command and executes it using popen,
+// reads from stdout and returns the value
+std::string GetOutputAndExec(std::string Cmd)
+{
+    std::shared_ptr<FILE> Pipe(popen(Cmd.c_str(), "r"), pclose);
+    if (!Pipe)
+        return "ERROR";
+
+    char Buffer[128];
+    std::string Result = "";
+
+    while (!feof(Pipe.get()))
+    {
+        if (fgets(Buffer, 128, Pipe.get()) != NULL)
+            Result += Buffer;
+    }
+
+    return Result;
 }
 
 extern "C" KWM_KEY_REMAP(RemapKeys)
@@ -324,6 +343,8 @@ extern "C" KWM_HOTKEY_COMMANDS(SystemHotkeyCommands)
 extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
 {
     bool Result = true;
+    GetKwmcFilePath();
+
     if(CmdKey && AltKey && CtrlKey)
     {
         switch(Keycode)
@@ -333,6 +354,25 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
             {
                 system("open -na /Applications/iTerm.app");
             } break;
+            /* This demonstrates how a hotkey may do different things
+             * depending on what the focused window is.
+            case kVK_ANSI_N:
+            {
+                std::string Focused = GetOutputAndExec(KwmcFilePath + " focused");
+                std::stringstream Stream(Focused);
+
+                std::string Owner;
+                std::getline(Stream, Owner, '-');
+                Owner.erase(Owner.end()-1);
+
+                if(Owner == "iTerm2")
+                    KwmcCommandToExecute = "write This is written inside iTerm";
+                else if(Owner == "Google Chrome")
+                    KwmcCommandToExecute = "write This is written inside Google Chrome";
+                else
+                    KwmcCommandToExecute = "write This was written in " + Owner + "!";
+            } break;
+            */
             default:
             {
                 Result = false;
@@ -342,6 +382,13 @@ extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
     else
     {
         Result = false;
+    }
+
+    if(Result && !KwmcCommandToExecute.empty())
+    {
+        std::string SysArg = KwmcFilePath + " " + KwmcCommandToExecute;
+        system(SysArg.c_str());
+        KwmcCommandToExecute = "";
     }
 
     return Result;
