@@ -257,6 +257,7 @@ void GetKwmFilePath();
 bool IsKwmAlreadyAddedToLaunchd();
 void AddKwmToLaunchd();
 void RemoveKwmFromLaunchd();
+void KwmEmitKeystrokes(std::string);
 void KwmExecuteConfig();
 bool CheckArguments(int, char **);
 bool CheckPrivileges();

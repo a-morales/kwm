@@ -157,6 +157,30 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
     return Event;
 }
 
+void KwmEmitKeystrokes(std::string Text)
+{
+    CFStringRef TextRef = CFStringCreateWithCString(NULL, Text.c_str(), kCFStringEncodingMacRoman);
+    CGEventRef EventKeyDown = CGEventCreateKeyboardEvent(NULL, 0, true);
+    CGEventRef EventKeyUp = CGEventCreateKeyboardEvent(NULL, 0, false);
+
+    UniChar OutputBuffer;
+    for (int i = 0; i < Text.size(); ++i) {
+        CFStringGetCharacters(TextRef, CFRangeMake(i, 1), &OutputBuffer);
+
+        CGEventSetFlags(EventKeyDown, 0);
+        CGEventKeyboardSetUnicodeString(EventKeyDown, 1, &OutputBuffer);
+        CGEventPostToPSN(&FocusedPSN, EventKeyDown);
+
+        CGEventSetFlags(EventKeyUp, 0);
+        CGEventKeyboardSetUnicodeString(EventKeyUp, 1, &OutputBuffer);
+        CGEventPostToPSN(&FocusedPSN, EventKeyUp);
+    }
+
+    CFRelease(EventKeyUp);
+    CFRelease(EventKeyDown);
+    CFRelease(TextRef);
+}
+
 kwm_code LoadKwmCode()
 {
     kwm_code Code = {};
