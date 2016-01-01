@@ -259,12 +259,11 @@ void FocusWindowBelowCursor()
     {
         if(IsWindowBelowCursor(&WindowLst[WindowIndex]))
         {
-            if(!WindowsAreEqual(FocusedWindow, &WindowLst[WindowIndex]))
-            {
-                // Note: Memory leak related to this function-call
+            if(WindowsAreEqual(FocusedWindow, &WindowLst[WindowIndex]))
+                FocusedWindowCache = WindowLst[WindowIndex];
+            else
                 SetWindowFocus(&WindowLst[WindowIndex]);
-                DEBUG("FocusWindowBelowCursor() Current space: " << Screen->ActiveSpace)
-            }
+
             break;
         }
     }
