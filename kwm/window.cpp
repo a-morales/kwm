@@ -830,6 +830,9 @@ void ToggleFocusedWindowParentContainer()
         return;
 
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    if(Space->Mode != SpaceModeBSP)
+        return;
+
     tree_node *Node = GetNodeFromWindowID(Space->RootNode, FocusedWindow->WID, Space->Mode);
     if(Node && Node->Parent)
     {
@@ -854,7 +857,7 @@ void ToggleFocusedWindowFullscreen()
         return;
 
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
-    if(!IsLeafNode(Space->RootNode))
+    if(Space->Mode == SpaceModeBSP && !IsLeafNode(Space->RootNode))
     {
         tree_node *Node;
         if(Space->RootNode->WindowID == -1)
