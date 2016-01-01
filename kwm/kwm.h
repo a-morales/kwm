@@ -157,23 +157,20 @@ void ApplyNodeContainer(tree_node *);
 int GetOptimalSplitMode(tree_node *);
 void ToggleNodeSplitMode(screen_info *, tree_node *);
 
+tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<window_info*> *);
 bool CreateBSPTree(tree_node *, screen_info *, std::vector<window_info*> *);
 bool CreateStackingTree(tree_node *, screen_info *, std::vector<window_info*> *);
-tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<window_info*> *);
+void RotateTree(tree_node *, int);
+void DestroyNodeTree(tree_node *);
 tree_node *CreateRootNode();
 tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
 void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
-void DestroyNodeTree(tree_node *);
 
 tree_node *GetNearestNodeToTheLeft(tree_node *);
 tree_node *GetNearestNodeToTheRight(tree_node *);
 tree_node *GetNodeFromWindowID(tree_node *, int);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *);
-void AddWindowToTree(screen_info *, int WindowID);
-void AddWindowToTree();
-void RemoveWindowFromTree(screen_info *, int, bool);
-void RemoveWindowFromTree();
 bool IsLeafNode(tree_node *);
 
 screen_info CreateDefaultScreenInfo(int, int);
@@ -187,6 +184,7 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
 bool DoesSpaceExistInMapOfScreen(screen_info *);
 void CycleFocusedWindowDisplay(int, bool);
+
 void ChangeGapOfDisplay(const std::string &, int);
 void ChangePaddingOfDisplay(const std::string &, int);
 void SetDefaultPaddingOfDisplay(const std::string &, int);
@@ -194,10 +192,16 @@ void SetDefaultGapOfDisplay(const std::string &, int);
 
 void CreateWindowNodeTree(screen_info *, std::vector<window_info*> *, bool);
 void ShouldWindowNodeTreeUpdate(screen_info *);
-void ResizeWindowToContainerSize(tree_node *);
-void ResizeWindowToContainerSize();
-void RotateTree(tree_node *, int);
-void MoveContainerSplitter(int, int);
+
+void ShouldBSPTreeUpdate(screen_info *, space_info *);
+void AddWindowToBSPTree(screen_info *, int);
+void AddWindowToBSPTree();
+void RemoveWindowFromBSPTree(screen_info *, int, bool);
+void RemoveWindowFromBSPTree();
+
+void ShouldStackingTreeUpdate(screen_info *, space_info *);
+void AddWindowToStackingTree(screen_info *, int);
+void RemoveWindowFromStackingTree(screen_info *, int, bool);
 
 bool IsWindowBelowCursor(window_info *);
 bool IsSpaceFloating(int);
@@ -226,6 +230,9 @@ void ToggleFocusedWindowFullscreen();
 void ToggleFocusedWindowParentContainer();
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 void CenterWindow(screen_info *);
+void MoveContainerSplitter(int, int);
+void ResizeWindowToContainerSize(tree_node *);
+void ResizeWindowToContainerSize();
 
 bool IsCursorInsideFocusedWindow();
 CGPoint GetCursorPos();

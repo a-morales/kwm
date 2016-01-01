@@ -432,9 +432,17 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
         return;
 
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    if(Space->Mode == SpaceModeBSP)
+        ShouldBSPTreeUpdate(Screen, Space);
+    else if(Space->Mode == SpaceModeStacking)
+        ShouldStackingTreeUpdate(Screen, Space);
+}
+
+void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
+{
     if(WindowLst.size() > Screen->OldWindowListCount)
     {
-        DEBUG("ShouldWindowNodeTreeUpdate() Add Window")
+        DEBUG("ShouldBSPTreeUpdate() Add Window")
         for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
         {
             if(GetNodeFromWindowID(Space->RootNode, WindowLst[WindowIndex].WID) == NULL)
@@ -442,7 +450,7 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
                 if(!IsApplicationFloating(&WindowLst[WindowIndex]) &&
                         !IsWindowFloating(WindowLst[WindowIndex].WID, NULL))
                 {
-                    AddWindowToTree(Screen, WindowLst[WindowIndex].WID);
+                    AddWindowToBSPTree(Screen, WindowLst[WindowIndex].WID);
                     SetWindowFocus(&WindowLst[WindowIndex]);
                 }
             }
@@ -450,7 +458,7 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
     }
     else if(WindowLst.size() < Screen->OldWindowListCount)
     {
-        DEBUG("ShouldWindowNodeTreeUpdate() Remove Window")
+        DEBUG("ShouldBSPTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
 
         tree_node *CurrentNode = Space->RootNode;
@@ -476,12 +484,12 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
             }
 
             if(!Found)
-                RemoveWindowFromTree(Screen, WindowIDsInTree[IDIndex], false);
+                RemoveWindowFromBSPTree(Screen, WindowIDsInTree[IDIndex], false);
         }
     }
 }
 
-void AddWindowToTree(screen_info *Screen, int WindowID)
+void AddWindowToBSPTree(screen_info *Screen, int WindowID)
 {
     if(!Screen || !DoesSpaceExistInMapOfScreen(Screen))
         return;
@@ -490,7 +498,7 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
     tree_node *RootNode = Space->RootNode;
     tree_node *CurrentNode = RootNode;
 
-    DEBUG("AddWindowToTree() Create pair of leafs")
+    DEBUG("AddWindowToBSPTree() Create pair of leafs")
     bool UseFocusedContainer = FocusedWindow &&
                                IsWindowOnActiveSpace(FocusedWindow) &&
                                FocusedWindow->WID != WindowID;
@@ -526,15 +534,15 @@ void AddWindowToTree(screen_info *Screen, int WindowID)
     }
 }
 
-void AddWindowToTree()
+void AddWindowToBSPTree()
 {
     if(!Screen)
         return;
 
-    AddWindowToTree(Screen, FocusedWindow->WID);
+    AddWindowToBSPTree(Screen, FocusedWindow->WID);
 }
 
-void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
+void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
 {
     if(!DoesSpaceExistInMapOfScreen(Screen))
         return;
@@ -567,7 +575,7 @@ void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
 
         if(AccessChild)
         {
-            DEBUG("RemoveWindowFromTree() " << FocusedWindow->Name)
+            DEBUG("RemoveWindowFromBSPTree() " << FocusedWindow->Name)
             Parent->WindowID = AccessChild->WindowID;
             if(AccessChild->LeftChild && AccessChild->RightChild)
             {
@@ -592,7 +600,7 @@ void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
     }
     else if(!Parent)
     {
-        DEBUG("RemoveWindowFromTree() " << FocusedWindow->Name)
+        DEBUG("RemoveWindowFromBSPTree() " << FocusedWindow->Name)
 
         free(WindowNode);
         Screen->Space[Screen->ActiveSpace].RootNode = NULL;
@@ -601,12 +609,17 @@ void RemoveWindowFromTree(screen_info *Screen, int WindowID, bool Center)
     }
 }
 
-void RemoveWindowFromTree()
+void RemoveWindowFromBSPTree()
 {
     if(!Screen)
         return;
 
-    RemoveWindowFromTree(Screen, FocusedWindow->WID, true);
+    RemoveWindowFromBSPTree(Screen, FocusedWindow->WID, true);
+}
+
+void ShouldStackingTreeUpdate(screen_info *Screen, space_info *Space)
+{
+    DEBUG("NYI")
 }
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
@@ -686,18 +699,20 @@ void ToggleFocusedSpaceFloating()
 
 void ToggleFocusedWindowFloating()
 {
-    if(FocusedWindow && IsWindowOnActiveSpace(FocusedWindow))
+    if(FocusedWindow &&
+       IsWindowOnActiveSpace(FocusedWindow) &&
+       Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
     {
         int WindowIndex;
         if(IsWindowFloating(FocusedWindow->WID, &WindowIndex))
         {
             FloatingWindowLst.erase(FloatingWindowLst.begin() + WindowIndex);
-            AddWindowToTree();
+            AddWindowToBSPTree();
         }
         else
         {
             FloatingWindowLst.push_back(FocusedWindow->WID);
-            RemoveWindowFromTree();
+            RemoveWindowFromBSPTree();
         }
     }
 }
