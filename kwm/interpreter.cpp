@@ -4,6 +4,7 @@ extern screen_info *Screen;
 extern std::vector<std::string> FloatingAppLst;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
+extern space_tiling_option KwmSpaceMode;
 extern int KwmSplitMode;
 extern bool KwmEnableTilingMode;
 extern bool KwmUseBuiltinHotkeys;
@@ -45,6 +46,15 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 KwmEnableTilingMode = false;
             else if(Tokens[2] == "enable")
                 KwmEnableTilingMode = true;
+        }
+        else if(Tokens[1] == "space")
+        {
+            if(Tokens[2] == "bsp")
+                KwmSpaceMode = SpaceModeBSP;
+            else if(Tokens[2] == "stack")
+                KwmSpaceMode = SpaceModeStacking;
+            else if(Tokens[2] == "float")
+                KwmSpaceMode = SpaceModeFloating;
         }
         else if(Tokens[1] == "focus")
         {

@@ -20,6 +20,9 @@
         Should Kwm perform tiling
             kwmc config tiling enable|disable
 
+        Set default space tiling option
+            kwmc config space bsp|stack|float
+
         Set state of Kwm's hotkeys
             kwmc config hotkeys enable|disable
 

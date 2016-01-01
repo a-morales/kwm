@@ -12,6 +12,7 @@ extern std::vector<int> FloatingWindowLst;
 extern ProcessSerialNumber FocusedPSN;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
+extern space_tiling_option KwmSpaceMode;
 extern int KwmSplitMode;
 extern bool KwmEnableTilingMode;
 extern bool KwmUseContextMenuFix;
@@ -396,7 +397,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         DEBUG("CreateWindowNodeTree() Create Space")
 
         space_info SpaceInfo;
-        SpaceInfo.Mode = SpaceModeBSP;
+        SpaceInfo.Mode = KwmSpaceMode;
 
         SpaceInfo.PaddingTop = Screen->PaddingTop;
         SpaceInfo.PaddingBottom = Screen->PaddingBottom;
@@ -406,8 +407,8 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         SpaceInfo.VerticalGap = Screen->VerticalGap;
         SpaceInfo.HorizontalGap = Screen->HorizontalGap;
 
-        SpaceInfo.RootNode = CreateTreeFromWindowIDList(Screen, Windows);
         Screen->Space[Screen->ActiveSpace] = SpaceInfo;
+        Screen->Space[Screen->ActiveSpace].RootNode = CreateTreeFromWindowIDList(Screen, Windows);
         Space = &Screen->Space[Screen->ActiveSpace];
     }
     else

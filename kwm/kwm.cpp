@@ -31,6 +31,7 @@ std::vector<int> FloatingWindowLst;
 ProcessSerialNumber FocusedPSN;
 window_info *FocusedWindow;
 focus_option KwmFocusMode;
+space_tiling_option KwmSpaceMode;
 int KwmSplitMode = -1;
 int MarkedWindowID = -1;
 bool IsWindowDragInProgress = false;
@@ -394,6 +395,7 @@ void KwmInit()
     KwmUseBuiltinHotkeys = true;
     KwmEnableDragAndDrop = true;
     KwmUseContextMenuFix = true;
+    KwmSpaceMode = SpaceModeBSP;
     KwmFocusMode = FocusModeAutoraise;
 
     GetKwmFilePath();
