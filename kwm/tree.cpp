@@ -445,17 +445,6 @@ void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node)
     ApplyNodeContainer(Node, SpaceModeBSP);
 }
 
-void ApplyStackingNodeContainer(tree_node *Node)
-{
-    if(Node)
-    {
-        ResizeWindowToContainerSize(Node);
-
-        if(Node->RightChild)
-            ApplyStackingNodeContainer(Node->RightChild);
-    }
-}
-
 void ApplyNodeContainer(tree_node *Node, space_tiling_option Mode)
 {
     if(Node)
