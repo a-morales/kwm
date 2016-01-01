@@ -200,7 +200,7 @@ bool IsLeafNode(tree_node *Node)
 
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
-    if(IsSpaceFloating(Screen->ActiveSpace, NULL))
+    if(IsSpaceFloating(Screen->ActiveSpace))
         return NULL;
 
     std::vector<window_info*> &Windows = *WindowsPtr;

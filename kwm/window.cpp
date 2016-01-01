@@ -6,7 +6,6 @@ extern screen_info *Screen;
 extern int MarkedWindowID;
 
 extern std::vector<window_info> WindowLst;
-extern std::vector<int> FloatingSpaceLst;
 extern std::vector<std::string> FloatingAppLst;
 extern std::vector<int> FloatingWindowLst;
 
@@ -14,7 +13,7 @@ extern ProcessSerialNumber FocusedPSN;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int KwmSplitMode;
-extern bool KwmUseBSPTilingMode;
+extern bool KwmEnableTilingMode;
 extern bool KwmUseContextMenuFix;
 
 int OldScreenID = 0;
@@ -142,24 +141,9 @@ bool IsCursorInsideFocusedWindow()
     return Result;
 }
 
-bool IsSpaceFloating(int SpaceID, int *Index)
+bool IsSpaceFloating(int SpaceID)
 {
-    bool Result = false;
-
-    for(int SpaceIndex = 0; SpaceIndex < FloatingSpaceLst.size(); ++SpaceIndex)
-    {
-        if(SpaceID == FloatingSpaceLst[SpaceIndex])
-        {
-            Result = true;
-
-            if(Index)
-                *Index = SpaceIndex;
-
-            break;
-        }
-    }
-
-    return Result;
+    return Screen->Space[SpaceID].Mode == SpaceModeFloating;
 }
 
 bool IsApplicationFloating(window_info *Window)
@@ -295,14 +279,14 @@ void UpdateWindowTree()
 
     UpdateActiveWindowList(Screen);
 
-    if(KwmUseBSPTilingMode &&
+    if(KwmEnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
        FilterWindowList(Screen))
     {
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(Screen->ID);
         std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
-        if(!IsSpaceFloating(Screen->ActiveSpace, NULL))
+        if(!IsSpaceFloating(Screen->ActiveSpace))
         {
             if(It == Screen->Space.end() && !WindowsOnDisplay.empty())
                 CreateWindowNodeTree(Screen, &WindowsOnDisplay);
@@ -391,6 +375,8 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
 
     if(SpaceInfo.RootNode)
     {
+        SpaceInfo.Mode = SpaceModeBSP;
+
         SpaceInfo.PaddingTop = Screen->PaddingTop;
         SpaceInfo.PaddingBottom = Screen->PaddingBottom;
         SpaceInfo.PaddingLeft = Screen->PaddingLeft;
@@ -630,24 +616,31 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
 
 void FloatFocusedSpace()
 {
-    if(Screen && Screen->ActiveSpace != 0)
+    if(Screen &&
+       Screen->ActiveSpace != 0 &&
+       KwmEnableTilingMode &&
+       !IsSpaceTransitionInProgress() &&
+       !IsSpaceSystemOrFullscreen() &&
+       FilterWindowList(Screen))
     {
-        if(!IsSpaceFloating(Screen->ActiveSpace, NULL))
-        {
-            DestroyNodeTree(Screen->Space[Screen->ActiveSpace].RootNode);
-            Screen->Space.erase(Screen->ActiveSpace);
-            FloatingSpaceLst.push_back(Screen->ActiveSpace);
-        }
+        DestroyNodeTree(Screen->Space[Screen->ActiveSpace].RootNode);
+        Screen->Space[Screen->ActiveSpace].RootNode = NULL;
+        Screen->Space[Screen->ActiveSpace].Mode = SpaceModeFloating;
     }
 }
 
 void TileFocusedSpace()
 {
-    if(Screen && Screen->ActiveSpace != 0)
+    if(Screen &&
+       Screen->ActiveSpace != 0 &&
+       KwmEnableTilingMode &&
+       !IsSpaceTransitionInProgress() &&
+       !IsSpaceSystemOrFullscreen() &&
+       FilterWindowList(Screen))
     {
-        int SpaceIndex;
-        if(IsSpaceFloating(Screen->ActiveSpace, &SpaceIndex))
-            FloatingSpaceLst.erase(FloatingSpaceLst.begin() + SpaceIndex);
+        Screen->Space[Screen->ActiveSpace].Mode = SpaceModeBSP;
+        std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(Screen->ID);
+        CreateWindowNodeTree(Screen, &WindowsOnDisplay);
     }
 }
 
@@ -655,7 +648,7 @@ void ToggleFocusedSpaceFloating()
 {
     if(Screen && Screen->ActiveSpace != 0)
     {
-        if(IsSpaceFloating(Screen->ActiveSpace, NULL))
+        if(IsSpaceFloating(Screen->ActiveSpace))
             TileFocusedSpace();
         else
             FloatFocusedSpace();

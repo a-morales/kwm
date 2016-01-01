@@ -65,6 +65,13 @@ enum focus_option
     FocusModeDisabled 
 };
 
+enum space_tiling_option
+{
+    SpaceModeBSP,
+    SpaceModeStacking,
+    SpaceModeFloating
+};
+
 struct kwm_code
 {
     void *KwmHotkeySO;
@@ -117,6 +124,7 @@ struct space_info
     double PaddingLeft, PaddingRight;
     double VerticalGap, HorizontalGap;
 
+    space_tiling_option Mode;
     tree_node *RootNode;
 };
 
@@ -190,7 +198,7 @@ void RotateTree(tree_node *, int);
 void MoveContainerSplitter(int, int);
 
 bool IsWindowBelowCursor(window_info *);
-bool IsSpaceFloating(int, int *);
+bool IsSpaceFloating(int);
 bool IsApplicationFloating(window_info *);
 bool IsWindowFloating(int, int *);
 bool IsWindowOnActiveSpace(window_info *);
