@@ -406,9 +406,8 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         SpaceInfo.VerticalGap = Screen->VerticalGap;
         SpaceInfo.HorizontalGap = Screen->HorizontalGap;
 
-        Screen->Space[Screen->ActiveSpace] = SpaceInfo;
         SpaceInfo.RootNode = CreateTreeFromWindowIDList(Screen, Windows);
-
+        Screen->Space[Screen->ActiveSpace] = SpaceInfo;
         Space = &Screen->Space[Screen->ActiveSpace];
     }
     else
@@ -416,10 +415,22 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Space = &Screen->Space[Screen->ActiveSpace];
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
 
-        if(Space->RootNode && Space->Mode == SpaceModeBSP)
+        if(Space->RootNode)
         {
-            SetRootNodeContainer(Screen, Space->RootNode);
-            CreateNodeContainers(Screen, Space->RootNode, true);
+            if(Space->Mode == SpaceModeBSP)
+            {
+                SetRootNodeContainer(Screen, Space->RootNode);
+                CreateNodeContainers(Screen, Space->RootNode, true);
+            }
+            else if(Space->Mode == SpaceModeStacking)
+            {
+                tree_node *CurrentNode = Space->RootNode;
+                while(CurrentNode)
+                {
+                    SetRootNodeContainer(Screen, CurrentNode);
+                    CurrentNode = CurrentNode->RightChild;
+                }
+            }
         }
     }
 
