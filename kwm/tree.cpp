@@ -203,11 +203,32 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
     if(IsSpaceFloating(Screen->ActiveSpace))
         return NULL;
 
-    std::vector<window_info*> &Windows = *WindowsPtr;
     tree_node *RootNode = CreateRootNode();
     SetRootNodeContainer(Screen, RootNode);
 
-    if(Windows.size() > 1)
+    bool Result = false;
+    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+
+    if(Space->Mode == SpaceModeBSP)
+        Result = CreateBSPTree(RootNode, Screen, WindowsPtr);
+    else if(Space->Mode == SpaceModeStacking)
+        Result = CreateStackingTree(RootNode, Screen, WindowsPtr);
+
+    if(!Result)
+    {
+        free(RootNode);
+        RootNode = NULL;
+    }
+
+    return RootNode;
+}
+
+bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
+{
+    bool Result = false;
+    std::vector<window_info*> &Windows = *WindowsPtr;
+
+    if(Windows.size() >= 2)
     {
         tree_node *Root = RootNode;
         int FirstIndex;
@@ -223,10 +244,7 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
         }
 
         if(!FoundValidWindow)
-        {
-            free(RootNode);
-            return NULL;
-        }
+            return false;
 
         for(int WindowIndex = FirstIndex + 1; WindowIndex < Windows.size(); ++WindowIndex)
         {
@@ -240,23 +258,28 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
                         Root = Root->LeftChild;
                 }
 
-                DEBUG("CreateTreeFromWindowIDList() Create pair of leafs")
+                DEBUG("CreateBSPTree() Create pair of leafs")
                 CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, GetOptimalSplitMode(Root));
                 Root = RootNode;
             }
         }
+
+        Result = true;
     }
     else if(Windows.size() == 1 && !IsWindowFloating(Windows[0]->WID, NULL))
     {
         RootNode->WindowID = Windows[0]->WID;
-    }
-    else
-    {
-        free(RootNode);
-        RootNode = NULL;
+        Result = true;
     }
 
-    return RootNode;
+    return Result;
+}
+
+bool CreateStackingTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
+{
+    bool Result = false;
+
+    return Result;
 }
 
 int GetOptimalSplitMode(tree_node *Node)
