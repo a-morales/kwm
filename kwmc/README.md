@@ -54,7 +54,7 @@
         kwmc window -s prev|next|mark
 
     Set space-tiling mode (every space uses bsp tiling by default)
-        kwmc space -t toggle|bsp|float
+        kwmc space -t toggle|bsp|stack|float
 
     Rotate window-tree
         kwmc space -r 90|180|270

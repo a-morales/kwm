@@ -278,6 +278,26 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
 bool CreateStackingTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
     bool Result = false;
+    std::vector<window_info*> &Windows = *WindowsPtr;
+
+    if(!Windows.empty())
+    {
+        tree_node *Root = RootNode;
+        Root->WindowID = Windows[0]->WID;
+
+        for(int WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
+        {
+            tree_node *Next = CreateRootNode();
+            SetRootNodeContainer(Screen, Next);
+            Next->WindowID = Windows[WindowIndex]->WID;
+
+            Root->RightChild = Next;
+            Next->LeftChild = Root;
+            Root = Next;
+        }
+
+        Result = true;
+    }
 
     return Result;
 }
@@ -300,7 +320,7 @@ void SwapNodeWindowIDs(tree_node *A, tree_node *B)
     }
 }
 
-tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID)
+tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID, space_tiling_option Mode)
 {
     if(Node)
     {
@@ -316,7 +336,7 @@ tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID)
                 return CurrentNode;
             }
 
-            CurrentNode = GetNearestNodeToTheRight(CurrentNode);
+            CurrentNode = GetNearestNodeToTheRight(CurrentNode, Mode);
         }
     }
 
@@ -341,48 +361,62 @@ void ResizeNodeContainer(screen_info *Screen, tree_node *Node)
     }
 }
 
-tree_node *GetNearestNodeToTheLeft(tree_node *Node)
+tree_node *GetNearestNodeToTheLeft(tree_node *Node, space_tiling_option Mode)
 {
     if(Node)
     {
-        if(Node->Parent)
+        if(Mode == SpaceModeBSP)
         {
-            tree_node *Root = Node->Parent;
-            if(Root->LeftChild == Node)
-                return GetNearestNodeToTheLeft(Root);
+            if(Node->Parent)
+            {
+                tree_node *Root = Node->Parent;
+                if(Root->LeftChild == Node)
+                    return GetNearestNodeToTheLeft(Root, Mode);
 
-            if(IsLeafNode(Root->LeftChild))
-                return Root->LeftChild;
+                if(IsLeafNode(Root->LeftChild))
+                    return Root->LeftChild;
 
-            Root = Root->LeftChild;
-            while(!IsLeafNode(Root->RightChild))
-                Root = Root->RightChild;
+                Root = Root->LeftChild;
+                while(!IsLeafNode(Root->RightChild))
+                    Root = Root->RightChild;
 
-            return Root->RightChild;
+                return Root->RightChild;
+            }
+        }
+        else if(Mode == SpaceModeStacking)
+        {
+            return Node->LeftChild;
         }
     }
 
     return NULL;
 }
 
-tree_node *GetNearestNodeToTheRight(tree_node *Node)
+tree_node *GetNearestNodeToTheRight(tree_node *Node, space_tiling_option Mode)
 {
     if(Node)
     {
-        if(Node->Parent)
+        if(Mode == SpaceModeBSP)
         {
-            tree_node *Root = Node->Parent;
-            if(Root->RightChild == Node)
-                return GetNearestNodeToTheRight(Root);
+            if(Node->Parent)
+            {
+                tree_node *Root = Node->Parent;
+                if(Root->RightChild == Node)
+                    return GetNearestNodeToTheRight(Root, Mode);
 
-            if(IsLeafNode(Root->RightChild))
-                return Root->RightChild;
+                if(IsLeafNode(Root->RightChild))
+                    return Root->RightChild;
 
-            Root = Root->RightChild;
-            while(!IsLeafNode(Root->LeftChild))
-                Root = Root->LeftChild;
+                Root = Root->RightChild;
+                while(!IsLeafNode(Root->LeftChild))
+                    Root = Root->LeftChild;
 
-            return Root->LeftChild;
+                return Root->LeftChild;
+            }
+        }
+        else if(Mode == SpaceModeStacking)
+        {
+            return Node->RightChild;
         }
     }
 
@@ -408,33 +442,44 @@ void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node)
 
     Node->SplitMode = Node->SplitMode == 1 ? 2 : 1;
     CreateNodeContainers(Screen, Node, false);
-    ApplyNodeContainer(Node);
+    ApplyNodeContainer(Node, SpaceModeBSP);
 }
 
-void ApplyNodeContainer(tree_node *Node)
+void ApplyStackingNodeContainer(tree_node *Node)
+{
+    if(Node)
+    {
+        ResizeWindowToContainerSize(Node);
+
+        if(Node->RightChild)
+            ApplyStackingNodeContainer(Node->RightChild);
+    }
+}
+
+void ApplyNodeContainer(tree_node *Node, space_tiling_option Mode)
 {
     if(Node)
     {
         if(Node->WindowID != -1)
             ResizeWindowToContainerSize(Node);
 
-        if(Node->LeftChild)
-            ApplyNodeContainer(Node->LeftChild);
+        if(Mode == SpaceModeBSP && Node->LeftChild)
+            ApplyNodeContainer(Node->LeftChild, Mode);
 
         if(Node->RightChild)
-            ApplyNodeContainer(Node->RightChild);
+            ApplyNodeContainer(Node->RightChild, Mode);
     }
 }
 
-void DestroyNodeTree(tree_node *Node)
+void DestroyNodeTree(tree_node *Node, space_tiling_option Mode)
 {
     if(Node)
     {
-        if(Node->LeftChild)
-            DestroyNodeTree(Node->LeftChild);
+        if(Mode == SpaceModeBSP && Node->LeftChild)
+            DestroyNodeTree(Node->LeftChild, Mode);
 
         if(Node->RightChild)
-            DestroyNodeTree(Node->RightChild);
+            DestroyNodeTree(Node->RightChild, Mode);
 
         free(Node);
     }

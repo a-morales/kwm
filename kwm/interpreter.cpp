@@ -140,7 +140,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         {
             if(Tokens[2] == "split")
             {
-                tree_node *Node = GetNodeFromWindowID(Screen->Space[Screen->ActiveSpace].RootNode, FocusedWindow->WID);
+                space_info *Space = &Screen->Space[Screen->ActiveSpace];
+                tree_node *Node = GetNodeFromWindowID(Space->RootNode, FocusedWindow->WID, Space->Mode);
                 ToggleNodeSplitMode(Screen, Node->Parent);
             }
             else if(Tokens[2] == "refresh")
@@ -202,6 +203,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 FloatFocusedSpace();
             else if(Tokens[2] == "bsp")
                 TileFocusedSpace(SpaceModeBSP);
+            else if(Tokens[2] == "stack")
+                TileFocusedSpace(SpaceModeStacking);
         }
         else if(Tokens[1] == "-r")
         {
@@ -210,9 +213,11 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 int Deg = 0;
                 std::stringstream Stream(Tokens[2]);
                 Stream >> Deg;
-                RotateTree(Screen->Space[Screen->ActiveSpace].RootNode, Deg);
-                CreateNodeContainers(Screen, Screen->Space[Screen->ActiveSpace].RootNode, false);
-                ApplyNodeContainer(Screen->Space[Screen->ActiveSpace].RootNode);
+
+                space_info *Space = &Screen->Space[Screen->ActiveSpace];
+                RotateTree(Space->RootNode, Deg);
+                CreateNodeContainers(Screen, Space->RootNode, false);
+                ApplyNodeContainer(Space->RootNode, Space->Mode);
             }
         }
         else if(Tokens[1] == "-m")

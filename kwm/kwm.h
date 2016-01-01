@@ -153,7 +153,7 @@ void CreateNodeContainer(screen_info *, tree_node *, int);
 void CreateNodeContainerPair(screen_info *, tree_node *, tree_node *, int);
 void CreateNodeContainers(screen_info *, tree_node *, bool);
 void ResizeNodeContainer(screen_info *, tree_node *);
-void ApplyNodeContainer(tree_node *);
+void ApplyNodeContainer(tree_node *, space_tiling_option);
 int GetOptimalSplitMode(tree_node *);
 void ToggleNodeSplitMode(screen_info *, tree_node *);
 
@@ -161,14 +161,14 @@ tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<window_info*> *
 bool CreateBSPTree(tree_node *, screen_info *, std::vector<window_info*> *);
 bool CreateStackingTree(tree_node *, screen_info *, std::vector<window_info*> *);
 void RotateTree(tree_node *, int);
-void DestroyNodeTree(tree_node *);
+void DestroyNodeTree(tree_node *, space_tiling_option);
 tree_node *CreateRootNode();
 tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
 void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
 
-tree_node *GetNearestNodeToTheLeft(tree_node *);
-tree_node *GetNearestNodeToTheRight(tree_node *);
-tree_node *GetNodeFromWindowID(tree_node *, int);
+tree_node *GetNearestNodeToTheLeft(tree_node *, space_tiling_option);
+tree_node *GetNearestNodeToTheRight(tree_node *, space_tiling_option);
+tree_node *GetNodeFromWindowID(tree_node *, int, space_tiling_option);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *);
 bool IsLeafNode(tree_node *);

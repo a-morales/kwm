@@ -31,7 +31,7 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
         DEBUG("Display has been removed! DisplayID: " << Display)
         std::map<int, space_info>::iterator It;
         for(It = DisplayMap[Display].Space.begin(); It != DisplayMap[Display].Space.end(); ++It)
-            DestroyNodeTree(It->second.RootNode);
+            DestroyNodeTree(It->second.RootNode, It->second.Mode);
 
         DisplayMap.erase(Display);
         RefreshActiveDisplays();
@@ -248,7 +248,7 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
     {
         SetRootNodeContainer(Screen, Space->RootNode);
         CreateNodeContainers(Screen, Space->RootNode, true);
-        ApplyNodeContainer(Space->RootNode);
+        ApplyNodeContainer(Space->RootNode, Space->Mode);
     }
 }
 
@@ -271,7 +271,7 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
     if(Space->RootNode)
     {
         CreateNodeContainers(Screen, Space->RootNode, true);
-        ApplyNodeContainer(Space->RootNode);
+        ApplyNodeContainer(Space->RootNode, Space->Mode);
     }
 }
 
