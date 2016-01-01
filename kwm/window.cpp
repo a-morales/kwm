@@ -701,6 +701,9 @@ void ShouldStackingTreeUpdate(screen_info *Screen, space_info *Space)
                     if(Next)
                         Next->LeftChild = Prev;
 
+                    if(WindowNode == Space->RootNode)
+                        Space->RootNode = Next;
+
                     free(WindowNode);
                 }
             }
