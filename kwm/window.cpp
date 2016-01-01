@@ -781,6 +781,9 @@ void TileFocusedSpace(space_tiling_option Mode)
        FilterWindowList(Screen))
     {
         space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        if(Space->Mode == Mode)
+            return;
+
         DestroyNodeTree(Space->RootNode, Space->Mode);
         Space->RootNode = NULL;
 
