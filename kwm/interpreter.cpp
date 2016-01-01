@@ -200,8 +200,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 ToggleFocusedSpaceFloating();
             else if(Tokens[2] == "float")
                 FloatFocusedSpace();
-            else if(Tokens[2] == "tile")
-                TileFocusedSpace();
+            else if(Tokens[2] == "bsp")
+                TileFocusedSpace(SpaceModeBSP);
         }
         else if(Tokens[1] == "-r")
         {
