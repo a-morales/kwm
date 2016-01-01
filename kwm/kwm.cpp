@@ -9,7 +9,7 @@ kwm_code KWMCode;
 std::string ENV_HOME;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
-bool KwmUseBSPTilingMode;
+bool KwmEnableTilingMode;
 bool KwmUseBuiltinHotkeys;
 bool KwmEnableDragAndDrop;
 bool KwmUseContextMenuFix;
@@ -391,7 +391,7 @@ void KwmInit()
     else
         Fatal("Kwm: Could not start daemon..");
 
-    KwmUseBSPTilingMode = true;
+    KwmEnableTilingMode = true;
     KwmUseBuiltinHotkeys = true;
     KwmEnableDragAndDrop = true;
     KwmUseContextMenuFix = true;

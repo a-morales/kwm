@@ -5,7 +5,7 @@ extern std::vector<std::string> FloatingAppLst;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern int KwmSplitMode;
-extern bool KwmUseBSPTilingMode;
+extern bool KwmEnableTilingMode;
 extern bool KwmUseBuiltinHotkeys;
 extern bool KwmEnableDragAndDrop;
 extern bool KwmUseContextMenuFix;
@@ -42,9 +42,9 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         else if(Tokens[1] == "tiling")
         {
             if(Tokens[2] == "disable")
-                KwmUseBSPTilingMode = false;
+                KwmEnableTilingMode = false;
             else if(Tokens[2] == "enable")
-                KwmUseBSPTilingMode = true;
+                KwmEnableTilingMode = true;
         }
         else if(Tokens[1] == "focus")
         {
