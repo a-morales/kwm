@@ -157,6 +157,8 @@ void ApplyNodeContainer(tree_node *);
 int GetOptimalSplitMode(tree_node *);
 void ToggleNodeSplitMode(screen_info *, tree_node *);
 
+bool CreateBSPTree(tree_node *, screen_info *, std::vector<window_info*> *);
+bool CreateStackingTree(tree_node *, screen_info *, std::vector<window_info*> *);
 tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<window_info*> *);
 tree_node *CreateRootNode();
 tree_node *CreateLeafNode(screen_info *, tree_node *, int, int);
@@ -190,7 +192,7 @@ void ChangePaddingOfDisplay(const std::string &, int);
 void SetDefaultPaddingOfDisplay(const std::string &, int);
 void SetDefaultGapOfDisplay(const std::string &, int);
 
-void CreateWindowNodeTree(screen_info *, std::vector<window_info*> *);
+void CreateWindowNodeTree(screen_info *, std::vector<window_info*> *, bool);
 void ShouldWindowNodeTreeUpdate(screen_info *);
 void ResizeWindowToContainerSize(tree_node *);
 void ResizeWindowToContainerSize();
@@ -217,7 +219,7 @@ void SwapFocusedWindowWithNearest(int);
 void SwapFocusedWindowWithMarked();
 void FocusWindowBelowCursor();
 void FloatFocusedSpace();
-void TileFocusedSpace();
+void TileFocusedSpace(space_tiling_option);
 void ToggleFocusedSpaceFloating();
 void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowFullscreen();
