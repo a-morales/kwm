@@ -215,9 +215,12 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 Stream >> Deg;
 
                 space_info *Space = &Screen->Space[Screen->ActiveSpace];
-                RotateTree(Space->RootNode, Deg);
-                CreateNodeContainers(Screen, Space->RootNode, false);
-                ApplyNodeContainer(Space->RootNode, Space->Mode);
+                if(Space->Mode == SpaceModeBSP)
+                {
+                    RotateTree(Space->RootNode, Deg);
+                    CreateNodeContainers(Screen, Space->RootNode, false);
+                    ApplyNodeContainer(Space->RootNode, Space->Mode);
+                }
             }
         }
         else if(Tokens[1] == "-m")
