@@ -14,9 +14,8 @@ remapping keys, and most importantly global hotkeys.
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.  
 Tested on Osx El Capitan (10.11.1 / 10.11.2).
 
-       Screencast          |       Screenshot          |       Screenshot          |       Screenshot          |       Screenshot
-:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
-![mov](https://cloud.githubusercontent.com/assets/6175959/11498553/6ccedee6-9820-11e5-8830-96e0bf19b4f2.gif)  |  ![img](https://cloud.githubusercontent.com/assets/6175959/12076311/a1c30c86-b1a6-11e5-805b-f81bfd6ce6aa.png){:width="600px"}  |  ![img](https://cloud.githubusercontent.com/assets/6175959/12071325/2f9c7a3a-b0a6-11e5-91db-de327cf3ecc2.png)  |  ![img](https://cloud.githubusercontent.com/assets/6175959/12011903/1eeb3d6a-ace2-11e5-9c49-0df721e6e83d.png)  |  ![img](https://cloud.githubusercontent.com/assets/6175959/12011916/c8ef1b9c-ace2-11e5-9a5b-0aee3d41347a.jpg)
+![img](https://cloud.githubusercontent.com/assets/6175959/12076311/a1c30c86-b1a6-11e5-805b-f81bfd6ce6aa.png)  
+For more screenshots, [click here](https://github.com/koekeishiya/kwm/issues/2)  
 
 ## Extended Information:
 
