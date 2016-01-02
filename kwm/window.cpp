@@ -888,9 +888,7 @@ void SwapFocusedWindowWithMarked()
     if(!FocusedWindow || MarkedWindowID == FocusedWindow->WID || MarkedWindowID == -1)
         return;
 
-    if(Screen &&
-       DoesSpaceExistInMapOfScreen(Screen) &&
-       Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
+    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
     {
         space_info *Space = &Screen->Space[Screen->ActiveSpace];
         tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, FocusedWindow->WID, Space->Mode);
@@ -911,9 +909,6 @@ void SwapFocusedWindowWithNearest(int Shift)
         return;
 
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
-    if(Space->Mode != SpaceModeBSP)
-        return;
-
     tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, FocusedWindow->WID, Space->Mode);
     if(FocusedWindowNode)
     {
