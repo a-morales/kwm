@@ -246,8 +246,21 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 
     if(Space->RootNode)
     {
-        SetRootNodeContainer(Screen, Space->RootNode);
-        CreateNodeContainers(Screen, Space->RootNode, true);
+        if(Space->Mode == SpaceModeBSP)
+        {
+            SetRootNodeContainer(Screen, Space->RootNode);
+            CreateNodeContainers(Screen, Space->RootNode, true);
+        }
+        else if(Space->Mode == SpaceModeStacking)
+        {
+            tree_node *CurrentNode = Space->RootNode;
+            while(CurrentNode)
+            {
+                SetRootNodeContainer(Screen, CurrentNode);
+                CurrentNode = CurrentNode->RightChild;
+            }
+        }
+
         ApplyNodeContainer(Space->RootNode, Space->Mode);
     }
 }
@@ -268,7 +281,7 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
             Space->HorizontalGap += Offset;
     }
 
-    if(Space->RootNode)
+    if(Space->RootNode && Space->Mode == SpaceModeBSP)
     {
         CreateNodeContainers(Screen, Space->RootNode, true);
         ApplyNodeContainer(Space->RootNode, Space->Mode);
