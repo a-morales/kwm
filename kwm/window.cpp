@@ -27,7 +27,7 @@ CFStringRef DisplayIdentifier;
 std::map<int, window_role> WindowRoleCache;
 std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
 
-bool GetTagForCurrenSpace(std::string &Tag)
+bool GetTagForCurrentSpace(std::string &Tag)
 {
     bool Result = false;
 

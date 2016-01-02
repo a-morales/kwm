@@ -131,7 +131,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     else if(Tokens[0] == "focused")
     {
         std::string Output;
-        GetTagForCurrenSpace(Output);
+        GetTagForCurrentSpace(Output);
 
         if(FocusedWindow)
             Output += " " + FocusedWindow->Owner + " - " + FocusedWindow->Name;
