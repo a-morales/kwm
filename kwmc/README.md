@@ -20,7 +20,7 @@
         Should Kwm perform tiling
             kwmc config tiling enable|disable
 
-        Set default space tiling option
+        Set default tiling mode
             kwmc config space bsp|stack|float
 
         Set state of Kwm's hotkeys
@@ -56,7 +56,7 @@
     Swap window position
         kwmc window -s prev|next|mark
 
-    Set space-tiling mode (every space uses bsp tiling by default)
+    Set tiling mode of current space (every space uses bsp tiling by default)
         kwmc space -t toggle|bsp|stack|float
 
     Rotate window-tree
