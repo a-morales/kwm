@@ -39,6 +39,11 @@ bool GetTagForCurrenSpace(std::string &Tag)
             Tag = "[bsp]";
             return true;
         }
+        else if(Space->Mode == SpaceModeFloating)
+        {
+            Tag = "[float]";
+            return true;
+        }
 
         tree_node *Node = Space->RootNode; 
         if(Node)
