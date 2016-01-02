@@ -130,8 +130,13 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     }
     else if(Tokens[0] == "focused")
     {
+        std::string Output;
+        GetTagForCurrenSpace(Output);
+
         if(FocusedWindow)
-            KwmWriteToSocket(ClientSockFD, FocusedWindow->Owner + " - " + FocusedWindow->Name);
+            Output += " " + FocusedWindow->Owner + " - " + FocusedWindow->Name;
+
+        KwmWriteToSocket(ClientSockFD, Output);
     }
     else if(Tokens[0] == "window")
     {

@@ -27,6 +27,56 @@ CFStringRef DisplayIdentifier;
 std::map<int, window_role> WindowRoleCache;
 std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
 
+bool GetTagForCurrenSpace(std::string &Tag)
+{
+    bool Result = false;
+
+    if(Screen && Screen->ActiveSpace != 0)
+    {
+        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        if(Space->Mode == SpaceModeBSP)
+        {
+            Tag = "[bsp]";
+            return true;
+        }
+
+        tree_node *Node = Space->RootNode; 
+        if(Node)
+        {
+            int FocusedIndex = 0;
+            int NumberOfWindows = 0;
+            bool FoundFocusedWindow = false;
+
+            if(Node->WindowID == FocusedWindow->WID)
+                FoundFocusedWindow = true;
+
+            while(Node->RightChild)
+            {
+                if(Node->WindowID == FocusedWindow->WID)
+                    FoundFocusedWindow = true;
+
+                if(!FoundFocusedWindow)
+                    ++FocusedIndex;
+
+                ++NumberOfWindows;
+                Node = Node->RightChild;
+            }
+
+            if(Node->WindowID == FocusedWindow->WID)
+                FoundFocusedWindow = true;
+
+            if(FoundFocusedWindow)
+                Tag = "[" + std::to_string(FocusedIndex) + "/" + std::to_string(NumberOfWindows) + "]";
+            else
+                Tag = "[ " + std::to_string(NumberOfWindows) + " ]";
+
+            Result = true;
+        }
+    }
+    
+    return Result;
+}
+
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
     bool Result = false;

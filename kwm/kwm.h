@@ -270,6 +270,7 @@ bool IsPrefixOfString(std::string &, std::string);
 
 void KwmInit();
 void KwmQuit();
+bool GetTagForCurrenSpace(std::string &);
 void GetKwmFilePath();
 bool IsKwmAlreadyAddedToLaunchd();
 void AddKwmToLaunchd();
