@@ -123,6 +123,7 @@ struct space_info
     double PaddingTop, PaddingBottom;
     double PaddingLeft, PaddingRight;
     double VerticalGap, HorizontalGap;
+    bool Initialized;
 
     space_tiling_option Mode;
     tree_node *RootNode;
@@ -190,7 +191,7 @@ void ChangePaddingOfDisplay(const std::string &, int);
 void SetDefaultPaddingOfDisplay(const std::string &, int);
 void SetDefaultGapOfDisplay(const std::string &, int);
 
-void CreateWindowNodeTree(screen_info *, std::vector<window_info*> *, bool);
+void CreateWindowNodeTree(screen_info *, std::vector<window_info*> *);
 void ShouldWindowNodeTreeUpdate(screen_info *);
 
 void ShouldBSPTreeUpdate(screen_info *, space_info *);

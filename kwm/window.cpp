@@ -352,12 +352,12 @@ void UpdateWindowTree()
 
             if(It == Screen->Space.end() && !WindowsOnDisplay.empty())
             {
-                CreateWindowNodeTree(Screen, &WindowsOnDisplay, true);
+                CreateWindowNodeTree(Screen, &WindowsOnDisplay);
             }
             else if(It != Screen->Space.end() && !WindowsOnDisplay.empty() &&
                     Screen->Space[Screen->ActiveSpace].RootNode == NULL)
             {
-                CreateWindowNodeTree(Screen, &WindowsOnDisplay, false);
+                CreateWindowNodeTree(Screen, &WindowsOnDisplay);
             }
             else if(It != Screen->Space.end() && !WindowsOnDisplay.empty() &&
                     Screen->Space[Screen->ActiveSpace].RootNode != NULL)
@@ -442,29 +442,24 @@ void UpdateActiveWindowList(screen_info *Screen)
     ForceRefreshFocus = false;
 }
 
-void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows, bool CreateSpace)
+void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)
 {
     DEBUG("CreateWindowNodeTree() Create Tree")
 
-    space_info *Space;
-    if(CreateSpace)
+    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    if(!Space->Initialized)
     {
-        DEBUG("CreateWindowNodeTree() Create Space")
+        Space->Mode = KwmSpaceMode;
+        Space->Initialized = true;
 
-        space_info SpaceInfo;
-        SpaceInfo.Mode = KwmSpaceMode;
+        Space->PaddingTop = Screen->PaddingTop;
+        Space->PaddingBottom = Screen->PaddingBottom;
+        Space->PaddingLeft = Screen->PaddingLeft;
+        Space->PaddingRight = Screen->PaddingRight;
 
-        SpaceInfo.PaddingTop = Screen->PaddingTop;
-        SpaceInfo.PaddingBottom = Screen->PaddingBottom;
-        SpaceInfo.PaddingLeft = Screen->PaddingLeft;
-        SpaceInfo.PaddingRight = Screen->PaddingRight;
-
-        SpaceInfo.VerticalGap = Screen->VerticalGap;
-        SpaceInfo.HorizontalGap = Screen->HorizontalGap;
-
-        Screen->Space[Screen->ActiveSpace] = SpaceInfo;
-        Screen->Space[Screen->ActiveSpace].RootNode = CreateTreeFromWindowIDList(Screen, Windows);
-        Space = &Screen->Space[Screen->ActiveSpace];
+        Space->VerticalGap = Screen->VerticalGap;
+        Space->HorizontalGap = Screen->HorizontalGap;
+        Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
     }
     else
     {
@@ -807,7 +802,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
     {
         std::vector<window_info*> WindowsOnDisplay;
         WindowsOnDisplay.push_back(FocusedWindow);
-        CreateWindowNodeTree(Screen, &WindowsOnDisplay, true);
+        CreateWindowNodeTree(Screen, &WindowsOnDisplay);
     }
 }
 
@@ -845,7 +840,7 @@ void TileFocusedSpace(space_tiling_option Mode)
 
         Space->Mode = Mode;
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(Screen->ID);
-        CreateWindowNodeTree(Screen, &WindowsOnDisplay, false);
+        CreateWindowNodeTree(Screen, &WindowsOnDisplay);
     }
 }
 
