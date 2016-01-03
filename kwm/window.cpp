@@ -463,9 +463,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
     }
     else
     {
-        Space = &Screen->Space[Screen->ActiveSpace];
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
-
         if(Space->RootNode)
         {
             if(Space->Mode == SpaceModeBSP)
