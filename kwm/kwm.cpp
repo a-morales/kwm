@@ -67,7 +67,11 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
                 // Hotkeys bound using `kwmc bind keys command`
-                KwmExecuteHotkey(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode);
+                if(KwmExecuteHotkey(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
+                {
+                    pthread_mutex_unlock(&BackgroundLock);
+                    return NULL;
+                }
 
                 // Code for live-coded hotkey system; hotkeys.cpp
                 std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());

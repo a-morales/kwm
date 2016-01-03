@@ -8,6 +8,9 @@ bool KwmExecuteHotkey(bool CmdKey, bool CtrlKey, bool AltKey, bool ShiftKey, CGK
     hotkey Hotkey = {};
     if(HotkeyExists(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode, &Hotkey))
     {
+        if(Hotkey.Command.empty())
+            return true;
+
         if(Hotkey.IsSystemCommand)
             system(Hotkey.Command.c_str());
         else
