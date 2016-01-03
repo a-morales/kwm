@@ -32,6 +32,13 @@
         Prevent focus-follows-mouse if context-menus|menubar is visible
             kwmc config menu-fix enable|disable
 
+        Create hotkeys on the fly (use `sys` prefix for non kwmc command)
+            kwmc unbind mod+mod+mod-key
+            kwmc bind mod+mod+mod-key command
+                e.g: kwmc bind cmd+alt-l window -f next
+                e.g: kwmc unbind cmd+alt-l
+
+
     Quit Kwm
         kwmc quit
 

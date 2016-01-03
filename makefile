@@ -1,6 +1,6 @@
 DEBUG_BUILD=-DDEBUG_BUILD
 FRAMEWORKS=-framework ApplicationServices -framework Carbon -framework Cocoa
-KWM_SRCS=kwm/kwm.cpp kwm/tree.cpp kwm/window.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp
+KWM_SRCS=kwm/kwm.cpp kwm/tree.cpp kwm/window.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp
 HOTKEYS_SRCS=kwm/hotkeys.cpp
 KWMC_SRCS=kwmc/kwmc.cpp
 KWM_PLIST=kwm.plist

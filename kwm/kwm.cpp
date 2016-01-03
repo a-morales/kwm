@@ -9,6 +9,7 @@ kwm_code KWMCode;
 std::string ENV_HOME;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
+std::vector<hotkey> KwmHotkeys;
 bool KwmEnableTilingMode;
 bool KwmUseBuiltinHotkeys;
 bool KwmEnableDragAndDrop;
@@ -65,6 +66,10 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
                 CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
+                // Hotkeys bound using `kwmc bind keys command`
+                KwmExecuteHotkey(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode);
+
+                // Code for live-coded hotkey system; hotkeys.cpp
                 std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
                 if(NewHotkeySOFileTime != "file not found" &&
                    NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
@@ -165,31 +170,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
     pthread_mutex_unlock(&BackgroundLock);
     return Event;
-}
-
-void KwmEmitKeystrokes(std::string Text)
-{
-    CFStringRef TextRef = CFStringCreateWithCString(NULL, Text.c_str(), kCFStringEncodingMacRoman);
-    CGEventRef EventKeyDown = CGEventCreateKeyboardEvent(NULL, 0, true);
-    CGEventRef EventKeyUp = CGEventCreateKeyboardEvent(NULL, 0, false);
-
-    UniChar OutputBuffer;
-    for (int CharIndex = 0; CharIndex < Text.size(); ++CharIndex)
-    {
-        CFStringGetCharacters(TextRef, CFRangeMake(CharIndex, 1), &OutputBuffer);
-
-        CGEventSetFlags(EventKeyDown, 0);
-        CGEventKeyboardSetUnicodeString(EventKeyDown, 1, &OutputBuffer);
-        CGEventPostToPSN(&FocusedPSN, EventKeyDown);
-
-        CGEventSetFlags(EventKeyUp, 0);
-        CGEventKeyboardSetUnicodeString(EventKeyUp, 1, &OutputBuffer);
-        CGEventPostToPSN(&FocusedPSN, EventKeyUp);
-    }
-
-    CFRelease(EventKeyUp);
-    CFRelease(EventKeyDown);
-    CFRelease(TextRef);
 }
 
 kwm_code LoadKwmCode()

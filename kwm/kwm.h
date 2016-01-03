@@ -26,6 +26,7 @@
 #include <netinet/in.h>
 
 struct kwm_code;
+struct hotkey;
 
 struct window_info;
 struct window_role;
@@ -83,6 +84,19 @@ struct kwm_code
     kwm_key_remap *RemapKeys;
 
     bool IsValid;
+};
+
+struct hotkey
+{
+    bool IsSystemCommand;
+
+    bool CmdKey;
+    bool AltKey;
+    bool CtrlKey;
+    bool ShiftKey;
+    CGKeyCode Key;
+
+    std::string Command;
 };
 
 struct node_container
@@ -268,6 +282,16 @@ void KwmWriteToSocket(int, std::string);
 void KwmInterpretCommand(std::string, int);
 std::vector<std::string> SplitString(std::string, char);
 bool IsPrefixOfString(std::string &, std::string);
+std::string CreateStringFromTokens(std::vector<std::string>, int);
+
+CFStringRef KeycodeToString(CGKeyCode);
+bool KeycodeForChar(char, CGKeyCode *);
+bool GetLayoutIndependentKeycode(std::string, CGKeyCode *);
+bool KwmParseHotkey(std::string, std::string, hotkey *);
+bool KwmExecuteHotkey(bool, bool, bool, bool, CGKeyCode);
+bool HotkeyExists(bool, bool, bool, bool, CGKeyCode, hotkey *);
+void KwmAddHotkey(std::string, std::string);
+void KwmRemoveHotkey(std::string);
 
 void KwmInit();
 void KwmQuit();

@@ -32,8 +32,9 @@ use autoraise as it is meant to be used alongside the tiling functionality, and 
 a window is specifically made floating.  
 
 *System-Wide Hotkeys:*  
-Kwm provides an instantaneous live-coding hotkey system for interacting with *Kwm*, and this can be customized  
-by editing hotkeys.cpp. The user may use an external program for running a specific command on keypress instead.  
+Kwm allows the user to bind and unbind hotkeys to commands through the *Kwmc* tool, using a bind and unbind option.  
+For more advanced use, there is also an instantaneous live-coding hotkey system and this can be customized by editing  
+hotkeys.cpp. The user may use an external program for running a specific command on keypress instead.  
 Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.  
 
 *Multiple monitor support (in progress):*  

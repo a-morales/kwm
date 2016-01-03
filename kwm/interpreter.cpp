@@ -11,6 +11,21 @@ extern bool KwmUseBuiltinHotkeys;
 extern bool KwmEnableDragAndDrop;
 extern bool KwmUseContextMenuFix;
 
+std::string CreateStringFromTokens(std::vector<std::string> Tokens, int StartIndex)
+{
+    std::string Text = "";
+    int TokenIndex = StartIndex;
+
+    for(; TokenIndex < Tokens.size(); ++TokenIndex)
+    {
+        Text += Tokens[TokenIndex];
+        if(TokenIndex < Tokens.size() - 1)
+            Text += " ";
+    }
+
+    return Text;
+}
+
 std::vector<std::string> SplitString(std::string Line, char Delim)
 {
     std::vector<std::string> Elements;
@@ -97,14 +112,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         }
         else if(Tokens[1] == "float")
         {
-            std::string AppName;
-            for(int TokenIndex = 2; TokenIndex < Tokens.size(); ++TokenIndex)
-            {
-                AppName += Tokens[TokenIndex];
-                if(TokenIndex < Tokens.size() - 1)
-                    AppName += " ";
-            }
-            FloatingAppLst.push_back(AppName);
+            FloatingAppLst.push_back(CreateStringFromTokens(Tokens, 2));
         }
         else if(Tokens[1] == "padding")
         {
@@ -280,14 +288,14 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     }
     else if(Tokens[0] == "write")
     {
-        std::string Text = "";
-        for(int TokenIndex = 1; TokenIndex < Tokens.size(); ++TokenIndex)
-        {
-            Text += Tokens[TokenIndex];
-            if(TokenIndex < Tokens.size() - 1)
-              Text += " ";
-        }
-
-        KwmEmitKeystrokes(Text);
+        KwmEmitKeystrokes(CreateStringFromTokens(Tokens, 1));
+    }
+    else if(Tokens[0] == "bind")
+    {
+        KwmAddHotkey(Tokens[1], CreateStringFromTokens(Tokens, 2));
+    }
+    else if(Tokens[0] == "unbind")
+    {
+        KwmRemoveHotkey(Tokens[1]);
     }
 }
