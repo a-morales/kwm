@@ -292,7 +292,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     }
     else if(Tokens[0] == "bind")
     {
-        if(Tokens.size() >= 2)
+        if(Tokens.size() > 2)
             KwmAddHotkey(Tokens[1], CreateStringFromTokens(Tokens, 2));
         else
             KwmAddHotkey(Tokens[1], "");
