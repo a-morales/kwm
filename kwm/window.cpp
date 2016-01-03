@@ -29,8 +29,6 @@ std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
 
 bool GetTagForCurrentSpace(std::string &Tag)
 {
-    bool Result = false;
-
     if(Screen && Screen->ActiveSpace != 0)
     {
         space_info *Space = &Screen->Space[Screen->ActiveSpace];
@@ -46,11 +44,14 @@ bool GetTagForCurrentSpace(std::string &Tag)
         }
 
         tree_node *Node = Space->RootNode; 
+        bool FoundFocusedWindow = false;
+        int FocusedIndex = 0;
+        int NumberOfWindows = 0;
+
         if(Node)
         {
-            int FocusedIndex = 0;
-            int NumberOfWindows = 0;
-            bool FoundFocusedWindow = false;
+            FocusedIndex = 1;
+            NumberOfWindows = 1;
 
             if(Node->WindowID == FocusedWindow->WID)
                 FoundFocusedWindow = true;
@@ -64,22 +65,23 @@ bool GetTagForCurrentSpace(std::string &Tag)
                     ++FocusedIndex;
 
                 ++NumberOfWindows;
+
                 Node = Node->RightChild;
             }
 
             if(Node->WindowID == FocusedWindow->WID)
                 FoundFocusedWindow = true;
-
-            if(FoundFocusedWindow)
-                Tag = "[" + std::to_string(FocusedIndex) + "/" + std::to_string(NumberOfWindows) + "]";
-            else
-                Tag = "[ " + std::to_string(NumberOfWindows) + " ]";
-
-            Result = true;
         }
+
+        if(FoundFocusedWindow)
+            Tag = "[" + std::to_string(FocusedIndex) + "/" + std::to_string(NumberOfWindows) + "]";
+        else
+            Tag = "[" + std::to_string(NumberOfWindows) + "]";
+
+        return true;
     }
-    
-    return Result;
+
+    return false;
 }
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
