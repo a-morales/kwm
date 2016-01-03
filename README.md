@@ -134,10 +134,6 @@ using the kwmc command `window -f prev|next`
         - q: Quit Kwm
 
         - m: mark the container to use for next window split
-
-        - o: use width/height ratio to determine optimal split (default)
-        - 7: use vertical split-mode
-        - -: use horizontal split-mode
         - s: toggle split-type of existing container
 
         - h: move vertical-splitter left (increase width of right-pane containers)
@@ -167,7 +163,9 @@ using the kwmc command `window -f prev|next`
         - darrow: increase screen padding-bottom 
 
     - alt+cmd
-        - t: toggle tiling mode of current space (float|tile)
+        - s: set mode of current space to bsp
+        - f: set mode of current space to monocle
+        - d: set mode of current space to float
         - r: rotate window-tree by 180 degrees
 
         - h: focus previous window

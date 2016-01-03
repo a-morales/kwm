@@ -47,3 +47,54 @@ kwmc config space bsp
 # looks like: kwmc config float Google Chrome
 kwmc config float Steam
 kwmc config float Photoshop
+
+#### Default Keybindings For Interacting With Kwm
+kwmc bind cmd+alt+ctrl-t config focus toggle
+kwmc bind cmd+alt+ctrl-r window -c refresh
+kwmc bind cmd+alt+ctrl-q quit
+
+kwmc bind cmd+alt+ctrl-m window -t mark
+kwmc bind cmd+alt+ctrl-s window -c split
+
+kwmc bind cmd+alt+ctrl-h window -m left
+kwmc bind cmd+alt+ctrl-l window -m right
+kwmc bind cmd+alt+ctrl-j window -m down
+kwmc bind cmd+alt+ctrl-k window -m up
+
+kwmc bind cmd+alt+ctrl-f window -t fullscreen
+kwmc bind cmd+alt+ctrl-p window -t parent
+kwmc bind cmd+alt+ctrl-w window -t float
+kwmc bind cmd+alt+ctrl-return sys open -na /Applications/iTerm.app
+
+kwmc bind ctrl+alt-p screen -m prev
+kwmc bind ctrl+alt-n screen -m next
+
+kwmc bind ctrl+alt-1 screen -m 0
+kwmc bind ctrl+alt-2 screen -m 1
+kwmc bind ctrl+alt-3 screen -m 2
+
+kwmc bind ctrl+alt-x space -g increase horizontal
+kwmc bind ctrl+alt-y space -g increase vertical
+
+kwmc bind ctrl+alt-leftarrow space -p increase left
+kwmc bind ctrl+alt-rightarrow space -p increase right
+kwmc bind ctrl+alt-uparrow space -p increase top
+kwmc bind ctrl+alt-downarrow space -p increase bottom
+
+kwmc bind cmd+alt-s space -t bsp
+kwmc bind cmd+alt-f space -t monocle
+kwmc bind cmd+alt-d space -t float
+kwmc bind cmd+alt-r space -r 90
+
+kwmc bind cmd+alt-h window -f prev
+kwmc bind cmd+alt-l window -f next
+kwmc bind cmd+alt-p window -s prev
+kwmc bind cmd+alt-n window -s next
+
+kwmc bind cmd+alt-x space -g decrease horizontal
+kwmc bind cmd+alt-y space -g decrease vertical
+
+kwmc bind cmd+alt-leftarrow space -p decrease left
+kwmc bind cmd+alt-rightarrow space -p decrease right
+kwmc bind cmd+alt-uparrow space -p decrease top
+kwmc bind cmd+alt-downarrow space -p decreas bottom
