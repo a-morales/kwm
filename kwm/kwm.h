@@ -68,7 +68,7 @@ enum focus_option
 enum space_tiling_option
 {
     SpaceModeBSP,
-    SpaceModeStacking,
+    SpaceModeMonocle,
     SpaceModeFloating
 };
 
@@ -160,7 +160,7 @@ void ToggleNodeSplitMode(screen_info *, tree_node *);
 
 tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<window_info*> *);
 bool CreateBSPTree(tree_node *, screen_info *, std::vector<window_info*> *);
-bool CreateStackingTree(tree_node *, screen_info *, std::vector<window_info*> *);
+bool CreateMonocleTree(tree_node *, screen_info *, std::vector<window_info*> *);
 void RotateTree(tree_node *, int);
 void DestroyNodeTree(tree_node *, space_tiling_option);
 tree_node *CreateRootNode();
@@ -200,9 +200,9 @@ void AddWindowToBSPTree();
 void RemoveWindowFromBSPTree(screen_info *, int, bool);
 void RemoveWindowFromBSPTree();
 
-void ShouldStackingTreeUpdate(screen_info *, space_info *);
-void AddWindowToStackingTree(screen_info *, int);
-void RemoveWindowFromStackingTree(screen_info *, int, bool);
+void ShouldMonocleTreeUpdate(screen_info *, space_info *);
+void AddWindowToMonocleTree(screen_info *, int);
+void RemoveWindowFromMonocleTree(screen_info *, int, bool);
 
 bool IsWindowBelowCursor(window_info *);
 bool IsSpaceFloating(int);

@@ -471,7 +471,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
                 SetRootNodeContainer(Screen, Space->RootNode);
                 CreateNodeContainers(Screen, Space->RootNode, true);
             }
-            else if(Space->Mode == SpaceModeStacking)
+            else if(Space->Mode == SpaceModeMonocle)
             {
                 tree_node *CurrentNode = Space->RootNode;
                 while(CurrentNode)
@@ -498,8 +498,8 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
     if(Space->Mode == SpaceModeBSP)
         ShouldBSPTreeUpdate(Screen, Space);
-    else if(Space->Mode == SpaceModeStacking)
-        ShouldStackingTreeUpdate(Screen, Space);
+    else if(Space->Mode == SpaceModeMonocle)
+        ShouldMonocleTreeUpdate(Screen, Space);
 }
 
 void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
@@ -681,11 +681,11 @@ void RemoveWindowFromBSPTree()
     RemoveWindowFromBSPTree(Screen, FocusedWindow->WID, true);
 }
 
-void ShouldStackingTreeUpdate(screen_info *Screen, space_info *Space)
+void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
 {
     if(WindowLst.size() > Screen->OldWindowListCount)
     {
-        DEBUG("ShouldStackingTreeUpdate() Add Window")
+        DEBUG("ShouldMonocleTreeUpdate() Add Window")
         for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
         {
             if(GetNodeFromWindowID(Space->RootNode, WindowLst[WindowIndex].WID, Space->Mode) == NULL)
@@ -703,7 +703,7 @@ void ShouldStackingTreeUpdate(screen_info *Screen, space_info *Space)
                     CurrentNode->RightChild = NewNode;
                     NewNode->LeftChild = CurrentNode;
 
-                    ApplyNodeContainer(NewNode, SpaceModeStacking);
+                    ApplyNodeContainer(NewNode, SpaceModeMonocle);
                     SetWindowFocus(&WindowLst[WindowIndex]);
                 }
             }
@@ -711,14 +711,14 @@ void ShouldStackingTreeUpdate(screen_info *Screen, space_info *Space)
     }
     else if(WindowLst.size() < Screen->OldWindowListCount)
     {
-        DEBUG("ShouldStackingTreeUpdate() Remove Window")
+        DEBUG("ShouldMonocleTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
 
         tree_node *CurrentNode = Space->RootNode;
         while(CurrentNode)
         {
             WindowIDsInTree.push_back(CurrentNode->WindowID);
-            CurrentNode = GetNearestNodeToTheRight(CurrentNode, SpaceModeStacking);
+            CurrentNode = GetNearestNodeToTheRight(CurrentNode, SpaceModeMonocle);
         }
 
         if(WindowIDsInTree.size() >= 2)
@@ -737,7 +737,7 @@ void ShouldStackingTreeUpdate(screen_info *Screen, space_info *Space)
 
                 if(!Found)
                 {
-                    tree_node *WindowNode = GetNodeFromWindowID(Space->RootNode, WindowIDsInTree[IDIndex], SpaceModeStacking);
+                    tree_node *WindowNode = GetNodeFromWindowID(Space->RootNode, WindowIDsInTree[IDIndex], SpaceModeMonocle);
                     if(!WindowNode)
                         return;
 
@@ -760,7 +760,7 @@ void ShouldStackingTreeUpdate(screen_info *Screen, space_info *Space)
         }
         else
         {
-            tree_node *WindowNode = GetNodeFromWindowID(Space->RootNode, WindowIDsInTree[0], SpaceModeStacking);
+            tree_node *WindowNode = GetNodeFromWindowID(Space->RootNode, WindowIDsInTree[0], SpaceModeMonocle);
             if(!WindowNode)
                 return;
 

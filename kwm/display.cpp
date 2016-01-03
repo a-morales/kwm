@@ -251,7 +251,7 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
             SetRootNodeContainer(Screen, Space->RootNode);
             CreateNodeContainers(Screen, Space->RootNode, true);
         }
-        else if(Space->Mode == SpaceModeStacking)
+        else if(Space->Mode == SpaceModeMonocle)
         {
             tree_node *CurrentNode = Space->RootNode;
             while(CurrentNode)

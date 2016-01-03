@@ -168,8 +168,8 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
 
     if(Space->Mode == SpaceModeBSP)
         Result = CreateBSPTree(RootNode, Screen, WindowsPtr);
-    else if(Space->Mode == SpaceModeStacking)
-        Result = CreateStackingTree(RootNode, Screen, WindowsPtr);
+    else if(Space->Mode == SpaceModeMonocle)
+        Result = CreateMonocleTree(RootNode, Screen, WindowsPtr);
 
     if(!Result)
     {
@@ -232,7 +232,7 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
     return Result;
 }
 
-bool CreateStackingTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
+bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
@@ -340,7 +340,7 @@ tree_node *GetNearestNodeToTheLeft(tree_node *Node, space_tiling_option Mode)
                 return Root->RightChild;
             }
         }
-        else if(Mode == SpaceModeStacking)
+        else if(Mode == SpaceModeMonocle)
         {
             return Node->LeftChild;
         }
@@ -371,7 +371,7 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node, space_tiling_option Mode)
                 return Root->LeftChild;
             }
         }
-        else if(Mode == SpaceModeStacking)
+        else if(Mode == SpaceModeMonocle)
         {
             return Node->RightChild;
         }

@@ -51,8 +51,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         {
             if(Tokens[2] == "bsp")
                 KwmSpaceMode = SpaceModeBSP;
-            else if(Tokens[2] == "stack")
-                KwmSpaceMode = SpaceModeStacking;
+            else if(Tokens[2] == "monocle")
+                KwmSpaceMode = SpaceModeMonocle;
             else if(Tokens[2] == "float")
                 KwmSpaceMode = SpaceModeFloating;
         }
@@ -218,8 +218,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 FloatFocusedSpace();
             else if(Tokens[2] == "bsp")
                 TileFocusedSpace(SpaceModeBSP);
-            else if(Tokens[2] == "stack")
-                TileFocusedSpace(SpaceModeStacking);
+            else if(Tokens[2] == "monocle")
+                TileFocusedSpace(SpaceModeMonocle);
         }
         else if(Tokens[1] == "-r")
         {
