@@ -1088,7 +1088,7 @@ void CenterWindow(screen_info *Screen)
     }
 }
 
-void MoveContainerSplitter(int SplitMode, int Offset)
+void MoveContainerSplitter(double Offset)
 {
     if(Screen && DoesSpaceExistInMapOfScreen(Screen))
     {
@@ -1097,35 +1097,17 @@ void MoveContainerSplitter(int SplitMode, int Offset)
         if(IsLeafNode(Root) || Root->WindowID != -1)
             return;
 
-        tree_node *LeftChild = Root->LeftChild;
-        tree_node *RightChild = Root->RightChild;
-
-        if(LeftChild->Container.Type == 1 && SplitMode == 1)
+        tree_node *Node = GetNodeFromWindowID(Root, FocusedWindow->WID, Space->Mode);
+        if(Node && Node->Parent)
         {
-            DEBUG("MoveContainerSplitter() Vertical")
-
-            LeftChild->Container.Width += Offset;
-            RightChild->Container.X += Offset;
-            RightChild->Container.Width -= Offset;
+            if(Node->Parent->SplitRatio + Offset > 0.0 &&
+               Node->Parent->SplitRatio + Offset < 1.0)
+            {
+                Node->Parent->SplitRatio += Offset;
+                ResizeNodeContainer(Screen, Node->Parent);
+                ApplyNodeContainer(Node->Parent, Space->Mode);
+            }
         }
-        else if(LeftChild->Container.Type == 3 && SplitMode == 2)
-        {
-            DEBUG("MoveContainerSplitter() Horizontal")
-
-            LeftChild->Container.Height += Offset;
-            RightChild->Container.Y += Offset;
-            RightChild->Container.Height -= Offset;
-        }
-        else
-        {
-            DEBUG("MoveContainerSplitter() Invalid")
-            return;
-        }
-
-        ResizeNodeContainer(Screen, LeftChild);
-        ResizeNodeContainer(Screen, RightChild);
-
-        ApplyNodeContainer(Root, Space->Mode);
     }
 }
 
