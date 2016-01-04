@@ -1,7 +1,8 @@
 ## Description (TL;DR)
 
 [*Kwm*](https://koekeishiya.github.io/kwm) started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
-It is now a tiling window manager that represents windows as the leaves of a binary tree.
+It is now a tiling window manager that represents windows as the leaves of a binary tree.  
+*Kwm* supports binary space partitioned, monocle and floating spaces.  
 
 *Kwm* runs a local daemon to read messages and trigger functions.  
 *Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define  
@@ -14,7 +15,7 @@ remapping keys, and most importantly global hotkeys.
 *Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.  
 Tested on Osx El Capitan (10.11.1 / 10.11.2).
 
-![img](https://cloud.githubusercontent.com/assets/6175959/12076311/a1c30c86-b1a6-11e5-805b-f81bfd6ce6aa.png)  
+![img](https://cloud.githubusercontent.com/assets/6175959/12092967/8d8853d8-b300-11e5-8a44-ec1245efdc74.png)
 For more screenshots, [click here](https://github.com/koekeishiya/kwm/issues/2)  
 
 ## Extended Information:
@@ -56,7 +57,7 @@ To compile and run *Kwm*, simply run
       make
       ./bin/kwm
 
-By default, debug prints are enabled, and these can be turned off by runnning
+By default, debug prints are enabled, and these can be turned off by running
 
       make install
 
@@ -130,16 +131,16 @@ using the kwmc command `window -f prev|next`
 ## Default Hotkeys:
     - ctrl+alt+cmd:
         - t: toggle focus-mode (autofocus -> autoraise -> disabled)
-        - r: manually resize window to its containersize
-        - q: Quit Kwm
+        - r: manually resize window to its container
+        - q: quit kwm
 
-        - m: mark the container to use for next window split
+        - m: mark the focused container (new split will now happen here)
         - s: toggle split-type of existing container
 
-        - h: move vertical-splitter left (increase width of right-pane containers)
-        - l: move vertical-splitter right (increase width of left-pane containers)
-        - j: move horizontal-splitter down (increase height of upper-pane containers)
-        - k: move horizontal-splitter up (increase height of lower-pane containers)
+        - h: decrease split-ratio of focused container
+        - l: increase split-ratio of focused container
+        - j: increase split-ratio of focused container
+        - k: decrease split-ratio of focused container
 
         - f: toggle window fullscreen
         - p: toggle window parent container
@@ -166,7 +167,7 @@ using the kwmc command `window -f prev|next`
         - s: set mode of current space to bsp
         - f: set mode of current space to monocle
         - d: set mode of current space to float
-        - r: rotate window-tree by 180 degrees
+        - r: rotate window-tree by 90 degrees
 
         - h: focus previous window
         - l: focus next window
