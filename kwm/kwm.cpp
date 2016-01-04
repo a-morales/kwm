@@ -110,6 +110,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         case kCGEventLeftMouseDown:
         {
             DEBUG("Left mouse button was pressed")
+            FocusWindowBelowCursor();
             if(KwmEnableDragAndDrop && IsCursorInsideFocusedWindow())
                IsWindowDragInProgress = true;
         } break;

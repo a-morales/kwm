@@ -660,9 +660,22 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
             ApplyNodeContainer(Parent, Space->Mode);
 
             if(Center)
+            {
                 CenterWindow(Screen);
+            }
             else
-                FocusWindowBelowCursor();
+            {
+                tree_node *NewNode = Space->RootNode;
+                while(NewNode->LeftChild)
+                    NewNode = NewNode->LeftChild;
+
+                if(NewNode)
+                {
+                    window_info *NewWindow = GetWindowByID(NewNode->WindowID);
+                    if(NewWindow)
+                        SetWindowFocus(NewWindow);
+                }
+            }
         }
     }
     else if(!Parent)
@@ -1039,7 +1052,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(WindowRef, kAXRaiseAction);
 
-    if(KwmFocusMode == FocusModeAutoraise)
+    if(KwmFocusMode != FocusModeAutofocus)
         SetFrontProcessWithOptions(&FocusedPSN, kSetFrontProcessFrontWindowOnly);
 
     DEBUG("SetWindowRefFocus() Focused Window: " << FocusedWindow->Name)
