@@ -117,7 +117,9 @@ struct tree_node
     tree_node *Parent;
     tree_node *LeftChild;
     tree_node *RightChild;
+
     int SplitMode;
+    double SplitRatio;
 };
 
 struct window_info
@@ -174,6 +176,7 @@ void CreateNodeContainers(screen_info *, tree_node *, bool);
 void ResizeNodeContainer(screen_info *, tree_node *);
 void ApplyNodeContainer(tree_node *, space_tiling_option);
 int GetOptimalSplitMode(tree_node *);
+void ChangeSplitRatio(double);
 void ToggleNodeSplitMode(screen_info *, tree_node *);
 
 tree_node *CreateTreeFromWindowIDList(screen_info *, std::vector<window_info*> *);

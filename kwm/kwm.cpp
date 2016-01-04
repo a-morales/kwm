@@ -35,6 +35,7 @@ focus_option KwmFocusMode;
 space_tiling_option KwmSpaceMode;
 int KwmSplitMode = -1;
 int MarkedWindowID = -1;
+double KwmSplitRatio = 0.5;
 bool IsWindowDragInProgress = false;
 
 pthread_t BackgroundThread;

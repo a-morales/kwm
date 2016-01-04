@@ -248,7 +248,14 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         }
         else if(Tokens[1] == "-m")
         {
-            if(Tokens[2] == "left")
+            if(Tokens[2] == "split-ratio")
+            {
+                double Value = 0.5;
+                std::stringstream Stream(Tokens[3]);
+                Stream >> Value;
+                ChangeSplitRatio(Value);
+            }
+            else if(Tokens[2] == "left")
                 MoveContainerSplitter(1, -10);
             else if(Tokens[2] == "right")
                 MoveContainerSplitter(1, 10);
