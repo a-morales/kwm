@@ -113,16 +113,6 @@ Example:
 
 ```
 
-*Kwm* mainly consists of three panes so to speak. The main pane being the entire screen.  
-After at least 1 window insertion has occurred, the screen will consist of either a left and right pane,  
-or an upper and lower pane.
-
-The width of the left/right pane can be changed, as well as the height of the upper/lower pane.  
-Currently these cannot occur simultaneously, and the type of panes created is decided by the main pane split-mode.
-
-If the main pane is split using vertical mode, a left and right pane is created.  
-If the main pane is split using horizontal mode, an upper and lower pane is created.  
-
 In addition to bsp, *Kwm* supports both monocle and floating spaces.  
 If a space is set to floating mode, nothing will be tiled for this space.  
 If a space is in monocle mode, every window will run fullscreen, and the user can switch between open windows  
