@@ -59,10 +59,10 @@ kwmc bind cmd+alt+ctrl-q quit
 kwmc bind cmd+alt+ctrl-m window -t mark
 kwmc bind cmd+alt+ctrl-s window -c split
 
-kwmc bind cmd+alt+ctrl-h window -m left
-kwmc bind cmd+alt+ctrl-l window -m right
-kwmc bind cmd+alt+ctrl-j window -m down
-kwmc bind cmd+alt+ctrl-k window -m up
+kwmc bind cmd+alt+ctrl-h space -m left
+kwmc bind cmd+alt+ctrl-l space -m right
+kwmc bind cmd+alt+ctrl-j space -m down
+kwmc bind cmd+alt+ctrl-k space -m up
 
 kwmc bind cmd+alt+ctrl-f window -t fullscreen
 kwmc bind cmd+alt+ctrl-p window -t parent
