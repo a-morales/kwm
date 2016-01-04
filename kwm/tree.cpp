@@ -9,7 +9,7 @@ node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 
     LeftContainer.X = Node->Container.X;
     LeftContainer.Y = Node->Container.Y;
-    LeftContainer.Width = (Node->Container.Width * KwmSplitRatio) - (Space->VerticalGap / 2);
+    LeftContainer.Width = (Node->Container.Width * Node->SplitRatio) - (Space->VerticalGap / 2);
     LeftContainer.Height = Node->Container.Height;
     
     return LeftContainer;
@@ -20,9 +20,9 @@ node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
     node_container RightContainer;
 
-    RightContainer.X = Node->Container.X + (Node->Container.Width * KwmSplitRatio) + (Space->VerticalGap / 2);
+    RightContainer.X = Node->Container.X + (Node->Container.Width * Node->SplitRatio) + (Space->VerticalGap / 2);
     RightContainer.Y = Node->Container.Y;
-    RightContainer.Width = (Node->Container.Width * (1 - KwmSplitRatio)) - (Space->VerticalGap / 2);
+    RightContainer.Width = (Node->Container.Width * (1 - Node->SplitRatio)) - (Space->VerticalGap / 2);
     RightContainer.Height = Node->Container.Height;
 
     return RightContainer;
@@ -36,7 +36,7 @@ node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
     UpperContainer.X = Node->Container.X;
     UpperContainer.Y = Node->Container.Y;
     UpperContainer.Width = Node->Container.Width;
-    UpperContainer.Height = (Node->Container.Height * KwmSplitRatio) - (Space->HorizontalGap / 2);
+    UpperContainer.Height = (Node->Container.Height * Node->SplitRatio) - (Space->HorizontalGap / 2);
 
     return UpperContainer;
 }
@@ -47,18 +47,19 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
     node_container LowerContainer;
 
     LowerContainer.X = Node->Container.X;
-    LowerContainer.Y = Node->Container.Y + (Node->Container.Height * KwmSplitRatio) + (Space->HorizontalGap / 2);
+    LowerContainer.Y = Node->Container.Y + (Node->Container.Height * Node->SplitRatio) + (Space->HorizontalGap / 2);
     LowerContainer.Width = Node->Container.Width;
-    LowerContainer.Height = (Node->Container.Height * (1 - KwmSplitRatio)) - (Space->HorizontalGap / 2);
+    LowerContainer.Height = (Node->Container.Height * (1 - Node->SplitRatio)) - (Space->HorizontalGap / 2);
 
     return LowerContainer;
 }
 
 void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType)
 {
-    Node->SplitRatio = KwmSplitRatio;
-    Node->SplitMode = 0;
+    if(Node->SplitRatio == 0)
+        Node->SplitRatio = KwmSplitRatio;
 
+    Node->SplitMode = 0;
     switch(ContainerType)
     {
         case 1:
@@ -141,6 +142,7 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID
 {
     Parent->WindowID = -1;
     Parent->SplitMode = SplitMode;
+    Parent->SplitRatio = KwmSplitRatio;
 
     if(SplitMode == 1)
     {
