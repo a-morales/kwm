@@ -72,7 +72,7 @@
     Rotate window-tree
         kwmc space -r 90|180|270
 
-    Move root-container splitter
+    Change split-ratio of the focused container
         kwmc space -m left|right|up|down
 
     Change space padding
