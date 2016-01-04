@@ -135,6 +135,13 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 SetDefaultGapOfDisplay(Tokens[2], Value);
             }
         }
+        if(Tokens[1] == "split-ratio")
+        {
+            double Value = 0.5;
+            std::stringstream Stream(Tokens[2]);
+            Stream >> Value;
+            ChangeSplitRatio(Value);
+        }
     }
     else if(Tokens[0] == "focused")
     {
@@ -248,13 +255,6 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         }
         else if(Tokens[1] == "-m")
         {
-            if(Tokens[2] == "split-ratio")
-            {
-                double Value = 0.5;
-                std::stringstream Stream(Tokens[3]);
-                Stream >> Value;
-                ChangeSplitRatio(Value);
-            }
             else if(Tokens[2] == "left")
                 MoveContainerSplitter(1, -10);
             else if(Tokens[2] == "right")

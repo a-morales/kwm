@@ -42,7 +42,7 @@ kwmc config tiling enable
 kwmc config space bsp
 
 # Set default split ratio
-kwmc space -m split-ratio 0.5
+kwmc config split-ratio 0.5
 
 # The following command blacklists a specific application
 # from Kwms tiling (PS: The app name is case-sensitive)

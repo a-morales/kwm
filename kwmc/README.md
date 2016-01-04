@@ -32,6 +32,11 @@
         Prevent focus-follows-mouse if context-menus|menubar is visible
             kwmc config menu-fix enable|disable
 
+        Set the split-ratio to use for containers (default splits equal: 0.5)
+        < 0.5 decrease and > 0.5 increases size of left-container
+            kwmc config split-ratio value
+
+
         Create hotkeys on the fly (use `sys` prefix for non kwmc command)
             kwmc unbind mod+mod+mod-key
             kwmc bind mod+mod+mod-key command
@@ -68,10 +73,6 @@
 
     Rotate window-tree
         kwmc space -r 90|180|270
-
-    Set the global split-ratio to use for new containers (default splits equal; 0.5)
-    Lower than 0.5 decreases size of left-container and higher than 0.5 increases size of left-container
-        kwmc space -m split-ratio value
 
     Move root-container splitter
         kwmc space -m left|right|up|down
