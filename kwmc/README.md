@@ -69,7 +69,11 @@
     Rotate window-tree
         kwmc space -r 90|180|270
 
-    Move container splitter
+    Set the global split-ratio to use for new containers (default splits equal; 0.5)
+    Lower than 0.5 decreases size of left-container and higher than 0.5 increases size of left-container
+        kwmc space -m split-ratio value
+
+    Move root-container splitter
         kwmc space -m left|right|up|down
 
     Change space padding
