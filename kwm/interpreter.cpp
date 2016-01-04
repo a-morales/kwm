@@ -255,7 +255,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         }
         else if(Tokens[1] == "-m")
         {
-            else if(Tokens[2] == "left")
+            if(Tokens[2] == "left")
                 MoveContainerSplitter(1, -10);
             else if(Tokens[2] == "right")
                 MoveContainerSplitter(1, 10);
