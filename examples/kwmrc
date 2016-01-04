@@ -97,4 +97,4 @@ kwmc bind cmd+alt-y space -g decrease vertical
 kwmc bind cmd+alt-leftarrow space -p decrease left
 kwmc bind cmd+alt-rightarrow space -p decrease right
 kwmc bind cmd+alt-uparrow space -p decrease top
-kwmc bind cmd+alt-downarrow space -p decreas bottom
+kwmc bind cmd+alt-downarrow space -p decrease bottom
