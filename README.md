@@ -118,6 +118,10 @@ If a space is set to floating mode, nothing will be tiled for this space.
 If a space is in monocle mode, every window will run fullscreen, and the user can switch between open windows  
 using the kwmc command `window -f prev|next`
 
+If a window is not detected by Kwm, it is most likely due to a 'window role' mismatch.  
+Use the command `kwmc config add-role application role` to fix this.  
+See https://github.com/koekeishiya/kwm/issues/40 for information.  
+
 ## Default Hotkeys:
     - ctrl+alt+cmd:
         - t: toggle focus-mode (autofocus -> autoraise -> disabled)
