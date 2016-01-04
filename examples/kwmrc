@@ -91,8 +91,10 @@ kwmc bind cmd+alt-r space -r 90
 
 kwmc bind cmd+alt-h window -f prev
 kwmc bind cmd+alt-l window -f next
+
 kwmc bind cmd+alt-p window -s prev
 kwmc bind cmd+alt-n window -s next
+kwmc bind cmd+alt-m window -s mark
 
 kwmc bind cmd+alt-x space -g decrease horizontal
 kwmc bind cmd+alt-y space -g decrease vertical
