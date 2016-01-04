@@ -32,7 +32,6 @@ void GetKwmcFilePath()
         std::size_t Split = Path.find_last_of("/\\");
         Path = Path.substr(0, Split);
         KwmcFilePath = Path + "/kwmc";
-        std::cout << "GetKwmcFilePath()" << std::endl;
     }
 }
 
@@ -62,7 +61,7 @@ extern "C" KWM_KEY_REMAP(RemapKeys)
 
     /*
 
-    if(*CmdKey && *AltKey && *CtrlKey)
+    if(Mod->CmdKey && Mod->AltKey && Mod->CtrlKey)
     {
     }
 
@@ -78,10 +77,10 @@ extern "C" KWM_KEY_REMAP(RemapKeys)
     If a modifier is not changed, the value already set for
     the event will be used.
 
-    *CmdKey = true;
-    *AltKey = true;
-    *CtrlKey = true;
-    *ShiftKey = true;
+    Mod->CmdKey = true;
+    Mod->AltKey = true;
+    Mod->CtrlKey = true;
+    Mod->ShiftKey = true;
 
     */
 }
@@ -91,7 +90,7 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
     bool Result = true;
     GetKwmcFilePath();
 
-    if(CmdKey && AltKey && CtrlKey)
+    if(Mod.CmdKey && Mod.AltKey && Mod.CtrlKey)
     {
         switch(Keycode)
         {
@@ -99,26 +98,6 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
             {
                 Result = false;
             } break;
-        }
-    }
-    else if(CmdKey && AltKey && !CtrlKey)
-    {
-        switch(Keycode)
-        {
-            default:
-            {
-                Result = false;
-            } break;
-        }
-    }
-    else if(!CmdKey && CtrlKey && AltKey)
-    {
-        switch(Keycode)
-        {
-            default:
-            {
-                Result = false;
-            };
         }
     }
     else
@@ -127,76 +106,6 @@ extern "C" KWM_HOTKEY_COMMANDS(KWMHotkeyCommands)
     }
 
     if(Result)
-    {
-        std::string SysArg = KwmcFilePath + " " + KwmcCommandToExecute;
-        system(SysArg.c_str());
-        KwmcCommandToExecute = "";
-    }
-
-    return Result;
-}
-
-extern "C" KWM_HOTKEY_COMMANDS(SystemHotkeyCommands)
-{
-    bool Result = true;
-    if (CmdKey && !CtrlKey && !AltKey)
-    {
-        switch(Keycode)
-        {
-            default:
-            {
-                Result = false;
-            } break;
-        }
-    }
-    else
-    {
-        Result = false;
-    }
-
-    return Result;
-}
-
-extern "C" KWM_HOTKEY_COMMANDS(CustomHotkeyCommands)
-{
-    bool Result = true;
-    GetKwmcFilePath();
-
-    if(CmdKey && AltKey && CtrlKey)
-    {
-        switch(Keycode)
-        {
-            /* This demonstrates how a hotkey may do different things
-             * depending on what the focused window is.
-            case kVK_ANSI_N:
-            {
-                std::string Focused = GetOutputAndExec(KwmcFilePath + " focused");
-                std::stringstream Stream(Focused);
-
-                std::string Owner;
-                std::getline(Stream, Owner, '-');
-                Owner.erase(Owner.end()-1);
-
-                if(Owner == "iTerm2")
-                    KwmcCommandToExecute = "write This is written inside iTerm";
-                else if(Owner == "Google Chrome")
-                    KwmcCommandToExecute = "write This is written inside Google Chrome";
-                else
-                    KwmcCommandToExecute = "write This was written in " + Owner + "!";
-            } break;
-            */
-            default:
-            {
-                Result = false;
-            } break;
-        }
-    }
-    else
-    {
-        Result = false;
-    }
-
-    if(Result && !KwmcCommandToExecute.empty())
     {
         std::string SysArg = KwmcFilePath + " " + KwmcCommandToExecute;
         system(SysArg.c_str());

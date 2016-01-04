@@ -3,10 +3,10 @@
 extern ProcessSerialNumber FocusedPSN;
 extern std::vector<hotkey> KwmHotkeys;
 
-bool KwmExecuteHotkey(bool CmdKey, bool CtrlKey, bool AltKey, bool ShiftKey, CGKeyCode Keycode)
+bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
 {
     hotkey Hotkey = {};
-    if(HotkeyExists(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode, &Hotkey))
+    if(HotkeyExists(Mod, Keycode, &Hotkey))
     {
         if(Hotkey.Command.empty())
             return true;
@@ -22,15 +22,15 @@ bool KwmExecuteHotkey(bool CmdKey, bool CtrlKey, bool AltKey, bool ShiftKey, CGK
     return false;
 }
 
-bool HotkeyExists(bool CmdKey, bool CtrlKey, bool AltKey, bool ShiftKey, CGKeyCode Keycode, hotkey *Hotkey)
+bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
 {
     for(int HotkeyIndex = 0; HotkeyIndex < KwmHotkeys.size(); ++HotkeyIndex)
     {
         hotkey *CurrentHotkey = &KwmHotkeys[HotkeyIndex];
-        if(CurrentHotkey->CmdKey == CmdKey &&
-           CurrentHotkey->CtrlKey == CtrlKey &&
-           CurrentHotkey->AltKey == AltKey &&
-           CurrentHotkey->ShiftKey == ShiftKey &&
+        if(CurrentHotkey->Mod.CmdKey == Mod.CmdKey &&
+           CurrentHotkey->Mod.CtrlKey == Mod.CtrlKey &&
+           CurrentHotkey->Mod.AltKey == Mod.AltKey &&
+           CurrentHotkey->Mod.ShiftKey == Mod.ShiftKey &&
            CurrentHotkey->Key == Keycode)
         {
             if(Hotkey)
@@ -53,13 +53,13 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
     for(int ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
     {
         if(Modifiers[ModIndex] == "cmd")
-            Hotkey->CmdKey = true;
+            Hotkey->Mod.CmdKey = true;
         else if(Modifiers[ModIndex] == "alt")
-            Hotkey->AltKey = true;
+            Hotkey->Mod.AltKey = true;
         else if(Modifiers[ModIndex] == "ctrl")
-            Hotkey->CtrlKey = true;
+            Hotkey->Mod.CtrlKey = true;
         else if(Modifiers[ModIndex] == "shift")
-            Hotkey->ShiftKey = true;
+            Hotkey->Mod.ShiftKey = true;
     }
 
     Hotkey->IsSystemCommand = IsPrefixOfString(Command, "sys");
@@ -78,7 +78,7 @@ void KwmAddHotkey(std::string KeySym, std::string Command)
 {
     hotkey Hotkey = {};
     if(KwmParseHotkey(KeySym, Command, &Hotkey) &&
-       !HotkeyExists(Hotkey.CmdKey, Hotkey.CtrlKey, Hotkey.AltKey, Hotkey.ShiftKey, Hotkey.Key, NULL))
+       !HotkeyExists(Hotkey.Mod, Hotkey.Key, NULL))
             KwmHotkeys.push_back(Hotkey);
 }
 
@@ -90,10 +90,10 @@ void KwmRemoveHotkey(std::string KeySym)
         for(int HotkeyIndex = 0; HotkeyIndex < KwmHotkeys.size(); ++HotkeyIndex)
         {
             hotkey *CurrentHotkey = &KwmHotkeys[HotkeyIndex];
-            if(CurrentHotkey->CmdKey == NewHotkey.CmdKey &&
-               CurrentHotkey->CtrlKey == NewHotkey.CtrlKey &&
-               CurrentHotkey->AltKey == NewHotkey.AltKey &&
-               CurrentHotkey->ShiftKey == NewHotkey.ShiftKey &&
+            if(CurrentHotkey->Mod.CmdKey == NewHotkey.Mod.CmdKey &&
+               CurrentHotkey->Mod.CtrlKey == NewHotkey.Mod.CtrlKey &&
+               CurrentHotkey->Mod.AltKey == NewHotkey.Mod.AltKey &&
+               CurrentHotkey->Mod.ShiftKey == NewHotkey.Mod.ShiftKey &&
                CurrentHotkey->Key == NewHotkey.Key)
             {
                 KwmHotkeys.erase(KwmHotkeys.begin() + HotkeyIndex);

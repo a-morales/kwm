@@ -58,74 +58,27 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             if(KwmUseBuiltinHotkeys)
             {
+                modifiers Mod = {};
                 CGEventFlags Flags = CGEventGetFlags(Event);
-                bool CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
-                bool AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
-                bool CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
-                bool ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
+                Mod.CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
+                Mod.AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
+                Mod.CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
+                Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
 
                 CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
                 // Hotkeys bound using `kwmc bind keys command`
-                if(KwmExecuteHotkey(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
+                if(KwmExecuteHotkey(Mod, Keycode))
                 {
                     pthread_mutex_unlock(&BackgroundLock);
                     return NULL;
                 }
 
                 // Code for live-coded hotkey system; hotkeys.cpp
-                std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
-                if(NewHotkeySOFileTime != "file not found" &&
-                   NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
+                if(KwmRunLiveCodeHotkeySystem(&Event, &Mod, Keycode))
                 {
-                    DEBUG("Reloading hotkeys.so")
-                    UnloadKwmCode(&KWMCode);
-                    KWMCode = LoadKwmCode();
-                }
-
-                if(KWMCode.IsValid)
-                {
-                    // Hotkeys specific to Kwms functionality
-                    if(KWMCode.KWMHotkeyCommands(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
-                    {
-                        pthread_mutex_unlock(&BackgroundLock);
-                        return NULL;
-                    }
-
-                    // Capture custom hotkeys specified by the user
-                    if(KWMCode.CustomHotkeyCommands(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
-                    {
-                        pthread_mutex_unlock(&BackgroundLock);
-                        return NULL;
-                    }
-
-                    // Let system hotkeys pass through as normal
-                    if(KWMCode.SystemHotkeyCommands(CmdKey, CtrlKey, AltKey, ShiftKey, Keycode))
-                    {
-                        pthread_mutex_unlock(&BackgroundLock);
-                        return Event;
-                    }
-
-                    int NewKeycode;
-                    KWMCode.RemapKeys(Event, &CmdKey, &CtrlKey, &AltKey, &ShiftKey, Keycode, &NewKeycode);
-                    if(NewKeycode != -1)
-                    {
-                        CGEventSetFlags(Event, 0);
-
-                        if(CmdKey)
-                            CGEventSetFlags(Event, kCGEventFlagMaskCommand);
-
-                        if(AltKey)
-                            CGEventSetFlags(Event, kCGEventFlagMaskAlternate);
-
-                        if(CtrlKey)
-                            CGEventSetFlags(Event, kCGEventFlagMaskControl);
-
-                        if(ShiftKey)
-                            CGEventSetFlags(Event, kCGEventFlagMaskShift);
-
-                        CGEventSetIntegerValueField(Event, kCGKeyboardEventKeycode, NewKeycode);
-                    }
+                    pthread_mutex_unlock(&BackgroundLock);
+                    return NULL;
                 }
             }
 
@@ -176,6 +129,49 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
     return Event;
 }
 
+bool KwmRunLiveCodeHotkeySystem(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
+{
+    std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
+    if(NewHotkeySOFileTime != "file not found" &&
+       NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
+    {
+        DEBUG("Reloading hotkeys.so")
+        UnloadKwmCode(&KWMCode);
+        KWMCode = LoadKwmCode();
+    }
+
+    if(KWMCode.IsValid)
+    {
+        // Capture custom hotkeys specified in hotkeys.cpp
+        if(KWMCode.KWMHotkeyCommands(*Mod, Keycode))
+            return true;
+
+        // Check if key should be remapped
+        int NewKeycode;
+        KWMCode.RemapKeys(Mod, Keycode, &NewKeycode);
+        if(NewKeycode != -1)
+        {
+            CGEventSetFlags(*Event, 0);
+
+            if(Mod->CmdKey)
+                CGEventSetFlags(*Event, kCGEventFlagMaskCommand);
+
+            if(Mod->AltKey)
+                CGEventSetFlags(*Event, kCGEventFlagMaskAlternate);
+
+            if(Mod->CtrlKey)
+                CGEventSetFlags(*Event, kCGEventFlagMaskControl);
+
+            if(Mod->ShiftKey)
+                CGEventSetFlags(*Event, kCGEventFlagMaskShift);
+
+            CGEventSetIntegerValueField(*Event, kCGKeyboardEventKeycode, NewKeycode);
+        }
+    }
+
+    return false;
+}
+
 kwm_code LoadKwmCode()
 {
     kwm_code Code = {};
@@ -185,8 +181,6 @@ kwm_code LoadKwmCode()
     if(Code.KwmHotkeySO)
     {
         Code.KWMHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "KWMHotkeyCommands");
-        Code.SystemHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "SystemHotkeyCommands");
-        Code.CustomHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "CustomHotkeyCommands");
         Code.RemapKeys = (kwm_key_remap*) dlsym(Code.KwmHotkeySO, "RemapKeys");
     }
     else
@@ -194,7 +188,7 @@ kwm_code LoadKwmCode()
         DEBUG("LoadKwmCode() Could not open '" << HotkeySOFullFilePath << "'")
     }
 
-    Code.IsValid = (Code.KWMHotkeyCommands && Code.SystemHotkeyCommands && Code.CustomHotkeyCommands && Code.RemapKeys);
+    Code.IsValid = (Code.KWMHotkeyCommands && Code.RemapKeys);
     return Code;
 }
 
@@ -205,8 +199,6 @@ void UnloadKwmCode(kwm_code *Code)
 
     Code->HotkeySOFileTime = "";
     Code->KWMHotkeyCommands = 0;
-    Code->SystemHotkeyCommands = 0;
-    Code->CustomHotkeyCommands = 0;
     Code->RemapKeys = 0;
     Code->IsValid = 0;
 }

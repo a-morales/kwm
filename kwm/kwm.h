@@ -27,6 +27,7 @@
 
 struct kwm_code;
 struct hotkey;
+struct modifiers;
 
 struct window_info;
 struct window_role;
@@ -41,10 +42,10 @@ struct tree_node;
     #define DEBUG(x) do {} while (0);
 #endif
 
-#define KWM_HOTKEY_COMMANDS(name) bool name(bool CmdKey, bool CtrlKey, bool AltKey, bool ShiftKey, CGKeyCode Keycode)
+#define KWM_HOTKEY_COMMANDS(name) bool name(modifiers Mod, CGKeyCode Keycode)
 typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
 
-#define KWM_KEY_REMAP(name) void name(CGEventRef Event, bool *CmdKey, bool *CtrlKey, bool *AltKey, bool *ShiftKey, CGKeyCode Keycode, int *Result)
+#define KWM_KEY_REMAP(name) void name(modifiers *Mod, CGKeyCode Keycode, int *Result)
 typedef KWM_KEY_REMAP(kwm_key_remap);
 
 #define CGSSpaceTypeUser 0
@@ -73,14 +74,20 @@ enum space_tiling_option
     SpaceModeFloating
 };
 
+struct modifiers
+{
+    bool CmdKey;
+    bool AltKey;
+    bool CtrlKey;
+    bool ShiftKey;
+};
+
 struct kwm_code
 {
     void *KwmHotkeySO;
     std::string HotkeySOFileTime;
 
     kwm_hotkey_commands *KWMHotkeyCommands;
-    kwm_hotkey_commands *SystemHotkeyCommands;
-    kwm_hotkey_commands *CustomHotkeyCommands;
     kwm_key_remap *RemapKeys;
 
     bool IsValid;
@@ -90,10 +97,7 @@ struct hotkey
 {
     bool IsSystemCommand;
 
-    bool CmdKey;
-    bool AltKey;
-    bool CtrlKey;
-    bool ShiftKey;
+    modifiers Mod;
     CGKeyCode Key;
 
     std::string Command;
@@ -284,12 +288,13 @@ std::vector<std::string> SplitString(std::string, char);
 bool IsPrefixOfString(std::string &, std::string);
 std::string CreateStringFromTokens(std::vector<std::string>, int);
 
+bool KwmRunLiveCodeHotkeySystem(CGEventRef *, modifiers *, CGKeyCode);
 CFStringRef KeycodeToString(CGKeyCode);
 bool KeycodeForChar(char, CGKeyCode *);
 bool GetLayoutIndependentKeycode(std::string, CGKeyCode *);
 bool KwmParseHotkey(std::string, std::string, hotkey *);
-bool KwmExecuteHotkey(bool, bool, bool, bool, CGKeyCode);
-bool HotkeyExists(bool, bool, bool, bool, CGKeyCode, hotkey *);
+bool KwmExecuteHotkey(modifiers, CGKeyCode);
+bool HotkeyExists(modifiers, CGKeyCode, hotkey *);
 void KwmAddHotkey(std::string, std::string);
 void KwmRemoveHotkey(std::string);
 
