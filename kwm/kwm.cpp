@@ -28,6 +28,7 @@ std::map<unsigned int, screen_info> DisplayMap;
 std::vector<window_info> WindowLst;
 std::vector<std::string> FloatingAppLst;
 std::vector<int> FloatingWindowLst;
+std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
 
 ProcessSerialNumber FocusedPSN;
 window_info *FocusedWindow;

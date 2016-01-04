@@ -8,6 +8,7 @@ extern int MarkedWindowID;
 extern std::vector<window_info> WindowLst;
 extern std::vector<std::string> FloatingAppLst;
 extern std::vector<int> FloatingWindowLst;
+extern std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
 
 extern ProcessSerialNumber FocusedPSN;
 extern window_info *FocusedWindow;
@@ -101,21 +102,30 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
     return Result;
 }
 
-bool IsWindowNotAStandardWindow(window_info *Window)
+void AllowRoleForApplication(std::string Application, std::string Role)
 {
-    bool Result = false;
+    std::map<std::string, std::vector<CFTypeRef> >::iterator It = AllowedWindowRoles.find(Application);
+    if(It == AllowedWindowRoles.end())
+        AllowedWindowRoles[Application] = std::vector<CFTypeRef>();
 
-    // A non standard window is a window that
-    // doesnot have a subrole equal to
-    // kAXStandardWindowSubrole
-    // This is usually windows that do not have
-    // a title-bar.
-    if(Window->Owner == "iTerm2")
+    CFStringRef RoleRef = CFStringCreateWithCString(NULL, Role.c_str(), kCFStringEncodingMacRoman);
+    AllowedWindowRoles[Application].push_back(RoleRef);
+}
+
+bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubRole)
+{
+    std::map<std::string, std::vector<CFTypeRef> >::iterator It = AllowedWindowRoles.find(Window->Owner);
+    if(It != AllowedWindowRoles.end())
     {
-        Result = true;
+        std::vector<CFTypeRef> &WindowRoles = It->second;
+        for(int RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
+        {
+            if(CFEqual(Role, WindowRoles[RoleIndex]) || CFEqual(SubRole, WindowRoles[RoleIndex]))
+                return true;
+        }
     }
 
-    return Result;
+    return false;
 }
 
 bool IsContextMenusAndSimilarVisible()
@@ -157,18 +167,9 @@ bool FilterWindowList(screen_info *Screen)
             CFTypeRef Role, SubRole;
             if(GetWindowRole(&WindowLst[WindowIndex], &Role, &SubRole))
             {
-                if(CFEqual(Role, kAXWindowRole))
-                {
-                    if(!IsWindowNotAStandardWindow(&WindowLst[WindowIndex]))
-                    {
-                        if(CFEqual(SubRole, kAXStandardWindowSubrole))
-                            FilteredWindowLst.push_back(WindowLst[WindowIndex]);
-                    }
-                    else
-                    {
+                if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
+                   IsAppSpecificWindowRole(&WindowLst[WindowIndex], Role, SubRole))
                         FilteredWindowLst.push_back(WindowLst[WindowIndex]);
-                    }
-                }
             }
         }
     }

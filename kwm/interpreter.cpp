@@ -114,6 +114,10 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         {
             FloatingAppLst.push_back(CreateStringFromTokens(Tokens, 2));
         }
+        else if(Tokens[1] == "add-role")
+        {
+            AllowRoleForApplication(Tokens[2], Tokens[3]);
+        }
         else if(Tokens[1] == "padding")
         {
             if(Tokens[2] == "left" || Tokens[2] == "right" ||

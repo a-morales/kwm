@@ -41,6 +41,14 @@
                 e.g: kwmc bind cmd+alt-l window -f next
                 e.g: kwmc unbind cmd+alt-l
 
+        Add custom role for which windows Kwm should tile.
+        To find the role of a window that Kwm doesn't tile, 
+        Use the OSX Accessibility Inspector utility.
+            kwmc config add-role application role
+
+                e.g The following allows Kwm to tile iTerm2 windows that do not have a titlebar
+                kwmc config add-role iTerm2 AXDialog 
+
 
     Quit Kwm
         kwmc quit
