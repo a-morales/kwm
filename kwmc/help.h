@@ -1,5 +1,5 @@
-#ifndef KWMC_H
-#define KWMC_H
+#ifndef KWMC_HELP
+#define KWMC_HELP
 
 #include <string>
 
