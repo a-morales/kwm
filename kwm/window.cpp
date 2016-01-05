@@ -766,7 +766,13 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
                     free(WindowNode);
                 }
             }
-            FocusWindowBelowCursor();
+
+            if(Space->RootNode)
+            {
+                window_info *NewWindow = GetWindowByID(Space->RootNode->WindowID);
+                if(NewWindow)
+                    SetWindowFocus(NewWindow);
+            }
         }
         else
         {
