@@ -192,6 +192,7 @@ tree_node *GetNearestNodeToTheLeft(tree_node *, space_tiling_option);
 tree_node *GetNearestNodeToTheRight(tree_node *, space_tiling_option);
 tree_node *GetNodeFromWindowID(tree_node *, int, space_tiling_option);
 tree_node *GetFirstLeafNode(tree_node *);
+tree_node *GetLastLeafNode(tree_node *);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *);
 bool IsLeafNode(tree_node *);
@@ -254,7 +255,7 @@ void ToggleFocusedWindowFullscreen();
 void ToggleFocusedWindowParentContainer();
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
 void CenterWindow(screen_info *);
-void MoveContainerSplitter(double);
+void ModifyContainerSplitRatio(double);
 void ResizeWindowToContainerSize(tree_node *);
 void ResizeWindowToContainerSize();
 

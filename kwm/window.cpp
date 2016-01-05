@@ -702,10 +702,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
             {
                 if(!IsApplicationFloating(&WindowLst[WindowIndex]))
                 {
-                    tree_node *CurrentNode = Space->RootNode;
-                    while(CurrentNode->RightChild)
-                        CurrentNode = CurrentNode->RightChild;
-
+                    tree_node *CurrentNode = GetLastLeafNode(Space->RootNode);
                     tree_node *NewNode = CreateRootNode();
                     SetRootNodeContainer(Screen, NewNode);
 
@@ -1102,7 +1099,7 @@ void CenterWindow(screen_info *Screen)
     }
 }
 
-void MoveContainerSplitter(double Offset)
+void ModifyContainerSplitRatio(double Offset)
 {
     if(Screen && DoesSpaceExistInMapOfScreen(Screen))
     {

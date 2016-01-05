@@ -174,6 +174,19 @@ tree_node *GetFirstLeafNode(tree_node *Node)
     return NULL;
 }
 
+tree_node *GetLastLeafNode(tree_node *Node)
+{
+    if(Node)
+    {
+        while(Node->RightChild)
+            Node = Node->RightChild;
+
+        return Node;
+    }
+
+    return NULL;
+}
+
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
     if(IsSpaceFloating(Screen->ActiveSpace))
