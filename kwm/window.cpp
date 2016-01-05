@@ -15,6 +15,7 @@ extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern space_tiling_option KwmSpaceMode;
 extern int KwmSplitMode;
+extern bool KwmUseMouseFollowsFocus;
 extern bool KwmEnableTilingMode;
 extern bool KwmUseContextMenuFix;
 
@@ -519,6 +520,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
                 {
                     AddWindowToBSPTree(Screen, WindowLst[WindowIndex].WID);
                     SetWindowFocus(&WindowLst[WindowIndex]);
+                    MoveCursorToCenterOfFocusedWindow();
                 }
             }
         }
@@ -667,7 +669,10 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
                 {
                     window_info *NewWindow = GetWindowByID(NewNode->WindowID);
                     if(NewWindow)
+                    {
                         SetWindowFocus(NewWindow);
+                        MoveCursorToCenterOfFocusedWindow();
+                    }
                 }
             }
         }
@@ -1008,9 +1013,17 @@ void ShiftWindowFocus(int Shift)
             {
                 DEBUG("ShiftWindowFocus() changing focus to " << NewWindow->Name)
                 SetWindowFocus(NewWindow);
+                MoveCursorToCenterOfFocusedWindow();
             }
         }
     }
+}
+
+void MoveCursorToCenterOfFocusedWindow()
+{
+    if(KwmUseMouseFollowsFocus)
+        CGWarpMouseCursorPosition(CGPointMake(FocusedWindow->X + FocusedWindow->Width / 2,
+                                              FocusedWindow->Y + FocusedWindow->Height / 2));
 }
 
 void MarkWindowContainer()

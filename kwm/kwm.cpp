@@ -10,6 +10,7 @@ std::string ENV_HOME;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
 std::vector<hotkey> KwmHotkeys;
+bool KwmUseMouseFollowsFocus;
 bool KwmEnableTilingMode;
 bool KwmUseBuiltinHotkeys;
 bool KwmEnableDragAndDrop;
@@ -376,6 +377,7 @@ void KwmInit()
     KwmUseContextMenuFix = true;
     KwmSpaceMode = SpaceModeBSP;
     KwmFocusMode = FocusModeAutoraise;
+    KwmUseMouseFollowsFocus = false;
 
     GetKwmFilePath();
     KwmExecuteConfig();

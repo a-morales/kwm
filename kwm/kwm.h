@@ -266,6 +266,7 @@ void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
 void SetWindowRefFocus(AXUIElementRef, window_info *);
 void SetWindowFocus(window_info *);
+void MoveCursorToCenterOfFocusedWindow();
 
 std::string GetWindowTitle(AXUIElementRef);
 CGPoint GetWindowPos(AXUIElementRef);

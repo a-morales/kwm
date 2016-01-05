@@ -6,6 +6,7 @@ extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern space_tiling_option KwmSpaceMode;
 extern int KwmSplitMode;
+extern bool KwmUseMouseFollowsFocus;
 extern bool KwmEnableTilingMode;
 extern bool KwmUseBuiltinHotkeys;
 extern bool KwmEnableDragAndDrop;
@@ -73,7 +74,14 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         }
         else if(Tokens[1] == "focus")
         {
-            if(Tokens[2] == "toggle")
+            if(Tokens[2] == "mouse-follows")
+            {
+                if(Tokens[3] == "disable")
+                    KwmUseMouseFollowsFocus = false;
+                else if(Tokens[3] == "enable")
+                    KwmUseMouseFollowsFocus = true;
+            }
+            else if(Tokens[2] == "toggle")
             {
                 if(KwmFocusMode == FocusModeDisabled)
                     KwmFocusMode = FocusModeAutofocus;
