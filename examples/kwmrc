@@ -48,7 +48,7 @@ kwmc config split-ratio 0.5
 # does not get tiled by Kwm by default.
 # This is because some applications do not have the
 # AXWindowRole and AXStandardWindowSubRole
-kwmc config add-role iTerm2 AXDialog
+kwmc config add-role AXDialog iTerm2
 
 # The following command blacklists a specific application
 # from Kwms tiling (PS: The app name is case-sensitive)
@@ -64,9 +64,8 @@ kwmc bind cmd+alt+ctrl-q quit
 
 kwmc bind cmd+alt+ctrl-m window -t mark
 kwmc bind cmd+alt+ctrl-s window -c split
-
-kwmc bind cmd+alt+ctrl-h space -m reduce 0.1
-kwmc bind cmd+alt+ctrl-l space -m expand 0.1
+kwmc bind cmd+alt+ctrl-h window -c reduce 0.1
+kwmc bind cmd+alt+ctrl-l window -c expand 0.1
 
 kwmc bind cmd+alt+ctrl-f window -t fullscreen
 kwmc bind cmd+alt+ctrl-p window -t parent
