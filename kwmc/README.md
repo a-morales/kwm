@@ -17,6 +17,9 @@
         Set focus-mode
             kwmc config focus toggle|autofocus|autoraise|disabled
 
+        Set state of mouse-follows-focus
+            kwmc config focus mouse-follows enable|disable
+
         Should Kwm perform tiling
             kwmc config tiling enable|disable
 

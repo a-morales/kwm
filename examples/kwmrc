@@ -32,6 +32,9 @@ kwmc config menu-fix enable
 # Set focus-follows-mouse-mode to autoraise
 kwmc config focus autoraise
 
+# Enable mouse-follows-focus
+kwmc config focus mouse-follows enable
+
 # Window can be made floating through drag&drop
 kwmc config dragndrop enable
 
