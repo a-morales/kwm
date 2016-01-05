@@ -133,8 +133,6 @@ See https://github.com/koekeishiya/kwm/issues/40 for information.
 
         - h: decrease split-ratio of focused container
         - l: increase split-ratio of focused container
-        - j: increase split-ratio of focused container
-        - k: decrease split-ratio of focused container
 
         - f: toggle window fullscreen
         - p: toggle window parent container

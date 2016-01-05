@@ -80,8 +80,8 @@
     Rotate window-tree
         kwmc space -r 90|180|270
 
-    Change split-ratio of the focused container
-        kwmc space -m left|right|up|down
+    Change split-ratio of the focused container (0 < amount < 1)
+        kwmc space -m reduce|expand amount
 
     Change space padding
         kwmc space -p increase|decrease left|right|top|bottom
