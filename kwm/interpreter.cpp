@@ -116,7 +116,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         }
         else if(Tokens[1] == "add-role")
         {
-            AllowRoleForApplication(Tokens[2], Tokens[3]);
+            AllowRoleForApplication(CreateStringFromTokens(Tokens, 3), Tokens[2]);
         }
         else if(Tokens[1] == "padding")
         {
@@ -178,9 +178,21 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 tree_node *Node = GetNodeFromWindowID(Space->RootNode, FocusedWindow->WID, Space->Mode);
                 ToggleNodeSplitMode(Screen, Node->Parent);
             }
-            else if(Tokens[2] == "refresh")
-                ResizeWindowToContainerSize();
+            else if(Tokens[2] == "reduce" || Tokens[2] == "expand")
+            {
+                double Ratio = 0.1;
+                std::stringstream Stream(Tokens[3]);
+                Stream >> Ratio;
 
+                if(Tokens[2] == "reduce")
+                    ModifyContainerSplitRatio(-Ratio);
+                else if(Tokens[2] == "expand")
+                    ModifyContainerSplitRatio(Ratio);
+            }
+            else if(Tokens[2] == "refresh")
+            {
+                ResizeWindowToContainerSize();
+            }
         }
         else if(Tokens[1] == "-f")
         {
@@ -256,17 +268,6 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                     ApplyNodeContainer(Space->RootNode, Space->Mode);
                 }
             }
-        }
-        else if(Tokens[1] == "-m")
-        {
-            double Ratio = 0.5;
-            std::stringstream Stream(Tokens[3]);
-            Stream >> Ratio;
-
-            if(Tokens[2] == "reduce")
-                MoveContainerSplitter(-Ratio);
-            else if(Tokens[2] == "expand")
-                MoveContainerSplitter(Ratio);
         }
         else if(Tokens[1] == "-p")
         {

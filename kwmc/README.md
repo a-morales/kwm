@@ -44,10 +44,10 @@
         Add custom role for which windows Kwm should tile.
         To find the role of a window that Kwm doesn't tile, 
         Use the OSX Accessibility Inspector utility.
-            kwmc config add-role application role
+            kwmc config add-role role application
 
                 e.g The following allows Kwm to tile iTerm2 windows that do not have a titlebar
-                kwmc config add-role iTerm2 AXDialog 
+                kwmc config add-role AXDialog iTerm2
 
 
     Quit Kwm
@@ -68,6 +68,9 @@
     Toggle between vertical and horizontal split for an existing container
         kwmc window -c split
 
+    Change split-ratio of the focused container (0 < amount < 1)
+        kwmc window -c reduce|expand amount
+
     Change window focus
         kwmc window -f prev|next|curr
 
@@ -79,9 +82,6 @@
 
     Rotate window-tree
         kwmc space -r 90|180|270
-
-    Change split-ratio of the focused container (0 < amount < 1)
-        kwmc space -m reduce|expand amount
 
     Change space padding
         kwmc space -p increase|decrease left|right|top|bottom
