@@ -141,7 +141,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         }
         if(Tokens[1] == "split-ratio")
         {
-            double Value = 0.5;
+            double Value = 0;
             std::stringstream Stream(Tokens[2]);
             Stream >> Value;
             ChangeSplitRatio(Value);
@@ -259,10 +259,14 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         }
         else if(Tokens[1] == "-m")
         {
-            if(Tokens[2] == "left" || Tokens[2] == "up")
-                MoveContainerSplitter(-0.1);
-            else if(Tokens[2] == "right" || Tokens[2] == "down")
-                MoveContainerSplitter(0.1);
+            double Ratio = 0.5;
+            std::stringstream Stream(Tokens[3]);
+            Stream >> Ratio;
+
+            if(Tokens[2] == "reduce")
+                MoveContainerSplitter(-Ratio);
+            else if(Tokens[2] == "expand")
+                MoveContainerSplitter(Ratio);
         }
         else if(Tokens[1] == "-p")
         {
