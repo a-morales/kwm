@@ -191,6 +191,7 @@ void CreateLeafNodePair(screen_info *, tree_node *, int, int, int);
 tree_node *GetNearestNodeToTheLeft(tree_node *, space_tiling_option);
 tree_node *GetNearestNodeToTheRight(tree_node *, space_tiling_option);
 tree_node *GetNodeFromWindowID(tree_node *, int, space_tiling_option);
+tree_node *GetFirstLeafNode(tree_node *);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *);
 bool IsLeafNode(tree_node *);

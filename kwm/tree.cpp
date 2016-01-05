@@ -161,6 +161,19 @@ bool IsLeafNode(tree_node *Node)
     return Node->LeftChild == NULL && Node->RightChild == NULL ? true : false;
 }
 
+tree_node *GetFirstLeafNode(tree_node *Node)
+{
+    if(Node)
+    {
+        while(Node->LeftChild)
+            Node = Node->LeftChild;
+
+        return Node;
+    }
+
+    return NULL;
+}
+
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
     if(IsSpaceFloating(Screen->ActiveSpace))
@@ -296,10 +309,7 @@ tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID, space_tiling_optio
 {
     if(Node)
     {
-        tree_node *CurrentNode = Node;
-        while(CurrentNode->LeftChild)
-            CurrentNode = CurrentNode->LeftChild;
-
+        tree_node *CurrentNode = GetFirstLeafNode(Node);;
         while(CurrentNode)
         {
             if(CurrentNode->WindowID == WindowID)

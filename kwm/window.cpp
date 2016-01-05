@@ -528,10 +528,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
         DEBUG("ShouldBSPTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
 
-        tree_node *CurrentNode = Space->RootNode;
-        while(CurrentNode->LeftChild)
-            CurrentNode = CurrentNode->LeftChild;
-
+        tree_node *CurrentNode = GetFirstLeafNode(Space->RootNode);
         while(CurrentNode)
         {
             WindowIDsInTree.push_back(CurrentNode->WindowID);
@@ -665,10 +662,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
             }
             else
             {
-                tree_node *NewNode = Space->RootNode;
-                while(NewNode->LeftChild)
-                    NewNode = NewNode->LeftChild;
-
+                tree_node *NewNode = GetFirstLeafNode(Space->RootNode);
                 if(NewNode)
                 {
                     window_info *NewWindow = GetWindowByID(NewNode->WindowID);
