@@ -10,6 +10,7 @@ std::string helpText()
       "\n"
       "Commands:\n"
       "  config                                                        Configuration options for Kwm\n"
+      "      config reload                                                 Reload config ($HOME/.kwmrc)"
       "      config launchd enable|disable                                 Let launchd manage Kwm (automatically start on login)\n"
       "      config padding top|bottom|left|right value                    Set default padding\n"
       "      config gap vertical|horizontal value                          Set default container gaps\n"

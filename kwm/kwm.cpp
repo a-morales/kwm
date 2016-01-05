@@ -247,6 +247,28 @@ bool IsPrefixOfString(std::string &Line, std::string Prefix)
     return Result;
 }
 
+void KwmReloadConfig()
+{
+    KwmClearSettings();
+    KwmExecuteConfig();
+}
+
+void KwmClearSettings()
+{
+    std::map<std::string, std::vector<CFTypeRef> >::iterator It;
+    for(It = AllowedWindowRoles.begin(); It != AllowedWindowRoles.end(); ++It)
+    {
+        std::vector<CFTypeRef> &WindowRoles = It->second;
+        for(int RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
+            CFRelease(WindowRoles[RoleIndex]);
+
+        WindowRoles.clear();
+    }
+
+    FloatingAppLst.clear();
+    KwmHotkeys.clear();
+}
+
 void KwmExecuteConfig()
 {
     char *HomeP = std::getenv("HOME");

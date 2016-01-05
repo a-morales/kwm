@@ -313,6 +313,8 @@ bool IsKwmAlreadyAddedToLaunchd();
 void AddKwmToLaunchd();
 void RemoveKwmFromLaunchd();
 void KwmEmitKeystrokes(std::string);
+void KwmReloadConfig();
+void KwmClearSettings();
 void KwmExecuteConfig();
 bool CheckArguments(int, char **);
 bool CheckPrivileges();
