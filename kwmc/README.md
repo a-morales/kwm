@@ -2,6 +2,9 @@
 
 ## Kwmc Info:
     Configure Kwm
+        Reload config ($HOME/.kwmrc)
+            kwmc config reload
+
         Let launchd manage Kwm (automatically start on login)
             kwmc config launchd enable|disable
 

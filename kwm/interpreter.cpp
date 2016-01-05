@@ -49,7 +49,11 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     }
     else if(Tokens[0] == "config")
     {
-        if(Tokens[1] == "launchd")
+        if(Tokens[1] == "reload")
+        {
+            KwmReloadConfig();
+        }
+       else  if(Tokens[1] == "launchd")
         {
             if(Tokens[2] == "disable")
                 RemoveKwmFromLaunchd();
