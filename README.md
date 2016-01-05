@@ -5,14 +5,14 @@ It is now a tiling window manager that represents windows as the leaves of a bin
 *Kwm* supports binary space partitioned, monocle and floating spaces.  
 
 *Kwm* runs a local daemon to read messages and trigger functions.  
-*Kwmc* can be used to write to *Kwm*'s socket, and the included hotkeys.cpp uses this program to define  
-a mapping between keys and these functions. For information, check the readme located within the *kwmc* folder.  
+*Kwmc* is used to write to *Kwm*'s socket, and must be used when interacting and configuring how *Kwm* works.  
+For a list of various commands that can be issued, check the readme located within the *kwmc* folder.  
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events prior  
 to their delivery to a foreground application. This allows for functionality such as focus-follows-mouse,  
 remapping keys, and most importantly global hotkeys.  
 
-*Kwm* requires access to osx accessibility.  Creating a certificate and codesigning the binary works as well.  
+*Kwm* requires access to osx accessibility.  
 Tested on Osx El Capitan (10.11.1 / 10.11.2).
 
 ![img](https://cloud.githubusercontent.com/assets/6175959/12092967/8d8853d8-b300-11e5-8a44-ec1245efdc74.png)
@@ -74,52 +74,55 @@ The default configuration file is `$HOME/.kwmrc` and is a script that contains *
 to be executed when *Kwm* starts. This file can be used to blacklist applications and specify  
 a variety of settings, as well as run any command not restricted to *Kwmc*.  
 
+*Kwm* can set all of these settings while it is running, and so live testing of options is possible  
+before writing them into the config file.
+
 A sample config can be found within the [examples](examples) directory.
 
 ## Usage:
 
-When *Kwm* starts, it will automatically tile the windows of the current space, using binary space partitioning.  
-This will also happen once for any other space the user might switch to.
+When *Kwm* starts, it will automatically tile the windows of the current space using the tiling mode set in the config file.  
+By default, it will use binary space partitioning. This will also happen once for any other space the user might switch to.
 
-When *Kwm* detects a new window, it inserts it into a window tree at the specified point using the split-mode specified.  
-When a window is closed, it will be removed from the window tree and the tree will be rebalanced.
+When *Kwm* detects a new window, it is inserted into a window tree using an insertion point, with the given split-mode.  
+When a window is closed, it will be removed from the window tree and the tree will be rebalanced.  
+By default, the insertion point is the focused container, but a temporary insertion point can be set.  
 
-By default, the insertion point is the focused window, but the user can mark a temporary insertion point to be
-used instead for the next insertion.
-
-There are 3 types of split-modes available, these are optimal (width/height ratio), vertical and horizontal.  
-The default split-mode is set to optimal (width/height ratio).
+There are 3 types of split-modes available:
+ - Optimal - uses width/height ratio (Default)
+ - Vertical
+ - Horizontal.  
 
 Example:
 
 ```
-            a                       a                       a
-           / \         -->         / \         -->         / \    
-          1   2                   1   b                   1   b
-                                     / \                     / \
-                                    2   3                   c   3
-                                                           / \
-                                                          2   4
+          a                       a                       a
+         / \         -->         / \         -->         / \    
+        1   2                   1   b                   1   b
+                                   / \                     / \
+                                  2   3                   c   3
+                                                         / \
+                                                        2   4
 
----------------------     ---------------------     --------------------- 
-|         |         |     |         |         |     |         |    |    |
-|         |         |     |         |    2    |     |         | 2  |  4 |
-|         |         |     |         |    *    |     |         |    |    |
-|    1    |    2    |     |    1    |---------|     |    1    |---------|
-|         |    *    |     |         |         |     |         |         |
-|         |         |     |         |    3    |     |         |    3    |
-|         |         |     |         |         |     |         |         |
----------------------     ---------------------     ---------------------
+---------------------   ---------------------   --------------------- 
+|         |         |   |         |         |   |         |    |    |
+|         |         |   |         |    2    |   |         | 2  |  4 |
+|         |         |   |         |    *    |   |         |    |    |
+|    1    |    2    |   |    1    |---------|   |    1    |---------|
+|         |    *    |   |         |         |   |         |         |
+|         |         |   |         |    3    |   |         |    3    |
+|         |         |   |         |         |   |         |         |
+---------------------   ---------------------   ---------------------
 
 ```
 
 In addition to bsp, *Kwm* supports both monocle and floating spaces.  
 If a space is set to floating mode, nothing will be tiled for this space.  
-If a space is in monocle mode, every window will run fullscreen, and the user can switch between open windows  
-using the kwmc command `window -f prev|next`
+If a space is in monocle mode, every window will run fullscreen, and the  
+user can switch between open windows using the kwmc command `window -f prev|next`.  
 
 If a window is not detected by Kwm, it is most likely due to a 'window role' mismatch.  
-Use the command `kwmc config add-role application role` to fix this.  
+Use the command `kwmc config add-role role application` to fix this.  
 See https://github.com/koekeishiya/kwm/issues/40 for information.  
 
 ## Default Hotkeys:
