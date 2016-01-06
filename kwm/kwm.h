@@ -111,6 +111,7 @@ struct kwm_prefix
     kwm_time_point Time;
     hotkey Key;
 
+    double Timeout;
     bool Enabled;
     bool Active;
 };
@@ -326,6 +327,7 @@ void KwmRemoveHotkey(std::string);
 void KwmInit();
 void KwmQuit();
 void KwmSetGlobalPrefix(std::string);
+void KwmSetGlobalPrefixTimeout(double);
 bool GetTagForCurrentSpace(std::string &);
 void GetKwmFilePath();
 bool IsKwmAlreadyAddedToLaunchd();

@@ -57,6 +57,13 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         {
             KwmSetGlobalPrefix(Tokens[2]);
         }
+        else if(Tokens[1] == "prefix-timeout")
+        {
+            double Value = 0;
+            std::stringstream Stream(Tokens[2]);
+            Stream >> Value;
+            KwmSetGlobalPrefixTimeout(Value);
+        }
         else  if(Tokens[1] == "launchd")
         {
             if(Tokens[2] == "disable")

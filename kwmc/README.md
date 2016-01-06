@@ -11,6 +11,9 @@
         Set a global prefix for all of Kwms hotkeys (optional)
             kwmc config prefix mod+mod+mod-key
 
+        Set global prefix timeout in seconds (default: 0.75)
+            kwmc config prefix-timeout seconds
+
         Set default padding
             kwmc config padding top|bottom|left|right value
 

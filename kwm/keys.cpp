@@ -23,7 +23,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
 {
     if(KWMPrefix.Enabled && KwmIsPrefixKey(&KWMPrefix.Key, Mod, Keycode))
     {
-        KWMPrefix.Active = KWMPrefix.Active ? false : true;
+        KWMPrefix.Active = true;
         KWMPrefix.Time = std::chrono::steady_clock::now();
         return true;
     }
@@ -34,7 +34,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
         {
             kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
             std::chrono::duration<double> Diff = NewPrefixTime - KWMPrefix.Time;
-            if(Diff.count() > 2.0)
+            if(Diff.count() > KWMPrefix.Timeout)
             {
                 KWMPrefix.Active = false;
                 return false;
@@ -151,6 +151,11 @@ void KwmSetGlobalPrefix(std::string KeySym)
         KWMPrefix.Active = false;
         KWMPrefix.Enabled = true;
     }
+}
+
+void KwmSetGlobalPrefixTimeout(double Timeout)
+{
+    KWMPrefix.Timeout = Timeout;
 }
 
 void KwmAddHotkey(std::string KeySym, std::string Command)

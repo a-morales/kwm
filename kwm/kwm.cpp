@@ -397,6 +397,7 @@ void KwmInit()
 
     KWMPrefix.Enabled = false;
     KWMPrefix.Active = false;
+    KWMPrefix.Timeout = 0.75;
 
     GetKwmFilePath();
     KwmExecuteConfig();
