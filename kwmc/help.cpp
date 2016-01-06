@@ -32,7 +32,7 @@ void ShowHelp(std::string Command)
             "Usage: kwmc config <options>\n"
             "\n"
             "Options:\n"
-            "   reload                                                 Reload config ($HOME/.kwmrc)"
+            "   reload                                                 Reload config ($HOME/.kwmrc)\n"
             "   launchd enable|disable                                 Let launchd manage Kwm (automatically start on login)\n"
             "   padding top|bottom|left|right value                    Set default padding\n"
             "   gap vertical|horizontal value                          Set default container gaps\n"
