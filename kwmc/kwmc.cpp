@@ -73,9 +73,13 @@ int main(int argc, char **argv)
     if(argc >= 2)
     {
         std::string Command = argv[1];
-        if(Command == "help")
+        if(Command == "help" && argc >= 3)
         {
-            std::cout << helpText() << std::endl;
+            ShowHelp(argv[2]);
+        }
+        else if (Command == "help")
+        {
+            ShowUsage();
         }
         else
         {
@@ -86,7 +90,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        std::cout << helpText() << std::endl;
+        ShowUsage();
     }
 
     return 0;
