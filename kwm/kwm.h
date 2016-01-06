@@ -205,9 +205,12 @@ tree_node *GetNearestNodeToTheRight(tree_node *, space_tiling_option);
 tree_node *GetNodeFromWindowID(tree_node *, int, space_tiling_option);
 tree_node *GetFirstLeafNode(tree_node *);
 tree_node *GetLastLeafNode(tree_node *);
+tree_node *GetNearestLeafNeighbour(tree_node *, space_tiling_option);
 void SwapNodeWindowIDs(tree_node *, tree_node *);
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *);
 bool IsLeafNode(tree_node *);
+bool IsLeftChild(tree_node *);
+bool IsRightChild(tree_node *);
 
 screen_info CreateDefaultScreenInfo(int, int);
 void UpdateExistingScreenInfo(screen_info *, int, int);

@@ -187,6 +187,28 @@ tree_node *GetLastLeafNode(tree_node *Node)
     return NULL;
 }
 
+bool IsLeftChild(tree_node *Node)
+{
+    if(Node && IsLeafNode(Node))
+    {
+        tree_node *Parent = Node->Parent;
+        return Parent->LeftChild == Node;
+    }
+
+    return false;
+}
+
+bool IsRightChild(tree_node *Node)
+{
+    if(Node && IsLeafNode(Node))
+    {
+        tree_node *Parent = Node->Parent;
+        return Parent->RightChild == Node;
+    }
+
+    return false;
+}
+
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
     if(IsSpaceFloating(Screen->ActiveSpace))
@@ -316,6 +338,21 @@ void SwapNodeWindowIDs(tree_node *A, tree_node *B)
         ResizeWindowToContainerSize(A);
         ResizeWindowToContainerSize(B);
     }
+}
+
+tree_node *GetNearestLeafNeighbour(tree_node *Node, space_tiling_option Mode)
+{
+    if(Node && IsLeafNode(Node))
+    {
+        if(Mode == SpaceModeBSP)
+            return IsLeftChild(Node) ? GetNearestNodeToTheRight(Node, Mode) : GetNearestNodeToTheLeft(Node, Mode);
+        else if(Mode == SpaceModeMonocle)
+        {
+            return Node->LeftChild ? Node->LeftChild : Node->RightChild;
+        }
+    }
+
+    return NULL;
 }
 
 tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID, space_tiling_option Mode)
@@ -491,4 +528,14 @@ void RotateTree(tree_node *Node, int Deg)
 
     RotateTree(Node->LeftChild, Deg);
     RotateTree(Node->RightChild, Deg);
+}
+
+void SaveBSPTreeToFile(screen_info *Screen, std::string Name)
+{
+    DEBUG("NYI");
+}
+
+void LoadBSPTreeFromFile(screen_info *Screen, std::string Name)
+{
+    DEBUG("NYI");
 }
