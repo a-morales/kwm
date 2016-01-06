@@ -23,6 +23,10 @@ kwmc config gap horizontal 20
 # Let Kwm listen for hotkeys
 kwmc config hotkeys enable
 
+# Set global prefix for all of Kwms hotkeys
+# This hotkey must be pressed for binds to activate!
+# kwmc config prefix ctrl-k
+
 # Turn off focus-follows-mouse if any
 # context-menus or the menubar is visible.
 # If the menubar is not set to auto-hide,
