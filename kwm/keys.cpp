@@ -23,7 +23,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
 {
     if(KWMPrefix.Enabled && KwmIsPrefixKey(&KWMPrefix.Key, Mod, Keycode))
     {
-        KWMPrefix.Active = true;
+        KWMPrefix.Active = KWMPrefix.Active ? false : true;
         KWMPrefix.Time = std::chrono::steady_clock::now();
         return true;
     }
