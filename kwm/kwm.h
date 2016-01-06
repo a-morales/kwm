@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <chrono>
 
 #include <stdlib.h>
 #include <string.h>
@@ -26,6 +27,7 @@
 #include <netinet/in.h>
 
 struct kwm_code;
+struct kwm_prefix;
 struct hotkey;
 struct modifiers;
 
@@ -41,6 +43,8 @@ struct tree_node;
 #else
     #define DEBUG(x) do {} while (0);
 #endif
+
+typedef std::chrono::time_point<std::chrono::steady_clock> kwm_time_point;
 
 #define KWM_HOTKEY_COMMANDS(name) bool name(modifiers Mod, CGKeyCode Keycode)
 typedef KWM_HOTKEY_COMMANDS(kwm_hotkey_commands);
@@ -82,6 +86,15 @@ struct modifiers
     bool ShiftKey;
 };
 
+struct hotkey
+{
+    bool IsSystemCommand;
+
+    modifiers Mod;
+    CGKeyCode Key;
+
+    std::string Command;
+};
 struct kwm_code
 {
     void *KwmHotkeySO;
@@ -93,14 +106,13 @@ struct kwm_code
     bool IsValid;
 };
 
-struct hotkey
+struct kwm_prefix
 {
-    bool IsSystemCommand;
+    kwm_time_point Time;
+    hotkey Key;
 
-    modifiers Mod;
-    CGKeyCode Key;
-
-    std::string Command;
+    bool Enabled;
+    bool Active;
 };
 
 struct node_container
@@ -299,7 +311,8 @@ bool KwmRunLiveCodeHotkeySystem(CGEventRef *, modifiers *, CGKeyCode);
 CFStringRef KeycodeToString(CGKeyCode);
 bool KeycodeForChar(char, CGKeyCode *);
 bool GetLayoutIndependentKeycode(std::string, CGKeyCode *);
-bool KwmIsPrefixKey(hotkey *, modifiers, CGKeyCode);
+bool KwmMainHotkeyTrigger(CGEventRef *, modifiers *, CGKeyCode);
+bool KwmIsPrefixKey(hotkey *, modifiers *, CGKeyCode);
 bool KwmParseHotkey(std::string, std::string, hotkey *);
 bool HotkeysAreEqual(hotkey *, hotkey *);
 bool KwmExecuteHotkey(modifiers, CGKeyCode);

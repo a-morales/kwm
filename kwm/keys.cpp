@@ -2,8 +2,7 @@
 
 extern ProcessSerialNumber FocusedPSN;
 extern std::vector<hotkey> KwmHotkeys;
-extern hotkey KwmPrefixKey; 
-extern bool KwmUseGlobalPrefixKey;
+extern kwm_prefix KWMPrefix;
 
 bool HotkeysAreEqual(hotkey *A, hotkey *B)
 {
@@ -20,10 +19,54 @@ bool HotkeysAreEqual(hotkey *A, hotkey *B)
     return false;
 }
 
-bool KwmIsPrefixKey(hotkey *PrefixKey, modifiers Mod, CGKeyCode Keycode)
+bool KwmMainHotkeyTrigger(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
+{
+    if(KWMPrefix.Enabled && KwmIsPrefixKey(&KWMPrefix.Key, Mod, Keycode))
+    {
+        KWMPrefix.Active = true;
+        KWMPrefix.Time = std::chrono::steady_clock::now();
+        return true;
+    }
+
+    if(!KWMPrefix.Enabled || KWMPrefix.Active)
+    {
+        if(KWMPrefix.Active)
+        {
+            kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
+            std::chrono::duration<double> Diff = NewPrefixTime - KWMPrefix.Time;
+            if(Diff.count() > 2.0)
+            {
+                KWMPrefix.Active = false;
+                return false;
+            }
+        }
+
+        // Hotkeys bound using `kwmc bind keys command`
+        if(KwmExecuteHotkey(*Mod, Keycode))
+        {
+            if(KWMPrefix.Active)
+                KWMPrefix.Time = std::chrono::steady_clock::now();
+
+            return true;
+        }
+
+        // Code for live-coded hotkey system; hotkeys.cpp
+        if(KwmRunLiveCodeHotkeySystem(Event, Mod, Keycode))
+        {
+            if(KWMPrefix.Active)
+                KWMPrefix.Time = std::chrono::steady_clock::now();
+
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+bool KwmIsPrefixKey(hotkey *PrefixKey, modifiers *Mod, CGKeyCode Keycode)
 {
     hotkey TempHotkey;
-    TempHotkey.Mod = Mod;
+    TempHotkey.Mod = *Mod;
     TempHotkey.Key = Keycode;
 
     return HotkeysAreEqual(PrefixKey, &TempHotkey);
@@ -104,8 +147,9 @@ void KwmSetGlobalPrefix(std::string KeySym)
     hotkey Hotkey = {};
     if(KwmParseHotkey(KeySym, "", &Hotkey))
     {
-        KwmPrefixKey = Hotkey;
-        KwmUseGlobalPrefixKey = true;
+        KWMPrefix.Key = Hotkey;
+        KWMPrefix.Active = false;
+        KWMPrefix.Enabled = true;
     }
 }
 
