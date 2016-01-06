@@ -299,7 +299,9 @@ bool KwmRunLiveCodeHotkeySystem(CGEventRef *, modifiers *, CGKeyCode);
 CFStringRef KeycodeToString(CGKeyCode);
 bool KeycodeForChar(char, CGKeyCode *);
 bool GetLayoutIndependentKeycode(std::string, CGKeyCode *);
+bool KwmIsPrefixKey(hotkey *, modifiers, CGKeyCode);
 bool KwmParseHotkey(std::string, std::string, hotkey *);
+bool HotkeysAreEqual(hotkey *, hotkey *);
 bool KwmExecuteHotkey(modifiers, CGKeyCode);
 bool HotkeyExists(modifiers, CGKeyCode, hotkey *);
 void KwmAddHotkey(std::string, std::string);
@@ -307,6 +309,7 @@ void KwmRemoveHotkey(std::string);
 
 void KwmInit();
 void KwmQuit();
+void KwmSetGlobalPrefix(std::string);
 bool GetTagForCurrentSpace(std::string &);
 void GetKwmFilePath();
 bool IsKwmAlreadyAddedToLaunchd();

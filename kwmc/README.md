@@ -8,6 +8,9 @@
         Let launchd manage Kwm (automatically start on login)
             kwmc config launchd enable|disable
 
+        Set a global prefix for all of Kwms hotkeys (optional)
+            kwmc config prefix mod+mod+mod-key
+
         Set default padding
             kwmc config padding top|bottom|left|right value
 

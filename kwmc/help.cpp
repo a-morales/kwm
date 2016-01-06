@@ -34,6 +34,7 @@ void ShowHelp(std::string Command)
             "Options:\n"
             "   reload                                                 Reload config ($HOME/.kwmrc)\n"
             "   launchd enable|disable                                 Let launchd manage Kwm (automatically start on login)\n"
+            "   prefix mod+mod+mod-key                                 Set global prefix for all of Kwms hotkeys\n"
             "   padding top|bottom|left|right value                    Set default padding\n"
             "   gap vertical|horizontal value                          Set default container gaps\n"
             "   float application                                      Always float application\n"

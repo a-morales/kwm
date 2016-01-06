@@ -15,6 +15,10 @@ bool KwmEnableTilingMode;
 bool KwmUseBuiltinHotkeys;
 bool KwmEnableDragAndDrop;
 bool KwmUseContextMenuFix;
+bool KwmUseGlobalPrefixKey;
+
+bool IsPrefixActivated;
+hotkey KwmPrefixKey = {};
 
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
@@ -70,18 +74,30 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
                 CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
-                // Hotkeys bound using `kwmc bind keys command`
-                if(KwmExecuteHotkey(Mod, Keycode))
+                if(KwmUseGlobalPrefixKey && KwmIsPrefixKey(&KwmPrefixKey, Mod, Keycode))
                 {
+                    IsPrefixActivated = true;
                     pthread_mutex_unlock(&BackgroundLock);
                     return NULL;
                 }
 
-                // Code for live-coded hotkey system; hotkeys.cpp
-                if(KwmRunLiveCodeHotkeySystem(&Event, &Mod, Keycode))
+                if(!KwmUseGlobalPrefixKey || IsPrefixActivated)
                 {
-                    pthread_mutex_unlock(&BackgroundLock);
-                    return NULL;
+                    // Hotkeys bound using `kwmc bind keys command`
+                    if(KwmExecuteHotkey(Mod, Keycode))
+                    {
+                        IsPrefixActivated = false;
+                        pthread_mutex_unlock(&BackgroundLock);
+                        return NULL;
+                    }
+
+                    // Code for live-coded hotkey system; hotkeys.cpp
+                    if(KwmRunLiveCodeHotkeySystem(&Event, &Mod, Keycode))
+                    {
+                        IsPrefixActivated = false;
+                        pthread_mutex_unlock(&BackgroundLock);
+                        return NULL;
+                    }
                 }
             }
 
@@ -267,6 +283,7 @@ void KwmClearSettings()
 
     FloatingAppLst.clear();
     KwmHotkeys.clear();
+    KwmUseGlobalPrefixKey = false;
 }
 
 void KwmExecuteConfig()
@@ -400,6 +417,8 @@ void KwmInit()
     KwmSpaceMode = SpaceModeBSP;
     KwmFocusMode = FocusModeAutoraise;
     KwmUseMouseFollowsFocus = false;
+    KwmUseGlobalPrefixKey = false;
+    IsPrefixActivated = false;
 
     GetKwmFilePath();
     KwmExecuteConfig();

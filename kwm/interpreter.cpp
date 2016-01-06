@@ -53,7 +53,11 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         {
             KwmReloadConfig();
         }
-       else  if(Tokens[1] == "launchd")
+        else if(Tokens[1] == "prefix")
+        {
+            KwmSetGlobalPrefix(Tokens[2]);
+        }
+        else  if(Tokens[1] == "launchd")
         {
             if(Tokens[2] == "disable")
                 RemoveKwmFromLaunchd();
