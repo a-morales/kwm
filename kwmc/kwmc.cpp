@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 
+#include "help.h"
+
+#include <libproc.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -58,7 +61,7 @@ void KwmcConnectToDaemon()
     server = gethostbyname("localhost");
     srv_addr.sin_family = AF_INET;
     srv_addr.sin_port = htons(KwmDaemonPort);
-    std::memcpy(&srv_addr.sin_addr.s_addr, server->h_addr, server->h_length); 
+    std::memcpy(&srv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
     std::memset(&srv_addr.sin_zero, '\0', 8);
 
     if(connect(KwmcSockFD, (struct sockaddr*) &srv_addr, sizeof(struct sockaddr)) == -1)
@@ -69,13 +72,25 @@ int main(int argc, char **argv)
 {
     if(argc >= 2)
     {
-        KwmcConnectToDaemon();
-        KwmcForwardMessageThroughSocket(argc, argv);
-        close(KwmcSockFD);
+        std::string Command = argv[1];
+        if(Command == "help" && argc >= 3)
+        {
+            ShowHelp(argv[2]);
+        }
+        else if (Command == "help")
+        {
+            ShowUsage();
+        }
+        else
+        {
+            KwmcConnectToDaemon();
+            KwmcForwardMessageThroughSocket(argc, argv);
+            close(KwmcSockFD);
+        }
     }
     else
     {
-        std::cout << "Usage: kwmc <command>" << std::endl;
+        ShowUsage();
     }
 
     return 0;
