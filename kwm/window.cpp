@@ -621,59 +621,43 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
     tree_node *Parent = WindowNode->Parent;
     if(Parent && Parent->LeftChild && Parent->RightChild)
     {
-        tree_node *OldLeftChild = Parent->LeftChild;
-        tree_node *OldRightChild = Parent->RightChild;
-        tree_node *AccessChild;
-
+        tree_node *AccessChild = IsRightChild(WindowNode) ? Parent->LeftChild : Parent->RightChild;
+        tree_node *NewFocusNode = NULL;
         Parent->LeftChild = NULL;
         Parent->RightChild = NULL;
 
-        if(OldRightChild == WindowNode)
+        DEBUG("RemoveWindowFromBSPTree() " << FocusedWindow->Name)
+        Parent->WindowID = AccessChild->WindowID;
+        if(AccessChild->LeftChild && AccessChild->RightChild)
         {
-            if(OldLeftChild)
-                AccessChild = OldLeftChild;
+            Parent->LeftChild = AccessChild->LeftChild;
+            Parent->LeftChild->Parent = Parent;
+
+            Parent->RightChild = AccessChild->RightChild;
+            Parent->RightChild->Parent = Parent;
+
+            CreateNodeContainers(Screen, Parent, true);
+            NewFocusNode = IsLeafNode(Parent->LeftChild) ? Parent->LeftChild : Parent->RightChild;
+        }
+
+        free(AccessChild);
+        free(WindowNode);
+        ApplyNodeContainer(Parent, Space->Mode);
+
+        if(Center)
+        {
+            CenterWindow(Screen);
         }
         else
         {
-            if(OldRightChild)
-                AccessChild = OldRightChild;
-        }
+            if(!NewFocusNode)
+                NewFocusNode = Parent;
 
-        if(AccessChild)
-        {
-            DEBUG("RemoveWindowFromBSPTree() " << FocusedWindow->Name)
-            Parent->WindowID = AccessChild->WindowID;
-            if(AccessChild->LeftChild && AccessChild->RightChild)
+            window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
+            if(NewWindow)
             {
-                Parent->LeftChild = AccessChild->LeftChild;
-                Parent->LeftChild->Parent = Parent;
-
-                Parent->RightChild = AccessChild->RightChild;
-                Parent->RightChild->Parent = Parent;
-
-                CreateNodeContainers(Screen, Parent, true);
-            }
-
-            free(AccessChild);
-            free(WindowNode);
-            ApplyNodeContainer(Parent, Space->Mode);
-
-            if(Center)
-            {
-                CenterWindow(Screen);
-            }
-            else
-            {
-                tree_node *NewNode = GetFirstLeafNode(Space->RootNode);
-                if(NewNode)
-                {
-                    window_info *NewWindow = GetWindowByID(NewNode->WindowID);
-                    if(NewWindow)
-                    {
-                        SetWindowFocus(NewWindow);
-                        MoveCursorToCenterOfFocusedWindow();
-                    }
-                }
+                SetWindowFocus(NewWindow);
+                MoveCursorToCenterOfFocusedWindow();
             }
         }
     }
@@ -753,27 +737,31 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
                     if(!WindowNode)
                         return;
 
+                    tree_node *NewFocusNode = NULL;
                     tree_node *Prev = WindowNode->LeftChild;
                     tree_node *Next = WindowNode->RightChild;
 
                     if(Prev)
+                    {
                         Prev->RightChild = Next;
+                        NewFocusNode = Prev;
+                    }
 
                     if(Next)
                         Next->LeftChild = Prev;
 
                     if(WindowNode == Space->RootNode)
+                    {
                         Space->RootNode = Next;
+                        NewFocusNode = Next;
+                    }
 
                     free(WindowNode);
-                }
-            }
+                    window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
+                    if(NewWindow)
+                        SetWindowFocus(NewWindow);
 
-            if(Space->RootNode)
-            {
-                window_info *NewWindow = GetWindowByID(Space->RootNode->WindowID);
-                if(NewWindow)
-                    SetWindowFocus(NewWindow);
+                }
             }
         }
         else
