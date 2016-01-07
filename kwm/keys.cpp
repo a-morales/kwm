@@ -212,7 +212,7 @@ bool GetLayoutIndependentKeycode(std::string Key, CGKeyCode *Keycode)
 
 CFStringRef KeycodeToString(CGKeyCode KeyCode)
 {
-    TISInputSourceRef Keyboard = TISCopyCurrentKeyboardInputSource();
+    TISInputSourceRef Keyboard = TISCopyCurrentASCIICapableKeyboardLayoutInputSource();
     CFDataRef Uchr = (CFDataRef)TISGetInputSourceProperty(Keyboard, kTISPropertyUnicodeKeyLayoutData);
     const UCKeyboardLayout *KeyboardLayout = (const UCKeyboardLayout*)CFDataGetBytePtr(Uchr);
 
