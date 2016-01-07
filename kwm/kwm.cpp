@@ -22,9 +22,7 @@ uint32_t ActiveDisplaysCount;
 CGDirectDisplayID ActiveDisplays[5];
 
 screen_info *Screen;
-int DefaultPaddingTop = 40, DefaultPaddingBottom = 20;
-int DefaultPaddingLeft = 20, DefaultPaddingRight = 20;
-int DefaultGapVertical = 10, DefaultGapHorizontal = 10;
+container_offset DefaultContainerOffset = { 40, 20, 20, 20, 10, 10 };
 
 std::map<unsigned int, screen_info> DisplayMap;
 std::vector<window_info> WindowLst;

@@ -30,6 +30,7 @@ struct kwm_code;
 struct kwm_prefix;
 struct hotkey;
 struct modifiers;
+struct container_offset;
 
 struct window_info;
 struct window_role;
@@ -95,6 +96,14 @@ struct hotkey
 
     std::string Command;
 };
+
+struct container_offset
+{
+    double PaddingTop, PaddingBottom;
+    double PaddingLeft, PaddingRight;
+    double VerticalGap, HorizontalGap;
+};
+
 struct kwm_code
 {
     void *KwmHotkeySO;
@@ -153,9 +162,7 @@ struct window_role
 
 struct space_info
 {
-    double PaddingTop, PaddingBottom;
-    double PaddingLeft, PaddingRight;
-    double VerticalGap, HorizontalGap;
+    container_offset Offset;
     bool Initialized;
 
     space_tiling_option Mode;
@@ -167,9 +174,7 @@ struct screen_info
     int ID;
     int X, Y;
     double Width, Height;
-    double PaddingTop, PaddingBottom;
-    double PaddingLeft, PaddingRight;
-    double VerticalGap, HorizontalGap;
+    container_offset Offset;
 
     int ActiveSpace;
     int OldWindowListCount;

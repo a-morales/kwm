@@ -456,13 +456,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Space->Mode = KwmSpaceMode;
         Space->Initialized = true;
 
-        Space->PaddingTop = Screen->PaddingTop;
-        Space->PaddingBottom = Screen->PaddingBottom;
-        Space->PaddingLeft = Screen->PaddingLeft;
-        Space->PaddingRight = Screen->PaddingRight;
-
-        Space->VerticalGap = Screen->VerticalGap;
-        Space->HorizontalGap = Screen->HorizontalGap;
+        Space->Offset = Screen->Offset;
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
     }
     else

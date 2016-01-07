@@ -8,10 +8,8 @@ extern screen_info *Screen;
 extern std::map<unsigned int, screen_info> DisplayMap;
 extern std::vector<window_info> WindowLst;
 extern window_info *FocusedWindow;
+extern container_offset DefaultContainerOffset;
 
-extern int DefaultPaddingLeft, DefaultPaddingRight;
-extern int DefaultPaddingTop, DefaultPaddingBottom;
-extern int DefaultGapVertical, DefaultGapHorizontal;
 
 extern pthread_mutex_t BackgroundLock;
 
@@ -55,14 +53,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
     Screen.Width = DisplayRect.size.width;
     Screen.Height = DisplayRect.size.height;
 
-    Screen.PaddingTop = DefaultPaddingTop;
-    Screen.PaddingLeft = DefaultPaddingLeft;
-    Screen.PaddingRight = DefaultPaddingRight;
-    Screen.PaddingBottom = DefaultPaddingBottom;
-
-    Screen.VerticalGap = DefaultGapVertical;
-    Screen.HorizontalGap = DefaultGapHorizontal;
-
+    Screen.Offset = DefaultContainerOffset;
     return Screen;
 }
 
@@ -76,13 +67,7 @@ void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenI
     Screen->Width = DisplayRect.size.width;
     Screen->Height = DisplayRect.size.height;
 
-    Screen->PaddingTop = DefaultPaddingTop;
-    Screen->PaddingLeft = DefaultPaddingLeft;
-    Screen->PaddingRight = DefaultPaddingRight;
-    Screen->PaddingBottom = DefaultPaddingBottom;
-
-    Screen->VerticalGap = DefaultGapVertical;
-    Screen->HorizontalGap = DefaultGapHorizontal;
+    Screen->Offset = DefaultContainerOffset;
     Screen->ForceContainerUpdate = true;
 }
 
@@ -201,21 +186,21 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
 void SetDefaultPaddingOfDisplay(const std::string &Side, int Offset)
 {
     if(Side == "left")
-        DefaultPaddingLeft = Offset;
+        DefaultContainerOffset.PaddingLeft = Offset;
     else if(Side == "right")
-        DefaultPaddingRight = Offset;
+        DefaultContainerOffset.PaddingRight = Offset;
     else if(Side == "top")
-        DefaultPaddingTop = Offset;
+        DefaultContainerOffset.PaddingTop = Offset;
     else if(Side == "bottom")
-        DefaultPaddingBottom = Offset;
+        DefaultContainerOffset.PaddingBottom = Offset;
 }
 
 void SetDefaultGapOfDisplay(const std::string &Side, int Offset)
 {
     if(Side == "vertical")
-        DefaultGapVertical = Offset;
+        DefaultContainerOffset.VerticalGap = Offset;
     else if(Side == "horizontal")
-        DefaultGapHorizontal = Offset;
+        DefaultContainerOffset.HorizontalGap = Offset;
 }
 
 void ChangePaddingOfDisplay(const std::string &Side, int Offset)
@@ -225,23 +210,23 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 
     if(Side == "left")
     {
-        if(Space->PaddingLeft + Offset >= 0)
-            Space->PaddingLeft += Offset;
+        if(Space->Offset.PaddingLeft + Offset >= 0)
+            Space->Offset.PaddingLeft += Offset;
     }
     else if(Side == "right")
     {
-        if(Space->PaddingRight + Offset >= 0)
-            Space->PaddingRight += Offset;
+        if(Space->Offset.PaddingRight + Offset >= 0)
+            Space->Offset.PaddingRight += Offset;
     }
     else if(Side == "top")
     {
-        if(Space->PaddingTop + Offset >= 0)
-            Space->PaddingTop += Offset;
+        if(Space->Offset.PaddingTop + Offset >= 0)
+            Space->Offset.PaddingTop += Offset;
     }
     else if(Side == "bottom")
     {
-        if(Space->PaddingBottom + Offset >= 0)
-            Space->PaddingBottom += Offset;
+        if(Space->Offset.PaddingBottom + Offset >= 0)
+            Space->Offset.PaddingBottom += Offset;
     }
 
     if(Space->RootNode)
@@ -272,13 +257,13 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
 
     if(Side == "vertical")
     {
-        if(Space->VerticalGap + Offset >= 0)
-            Space->VerticalGap += Offset;
+        if(Space->Offset.VerticalGap + Offset >= 0)
+            Space->Offset.VerticalGap += Offset;
     }
     else if(Side == "horizontal")
     {
-        if(Space->HorizontalGap + Offset >= 0)
-            Space->HorizontalGap += Offset;
+        if(Space->Offset.HorizontalGap + Offset >= 0)
+            Space->Offset.HorizontalGap += Offset;
     }
 
     if(Space->RootNode && Space->Mode == SpaceModeBSP)
