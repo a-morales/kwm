@@ -1,27 +1,28 @@
-## Description (TL;DR)
+## Brief Description
 
 [*Kwm*](https://koekeishiya.github.io/kwm) started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
 It is now a tiling window manager that represents windows as the leaves of a binary tree.  
 *Kwm* supports binary space partitioned, monocle and floating spaces.  
 
-*Kwm* runs a local daemon to read messages and trigger functions.  
-*Kwmc* is used to write to *Kwm*'s socket, and must be used when interacting and configuring how *Kwm* works.  
-For a list of various commands that can be issued, check the readme located within the *kwmc* folder.  
-
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events prior  
 to their delivery to a foreground application. This allows for functionality such as focus-follows-mouse,  
 remapping keys, and most importantly global hotkeys.  
 
-*Kwm* requires access to osx accessibility.  
-Tested on Osx El Capitan (10.11.1 / 10.11.2).
+*Kwm* runs a local daemon to read messages and trigger functions.  
+*Kwmc* is used to write to *Kwm*'s socket, and must be used when interacting with and configuring how *Kwm* works.  
+For a list of various commands that can be issued, check the readme located within the *kwmc* folder.  
+The *Kwmc* tool also has a built-in help system that can be accessed from the terminal using `kwmc help`.  
+
+*Kwm* requires access to the OSX accessibility API.  
+Tested on El Capitan (10.11.1 / 10.11.2).
 
 ![img](https://cloud.githubusercontent.com/assets/6175959/12092967/8d8853d8-b300-11e5-8a44-ec1245efdc74.png)
 For more screenshots, [click here](https://github.com/koekeishiya/kwm/issues/2)  
 
 ## Extended Information:
 
-The different features; binary space partitioning, focus-follows-mouse and hotkey-system can all be enabled  
-independently. This allows the user to choose what functionality fits their specific workflow.  
+The different features; binary space partitioning, focus-follows-mouse and the hotkey-system can all be enabled  
+independently. This allows the user to choose which functionality to enable depending on their workflow.  
 
 *Binary Space Partitioning:*  
 Kwm tiles windows using a binary-tree structure. For information, check the usage section.  
@@ -52,7 +53,7 @@ After this step, moving the mouse to a different monitor should activate the mon
 ## Build:
 
 Because there is no app bundle, *Kwm* has to be started from a terminal.
-To compile and run *Kwm*, simply run
+To compile and start *Kwm*, simply run
 
       make
       ./bin/kwm
@@ -74,7 +75,7 @@ The default configuration file is `$HOME/.kwmrc` and is a script that contains *
 to be executed when *Kwm* starts. This file can be used to blacklist applications and specify  
 a variety of settings, as well as run any command not restricted to *Kwmc*.  
 
-*Kwm* can set all of these settings while it is running, and so live testing of options is possible  
+*Kwm* can apply all of these settings during runtime, and so live testing of options is possible  
 before writing them into the config file.
 
 A sample config can be found within the [examples](examples) directory.
@@ -89,9 +90,9 @@ When a window is closed, it will be removed from the window tree and the tree wi
 By default, the insertion point is the focused container, but a temporary insertion point can be set.  
 
 There are 3 types of split-modes available:
- - Optimal - uses width/height ratio (Default)
+ - Optimal - uses width/height ratio (default)
  - Vertical
- - Horizontal.  
+ - Horizontal  
 
 Example:
 
