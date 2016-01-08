@@ -5,6 +5,7 @@ extern std::vector<std::string> FloatingAppLst;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern space_tiling_option KwmSpaceMode;
+extern cycle_focus_option KwmCycleMode;
 extern int KwmSplitMode;
 extern bool KwmUseMouseFollowsFocus;
 extern bool KwmEnableTilingMode;
@@ -111,6 +112,17 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
                 KwmFocusMode = FocusModeAutoraise;
             else if(Tokens[2] == "disabled")
                 KwmFocusMode = FocusModeDisabled;
+        }
+        else if(Tokens[1] == "cycle-focus")
+        {
+            if(Tokens[2] == "screen")
+                KwmCycleMode = CycleModeScreen;
+            else if(Tokens[2] == "all")
+                KwmCycleMode = CycleModeAll;
+            else if(Tokens[2] == "wrap-all")
+                KwmCycleMode = CycleModeWrapAll;
+            else if(Tokens[2] == "disabled")
+                KwmCycleMode = CycleModeDisabled;;
         }
         else if(Tokens[1] == "hotkeys")
         {

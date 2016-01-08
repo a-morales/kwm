@@ -34,6 +34,7 @@ ProcessSerialNumber FocusedPSN;
 window_info *FocusedWindow;
 focus_option KwmFocusMode;
 space_tiling_option KwmSpaceMode;
+cycle_focus_option KwmCycleMode;
 int KwmSplitMode = -1;
 int MarkedWindowID = -1;
 double KwmSplitRatio = 0.5;
@@ -391,6 +392,7 @@ void KwmInit()
     KwmUseContextMenuFix = true;
     KwmSpaceMode = SpaceModeBSP;
     KwmFocusMode = FocusModeAutoraise;
+    KwmCycleMode = CycleModeScreen;
     KwmUseMouseFollowsFocus = false;
 
     KWMPrefix.Enabled = false;

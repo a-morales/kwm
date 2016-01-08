@@ -26,6 +26,9 @@
         Set focus-mode
             kwmc config focus toggle|autofocus|autoraise|disabled
 
+        Set focus cycle-mode
+            kwmc config cycle-focus screen|disabled (NYI: all, wrap-all)
+
         Set state of mouse-follows-focus
             kwmc config focus mouse-follows enable|disable
 

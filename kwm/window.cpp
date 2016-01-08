@@ -14,6 +14,7 @@ extern ProcessSerialNumber FocusedPSN;
 extern window_info *FocusedWindow;
 extern focus_option KwmFocusMode;
 extern space_tiling_option KwmSpaceMode;
+extern cycle_focus_option KwmCycleMode;
 extern int KwmSplitMode;
 extern bool KwmUseMouseFollowsFocus;
 extern bool KwmEnableTilingMode;
@@ -984,9 +985,18 @@ void ShiftWindowFocus(int Shift)
         tree_node *NewFocusNode;
 
         if(Shift == 1)
+        {
             NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
+            if(KwmCycleMode == CycleModeScreen && !NewFocusNode)
+                NewFocusNode = GetFirstLeafNode(Space->RootNode);
+        }
         else if(Shift == -1)
+        {
             NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
+            if(KwmCycleMode == CycleModeScreen && !NewFocusNode)
+                NewFocusNode = GetLastLeafNode(Space->RootNode);
+        }
+
 
         if(NewFocusNode)
         {

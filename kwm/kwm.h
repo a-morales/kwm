@@ -72,6 +72,14 @@ enum focus_option
     FocusModeDisabled 
 };
 
+enum cycle_focus_option
+{
+    CycleModeScreen,
+    CycleModeAll,
+    CycleModeWrapAll,
+    CycleModeDisabled
+};
+
 enum space_tiling_option
 {
     SpaceModeBSP,
