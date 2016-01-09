@@ -19,9 +19,17 @@ bool HotkeysAreEqual(hotkey *A, hotkey *B)
     return false;
 }
 
-bool KwmMainHotkeyTrigger(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
+bool KwmMainHotkeyTrigger(CGEventRef *Event)
 {
-    if(KWMPrefix.Enabled && KwmIsPrefixKey(&KWMPrefix.Key, Mod, Keycode))
+    modifiers Mod = {};
+    CGEventFlags Flags = CGEventGetFlags(*Event);
+    Mod.CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
+    Mod.AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
+    Mod.CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
+    Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
+    CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(*Event, kCGKeyboardEventKeycode);
+
+    if(KWMPrefix.Enabled && KwmIsPrefixKey(&KWMPrefix.Key, &Mod, Keycode))
     {
         KWMPrefix.Active = true;
         KWMPrefix.Time = std::chrono::steady_clock::now();
@@ -42,7 +50,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
         }
 
         // Hotkeys bound using `kwmc bind keys command`
-        if(KwmExecuteHotkey(*Mod, Keycode))
+        if(KwmExecuteHotkey(Mod, Keycode))
         {
             if(KWMPrefix.Active)
                 KWMPrefix.Time = std::chrono::steady_clock::now();
@@ -51,7 +59,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
         }
 
         // Code for live-coded hotkey system; hotkeys.cpp
-        if(KwmRunLiveCodeHotkeySystem(Event, Mod, Keycode))
+        if(KwmRunLiveCodeHotkeySystem(Event, &Mod, Keycode))
         {
             if(KWMPrefix.Active)
                 KWMPrefix.Time = std::chrono::steady_clock::now();
@@ -210,7 +218,7 @@ bool GetLayoutIndependentKeycode(std::string Key, CGKeyCode *Keycode)
     return Result;
 }
 
-CFStringRef KeycodeToString(CGKeyCode KeyCode)
+CFStringRef KeycodeToString(CGKeyCode Keycode)
 {
     TISInputSourceRef Keyboard = TISCopyCurrentASCIICapableKeyboardLayoutInputSource();
     CFDataRef Uchr = (CFDataRef)TISGetInputSourceProperty(Keyboard, kTISPropertyUnicodeKeyLayoutData);
@@ -223,7 +231,7 @@ CFStringRef KeycodeToString(CGKeyCode KeyCode)
         UniCharCount ActualStringLength = 0;
         UniChar UnicodeString[MaxStringLength];
 
-        OSStatus Status = UCKeyTranslate(KeyboardLayout, KeyCode,
+        OSStatus Status = UCKeyTranslate(KeyboardLayout, Keycode,
                                          kUCKeyActionDown, 0,
                                          LMGetKbdType(), 0,
                                          &DeadKeyState,

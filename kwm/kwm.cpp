@@ -56,21 +56,10 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyDown:
         {
-            if(KwmUseBuiltinHotkeys)
+            if(KwmUseBuiltinHotkeys && KwmMainHotkeyTrigger(&Event))
             {
-                modifiers Mod = {};
-                CGEventFlags Flags = CGEventGetFlags(Event);
-                Mod.CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
-                Mod.AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
-                Mod.CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
-                Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
-                CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
-
-                if(KwmMainHotkeyTrigger(&Event, &Mod, Keycode))
-                {
                     pthread_mutex_unlock(&BackgroundLock);
                     return NULL;
-                }
             }
 
             if(KwmFocusMode == FocusModeAutofocus)

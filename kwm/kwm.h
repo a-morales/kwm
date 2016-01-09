@@ -328,7 +328,7 @@ bool KwmRunLiveCodeHotkeySystem(CGEventRef *, modifiers *, CGKeyCode);
 CFStringRef KeycodeToString(CGKeyCode);
 bool KeycodeForChar(char, CGKeyCode *);
 bool GetLayoutIndependentKeycode(std::string, CGKeyCode *);
-bool KwmMainHotkeyTrigger(CGEventRef *, modifiers *, CGKeyCode);
+bool KwmMainHotkeyTrigger(CGEventRef *);
 bool KwmIsPrefixKey(hotkey *, modifiers *, CGKeyCode);
 bool KwmParseHotkey(std::string, std::string, hotkey *);
 bool HotkeysAreEqual(hotkey *, hotkey *);
