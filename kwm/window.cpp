@@ -1340,11 +1340,16 @@ bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
 
 void FreeWindowRefCache(int PID)
 {
-    int NumElements = WindowRefsCache[PID].size();
-    for(int RefIndex = 0; RefIndex < NumElements; ++RefIndex)
-        CFRelease(WindowRefsCache[PID][RefIndex]);
+    std::map<int, std::vector<AXUIElementRef> >::iterator It = WindowRefsCache.find(PID);
 
-    WindowRefsCache[PID].clear();
+    if(It != WindowRefsCache.end())
+    {
+        int NumElements = WindowRefsCache[PID].size();
+        for(int RefIndex = 0; RefIndex < NumElements; ++RefIndex)
+            CFRelease(WindowRefsCache[PID][RefIndex]);
+
+        WindowRefsCache[PID].clear();
+    }
 }
 
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
