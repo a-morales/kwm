@@ -243,7 +243,21 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
 
 void KwmScreenCommand(std::vector<std::string> &Tokens)
 {
-    if(Tokens[1] == "-s")
+    if(Tokens[1] == "-f")
+    {
+        if(Tokens[2] == "prev")
+           GiveFocusToScreen(GetIndexOfPrevScreen()); 
+        else if(Tokens[2] == "next")
+           GiveFocusToScreen(GetIndexOfNextScreen()); 
+        else 
+        {
+            int Index = 0;
+            std::stringstream Stream(Tokens[2]);
+            Stream >> Index;
+            GiveFocusToScreen(Index);
+        }
+    }
+    else if(Tokens[1] == "-s")
     {
         if(Tokens[2] == "optimal")
             KwmSplitMode = -1;

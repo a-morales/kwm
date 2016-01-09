@@ -277,6 +277,10 @@ screen_info *GetDisplayOfWindow(window_info *);
 std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
 bool DoesSpaceExistInMapOfScreen(screen_info *);
+screen_info *GetDisplayFromScreenID(int);
+int GetIndexOfPrevScreen();
+int GetIndexOfNextScreen();
+void GiveFocusToScreen(int);
 void CycleFocusedWindowDisplay(int, bool);
 
 void ChangeGapOfDisplay(const std::string &, int);
@@ -336,6 +340,7 @@ void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
 void SetWindowRefFocus(AXUIElementRef, window_info *);
 void SetWindowFocus(window_info *);
+void SetWindowFocusByNode(tree_node *);
 void MoveCursorToCenterOfFocusedWindow();
 
 std::string GetWindowTitle(AXUIElementRef);

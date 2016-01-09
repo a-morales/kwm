@@ -26,8 +26,8 @@
         Set focus-mode
             kwmc config focus toggle|autofocus|autoraise|disabled
 
-        Set focus cycle-mode
-            kwmc config cycle-focus screen|disabled (NYI: all, wrap-all)
+        Set focus-wrap-around for 'window -f prev|next'
+            kwmc config cycle-focus screen|all|disabled
 
         Set state of mouse-follows-focus
             kwmc config focus mouse-follows enable|disable
@@ -109,3 +109,6 @@
 
     Move window between monitors (id of primary monitor is 0 and last monitor n-1)
         kwmc screen -m prev|next|id
+
+    Give focus to monitor
+        kwmc screen -f prev|next|id

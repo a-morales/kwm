@@ -646,12 +646,8 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
             if(!NewFocusNode)
                 NewFocusNode = Parent;
 
-            window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
-            if(NewWindow)
-            {
-                SetWindowFocus(NewWindow);
-                MoveCursorToCenterOfFocusedWindow();
-            }
+            SetWindowFocusByNode(NewFocusNode);
+            MoveCursorToCenterOfFocusedWindow();
         }
     }
     else if(!Parent)
@@ -750,10 +746,8 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
                     }
 
                     free(WindowNode);
-                    window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
-                    if(NewWindow)
-                        SetWindowFocus(NewWindow);
-
+                    SetWindowFocusByNode(NewFocusNode);
+                    MoveCursorToCenterOfFocusedWindow();
                 }
             }
         }
@@ -986,26 +980,33 @@ void ShiftWindowFocus(int Shift)
         {
             NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
             if(KwmCycleMode == CycleModeScreen && !NewFocusNode)
+            {
                 NewFocusNode = GetFirstLeafNode(Space->RootNode);
+            }
+            else if(KwmCycleMode == CycleModeWrapAll && !NewFocusNode)
+            {
+                screen_info *Screen = GetDisplayFromScreenID(GetIndexOfNextScreen());
+                UpdateActiveWindowList(Screen);
+                NewFocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+            }
         }
         else if(Shift == -1)
         {
             NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
             if(KwmCycleMode == CycleModeScreen && !NewFocusNode)
-                NewFocusNode = GetLastLeafNode(Space->RootNode);
-        }
-
-
-        if(NewFocusNode)
-        {
-            window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
-            if(NewWindow)
             {
-                DEBUG("ShiftWindowFocus() changing focus to " << NewWindow->Name)
-                SetWindowFocus(NewWindow);
-                MoveCursorToCenterOfFocusedWindow();
+                NewFocusNode = GetLastLeafNode(Space->RootNode);
+            }
+            else if(KwmCycleMode == CycleModeWrapAll && !NewFocusNode)
+            {
+                screen_info *Screen = GetDisplayFromScreenID(GetIndexOfPrevScreen());
+                UpdateActiveWindowList(Screen);
+                NewFocusNode = GetLastLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
             }
         }
+
+        SetWindowFocusByNode(NewFocusNode);
+        MoveCursorToCenterOfFocusedWindow();
     }
 }
 
@@ -1063,6 +1064,20 @@ void SetWindowFocus(window_info *Window)
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
         SetWindowRefFocus(WindowRef, Window);
+}
+
+void SetWindowFocusByNode(tree_node *Node)
+{
+    if(Node)
+    {
+        window_info *Window = GetWindowByID(Node->WindowID);
+        if(Window)
+        {
+            DEBUG("SetWindowFocusByNode()")
+            SetWindowFocus(Window);
+            MoveCursorToCenterOfFocusedWindow();
+        }
+    }
 }
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)

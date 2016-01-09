@@ -40,6 +40,7 @@ void ShowHelp(std::string Command)
             "   gap vertical|horizontal value                          Set default container gaps\n"
             "   float application                                      Always float application\n"
             "   focus toggle|autofocus|autoraise|disabled              Set focus-mode\n"
+            "   cycle-focus screen|all|disabled                        Set wrap-around for 'window -f prev|next'\n"
             "   focus mouse-follows enable|disable                     Set state of mouse-follows-focus\n"
             "   tiling enable|disable                                  Should Kwm perform tiling\n"
             "   space bsp|monocle|float                                Set default tiling mode\n"
@@ -86,6 +87,7 @@ void ShowHelp(std::string Command)
             "Usage: kwmc screen <options>\n"
             "\n"
             "Options:\n"
+            "   -f prev|next|id                                        Change monitor focus\n"
             "   -s optimal|vertical|horizontal                         Set split-mode\n"
             "   -m prev|next|id                                        Move window between monitors (id of primary monitor is 0 and last monitor n-1)\n"
         ;

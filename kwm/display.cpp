@@ -272,22 +272,45 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
     }
 }
 
+int GetIndexOfNextScreen()
+{
+    return KWMScreen.Current->ID + 1 >= KWMScreen.ActiveCount ? 0 : KWMScreen.Current->ID + 1;
+}
+
+int GetIndexOfPrevScreen()
+{
+    return KWMScreen.Current->ID - 1 < 0 ? KWMScreen.ActiveCount - 1 : KWMScreen.Current->ID - 1;
+}
+
+void GiveFocusToScreen(int ScreenIndex)
+{
+    screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
+    if(Screen)
+    {
+        CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2), 
+                                        Screen->Y + (Screen->Height / 2));
+
+        CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
+        CGEventSetFlags(MoveEvent, 0);
+        CGEventPost(kCGHIDEventTap, MoveEvent);
+        CFRelease(MoveEvent);
+
+        DEBUG("GiveFocusToScreen() " << ScreenIndex)
+        UpdateActiveWindowList(Screen);
+        tree_node *NewFocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+        SetWindowFocusByNode(NewFocusNode);
+    }
+}
+
 void CycleFocusedWindowDisplay(int Shift, bool Relative)
 {
     screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
     int NewScreenIndex = -1;
 
     if(Relative)
-    {
-        if(Shift == 1)
-            NewScreenIndex = (Screen->ID + 1 >= KWMScreen.ActiveCount) ? 0 : Screen->ID + 1;
-        else if(Shift == -1)
-            NewScreenIndex = (Screen->ID - 1 < 0) ? KWMScreen.ActiveCount - 1 : Screen->ID - 1;
-    }
+        NewScreenIndex = Shift == 1 ? GetIndexOfNextScreen() : GetIndexOfPrevScreen();
     else
-    {
         NewScreenIndex = Shift;
-    }
 
     if(NewScreenIndex != Screen->ID)
     {
