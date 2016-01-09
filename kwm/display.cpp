@@ -67,7 +67,7 @@ void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenI
 
 void GetActiveDisplays()
 {
-    KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * 5);
+    KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * KWMScreen.MaxCount);
     CGGetActiveDisplayList(KWMScreen.MaxCount, KWMScreen.Displays, &KWMScreen.ActiveCount);
     for(int DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
     {
@@ -86,7 +86,7 @@ void RefreshActiveDisplays()
     if(KWMScreen.Displays)
         free(KWMScreen.Displays);
 
-    KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * 5);
+    KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * KWMScreen.MaxCount);
     CGGetActiveDisplayList(KWMScreen.MaxCount, KWMScreen.Displays, &KWMScreen.ActiveCount);
     for(int DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
     {
