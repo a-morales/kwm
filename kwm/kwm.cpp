@@ -383,8 +383,8 @@ void KwmInit()
     if(GetKwmFilePath())
         KWMCode = LoadKwmCode();
 
-    GetActiveDisplays();
     KwmExecuteConfig();
+    GetActiveDisplays();
 
     pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }
