@@ -21,7 +21,7 @@ extern bool KwmEnableTilingMode;
 extern bool KwmUseContextMenuFix;
 
 int OldScreenID = 0;
-int PrevSpace = -1, CurrentSpace = 0;
+int PrevSpace = -2, CurrentSpace = -1;
 bool ForceRefreshFocus = false;
 bool IsContextualMenusVisible = false;
 window_info FocusedWindowCache;
@@ -32,7 +32,7 @@ std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
 
 bool GetTagForCurrentSpace(std::string &Tag)
 {
-    if(Screen && Screen->ActiveSpace != 0)
+    if(Screen && Screen->ActiveSpace != -1)
     {
         space_info *Space = &Screen->Space[Screen->ActiveSpace];
         if(Space->Mode == SpaceModeBSP)
@@ -400,7 +400,7 @@ void UpdateActiveWindowList(screen_info *Screen)
     PrevSpace = CurrentSpace;
     if(OldScreenID != Screen->ID)
     {
-        if(Screen->ActiveSpace == 0)
+        if(Screen->ActiveSpace == -1)
         {
             do
             {
@@ -797,7 +797,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
         ResizeWindowToContainerSize(CurrentNode->RightChild);
         Screen->ForceContainerUpdate = true;
     }
-    else if(Screen->ActiveSpace != 0)
+    else if(Screen->ActiveSpace != -1)
     {
         std::vector<window_info*> WindowsOnDisplay;
         WindowsOnDisplay.push_back(FocusedWindow);
@@ -808,7 +808,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
 void FloatFocusedSpace()
 {
     if(Screen &&
-       Screen->ActiveSpace != 0 &&
+       Screen->ActiveSpace != -1 &&
        KwmEnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
@@ -824,7 +824,7 @@ void FloatFocusedSpace()
 void TileFocusedSpace(space_tiling_option Mode)
 {
     if(Screen &&
-       Screen->ActiveSpace != 0 &&
+       Screen->ActiveSpace != -1 &&
        KwmEnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
@@ -845,7 +845,7 @@ void TileFocusedSpace(space_tiling_option Mode)
 
 void ToggleFocusedSpaceFloating()
 {
-    if(Screen && Screen->ActiveSpace != 0)
+    if(Screen && Screen->ActiveSpace != -1)
     {
         if(!IsSpaceFloating(Screen->ActiveSpace))
             FloatFocusedSpace();
