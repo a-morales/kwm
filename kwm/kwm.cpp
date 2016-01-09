@@ -3,10 +3,13 @@
 const std::string KwmCurrentVersion = "Kwm Version 1.0.4";
 const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
-CFMachPortRef EventTap;
+uint32_t MaxDisplayCount = 5;
+uint32_t ActiveDisplaysCount;
+CGDirectDisplayID ActiveDisplays[5];
 
-kwm_code KWMCode;
-kwm_prefix KWMPrefix;
+CFMachPortRef EventTap;
+kwm_code KWMCode = {};
+kwm_prefix KWMPrefix = {};
 std::string ENV_HOME;
 std::string KwmFilePath;
 std::string HotkeySOFullFilePath;
@@ -17,23 +20,18 @@ bool KwmUseBuiltinHotkeys;
 bool KwmEnableDragAndDrop;
 bool KwmUseContextMenuFix;
 
-uint32_t MaxDisplayCount = 5;
-uint32_t ActiveDisplaysCount;
-CGDirectDisplayID ActiveDisplays[5];
-
 screen_info *Screen;
-container_offset DefaultContainerOffset = { 40, 20, 20, 20, 10, 10 };
-
 std::map<unsigned int, screen_info> DisplayMap;
+container_offset DefaultContainerOffset = { 40, 20, 20, 20, 10, 10 };
 std::vector<window_info> WindowLst;
-std::vector<std::string> FloatingAppLst;
 std::vector<int> FloatingWindowLst;
+std::vector<std::string> FloatingAppLst;
 std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
 
 ProcessSerialNumber FocusedPSN;
 window_info *FocusedWindow;
-focus_option KwmFocusMode;
 space_tiling_option KwmSpaceMode;
+focus_option KwmFocusMode;
 cycle_focus_option KwmCycleMode;
 int KwmSplitMode = -1;
 int MarkedWindowID = -1;
@@ -42,7 +40,6 @@ bool IsWindowDragInProgress = false;
 
 pthread_t BackgroundThread;
 pthread_t DaemonThread;
-
 pthread_mutex_t BackgroundLock;
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
@@ -67,7 +64,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 Mod.AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
                 Mod.CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
                 Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
-
                 CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 
                 if(KwmMainHotkeyTrigger(&Event, &Mod, Keycode))
@@ -358,8 +354,9 @@ void RemoveKwmFromLaunchd()
     DEBUG("RemoveKwmFromLaunchd() Removing file: " << SymlinkFullPath)
 }
 
-void GetKwmFilePath()
+bool GetKwmFilePath()
 {
+    bool Result = false;
     char PathBuf[PROC_PIDPATHINFO_MAXSIZE];
     pid_t Pid = getpid();
     int Ret = proc_pidpath(Pid, PathBuf, sizeof(PathBuf));
@@ -370,7 +367,10 @@ void GetKwmFilePath()
         std::size_t Split = KwmFilePath.find_last_of("/\\");
         KwmFilePath = KwmFilePath.substr(0, Split);
         HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
+        Result = true;
     }
+
+    return Result;
 }
 
 void KwmInit()
@@ -399,16 +399,18 @@ void KwmInit()
     KWMPrefix.Active = false;
     KWMPrefix.Timeout = 0.75;
 
-    GetKwmFilePath();
-    KwmExecuteConfig();
-    KWMCode = LoadKwmCode();
+    if(GetKwmFilePath())
+        KWMCode = LoadKwmCode();
+
     GetActiveDisplays();
+    KwmExecuteConfig();
 
     pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
 }
 
 bool CheckPrivileges()
 {
+    bool Result = false;
     const void * Keys[] = { kAXTrustedCheckOptionPrompt };
     const void * Values[] = { kCFBooleanTrue };
 
@@ -418,7 +420,10 @@ bool CheckPrivileges()
             &kCFCopyStringDictionaryKeyCallBacks,
             &kCFTypeDictionaryValueCallBacks);
 
-    return AXIsProcessTrustedWithOptions(Options);
+    Result = AXIsProcessTrustedWithOptions(Options);
+    CFRelease(Options);
+
+    return Result;
 }
 
 bool CheckArguments(int argc, char **argv)
@@ -470,5 +475,6 @@ int main(int argc, char **argv)
     CGEventTapEnable(EventTap, true);
     NSApplicationLoad();
     CFRunLoopRun();
+
     return 0;
 }
