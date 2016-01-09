@@ -19,7 +19,7 @@ extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
 
 int OldScreenID = 0;
-int PrevSpace = -1, CurrentSpace = 0;
+int PrevSpace = -2, CurrentSpace = -1;
 bool ForceRefreshFocus = false;
 bool IsContextualMenusVisible = false;
 CFStringRef DisplayIdentifier;
@@ -29,7 +29,7 @@ std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
 
 bool GetTagForCurrentSpace(std::string &Tag)
 {
-    if(KWMScreen.Current && KWMScreen.Current->ActiveSpace != 0)
+    if(KWMScreen.Current && KWMScreen.Current->ActiveSpace != -1)
     {
         space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
         if(Space->Mode == SpaceModeBSP)
@@ -398,7 +398,7 @@ void UpdateActiveWindowList(screen_info *Screen)
     PrevSpace = CurrentSpace;
     if(OldScreenID != Screen->ID)
     {
-        if(Screen->ActiveSpace == 0)
+        if(Screen->ActiveSpace == -1)
         {
             do
             {
@@ -425,7 +425,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         }
 
         DEBUG("UpdateActiveWindowList() Active Display Changed")
-        //FocusWindowBelowCursor();
+        FocusWindowBelowCursor();
     }
     else
     {
@@ -489,7 +489,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
 
 void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 {
-    if(Screen->ActiveSpace == 0 || PrevSpace != Screen->ActiveSpace || Screen->OldWindowListCount == -1)
+    if(Screen->ActiveSpace == -1 || PrevSpace != Screen->ActiveSpace || Screen->OldWindowListCount == -1)
         return;
 
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
@@ -795,7 +795,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
         ResizeWindowToContainerSize(CurrentNode->RightChild);
         Screen->ForceContainerUpdate = true;
     }
-    else if(Screen->ActiveSpace != 0)
+    else if(Screen->ActiveSpace != -1)
     {
         std::vector<window_info*> WindowsOnDisplay;
         WindowsOnDisplay.push_back(KWMFocus.Window);
@@ -806,7 +806,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
 void FloatFocusedSpace()
 {
     if(KWMScreen.Current &&
-       KWMScreen.Current->ActiveSpace != 0 &&
+       KWMScreen.Current->ActiveSpace != -1 &&
        KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
@@ -822,7 +822,7 @@ void FloatFocusedSpace()
 void TileFocusedSpace(space_tiling_option Mode)
 {
     if(KWMScreen.Current &&
-       KWMScreen.Current->ActiveSpace != 0 &&
+       KWMScreen.Current->ActiveSpace != -1 &&
        KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
@@ -843,7 +843,7 @@ void TileFocusedSpace(space_tiling_option Mode)
 
 void ToggleFocusedSpaceFloating()
 {
-    if(KWMScreen.Current && KWMScreen.Current->ActiveSpace != 0)
+    if(KWMScreen.Current && KWMScreen.Current->ActiveSpace != -1)
     {
         if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
             FloatFocusedSpace();

@@ -39,7 +39,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
 
     Screen.ID = ScreenIndex;
     Screen.ForceContainerUpdate = false;
-    Screen.ActiveSpace = 0;
+    Screen.ActiveSpace = -1;
     Screen.OldWindowListCount = -1;
 
     Screen.X = DisplayRect.origin.x;
@@ -91,7 +91,7 @@ void RefreshActiveDisplays()
     for(int DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
     {
         unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
-        std::map<unsigned int, screen_info>::iterator It;
+        std::map<unsigned int, screen_info>::iterator It = DisplayMap.find(DisplayID);
 
         if(It != DisplayMap.end())
             UpdateExistingScreenInfo(&DisplayMap[DisplayID], DisplayID, DisplayIndex);
