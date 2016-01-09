@@ -1,16 +1,11 @@
 #include "kwm.h"
 
-extern uint32_t MaxDisplayCount;
-extern uint32_t ActiveDisplaysCount;
-extern CGDirectDisplayID ActiveDisplays[];
-
+extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern pthread_mutex_t BackgroundLock;
 
-extern screen_info *Screen;
 extern std::map<unsigned int, screen_info> DisplayMap;
 extern std::vector<window_info> WindowLst;
-extern container_offset DefaultContainerOffset;
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
@@ -19,7 +14,7 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
     if (Flags & kCGDisplayAddFlag)
     {
         // Display has been added
-        DEBUG("New display detected! DisplayID: " << Display << " Index: " << ActiveDisplaysCount)
+        DEBUG("New display detected! DisplayID: " << Display << " Index: " << KWMScreen.ActiveCount)
         RefreshActiveDisplays();
     }
     else if (Flags & kCGDisplayRemoveFlag)
@@ -44,7 +39,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
 
     Screen.ID = ScreenIndex;
     Screen.ForceContainerUpdate = false;
-    Screen.ActiveSpace = -1;
+    Screen.ActiveSpace = 0;
     Screen.OldWindowListCount = -1;
 
     Screen.X = DisplayRect.origin.x;
@@ -52,7 +47,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
     Screen.Width = DisplayRect.size.width;
     Screen.Height = DisplayRect.size.height;
 
-    Screen.Offset = DefaultContainerOffset;
+    Screen.Offset = KWMScreen.DefaultOffset;
     return Screen;
 }
 
@@ -66,31 +61,36 @@ void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenI
     Screen->Width = DisplayRect.size.width;
     Screen->Height = DisplayRect.size.height;
 
-    Screen->Offset = DefaultContainerOffset;
+    Screen->Offset = KWMScreen.DefaultOffset;
     Screen->ForceContainerUpdate = true;
 }
 
 void GetActiveDisplays()
 {
-    CGGetActiveDisplayList(MaxDisplayCount, (CGDirectDisplayID*)&ActiveDisplays, &ActiveDisplaysCount);
-    for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
+    KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * 5);
+    CGGetActiveDisplayList(KWMScreen.MaxCount, KWMScreen.Displays, &KWMScreen.ActiveCount);
+    for(int DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
     {
-        unsigned int DisplayID = ActiveDisplays[DisplayIndex];
+        unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
         DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);;
 
         DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
     }
 
-    Screen = GetDisplayOfMousePointer();
+    KWMScreen.Current = GetDisplayOfMousePointer();
     CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
 }
 
 void RefreshActiveDisplays()
 {
-    CGGetActiveDisplayList(MaxDisplayCount, (CGDirectDisplayID*)&ActiveDisplays, &ActiveDisplaysCount);
-    for(int DisplayIndex = 0; DisplayIndex < ActiveDisplaysCount; ++DisplayIndex)
+    if(KWMScreen.Displays)
+        free(KWMScreen.Displays);
+
+    KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * 5);
+    CGGetActiveDisplayList(KWMScreen.MaxCount, KWMScreen.Displays, &KWMScreen.ActiveCount);
+    for(int DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
     {
-        unsigned int DisplayID = ActiveDisplays[DisplayIndex];
+        unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
         std::map<unsigned int, screen_info>::iterator It;
 
         if(It != DisplayMap.end())
@@ -101,7 +101,7 @@ void RefreshActiveDisplays()
         DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
     }
 
-    Screen = GetDisplayOfMousePointer();
+    KWMScreen.Current = GetDisplayOfMousePointer();
 }
 
 screen_info *GetDisplayFromScreenID(int ID)
@@ -185,21 +185,21 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
 void SetDefaultPaddingOfDisplay(const std::string &Side, int Offset)
 {
     if(Side == "left")
-        DefaultContainerOffset.PaddingLeft = Offset;
+        KWMScreen.DefaultOffset.PaddingLeft = Offset;
     else if(Side == "right")
-        DefaultContainerOffset.PaddingRight = Offset;
+        KWMScreen.DefaultOffset.PaddingRight = Offset;
     else if(Side == "top")
-        DefaultContainerOffset.PaddingTop = Offset;
+        KWMScreen.DefaultOffset.PaddingTop = Offset;
     else if(Side == "bottom")
-        DefaultContainerOffset.PaddingBottom = Offset;
+        KWMScreen.DefaultOffset.PaddingBottom = Offset;
 }
 
 void SetDefaultGapOfDisplay(const std::string &Side, int Offset)
 {
     if(Side == "vertical")
-        DefaultContainerOffset.VerticalGap = Offset;
+        KWMScreen.DefaultOffset.VerticalGap = Offset;
     else if(Side == "horizontal")
-        DefaultContainerOffset.HorizontalGap = Offset;
+        KWMScreen.DefaultOffset.HorizontalGap = Offset;
 }
 
 void ChangePaddingOfDisplay(const std::string &Side, int Offset)
@@ -280,9 +280,9 @@ void CycleFocusedWindowDisplay(int Shift, bool Relative)
     if(Relative)
     {
         if(Shift == 1)
-            NewScreenIndex = (Screen->ID + 1 >= ActiveDisplaysCount) ? 0 : Screen->ID + 1;
+            NewScreenIndex = (Screen->ID + 1 >= KWMScreen.ActiveCount) ? 0 : Screen->ID + 1;
         else if(Shift == -1)
-            NewScreenIndex = (Screen->ID - 1 < 0) ? ActiveDisplaysCount - 1 : Screen->ID - 1;
+            NewScreenIndex = (Screen->ID - 1 < 0) ? KWMScreen.ActiveCount - 1 : Screen->ID - 1;
     }
     else
     {
@@ -294,4 +294,10 @@ void CycleFocusedWindowDisplay(int Shift, bool Relative)
         screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
         AddWindowToTreeOfUnfocusedMonitor(NewScreen);
     }
+}
+
+container_offset CreateDefaultScreenOffset()
+{
+    container_offset Offset = { 40, 20, 20, 20, 10, 10 };
+    return Offset;
 }

@@ -2,7 +2,7 @@
 
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 
-extern screen_info *Screen;
+extern kwm_screen KWMScreen;
 extern int MarkedWindowID;
 
 extern std::vector<window_info> WindowLst;
@@ -19,7 +19,7 @@ extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
 
 int OldScreenID = 0;
-int PrevSpace = -2, CurrentSpace = -1;
+int PrevSpace = -1, CurrentSpace = 0;
 bool ForceRefreshFocus = false;
 bool IsContextualMenusVisible = false;
 CFStringRef DisplayIdentifier;
@@ -29,9 +29,9 @@ std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
 
 bool GetTagForCurrentSpace(std::string &Tag)
 {
-    if(Screen && Screen->ActiveSpace != -1)
+    if(KWMScreen.Current && KWMScreen.Current->ActiveSpace != 0)
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
         if(Space->Mode == SpaceModeBSP)
         {
             Tag = "[bsp]";
@@ -181,9 +181,9 @@ bool IsCursorInsideFocusedWindow()
 {
     bool Result = false;
 
-    if(Screen && KWMFocus.Window)
+    if(KWMScreen.Current&& KWMFocus.Window)
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
         tree_node *Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
         if(Node)
         {
@@ -203,9 +203,9 @@ bool IsSpaceFloating(int SpaceID)
 {
     bool Result = false;
 
-    std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
-    if(It != Screen->Space.end())
-        Result = Screen->Space[SpaceID].Mode == SpaceModeFloating;
+    std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(KWMScreen.Current->ActiveSpace);
+    if(It != KWMScreen.Current->Space.end())
+        Result = KWMScreen.Current->Space[SpaceID].Mode == SpaceModeFloating;
 
     return Result;
 }
@@ -303,7 +303,7 @@ bool IsSpaceTransitionInProgress()
 
 bool IsSpaceSystemOrFullscreen()
 {
-    bool Result = CGSSpaceGetType(CGSDefaultConnection, Screen->ActiveSpace) != CGSSpaceTypeUser;
+    bool Result = CGSSpaceGetType(CGSDefaultConnection, KWMScreen.Current->ActiveSpace) != CGSSpaceTypeUser;
     if(Result)
     {
         DEBUG("IsSpaceSystemOrFullscreen() Space is not user created")
@@ -335,41 +335,42 @@ void FocusWindowBelowCursor()
 
 void UpdateWindowTree()
 {
-    OldScreenID = Screen->ID;
-    Screen = GetDisplayOfMousePointer();
-    if(!Screen)
+    OldScreenID = KWMScreen.Current->ID;
+    KWMScreen.Current = GetDisplayOfMousePointer();
+    if(!KWMScreen.Current)
         return;
 
-    UpdateActiveWindowList(Screen);
+    UpdateActiveWindowList(KWMScreen.Current);
 
     if(KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
-       FilterWindowList(Screen))
+       FilterWindowList(KWMScreen.Current))
     {
-        if(!IsSpaceFloating(Screen->ActiveSpace))
+        if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
         {
-            std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
-            std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(Screen->ID);
+            std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(KWMScreen.Current->ActiveSpace);
+            std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
 
-            if(It == Screen->Space.end() && !WindowsOnDisplay.empty())
+            if(It == KWMScreen.Current->Space.end() && !WindowsOnDisplay.empty())
             {
-                CreateWindowNodeTree(Screen, &WindowsOnDisplay);
+                CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
             }
-            else if(It != Screen->Space.end() && !WindowsOnDisplay.empty() &&
-                    Screen->Space[Screen->ActiveSpace].RootNode == NULL)
+            else if(It != KWMScreen.Current->Space.end() && !WindowsOnDisplay.empty() &&
+                    KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode == NULL)
             {
-                CreateWindowNodeTree(Screen, &WindowsOnDisplay);
+                CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
             }
-            else if(It != Screen->Space.end() && !WindowsOnDisplay.empty() &&
-                    Screen->Space[Screen->ActiveSpace].RootNode != NULL)
+            else if(It != KWMScreen.Current->Space.end() && !WindowsOnDisplay.empty() &&
+                    KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode != NULL)
             {
-                ShouldWindowNodeTreeUpdate(Screen);
+                ShouldWindowNodeTreeUpdate(KWMScreen.Current);
             }
-            else if(It != Screen->Space.end() && WindowsOnDisplay.empty())
+            else if(It != KWMScreen.Current->Space.end() && WindowsOnDisplay.empty())
             {
-                DestroyNodeTree(Screen->Space[Screen->ActiveSpace].RootNode, Screen->Space[Screen->ActiveSpace].Mode);
-                Screen->Space[Screen->ActiveSpace].RootNode = NULL;
+                DestroyNodeTree(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode, 
+                                KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode);
+                KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode = NULL;
             }
         }
     }
@@ -397,7 +398,7 @@ void UpdateActiveWindowList(screen_info *Screen)
     PrevSpace = CurrentSpace;
     if(OldScreenID != Screen->ID)
     {
-        if(Screen->ActiveSpace == -1)
+        if(Screen->ActiveSpace == 0)
         {
             do
             {
@@ -424,7 +425,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         }
 
         DEBUG("UpdateActiveWindowList() Active Display Changed")
-        FocusWindowBelowCursor();
+        //FocusWindowBelowCursor();
     }
     else
     {
@@ -488,7 +489,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
 
 void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 {
-    if(Screen->ActiveSpace == -1 || PrevSpace != Screen->ActiveSpace || Screen->OldWindowListCount == -1)
+    if(Screen->ActiveSpace == 0 || PrevSpace != Screen->ActiveSpace || Screen->OldWindowListCount == -1)
         return;
 
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
@@ -594,10 +595,10 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
 
 void AddWindowToBSPTree()
 {
-    if(!Screen)
+    if(!KWMScreen.Current)
         return;
 
-    AddWindowToBSPTree(Screen, KWMFocus.Window->WID);
+    AddWindowToBSPTree(KWMScreen.Current, KWMFocus.Window->WID);
 }
 
 void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
@@ -666,10 +667,10 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
 
 void RemoveWindowFromBSPTree()
 {
-    if(!Screen)
+    if(!KWMScreen.Current)
         return;
 
-    RemoveWindowFromBSPTree(Screen, KWMFocus.Window->WID, true);
+    RemoveWindowFromBSPTree(KWMScreen.Current, KWMFocus.Window->WID, true);
 }
 
 void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
@@ -794,7 +795,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
         ResizeWindowToContainerSize(CurrentNode->RightChild);
         Screen->ForceContainerUpdate = true;
     }
-    else if(Screen->ActiveSpace != -1)
+    else if(Screen->ActiveSpace != 0)
     {
         std::vector<window_info*> WindowsOnDisplay;
         WindowsOnDisplay.push_back(KWMFocus.Window);
@@ -804,14 +805,14 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
 
 void FloatFocusedSpace()
 {
-    if(Screen &&
-       Screen->ActiveSpace != -1 &&
+    if(KWMScreen.Current &&
+       KWMScreen.Current->ActiveSpace != 0 &&
        KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
-       FilterWindowList(Screen))
+       FilterWindowList(KWMScreen.Current))
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
         DestroyNodeTree(Space->RootNode, Space->Mode);
         Space->RootNode = NULL;
         Space->Mode = SpaceModeFloating;
@@ -820,14 +821,14 @@ void FloatFocusedSpace()
 
 void TileFocusedSpace(space_tiling_option Mode)
 {
-    if(Screen &&
-       Screen->ActiveSpace != -1 &&
+    if(KWMScreen.Current &&
+       KWMScreen.Current->ActiveSpace != 0 &&
        KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
-       FilterWindowList(Screen))
+       FilterWindowList(KWMScreen.Current))
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
         if(Space->Mode == Mode)
             return;
 
@@ -835,16 +836,16 @@ void TileFocusedSpace(space_tiling_option Mode)
         Space->RootNode = NULL;
 
         Space->Mode = Mode;
-        std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(Screen->ID);
-        CreateWindowNodeTree(Screen, &WindowsOnDisplay);
+        std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
+        CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
     }
 }
 
 void ToggleFocusedSpaceFloating()
 {
-    if(Screen && Screen->ActiveSpace != -1)
+    if(KWMScreen.Current && KWMScreen.Current->ActiveSpace != 0)
     {
-        if(!IsSpaceFloating(Screen->ActiveSpace))
+        if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
             FloatFocusedSpace();
         else
             TileFocusedSpace(SpaceModeBSP);
@@ -855,7 +856,7 @@ void ToggleFocusedWindowFloating()
 {
     if(KWMFocus.Window &&
        IsWindowOnActiveSpace(KWMFocus.Window) &&
-       Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
+       KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeBSP)
     {
         int WindowIndex;
         if(IsWindowFloating(KWMFocus.Window->WID, &WindowIndex))
@@ -873,10 +874,10 @@ void ToggleFocusedWindowFloating()
 
 void ToggleFocusedWindowParentContainer()
 {
-    if(!KWMFocus.Window || !Screen || !DoesSpaceExistInMapOfScreen(Screen))
+    if(!KWMFocus.Window || !KWMScreen.Current || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         return;
 
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
     if(Space->Mode != SpaceModeBSP)
         return;
 
@@ -900,10 +901,10 @@ void ToggleFocusedWindowParentContainer()
 
 void ToggleFocusedWindowFullscreen()
 {
-    if(!KWMFocus.Window || !Screen || !DoesSpaceExistInMapOfScreen(Screen))
+    if(!KWMFocus.Window || !KWMScreen.Current || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         return;
 
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
     if(Space->Mode == SpaceModeBSP && !IsLeafNode(Space->RootNode))
     {
         tree_node *Node;
@@ -934,9 +935,9 @@ void SwapFocusedWindowWithMarked()
     if(!KWMFocus.Window || MarkedWindowID == KWMFocus.Window->WID || MarkedWindowID == -1)
         return;
 
-    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
+    if(KWMScreen.Current && DoesSpaceExistInMapOfScreen(KWMScreen.Current))
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
         tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
         if(FocusedWindowNode)
         {
@@ -951,10 +952,10 @@ void SwapFocusedWindowWithMarked()
 
 void SwapFocusedWindowWithNearest(int Shift)
 {
-    if(!KWMFocus.Window || !Screen || !DoesSpaceExistInMapOfScreen(Screen))
+    if(!KWMFocus.Window || !KWMScreen.Current || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         return;
 
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
     tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
     if(FocusedWindowNode)
     {
@@ -972,10 +973,10 @@ void SwapFocusedWindowWithNearest(int Shift)
 
 void ShiftWindowFocus(int Shift)
 {
-    if(!KWMFocus.Window || !Screen || !DoesSpaceExistInMapOfScreen(Screen))
+    if(!KWMFocus.Window || !KWMScreen.Current || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         return;
 
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
     tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
     if(FocusedWindowNode)
     {
@@ -1103,9 +1104,9 @@ void CenterWindow(screen_info *Screen)
 
 void ModifyContainerSplitRatio(double Offset)
 {
-    if(Screen && DoesSpaceExistInMapOfScreen(Screen))
+    if(KWMScreen.Current && DoesSpaceExistInMapOfScreen(KWMScreen.Current))
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
         tree_node *Root = Space->RootNode;
         if(IsLeafNode(Root) || Root->WindowID != -1)
             return;
@@ -1117,7 +1118,7 @@ void ModifyContainerSplitRatio(double Offset)
                Node->Parent->SplitRatio + Offset < 1.0)
             {
                 Node->Parent->SplitRatio += Offset;
-                ResizeNodeContainer(Screen, Node->Parent);
+                ResizeNodeContainer(KWMScreen.Current, Node->Parent);
                 ApplyNodeContainer(Node->Parent, Space->Mode);
             }
         }
@@ -1148,9 +1149,9 @@ void ResizeWindowToContainerSize()
 {
     if(KWMFocus.Window)
     {
-        if(Screen && DoesSpaceExistInMapOfScreen(Screen))
+        if(KWMScreen.Current && DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         {
-            space_info *Space = &Screen->Space[Screen->ActiveSpace];
+            space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
             tree_node *Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
             if(Node)
                 ResizeWindowToContainerSize(Node);

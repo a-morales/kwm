@@ -1,6 +1,6 @@
 #include "kwm.h"
 
-extern screen_info *Screen;
+extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
 extern kwm_focus KWMFocus;
 extern focus_option KwmFocusMode;
@@ -201,9 +201,9 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "split")
         {
-            space_info *Space = &Screen->Space[Screen->ActiveSpace];
+            space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
             tree_node *Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
-            ToggleNodeSplitMode(Screen, Node->Parent);
+            ToggleNodeSplitMode(KWMScreen.Current, Node->Parent);
         }
         else if(Tokens[2] == "reduce" || Tokens[2] == "expand")
         {
@@ -289,11 +289,11 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
             std::stringstream Stream(Tokens[2]);
             Stream >> Deg;
 
-            space_info *Space = &Screen->Space[Screen->ActiveSpace];
+            space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
             if(Space->Mode == SpaceModeBSP)
             {
                 RotateTree(Space->RootNode, Deg);
-                CreateNodeContainers(Screen, Space->RootNode, false);
+                CreateNodeContainers(KWMScreen.Current, Space->RootNode, false);
                 ApplyNodeContainer(Space->RootNode, Space->Mode);
             }
         }

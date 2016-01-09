@@ -6,18 +6,13 @@ const std::string PlistFile = "com.koekeishiya.kwm.plist";
 CFMachPortRef EventTap;
 kwm_path KWMPath = {};
 kwm_code KWMCode = {};
+kwm_screen KWMScreen = {};
 kwm_toggles KWMToggles = {};
 kwm_prefix KWMPrefix = {};
 kwm_focus KWMFocus = {};
 std::vector<hotkey> KwmHotkeys;
 
-CGDirectDisplayID ActiveDisplays[5];
-uint32_t MaxDisplayCount = 5;
-uint32_t ActiveDisplaysCount;
-
-screen_info *Screen;
 std::map<unsigned int, screen_info> DisplayMap;
-container_offset DefaultContainerOffset = { 40, 20, 20, 20, 10, 10 };
 std::vector<window_info> WindowLst;
 std::vector<int> FloatingWindowLst;
 std::vector<std::string> FloatingAppLst;
@@ -364,6 +359,10 @@ void KwmInit()
         pthread_create(&DaemonThread, NULL, &KwmDaemonHandleConnectionBG, NULL);
     else
         Fatal("Kwm: Could not start daemon..");
+
+    KWMScreen.DefaultOffset = CreateDefaultScreenOffset();
+    KWMScreen.MaxCount = 5;
+    KWMScreen.ActiveCount = 0;
 
     KWMToggles.EnableTilingMode = true;
     KWMToggles.UseBuiltinHotkeys = true;

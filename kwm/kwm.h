@@ -42,6 +42,7 @@ struct kwm_prefix;
 struct kwm_toggles;
 struct kwm_path;
 struct kwm_focus;
+struct kwm_screen;
 
 #ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
@@ -219,6 +220,17 @@ struct kwm_focus
     window_info Cache;
 };
 
+struct kwm_screen
+{
+    screen_info *Current;
+    container_offset DefaultOffset;
+
+    CGDirectDisplayID *Displays;
+    uint32_t MaxCount;
+    uint32_t ActiveCount;
+};
+
+container_offset CreateDefaultScreenOffset();
 node_container LeftVerticalContainerSplit(screen_info *, tree_node *);
 node_container RightVerticalContainerSplit(screen_info *, tree_node *);
 node_container UpperHorizontalContainerSplit(screen_info *, tree_node *);
