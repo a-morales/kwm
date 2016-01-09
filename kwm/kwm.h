@@ -26,8 +26,6 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-struct kwm_code;
-struct kwm_prefix;
 struct hotkey;
 struct modifiers;
 struct container_offset;
@@ -38,6 +36,12 @@ struct screen_info;
 struct space_info;
 struct node_container;
 struct tree_node;
+
+struct kwm_code;
+struct kwm_prefix;
+struct kwm_toggles;
+struct kwm_path;
+struct kwm_focus;
 
 #ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
@@ -112,27 +116,6 @@ struct container_offset
     double VerticalGap, HorizontalGap;
 };
 
-struct kwm_code
-{
-    void *KwmHotkeySO;
-    std::string HotkeySOFileTime;
-
-    kwm_hotkey_commands *KWMHotkeyCommands;
-    kwm_key_remap *RemapKeys;
-
-    bool IsValid;
-};
-
-struct kwm_prefix
-{
-    kwm_time_point Time;
-    hotkey Key;
-
-    double Timeout;
-    bool Enabled;
-    bool Active;
-};
-
 struct node_container
 {    
     double X, Y;
@@ -188,6 +171,52 @@ struct screen_info
     int OldWindowListCount;
     bool ForceContainerUpdate;
     std::map<int, space_info> Space;
+};
+
+struct kwm_code
+{
+    void *KwmHotkeySO;
+    std::string HotkeySOFileTime;
+
+    kwm_hotkey_commands *KWMHotkeyCommands;
+    kwm_key_remap *RemapKeys;
+
+    bool IsValid;
+};
+
+struct kwm_prefix
+{
+    kwm_time_point Time;
+    hotkey Key;
+
+    double Timeout;
+    bool Enabled;
+    bool Active;
+};
+
+struct kwm_toggles
+{
+    bool UseMouseFollowsFocus;
+    bool WindowDragInProgress;
+    bool EnableTilingMode;
+    bool UseBuiltinHotkeys;
+    bool EnableDragAndDrop;
+    bool UseContextMenuFix;
+};
+
+struct kwm_path
+{
+    std::string EnvHome;
+    std::string FilePath;
+    std::string ConfigFile;
+    std::string HotkeySOFullPath;
+};
+
+struct kwm_focus
+{
+    ProcessSerialNumber PSN;
+    window_info *Window;
+    window_info Cache;
 };
 
 node_container LeftVerticalContainerSplit(screen_info *, tree_node *);

@@ -1,17 +1,14 @@
 #include "kwm.h"
 
 extern screen_info *Screen;
-extern std::vector<std::string> FloatingAppLst;
-extern window_info *FocusedWindow;
+extern kwm_toggles KWMToggles;
+extern kwm_focus KWMFocus;
 extern focus_option KwmFocusMode;
 extern space_tiling_option KwmSpaceMode;
 extern cycle_focus_option KwmCycleMode;
+extern std::vector<std::string> FloatingAppLst;
 extern int KwmSplitMode;
-extern bool KwmUseMouseFollowsFocus;
-extern bool KwmEnableTilingMode;
-extern bool KwmUseBuiltinHotkeys;
-extern bool KwmEnableDragAndDrop;
-extern bool KwmUseContextMenuFix;
+
 
 std::string CreateStringFromTokens(std::vector<std::string> Tokens, int StartIndex)
 {
@@ -68,9 +65,9 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "tiling")
     {
         if(Tokens[2] == "disable")
-            KwmEnableTilingMode = false;
+            KWMToggles.EnableTilingMode = false;
         else if(Tokens[2] == "enable")
-            KwmEnableTilingMode = true;
+            KWMToggles.EnableTilingMode = true;
     }
     else if(Tokens[1] == "space")
     {
@@ -86,9 +83,9 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         if(Tokens[2] == "mouse-follows")
         {
             if(Tokens[3] == "disable")
-                KwmUseMouseFollowsFocus = false;
+                KWMToggles.UseMouseFollowsFocus = false;
             else if(Tokens[3] == "enable")
-                KwmUseMouseFollowsFocus = true;
+                KWMToggles.UseMouseFollowsFocus = true;
         }
         else if(Tokens[2] == "toggle")
         {
@@ -120,23 +117,23 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "hotkeys")
     {
         if(Tokens[2] == "disable")
-            KwmUseBuiltinHotkeys = false;
+            KWMToggles.UseBuiltinHotkeys = false;
         else if(Tokens[2] == "enable")
-            KwmUseBuiltinHotkeys = true;
+            KWMToggles.UseBuiltinHotkeys = true;
     }
     else if(Tokens[1] == "dragndrop")
     {
         if(Tokens[2] == "disable")
-            KwmEnableDragAndDrop = false;
+            KWMToggles.EnableDragAndDrop = false;
         else if(Tokens[2] == "enable")
-            KwmEnableDragAndDrop = true;
+            KWMToggles.EnableDragAndDrop = true;
     }
     else if(Tokens[1] == "menu-fix")
     {
         if(Tokens[2] == "disable")
-            KwmUseContextMenuFix = false;
+            KWMToggles.UseContextMenuFix = false;
         else if(Tokens[2] == "enable")
-            KwmUseContextMenuFix = true;
+            KWMToggles.UseContextMenuFix = true;
     }
     else if(Tokens[1] == "float")
     {
@@ -181,8 +178,8 @@ void KwmFocusedCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     std::string Output;
     GetTagForCurrentSpace(Output);
 
-    if(FocusedWindow)
-        Output += " " + FocusedWindow->Owner + " - " + FocusedWindow->Name;
+    if(KWMFocus.Window)
+        Output += " " + KWMFocus.Window->Owner + " - " + KWMFocus.Window->Name;
 
     KwmWriteToSocket(ClientSockFD, Output);
 }
@@ -205,7 +202,7 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
         if(Tokens[2] == "split")
         {
             space_info *Space = &Screen->Space[Screen->ActiveSpace];
-            tree_node *Node = GetNodeFromWindowID(Space->RootNode, FocusedWindow->WID, Space->Mode);
+            tree_node *Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
             ToggleNodeSplitMode(Screen, Node->Parent);
         }
         else if(Tokens[2] == "reduce" || Tokens[2] == "expand")

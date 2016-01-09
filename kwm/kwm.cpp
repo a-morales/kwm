@@ -3,22 +3,17 @@
 const std::string KwmCurrentVersion = "Kwm Version 1.0.4";
 const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
+CFMachPortRef EventTap;
+kwm_path KWMPath = {};
+kwm_code KWMCode = {};
+kwm_toggles KWMToggles = {};
+kwm_prefix KWMPrefix = {};
+kwm_focus KWMFocus = {};
+std::vector<hotkey> KwmHotkeys;
+
+CGDirectDisplayID ActiveDisplays[5];
 uint32_t MaxDisplayCount = 5;
 uint32_t ActiveDisplaysCount;
-CGDirectDisplayID ActiveDisplays[5];
-
-CFMachPortRef EventTap;
-kwm_code KWMCode = {};
-kwm_prefix KWMPrefix = {};
-std::string ENV_HOME;
-std::string KwmFilePath;
-std::string HotkeySOFullFilePath;
-std::vector<hotkey> KwmHotkeys;
-bool KwmUseMouseFollowsFocus;
-bool KwmEnableTilingMode;
-bool KwmUseBuiltinHotkeys;
-bool KwmEnableDragAndDrop;
-bool KwmUseContextMenuFix;
 
 screen_info *Screen;
 std::map<unsigned int, screen_info> DisplayMap;
@@ -28,15 +23,12 @@ std::vector<int> FloatingWindowLst;
 std::vector<std::string> FloatingAppLst;
 std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
 
-ProcessSerialNumber FocusedPSN;
-window_info *FocusedWindow;
 space_tiling_option KwmSpaceMode;
 focus_option KwmFocusMode;
 cycle_focus_option KwmCycleMode;
 int KwmSplitMode = -1;
 int MarkedWindowID = -1;
 double KwmSplitRatio = 0.5;
-bool IsWindowDragInProgress = false;
 
 pthread_t BackgroundThread;
 pthread_t DaemonThread;
@@ -56,7 +48,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyDown:
         {
-            if(KwmUseBuiltinHotkeys && KwmMainHotkeyTrigger(&Event))
+            if(KWMToggles.UseBuiltinHotkeys && KwmMainHotkeyTrigger(&Event))
             {
                     pthread_mutex_unlock(&BackgroundLock);
                     return NULL;
@@ -65,7 +57,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             if(KwmFocusMode == FocusModeAutofocus)
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
-                CGEventPostToPSN(&FocusedPSN, Event);
+                CGEventPostToPSN(&KWMFocus.PSN, Event);
                 pthread_mutex_unlock(&BackgroundLock);
                 return NULL;
             }
@@ -75,7 +67,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             if(KwmFocusMode == FocusModeAutofocus)
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
-                CGEventPostToPSN(&FocusedPSN, Event);
+                CGEventPostToPSN(&KWMFocus.PSN, Event);
                 pthread_mutex_unlock(&BackgroundLock);
                 return NULL;
             }
@@ -89,17 +81,17 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             DEBUG("Left mouse button was pressed")
             FocusWindowBelowCursor();
-            if(KwmEnableDragAndDrop && IsCursorInsideFocusedWindow())
-               IsWindowDragInProgress = true;
+            if(KWMToggles.EnableDragAndDrop && IsCursorInsideFocusedWindow())
+               KWMToggles.WindowDragInProgress = true;
         } break;
         case kCGEventLeftMouseUp:
         {
-            if(KwmEnableDragAndDrop && IsWindowDragInProgress)
+            if(KWMToggles.EnableDragAndDrop && KWMToggles.WindowDragInProgress)
             {
                 if(!IsCursorInsideFocusedWindow())
                     ToggleFocusedWindowFloating();
 
-                IsWindowDragInProgress = false;
+                KWMToggles.WindowDragInProgress = false;
             }
 
             DEBUG("Left mouse button was released")
@@ -112,7 +104,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
 bool KwmRunLiveCodeHotkeySystem(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
 {
-    std::string NewHotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
+    std::string NewHotkeySOFileTime = KwmGetFileTime(KWMPath.HotkeySOFullPath.c_str());
     if(NewHotkeySOFileTime != "file not found" &&
        NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
     {
@@ -157,8 +149,8 @@ kwm_code LoadKwmCode()
 {
     kwm_code Code = {};
 
-    Code.HotkeySOFileTime = KwmGetFileTime(HotkeySOFullFilePath.c_str());
-    Code.KwmHotkeySO = dlopen(HotkeySOFullFilePath.c_str(),  RTLD_LAZY);
+    Code.HotkeySOFileTime = KwmGetFileTime(KWMPath.HotkeySOFullPath.c_str());
+    Code.KwmHotkeySO = dlopen(KWMPath.HotkeySOFullPath.c_str(),  RTLD_LAZY);
     if(Code.KwmHotkeySO)
     {
         Code.KWMHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "KWMHotkeyCommands");
@@ -166,7 +158,7 @@ kwm_code LoadKwmCode()
     }
     else
     {
-        DEBUG("LoadKwmCode() Could not open '" << HotkeySOFullFilePath << "'")
+        DEBUG("LoadKwmCode() Could not open '" << KWMPath.HotkeySOFullPath << "'")
     }
 
     Code.IsValid = (Code.KWMHotkeyCommands && Code.RemapKeys);
@@ -256,13 +248,11 @@ void KwmExecuteConfig()
         return;
     }
 
-    ENV_HOME = HomeP;
-    std::string KWM_CONFIG_FILE = ".kwmrc";
-
-    std::ifstream ConfigFD(ENV_HOME + "/" + KWM_CONFIG_FILE);
+    KWMPath.EnvHome = HomeP;
+    std::ifstream ConfigFD(KWMPath.EnvHome + "/" + KWMPath.ConfigFile);
     if(ConfigFD.fail())
     {
-        DEBUG("Could not open " << ENV_HOME << "/" << KWM_CONFIG_FILE
+        DEBUG("Could not open " << KWMPath.EnvHome << "/" << KWMPath.ConfigFile
               << ", make sure the file exists." << std::endl)
         return;
     }
@@ -282,7 +272,7 @@ void KwmExecuteConfig()
 
 bool IsKwmAlreadyAddedToLaunchd()
 {
-    std::string SymlinkFullPath = ENV_HOME + "/Library/LaunchAgents/" + PlistFile;
+    std::string SymlinkFullPath = KWMPath.EnvHome + "/Library/LaunchAgents/" + PlistFile;
 
     struct stat attr;
     int Result = stat(SymlinkFullPath.c_str(), &attr);
@@ -297,10 +287,10 @@ void AddKwmToLaunchd()
     if(IsKwmAlreadyAddedToLaunchd())
         return;
 
-    std::string PlistFullPath = KwmFilePath + "/" + PlistFile;
-    std::string SymlinkFullPath = ENV_HOME + "/Library/LaunchAgents/" + PlistFile;
+    std::string PlistFullPath = KWMPath.FilePath + "/" + PlistFile;
+    std::string SymlinkFullPath = KWMPath.EnvHome + "/Library/LaunchAgents/" + PlistFile;
 
-    std::ifstream TemplateFD(KwmFilePath + "/kwm_template.plist");
+    std::ifstream TemplateFD(KWMPath.FilePath + "/kwm_template.plist");
     if(TemplateFD.fail())
         return;
 
@@ -317,7 +307,7 @@ void AddKwmToLaunchd()
     for(int LineNumber = 0; LineNumber < PlistContents.size(); ++LineNumber)
     {
         if(LineNumber == 8)
-            OutFD << "    <string>" + KwmFilePath + "/kwm</string>" << std::endl;
+            OutFD << "    <string>" + KWMPath.FilePath + "/kwm</string>" << std::endl;
         else
             OutFD << PlistContents[LineNumber] << std::endl;
     }
@@ -336,7 +326,7 @@ void RemoveKwmFromLaunchd()
     if(!IsKwmAlreadyAddedToLaunchd())
         return;
 
-    std::string SymlinkFullPath = ENV_HOME + "/Library/LaunchAgents/" + PlistFile;
+    std::string SymlinkFullPath = KWMPath.EnvHome + "/Library/LaunchAgents/" + PlistFile;
     std::string RemoveSymlink = "rm " + SymlinkFullPath;
 
     system(RemoveSymlink.c_str());
@@ -351,11 +341,11 @@ bool GetKwmFilePath()
     int Ret = proc_pidpath(Pid, PathBuf, sizeof(PathBuf));
     if (Ret > 0)
     {
-        KwmFilePath = PathBuf;
+        KWMPath.FilePath = PathBuf;
 
-        std::size_t Split = KwmFilePath.find_last_of("/\\");
-        KwmFilePath = KwmFilePath.substr(0, Split);
-        HotkeySOFullFilePath = KwmFilePath + "/hotkeys.so";
+        std::size_t Split = KWMPath.FilePath.find_last_of("/\\");
+        KWMPath.FilePath = KWMPath.FilePath.substr(0, Split);
+        KWMPath.HotkeySOFullPath = KWMPath.FilePath + "/hotkeys.so";
         Result = true;
     }
 
@@ -375,19 +365,22 @@ void KwmInit()
     else
         Fatal("Kwm: Could not start daemon..");
 
-    KwmEnableTilingMode = true;
-    KwmUseBuiltinHotkeys = true;
-    KwmEnableDragAndDrop = true;
-    KwmUseContextMenuFix = true;
+    KWMToggles.EnableTilingMode = true;
+    KWMToggles.UseBuiltinHotkeys = true;
+    KWMToggles.EnableDragAndDrop = true;
+    KWMToggles.UseContextMenuFix = true;
+    KWMToggles.UseMouseFollowsFocus = true;
+    KWMToggles.WindowDragInProgress = false;
+
     KwmSpaceMode = SpaceModeBSP;
     KwmFocusMode = FocusModeAutoraise;
     KwmCycleMode = CycleModeScreen;
-    KwmUseMouseFollowsFocus = false;
 
     KWMPrefix.Enabled = false;
     KWMPrefix.Active = false;
     KWMPrefix.Timeout = 0.75;
 
+    KWMPath.ConfigFile = ".kwmrc";
     if(GetKwmFilePath())
         KWMCode = LoadKwmCode();
 

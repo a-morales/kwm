@@ -1,8 +1,8 @@
 #include "kwm.h"
 
-extern ProcessSerialNumber FocusedPSN;
 extern std::vector<hotkey> KwmHotkeys;
 extern kwm_prefix KWMPrefix;
+extern kwm_focus KWMFocus;
 
 bool HotkeysAreEqual(hotkey *A, hotkey *B)
 {
@@ -304,11 +304,11 @@ void KwmEmitKeystrokes(std::string Text)
 
         CGEventSetFlags(EventKeyDown, 0);
         CGEventKeyboardSetUnicodeString(EventKeyDown, 1, &OutputBuffer);
-        CGEventPostToPSN(&FocusedPSN, EventKeyDown);
+        CGEventPostToPSN(&KWMFocus.PSN, EventKeyDown);
 
         CGEventSetFlags(EventKeyUp, 0);
         CGEventKeyboardSetUnicodeString(EventKeyUp, 1, &OutputBuffer);
-        CGEventPostToPSN(&FocusedPSN, EventKeyUp);
+        CGEventPostToPSN(&KWMFocus.PSN, EventKeyUp);
     }
 
     CFRelease(EventKeyUp);

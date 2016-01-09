@@ -4,14 +4,13 @@ extern uint32_t MaxDisplayCount;
 extern uint32_t ActiveDisplaysCount;
 extern CGDirectDisplayID ActiveDisplays[];
 
+extern kwm_focus KWMFocus;
+extern pthread_mutex_t BackgroundLock;
+
 extern screen_info *Screen;
 extern std::map<unsigned int, screen_info> DisplayMap;
 extern std::vector<window_info> WindowLst;
-extern window_info *FocusedWindow;
 extern container_offset DefaultContainerOffset;
-
-
-extern pthread_mutex_t BackgroundLock;
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
@@ -275,7 +274,7 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
 
 void CycleFocusedWindowDisplay(int Shift, bool Relative)
 {
-    screen_info *Screen = GetDisplayOfWindow(FocusedWindow);
+    screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
     int NewScreenIndex = -1;
 
     if(Relative)
