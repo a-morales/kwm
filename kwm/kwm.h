@@ -342,7 +342,7 @@ void KwmQuit();
 void KwmSetGlobalPrefix(std::string);
 void KwmSetGlobalPrefixTimeout(double);
 bool GetTagForCurrentSpace(std::string &);
-void GetKwmFilePath();
+bool GetKwmFilePath();
 bool IsKwmAlreadyAddedToLaunchd();
 void AddKwmToLaunchd();
 void RemoveKwmFromLaunchd();
