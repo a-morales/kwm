@@ -27,6 +27,9 @@ kwmc config hotkeys enable
 # This hotkey must be pressed for binds to activate!
 # kwmc config prefix ctrl-k
 
+# Timeout duration for prefix-key in seconds
+# kwmc config prefix-timeout 0.75
+
 # Turn off focus-follows-mouse if any
 # context-menus or the menubar is visible.
 # If the menubar is not set to auto-hide,
@@ -38,6 +41,9 @@ kwmc config focus autoraise
 
 # Enable mouse-follows-focus
 kwmc config focus mouse-follows enable
+
+# Cycle focus through all screens
+kwmc config cycle-focus all
 
 # Window can be made floating through drag&drop
 kwmc config dragndrop enable
