@@ -95,14 +95,14 @@
     Swap window position
         kwmc window -s prev|next|mark
 
-    Set tiling mode of current space (every space uses bsp tiling by default)
-        kwmc space -t toggle|bsp|monocle|float
-
     Rotate window-tree
         kwmc tree -r 90|180|270
 
     Resize all windows to container
         kwmc tree -c refresh
+
+    Set tiling mode of current space (every space uses bsp tiling by default)
+        kwmc space -t toggle|bsp|monocle|float
 
     Change space padding
         kwmc space -p increase|decrease left|right|top|bottom
