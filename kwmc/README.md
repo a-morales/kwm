@@ -110,5 +110,8 @@
     Move window between monitors (id of primary monitor is 0 and last monitor n-1)
         kwmc screen -m prev|next|id
 
+    Capture application to screen (Application will always open on the specified screen)
+        kwmc screen -c id application
+
     Give focus to monitor
         kwmc screen -f prev|next|id

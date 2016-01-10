@@ -87,8 +87,9 @@ void ShowHelp(std::string Command)
             "Usage: kwmc screen <options>\n"
             "\n"
             "Options:\n"
-            "   -f prev|next|id                                        Change monitor focus\n"
             "   -s optimal|vertical|horizontal                         Set split-mode\n"
+            "   -f prev|next|id                                        Change monitor focus\n"
+            "   -c id application                                      Capture application to screen\n"
             "   -m prev|next|id                                        Move window between monitors (id of primary monitor is 0 and last monitor n-1)\n"
         ;
     }
