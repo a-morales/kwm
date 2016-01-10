@@ -47,8 +47,8 @@ When moving a window directly with the mouse, *Kwm* will detect on mouse-release
 position has changed, and automatically make it floating (Due to technical limitations this event  
 must occur on the monitor which currently holds the window).
 
-The first time a monitor is connected, the user may have to click several times on the screen for it to register.  
-After this step, moving the mouse to a different monitor should activate the monitor automatically.  
+Moving the mouse to a different monitor should activate the monitor automatically.  
+`kwmc screen -f prev|next|id` can also be used to give focus to a different monitor.  
 
 ## Build:
 

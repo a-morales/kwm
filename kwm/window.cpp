@@ -398,13 +398,16 @@ void UpdateActiveWindowList(screen_info *Screen)
     PrevSpace = CurrentSpace;
     if(OldScreenID != Screen->ID)
     {
+        CGPoint CursorPos = GetCursorPos();
+        CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
+        CGEventSetFlags(MoveEvent, 0);
+        CGEventPost(kCGHIDEventTap, MoveEvent);
+        CFRelease(MoveEvent);
+        KWMScreen.Current = Screen;
+
         if(Screen->ActiveSpace == -1)
         {
-            do
-            {
-                CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
-                usleep(200000);
-            } while(PrevSpace == CurrentSpace);
+            CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
             Screen->ActiveSpace = CurrentSpace;
         }
         else
@@ -425,7 +428,6 @@ void UpdateActiveWindowList(screen_info *Screen)
         }
 
         DEBUG("UpdateActiveWindowList() Active Display Changed")
-        FocusWindowBelowCursor();
     }
     else
     {
@@ -983,10 +985,11 @@ void ShiftWindowFocus(int Shift)
             {
                 NewFocusNode = GetFirstLeafNode(Space->RootNode);
             }
-            else if(KwmCycleMode == CycleModeWrapAll && !NewFocusNode)
+            else if(KwmCycleMode == CycleModeAll && !NewFocusNode)
             {
-                screen_info *Screen = GetDisplayFromScreenID(GetIndexOfNextScreen());
-                UpdateActiveWindowList(Screen);
+                int ScreenIndex = GetIndexOfNextScreen();
+                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
+                GiveFocusToScreen(ScreenIndex);
                 NewFocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
             }
         }
@@ -997,10 +1000,11 @@ void ShiftWindowFocus(int Shift)
             {
                 NewFocusNode = GetLastLeafNode(Space->RootNode);
             }
-            else if(KwmCycleMode == CycleModeWrapAll && !NewFocusNode)
+            else if(KwmCycleMode == CycleModeAll && !NewFocusNode)
             {
-                screen_info *Screen = GetDisplayFromScreenID(GetIndexOfPrevScreen());
-                UpdateActiveWindowList(Screen);
+                int ScreenIndex = GetIndexOfPrevScreen();
+                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
+                GiveFocusToScreen(ScreenIndex);
                 NewFocusNode = GetLastLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
             }
         }
