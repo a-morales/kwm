@@ -70,6 +70,11 @@ kwmc config add-role AXDialog iTerm2
 kwmc config float Steam
 kwmc config float Photoshop
 
+# The following command captures an application to the
+# given screen, if the screen exists. By doing this
+# the application can no longer be moved to other screens
+# kwmc screen -c 1 iTunes
+
 #### Default Keybindings For Interacting With Kwm
 kwmc bind cmd+alt+ctrl-t config focus toggle
 kwmc bind cmd+alt+ctrl-r window -c refresh
