@@ -12,6 +12,7 @@ void ShowUsage()
         "   help                                         Display this screen\n"
         "   config                                       Set configuration for Kwm\n"
         "   window                                       Manipulate current window\n"
+        "   tree                                         Manipulate current window-tree\n"
         "   space                                        Manipulate current space\n"
         "   screen                                       Manipulate current screen\n"
         "   focused                                      Get owner and title of focused window\n"
@@ -20,7 +21,7 @@ void ShowUsage()
         "   unbind mod+mod+mod-key                       Unbinds hotkeys\n"
         "\n"
         "For further help run:\n"
-        "   kwmc help config|window|space|screen\n"
+        "   kwmc help config|window|tree|space|screen\n"
     ;
 }
 
@@ -70,6 +71,16 @@ void ShowHelp(std::string Command)
             "   -s prev|next|mark                                      Swap window position\n"
         ;
     }
+    else if (Command == "tree")
+    {
+        std::cout <<
+            "Usage: kwmc tree <options>\n"
+            "\n"
+            "Options:\n"
+            "   -r 90|180|270                                          Rotate window-tree\n"
+            "   -c refresh                                             Resize all windows to container\n"
+        ;
+    }
     else if (Command ==  "space")
     {
         std::cout <<
@@ -77,7 +88,6 @@ void ShowHelp(std::string Command)
             "\n"
             "Options:\n"
             "   -t toggle|bsp|monocle|float                             Set tiling mode of current space (every space uses bsp tiling by default)\n"
-            "   -r 90|180|270                                           Rotate window-tree\n"
             "   -p increase|decrease left|right|top|bottom              Change space padding\n"
             "   -g increase|decrease vertical|horizontal                Change space container gaps\n"
         ;

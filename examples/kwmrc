@@ -108,7 +108,7 @@ kwmc bind ctrl+alt-downarrow space -p increase bottom
 kwmc bind cmd+alt-s space -t bsp
 kwmc bind cmd+alt-f space -t monocle
 kwmc bind cmd+alt-d space -t float
-kwmc bind cmd+alt-r space -r 90
+kwmc bind cmd+alt-r tree -r 90
 
 kwmc bind cmd+alt-h window -f prev
 kwmc bind cmd+alt-l window -f next

@@ -80,7 +80,7 @@
     Set window-tiling mode
         kwmc window -t fullscreen|parent|float|mark
 
-    Manually resize window to container
+    Resize window to container
         kwmc window -c refresh
 
     Toggle between vertical and horizontal split for an existing container
@@ -99,7 +99,10 @@
         kwmc space -t toggle|bsp|monocle|float
 
     Rotate window-tree
-        kwmc space -r 90|180|270
+        kwmc tree -r 90|180|270
+
+    Resize all windows to container
+        kwmc tree -c refresh
 
     Change space padding
         kwmc space -p increase|decrease left|right|top|bottom
