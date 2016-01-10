@@ -264,18 +264,28 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "horizontal")
             KwmSplitMode = 2;
     }
+    else if(Tokens[1] == "-c")
+    {
+        int Index = 0;
+        std::stringstream Stream(Tokens[2]);
+        Stream >> Index;
+        CaptureApplicationToScreen(Index, CreateStringFromTokens(Tokens, 3));
+    }
     else if(Tokens[1] == "-m")
     {
+        if(IsApplicationCapturedByScreen(KWMFocus.Window))
+            return;
+
         if(Tokens[2] == "prev")
-            CycleFocusedWindowDisplay(-1, true);
+            MoveWindowToDisplay(KWMFocus.Window, -1, true);
         else if(Tokens[2] == "next")
-            CycleFocusedWindowDisplay(1, true);
+            MoveWindowToDisplay(KWMFocus.Window, 1, true);
         else
         {
             int Index = 0;
             std::stringstream Stream(Tokens[2]);
             Stream >> Index;
-            CycleFocusedWindowDisplay(Index, false);
+            MoveWindowToDisplay(KWMFocus.Window, Index, false);
         }
     }
 }

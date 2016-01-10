@@ -8,6 +8,7 @@ extern int MarkedWindowID;
 extern std::vector<window_info> WindowLst;
 extern std::vector<std::string> FloatingAppLst;
 extern std::vector<int> FloatingWindowLst;
+extern std::map<std::string, int> CapturedAppLst;
 extern std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
 
 extern focus_option KwmFocusMode;
@@ -160,6 +161,7 @@ bool FilterWindowList(screen_info *Screen)
         if(KWMToggles.UseContextMenuFix)
             IsContextualMenusVisible = IsContextMenusAndSimilarVisible();
 
+        CaptureApplication(&WindowLst[WindowIndex]);
         if(WindowLst[WindowIndex].Layer == 0 &&
            Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]))
         {
@@ -208,6 +210,32 @@ bool IsSpaceFloating(int SpaceID)
         Result = KWMScreen.Current->Space[SpaceID].Mode == SpaceModeFloating;
 
     return Result;
+}
+
+bool IsApplicationCapturedByScreen(window_info *Window)
+{
+    bool Result = false;
+
+    std::map<std::string, int>::iterator It = CapturedAppLst.find(Window->Owner);
+    if(It != CapturedAppLst.end())
+        Result = true;
+
+    return Result;
+}
+
+void CaptureApplication(window_info *Window)
+{
+    if(IsApplicationCapturedByScreen(Window))
+    {
+        int CapturedID = CapturedAppLst[Window->Owner];
+        screen_info *Screen = GetDisplayFromScreenID(CapturedID);
+        if(Screen && Screen != GetDisplayOfWindow(Window))
+        {
+            MoveWindowToDisplay(Window, CapturedID, false);
+            SetWindowFocus(Window);
+            MoveCursorToCenterOfFocusedWindow();
+        }
+    }
 }
 
 bool IsApplicationFloating(window_info *Window)
@@ -765,9 +793,9 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
     }
 }
 
-void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
+void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 {
-    if(!Screen)
+    if(!Screen || !Window || Screen == GetDisplayOfWindow(Window))
         return;
 
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
@@ -787,14 +815,14 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen)
         }
 
         int SplitMode = KwmSplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KwmSplitMode;
-        CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, KWMFocus.Window->WID, SplitMode);
+        CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
         ResizeWindowToContainerSize(CurrentNode->RightChild);
         Screen->ForceContainerUpdate = true;
     }
     else if(Screen->ActiveSpace != -1)
     {
         std::vector<window_info*> WindowsOnDisplay;
-        WindowsOnDisplay.push_back(KWMFocus.Window);
+        WindowsOnDisplay.push_back(Window);
         CreateWindowNodeTree(Screen, &WindowsOnDisplay);
     }
 }

@@ -16,6 +16,7 @@ std::map<unsigned int, screen_info> DisplayMap;
 std::vector<window_info> WindowLst;
 std::vector<int> FloatingWindowLst;
 std::vector<std::string> FloatingAppLst;
+std::map<std::string, int> CapturedAppLst;
 std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
 
 space_tiling_option KwmSpaceMode;

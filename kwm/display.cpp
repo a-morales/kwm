@@ -1,10 +1,10 @@
 #include "kwm.h"
 
 extern kwm_screen KWMScreen;
-extern kwm_focus KWMFocus;
 extern pthread_mutex_t BackgroundLock;
 
 extern std::map<unsigned int, screen_info> DisplayMap;
+extern std::map<std::string, int> CapturedAppLst;
 extern std::vector<window_info> WindowLst;
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
@@ -302,9 +302,22 @@ void GiveFocusToScreen(int ScreenIndex)
     }
 }
 
-void CycleFocusedWindowDisplay(int Shift, bool Relative)
+void CaptureApplicationToScreen(int ScreenID, std::string Application)
 {
-    screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
+    std::map<std::string, int>::iterator It = CapturedAppLst.find(Application);
+    if(It == CapturedAppLst.end())
+    {
+        screen_info *Screen = GetDisplayFromScreenID(ScreenID);
+        if(Screen)
+        {
+            CapturedAppLst[Application] = ScreenID;
+            DEBUG("CaptureApplicationToScreen() " << ScreenID << " " << Application)
+        }
+    }
+}
+
+void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
+{
     int NewScreenIndex = -1;
 
     if(Relative)
@@ -312,11 +325,9 @@ void CycleFocusedWindowDisplay(int Shift, bool Relative)
     else
         NewScreenIndex = Shift;
 
-    if(NewScreenIndex != Screen->ID)
-    {
-        screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
-        AddWindowToTreeOfUnfocusedMonitor(NewScreen);
-    }
+    screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
+    if(NewScreen)
+        AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window);
 }
 
 container_offset CreateDefaultScreenOffset()
