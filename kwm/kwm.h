@@ -81,7 +81,6 @@ enum cycle_focus_option
 {
     CycleModeScreen,
     CycleModeAll,
-    CycleModeWrapAll,
     CycleModeDisabled
 };
 

@@ -109,8 +109,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             KwmCycleMode = CycleModeScreen;
         else if(Tokens[2] == "all")
             KwmCycleMode = CycleModeAll;
-        else if(Tokens[2] == "wrap-all")
-            KwmCycleMode = CycleModeWrapAll;
         else if(Tokens[2] == "disabled")
             KwmCycleMode = CycleModeDisabled;;
     }
