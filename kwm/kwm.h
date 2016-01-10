@@ -222,8 +222,11 @@ struct kwm_focus
 struct kwm_screen
 {
     screen_info *Current;
-    container_offset DefaultOffset;
+    bool ForceRefreshFocus;
+    int OldScreenID;
+    int PrevSpace;
 
+    container_offset DefaultOffset;
     CGDirectDisplayID *Displays;
     uint32_t MaxCount;
     uint32_t ActiveCount;
@@ -276,6 +279,7 @@ screen_info *GetDisplayOfWindow(window_info *);
 std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
 bool DoesSpaceExistInMapOfScreen(screen_info *);
+bool IsSpaceInitializedForScreen(screen_info *);
 screen_info *GetDisplayFromScreenID(int);
 int GetIndexOfPrevScreen();
 int GetIndexOfNextScreen();
