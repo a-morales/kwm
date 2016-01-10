@@ -361,6 +361,8 @@ void KwmInit()
     else
         Fatal("Kwm: Could not start daemon..");
 
+    KWMScreen.OldScreenID = -1;
+    KWMScreen.PrevSpace = -1;
     KWMScreen.DefaultOffset = CreateDefaultScreenOffset();
     KWMScreen.MaxCount = 5;
     KWMScreen.ActiveCount = 0;
