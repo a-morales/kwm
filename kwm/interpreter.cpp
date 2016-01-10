@@ -246,6 +246,35 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
     }
 }
 
+void KwmTreeCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-r")
+    {
+        if(Tokens[2] == "90" || Tokens[2] == "270" || Tokens[2] == "180")
+        {
+            int Deg = 0;
+            std::stringstream Stream(Tokens[2]);
+            Stream >> Deg;
+
+            space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
+            if(Space->Mode == SpaceModeBSP)
+            {
+                RotateTree(Space->RootNode, Deg);
+                CreateNodeContainers(KWMScreen.Current, Space->RootNode, false);
+                ApplyNodeContainer(Space->RootNode, Space->Mode);
+            }
+        }
+    }
+    else if(Tokens[1] == "-c")
+    {
+        if(Tokens[2] == "refresh")
+        {
+            space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
+            ApplyNodeContainer(Space->RootNode, Space->Mode);
+        }
+    }
+}
+
 void KwmScreenCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "-f")
@@ -305,20 +334,6 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "-r")
     {
-        if(Tokens[2] == "90" || Tokens[2] == "270" || Tokens[2] == "180")
-        {
-            int Deg = 0;
-            std::stringstream Stream(Tokens[2]);
-            Stream >> Deg;
-
-            space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
-            if(Space->Mode == SpaceModeBSP)
-            {
-                RotateTree(Space->RootNode, Deg);
-                CreateNodeContainers(KWMScreen.Current, Space->RootNode, false);
-                ApplyNodeContainer(Space->RootNode, Space->Mode);
-            }
-        }
     }
     else if(Tokens[1] == "-p")
     {
@@ -375,6 +390,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmScreenCommand(Tokens);
     else if(Tokens[0] == "space")
         KwmSpaceCommand(Tokens);
+    else if(Tokens[0] == "tree")
+        KwmTreeCommand(Tokens);
     else if(Tokens[0] == "write")
         KwmEmitKeystrokes(CreateStringFromTokens(Tokens, 1));
     else if(Tokens[0] == "bind")
