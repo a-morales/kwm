@@ -939,7 +939,10 @@ void SwapFocusedWindowWithMarked()
         {
             tree_node *NewFocusNode = GetNodeFromWindowID(Space->RootNode, MarkedWindowID, Space->Mode);
             if(NewFocusNode)
+            {
                 SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
+                MoveCursorToCenterOfFocusedWindow();
+            }
         }
     }
 
@@ -963,7 +966,10 @@ void SwapFocusedWindowWithNearest(int Shift)
             NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
 
         if(NewFocusNode)
+        {
             SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
+            MoveCursorToCenterOfFocusedWindow();
+        }
     }
 }
 
@@ -1156,6 +1162,9 @@ void ResizeWindowToContainerSize(tree_node *Node)
             SetWindowDimensions(WindowRef, Window,
                         Node->Container.X, Node->Container.Y, 
                         Node->Container.Width, Node->Container.Height);
+
+            if(WindowsAreEqual(Window, KWMFocus.Window))
+                KWMFocus.Cache = *Window;
         }
         else
         {
