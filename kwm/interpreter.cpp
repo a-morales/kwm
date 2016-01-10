@@ -69,6 +69,13 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "enable")
             KWMToggles.EnableTilingMode = true;
     }
+    else if(Tokens[1] == "capture")
+    {
+        int Index = 0;
+        std::stringstream Stream(Tokens[2]);
+        Stream >> Index;
+        CaptureApplicationToScreen(Index, CreateStringFromTokens(Tokens, 3));
+    }
     else if(Tokens[1] == "space")
     {
         if(Tokens[2] == "bsp")
@@ -263,13 +270,6 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
             KwmSplitMode = 1;
         else if(Tokens[2] == "horizontal")
             KwmSplitMode = 2;
-    }
-    else if(Tokens[1] == "-c")
-    {
-        int Index = 0;
-        std::stringstream Stream(Tokens[2]);
-        Stream >> Index;
-        CaptureApplicationToScreen(Index, CreateStringFromTokens(Tokens, 3));
     }
     else if(Tokens[1] == "-m")
     {

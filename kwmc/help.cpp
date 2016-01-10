@@ -38,6 +38,7 @@ void ShowHelp(std::string Command)
             "   prefix-timeout seconds                                 Set global prefix timeout in seconds (default: 0.75)\n"
             "   padding top|bottom|left|right value                    Set default padding\n"
             "   gap vertical|horizontal value                          Set default container gaps\n"
+            "   capture id application                                 Capture application to screen\n"
             "   float application                                      Always float application\n"
             "   focus toggle|autofocus|autoraise|disabled              Set focus-mode\n"
             "   cycle-focus screen|all|disabled                        Set wrap-around for 'window -f prev|next'\n"
@@ -89,7 +90,6 @@ void ShowHelp(std::string Command)
             "Options:\n"
             "   -s optimal|vertical|horizontal                         Set split-mode\n"
             "   -f prev|next|id                                        Change monitor focus\n"
-            "   -c id application                                      Capture application to screen\n"
             "   -m prev|next|id                                        Move window between monitors (id of primary monitor is 0 and last monitor n-1)\n"
         ;
     }
