@@ -72,9 +72,6 @@
         Quit Kwm
             kwmc quit
 
-        Get owner and title of focused window
-            kwmc focused
-
         Automatically emit keystrokes to the focused window
             kwmc write sentence
 
