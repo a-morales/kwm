@@ -65,7 +65,7 @@ void KwmcConnectToDaemon()
     std::memset(&srv_addr.sin_zero, '\0', 8);
 
     if(connect(KwmcSockFD, (struct sockaddr*) &srv_addr, sizeof(struct sockaddr)) == -1)
-        Fatal("Connection failed! Make sure the Kwm daemon is running...");
+        Fatal("Connection failed!");
 }
 
 int main(int argc, char **argv)
