@@ -242,10 +242,11 @@ void KwmExecuteConfig()
     }
 
     KWMPath.EnvHome = HomeP;
-    std::ifstream ConfigFD(KWMPath.EnvHome + "/" + KWMPath.ConfigFile);
+    KWMPath.ConfigFolder = ".kwm";
+    std::ifstream ConfigFD(KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + KWMPath.ConfigFile);
     if(ConfigFD.fail())
     {
-        DEBUG("Could not open " << KWMPath.EnvHome << "/" << KWMPath.ConfigFile
+        DEBUG("Could not open " << KWMPath.EnvHome << "/" << KWMPath.ConfigFolder << "/" << KWMPath.ConfigFile
               << ", make sure the file exists." << std::endl)
         return;
     }
@@ -382,7 +383,7 @@ void KwmInit()
     KWMPrefix.Active = false;
     KWMPrefix.Timeout = 0.75;
 
-    KWMPath.ConfigFile = ".kwmrc";
+    KWMPath.ConfigFile = "kwmrc";
     if(GetKwmFilePath())
         KWMCode = LoadKwmCode();
 
