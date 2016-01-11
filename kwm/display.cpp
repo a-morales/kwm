@@ -308,18 +308,18 @@ void GiveFocusToScreen(int ScreenIndex)
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     if(Screen)
     {
-        CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2),
-                                        Screen->Y + (Screen->Height / 2));
-
-        CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, CursorPos, kCGMouseButtonLeft);
-        CGEventSetFlags(MoveEvent, 0);
-        CGEventPost(kCGHIDEventTap, MoveEvent);
-        CFRelease(MoveEvent);
-
         DEBUG("GiveFocusToScreen() " << ScreenIndex)
         UpdateActiveWindowList(Screen);
         tree_node *NewFocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
-        SetWindowFocusByNode(NewFocusNode);
+        if(NewFocusNode)
+        {
+            window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
+            if(NewWindow)
+            {
+                MoveCursorToCenterOfWindow(NewWindow);
+                FocusWindowBelowCursor();
+            }
+        }
     }
 }
 

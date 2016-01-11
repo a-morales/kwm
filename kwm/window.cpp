@@ -270,6 +270,24 @@ bool IsWindowFloating(int WindowID, int *Index)
     return Result;
 }
 
+bool IsAnyWindowBelowCursor()
+{
+    CGPoint Cursor = GetCursorPos();
+    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    {
+        window_info *Window = &WindowLst[WindowIndex];
+        if(Cursor.x >= Window->X &&
+           Cursor.x <= Window->X + Window->Width &&
+           Cursor.y >= Window->Y &&
+           Cursor.y <= Window->Y + Window->Height)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool IsWindowBelowCursor(window_info *Window)
 {
     bool Result = false;
@@ -458,9 +476,7 @@ void UpdateActiveWindowList(screen_info *Screen)
 
     if(KWMScreen.OldScreenID != Screen->ID)
     {
-        if(Screen == KWMScreen.Current)
-            ActivateScreen(Screen);
-
+        bool WindowBelowCursor = IsAnyWindowBelowCursor();
         if(Screen->ActiveSpace == -1)
             Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
 
@@ -476,8 +492,10 @@ void UpdateActiveWindowList(screen_info *Screen)
         }
 
         DEBUG("UpdateActiveWindowList() Active Display Changed")
-        if(Screen == KWMScreen.Current)
+        if(WindowBelowCursor)
             FocusWindowBelowCursor();
+        else
+            ActivateScreen(Screen);
     }
     else
     {
@@ -709,7 +727,6 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
                 NewFocusNode = Parent;
 
             SetWindowFocusByNode(NewFocusNode);
-            MoveCursorToCenterOfFocusedWindow();
         }
     }
     else if(!Parent)
@@ -809,7 +826,6 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
 
                     free(WindowNode);
                     SetWindowFocusByNode(NewFocusNode);
-                    MoveCursorToCenterOfFocusedWindow();
                 }
             }
         }
@@ -833,25 +849,40 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
     if(Space->RootNode)
     {
-        tree_node *RootNode = Space->RootNode;
-        tree_node *CurrentNode = RootNode;
-
-        DEBUG("AddWindowToTreeOfUnfocusedMonitor() Create pair of leafs")
-
-        while(!IsLeafNode(CurrentNode))
+        if(Space->Mode == SpaceModeBSP)
         {
-            if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
-                CurrentNode = CurrentNode->RightChild;
-            else
-                CurrentNode = CurrentNode->LeftChild;
-        }
+            DEBUG("AddWindowToTreeOfUnfocusedMonitor() BSP Space")
+            tree_node *RootNode = Space->RootNode;
+            tree_node *CurrentNode = RootNode;
 
-        int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
-        CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
-        ResizeWindowToContainerSize(CurrentNode->RightChild);
-        Screen->ForceContainerUpdate = true;
+            while(!IsLeafNode(CurrentNode))
+            {
+                if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
+                    CurrentNode = CurrentNode->RightChild;
+                else
+                    CurrentNode = CurrentNode->LeftChild;
+            }
+
+            int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+            CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
+            ResizeWindowToContainerSize(CurrentNode->RightChild);
+            Screen->ForceContainerUpdate = true;
+        }
+        else if(Space->Mode == SpaceModeMonocle)
+        {
+            DEBUG("AddWindowToTreeOfUnfocusedMonitor() Monocle Space")
+            tree_node *CurrentNode = GetLastLeafNode(Space->RootNode);
+            tree_node *NewNode = CreateRootNode();
+            SetRootNodeContainer(Screen, NewNode);
+
+            NewNode->WindowID = Window->WID;
+            CurrentNode->RightChild = NewNode;
+            NewNode->LeftChild = CurrentNode;
+            ResizeWindowToContainerSize(NewNode);
+            //Screen->ForceContainerUpdate = true;
+        }
     }
-    else if(Screen->ActiveSpace != -1)
+    else
     {
         std::vector<window_info*> WindowsOnDisplay;
         WindowsOnDisplay.push_back(Window);
@@ -1054,9 +1085,15 @@ void ShiftWindowFocus(int Shift)
             else if(KwmCycleMode == CycleModeAll && !NewFocusNode)
             {
                 int ScreenIndex = GetIndexOfNextScreen();
-                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
                 GiveFocusToScreen(ScreenIndex);
+                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
                 NewFocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+                if(NewFocusNode)
+                {
+                    window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
+                    MoveCursorToCenterOfWindow(NewWindow);
+                    FocusWindowBelowCursor();
+                }
             }
         }
         else if(Shift == -1)
@@ -1069,22 +1106,32 @@ void ShiftWindowFocus(int Shift)
             else if(KwmCycleMode == CycleModeAll && !NewFocusNode)
             {
                 int ScreenIndex = GetIndexOfPrevScreen();
-                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
                 GiveFocusToScreen(ScreenIndex);
+                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
                 NewFocusNode = GetLastLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+                if(NewFocusNode)
+                {
+                    window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
+                    MoveCursorToCenterOfWindow(NewWindow);
+                    FocusWindowBelowCursor();
+                }
             }
         }
 
         SetWindowFocusByNode(NewFocusNode);
-        MoveCursorToCenterOfFocusedWindow();
     }
+}
+
+void MoveCursorToCenterOfWindow(window_info *Window)
+{
+    if(KWMToggles.UseMouseFollowsFocus && Window)
+        CGWarpMouseCursorPosition(CGPointMake(Window->X + Window->Width / 2,
+                                              Window->Y + Window->Height / 2));
 }
 
 void MoveCursorToCenterOfFocusedWindow()
 {
-    if(KWMToggles.UseMouseFollowsFocus && KWMFocus.Window)
-        CGWarpMouseCursorPosition(CGPointMake(KWMFocus.Window->X + KWMFocus.Window->Width / 2,
-                                              KWMFocus.Window->Y + KWMFocus.Window->Height / 2));
+    MoveCursorToCenterOfWindow(KWMFocus.Window);
 }
 
 void MarkWindowContainer()
