@@ -79,6 +79,8 @@ void ShowHelp(std::string Command)
             "Options:\n"
             "   -r 90|180|270                                          Rotate window-tree\n"
             "   -c refresh                                             Resize all windows to container\n"
+            "   save name                                              Save current bsp-tree to file ($HOME/.kwm/name)\n"
+            "   restore name                                           Load current bsp-tree from file ($HOME/.kwm/name)\n"
         ;
     }
     else if (Command ==  "space")

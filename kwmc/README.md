@@ -99,6 +99,12 @@
         Resize all windows to container
             kwmc tree -c refresh
 
+        Save current bsp-tree to file ($HOME/.kwm/name)
+            kwmc tree save name
+
+        Restore current bsp-tree from file ($HOME/.kwm/name)
+            kwmc tree restore name
+
         Set tiling mode of current space (every space uses bsp tiling by default)
             kwmc space -t toggle|bsp|monocle|float
 

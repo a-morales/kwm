@@ -71,7 +71,7 @@ To make *Kwm* start automatically on login, run the following command the first 
 
 ## Configuration:
 
-The default configuration file is `$HOME/.kwmrc` and is a script that contains *Kwmc* commands  
+The default configuration file is `$HOME/.kwm/kwmrc` and is a script that contains *Kwmc* commands  
 to be executed when *Kwm* starts. This file can be used to blacklist applications and specify  
 a variety of settings, as well as run any command not restricted to *Kwmc*.  
 
