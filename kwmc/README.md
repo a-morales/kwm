@@ -68,53 +68,83 @@
                 kwmc config add-role AXDialog iTerm2
 
 
-    Quit Kwm
-        kwmc quit
+    Commands to interact with Kwm
+        Quit Kwm
+            kwmc quit
 
-    Get owner and title of focused window
-        kwmc focused
+        Get owner and title of focused window
+            kwmc focused
 
-    Automatically emit keystrokes to the focused window
-        kwmc write sentence
+        Automatically emit keystrokes to the focused window
+            kwmc write sentence
 
-    Set window-tiling mode
-        kwmc window -t fullscreen|parent|float|mark
+        Set window-tiling mode
+            kwmc window -t fullscreen|parent|float|mark
 
-    Resize window to container
-        kwmc window -c refresh
+        Resize window to container
+            kwmc window -c refresh
 
-    Toggle between vertical and horizontal split for an existing container
-        kwmc window -c split
+        Toggle between vertical and horizontal split for an existing container
+            kwmc window -c split
 
-    Change split-ratio of the focused container (0 < amount < 1)
-        kwmc window -c reduce|expand amount
+        Change split-ratio of the focused container (0 < amount < 1)
+            kwmc window -c reduce|expand amount
 
-    Change window focus
-        kwmc window -f prev|next|curr
+        Change window focus
+            kwmc window -f prev|next|curr
 
-    Swap window position
-        kwmc window -s prev|next|mark
+        Swap window position
+            kwmc window -s prev|next|mark
 
-    Rotate window-tree
-        kwmc tree -r 90|180|270
+        Rotate window-tree
+            kwmc tree -r 90|180|270
 
-    Resize all windows to container
-        kwmc tree -c refresh
+        Resize all windows to container
+            kwmc tree -c refresh
 
-    Set tiling mode of current space (every space uses bsp tiling by default)
-        kwmc space -t toggle|bsp|monocle|float
+        Set tiling mode of current space (every space uses bsp tiling by default)
+            kwmc space -t toggle|bsp|monocle|float
 
-    Change space padding
-        kwmc space -p increase|decrease left|right|top|bottom
+        Change space padding
+            kwmc space -p increase|decrease left|right|top|bottom
 
-    Change space container gaps
-        kwmc space -g increase|decrease vertical|horizontal
+        Change space container gaps
+            kwmc space -g increase|decrease vertical|horizontal
 
-    Set split-mode
-        kwmc screen -s optimal|vertical|horizontal
+        Set split-mode
+            kwmc screen -s optimal|vertical|horizontal
 
-    Move window between monitors (id of primary monitor is 0 and last monitor n-1)
-        kwmc screen -m prev|next|id
+        Move window between monitors (id of primary monitor is 0 and last monitor n-1)
+            kwmc screen -m prev|next|id
 
-    Give focus to monitor
-        kwmc screen -f prev|next|id
+        Give focus to monitor
+            kwmc screen -f prev|next|id
+
+
+    Get state of Kwm
+        Get owner and title of focused window
+            kwmc read focused
+
+        Get tag for current space
+            kwmc read tag
+
+        Get id of marked wndow (-1 == none)
+            kwmc read marked
+
+        Get tilling mode for current space
+            kwmc read space
+
+        Get active cycle-focus mode
+            kwmc read cycle-focus
+
+        Get state of focus-follows-mouse
+            kwmc read focus
+
+        Get state of mouse-follows-focus
+            kwmc read mouse-follows
+
+        Get the current mode used for binary splits
+            kwmc read split-mode
+
+        Get the current ratio used for binary splits
+            kwmc read split-ratio

@@ -178,15 +178,92 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmFocusedCommand(std::vector<std::string> &Tokens, int ClientSockFD)
+void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 {
-    std::string Output;
-    GetTagForCurrentSpace(Output);
+    if(Tokens[1] == "focused")
+    {
+        std::string Output;
+        GetTagForCurrentSpace(Output);
 
-    if(KWMFocus.Window)
-        Output += " " + KWMFocus.Window->Owner + " - " + KWMFocus.Window->Name;
+        if(KWMFocus.Window)
+            Output += " " + KWMFocus.Window->Owner + " - " + KWMFocus.Window->Name;
 
-    KwmWriteToSocket(ClientSockFD, Output);
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
+    if(Tokens[1] == "marked")
+    {
+        std::string Output = std::to_string(KWMScreen.MarkedWindow);;
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
+    else if(Tokens[1] == "tag")
+    {
+        std::string Output;
+        GetTagForCurrentSpace(Output);
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
+    else if(Tokens[1] == "split-ratio")
+    {
+        std::string Output = std::to_string(KWMScreen.SplitRatio);
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
+    else if(Tokens[1] == "split-mode")
+    {
+        std::string Output;
+        if(KWMScreen.SplitMode == -1)
+            Output = "Optimal";
+        else if(KWMScreen.SplitMode == 1)
+            Output = "Vertical";
+        else if(KWMScreen.SplitMode == 2)
+            Output = "Horizontal";
+
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
+    else if(Tokens[1] == "focus")
+    {
+        std::string Output;
+        if(KwmFocusMode == FocusModeAutofocus)
+            Output = "autofocus";
+        else if(KwmFocusMode == FocusModeAutoraise)
+            Output = "autoraise";
+        else if(KwmFocusMode == FocusModeDisabled)
+            Output = "disabled";
+
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
+    else if(Tokens[1] == "mouse-follows")
+    {
+        std::string Output;
+        if(KWMToggles.UseMouseFollowsFocus)
+            Output = "enabled";
+        else 
+            Output = "disabled";
+
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
+    else if(Tokens[1] == "space")
+    {
+        std::string Output;
+        if(KwmSpaceMode == SpaceModeBSP)
+            Output = "bsp";
+        else if(KwmSpaceMode == SpaceModeMonocle)
+            Output = "monocle";
+        else 
+            Output = "float";
+
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
+    else if(Tokens[1] == "cycle-focus")
+    {
+        std::string Output;
+        if(KwmCycleMode == CycleModeScreen)
+            Output = "screen";
+        else if(KwmCycleMode == CycleModeAll)
+            Output = "all";
+        else 
+            Output = "disabled";
+
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
 }
 
 void KwmWindowCommand(std::vector<std::string> &Tokens)
@@ -382,8 +459,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmQuit();
     else if(Tokens[0] == "config")
         KwmConfigCommand(Tokens);
-    else if(Tokens[0] == "focused")
-        KwmFocusedCommand(Tokens, ClientSockFD);
+    else if(Tokens[0] == "read")
+        KwmReadCommand(Tokens, ClientSockFD);
     else if(Tokens[0] == "window")
         KwmWindowCommand(Tokens);
     else if(Tokens[0] == "screen")

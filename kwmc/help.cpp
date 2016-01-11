@@ -15,13 +15,13 @@ void ShowUsage()
         "   tree                                         Manipulate current window-tree\n"
         "   space                                        Manipulate current space\n"
         "   screen                                       Manipulate current screen\n"
-        "   focused                                      Get owner and title of focused window\n"
+        "   read                                         Retrieve current Kwm settings\n"
         "   write sentence                               Automatically emit keystrokes to the focused window\n"
         "   bind mod+mod+mod-key command                 Binds hotkeys on the fly (use `sys` prefix for non kwmc command)\n"
         "   unbind mod+mod+mod-key                       Unbinds hotkeys\n"
         "\n"
         "For further help run:\n"
-        "   kwmc help config|window|tree|space|screen\n"
+        "   kwmc help config|window|tree|space|screen|read\n"
     ;
 }
 
@@ -101,6 +101,23 @@ void ShowHelp(std::string Command)
             "   -s optimal|vertical|horizontal                         Set split-mode\n"
             "   -f prev|next|id                                        Change monitor focus\n"
             "   -m prev|next|id                                        Move window between monitors (id of primary monitor is 0 and last monitor n-1)\n"
+        ;
+    }
+    else if (Command == "read")
+    {
+        std::cout <<
+            "Usage: kwmc read <options>\n"
+            "\n"
+            "Options:\n"
+            "   focused                                                Get owner and title of focused window\n"
+            "   tag                                                    Get tag for current space\n"
+            "   marked                                                 Get id of marked window (-1 == not marked)\n"
+            "   space                                                  Get tiling mode for current space\n"
+            "   cycle-focus                                            Get active cycle-focus mode\n"
+            "   focus                                                  Get state of focus-follows-mouse\n"
+            "   mouse-follows                                          Get state of mouse-follows-focus\n"
+            "   split-mode                                             Get the current mode used for binary splits\n"
+            "   split-ratio                                            Get the current ratio used for binary splits\n"
         ;
     }
     else
