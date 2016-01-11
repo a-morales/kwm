@@ -282,15 +282,36 @@ int GetIndexOfPrevScreen()
     return KWMScreen.Current->ID - 1 < 0 ? KWMScreen.ActiveCount - 1 : KWMScreen.Current->ID - 1;
 }
 
+void ActivateScreen(screen_info *Screen)
+{
+    CGPoint CursorPos = GetCursorPos();
+    CGPoint ClickPos = CGPointMake(Screen->X, Screen->Y);
+
+    CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
+    CGEventSetFlags(MoveEvent, 0);
+    CGEventPost(kCGHIDEventTap, MoveEvent);
+    CFRelease(MoveEvent);
+
+    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
+    CGEventSetFlags(MoveEvent, 0);
+    CGEventPost(kCGHIDEventTap, MoveEvent);
+    CFRelease(MoveEvent);
+
+    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
+    CGEventSetFlags(MoveEvent, 0);
+    CGEventPost(kCGHIDEventTap, MoveEvent);
+    CFRelease(MoveEvent);
+}
+
 void GiveFocusToScreen(int ScreenIndex)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     if(Screen)
     {
-        CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2), 
+        CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2),
                                         Screen->Y + (Screen->Height / 2));
 
-        CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
+        CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, CursorPos, kCGMouseButtonLeft);
         CGEventSetFlags(MoveEvent, 0);
         CGEventPost(kCGHIDEventTap, MoveEvent);
         CFRelease(MoveEvent);
