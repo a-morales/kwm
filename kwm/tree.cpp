@@ -1,6 +1,6 @@
 #include "kwm.h"
 
-extern double KwmSplitRatio;
+extern kwm_screen KWMScreen;
 
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
@@ -57,7 +57,7 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType)
 {
     if(Node->SplitRatio == 0)
-        Node->SplitRatio = KwmSplitRatio;
+        Node->SplitRatio = KWMScreen.SplitRatio;
 
     Node->SplitMode = 0;
     switch(ContainerType)
@@ -120,7 +120,7 @@ tree_node *CreateRootNode()
     RootNode->Parent = NULL;
     RootNode->LeftChild = NULL;
     RootNode->RightChild = NULL;
-    RootNode->SplitRatio = KwmSplitRatio;
+    RootNode->SplitRatio = KWMScreen.SplitRatio;
     RootNode->SplitMode = 0;
 
     return RootNode;
@@ -142,7 +142,7 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID
 {
     Parent->WindowID = -1;
     Parent->SplitMode = SplitMode;
-    Parent->SplitRatio = KwmSplitRatio;
+    Parent->SplitRatio = KWMScreen.SplitRatio;
 
     if(SplitMode == 1)
     {
@@ -323,7 +323,7 @@ void ChangeSplitRatio(double Value)
     if(Value > 0.0 && Value < 1.0)
     {
         DEBUG("ChangeSplitRatio() New Split-Ratio is " << Value)
-        KwmSplitRatio = Value;
+        KWMScreen.SplitRatio = Value;
     }
 }
 

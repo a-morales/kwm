@@ -3,12 +3,12 @@
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
 extern kwm_focus KWMFocus;
+
 extern focus_option KwmFocusMode;
 extern space_tiling_option KwmSpaceMode;
 extern cycle_focus_option KwmCycleMode;
-extern std::vector<std::string> FloatingAppLst;
-extern int KwmSplitMode;
 
+extern std::vector<std::string> FloatingAppLst;
 
 std::string CreateStringFromTokens(std::vector<std::string> Tokens, int StartIndex)
 {
@@ -294,11 +294,11 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "-s")
     {
         if(Tokens[2] == "optimal")
-            KwmSplitMode = -1;
+            KWMScreen.SplitMode = -1;
         else if(Tokens[2] == "vertical")
-            KwmSplitMode = 1;
+            KWMScreen.SplitMode = 1;
         else if(Tokens[2] == "horizontal")
-            KwmSplitMode = 2;
+            KWMScreen.SplitMode = 2;
     }
     else if(Tokens[1] == "-m")
     {

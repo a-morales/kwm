@@ -221,9 +221,14 @@ struct kwm_focus
 
 struct kwm_screen
 {
+    CFStringRef Identifier;
     screen_info *Current;
     bool ForceRefreshFocus;
+    double SplitRatio;
+
+    int MarkedWindow;
     int OldScreenID;
+    int SplitMode;
     int PrevSpace;
 
     container_offset DefaultOffset;
@@ -327,6 +332,7 @@ void ShiftWindowFocus(int);
 void SwapFocusedWindowWithNearest(int);
 void SwapFocusedWindowWithMarked();
 void FocusWindowBelowCursor();
+void FocusWindowOfOSX();
 void FloatFocusedSpace();
 void TileFocusedSpace(space_tiling_option);
 void ToggleFocusedSpaceFloating();
@@ -356,6 +362,7 @@ window_info *GetWindowByID(int);
 bool GetWindowRef(window_info *, AXUIElementRef *);
 bool GetWindowRole(window_info *, CFTypeRef *, CFTypeRef *);
 void GetWindowInfo(const void *, const void *, void *);
+bool GetWindowFocusedByOSX(int *);
 bool IsApplicationInCache(int, std::vector<AXUIElementRef> *);
 bool GetWindowRefFromCache(window_info *, AXUIElementRef *);
 void FreeWindowRefCache(int);

@@ -22,9 +22,6 @@ std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
 space_tiling_option KwmSpaceMode;
 focus_option KwmFocusMode;
 cycle_focus_option KwmCycleMode;
-int KwmSplitMode = -1;
-int MarkedWindowID = -1;
-double KwmSplitRatio = 0.5;
 
 pthread_t BackgroundThread;
 pthread_t DaemonThread;
@@ -361,6 +358,9 @@ void KwmInit()
     else
         Fatal("Kwm: Could not start daemon..");
 
+    KWMScreen.SplitRatio = 0.5;
+    KWMScreen.SplitMode = -1;
+    KWMScreen.MarkedWindow = -1;
     KWMScreen.OldScreenID = -1;
     KWMScreen.PrevSpace = -1;
     KWMScreen.DefaultOffset = CreateDefaultScreenOffset();
