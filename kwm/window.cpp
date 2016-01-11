@@ -1124,14 +1124,15 @@ void ShiftWindowFocus(int Shift)
 
 void MoveCursorToCenterOfWindow(window_info *Window)
 {
-    if(KWMToggles.UseMouseFollowsFocus && Window)
+    if(Window)
         CGWarpMouseCursorPosition(CGPointMake(Window->X + Window->Width / 2,
                                               Window->Y + Window->Height / 2));
 }
 
 void MoveCursorToCenterOfFocusedWindow()
 {
-    MoveCursorToCenterOfWindow(KWMFocus.Window);
+    if(KWMToggles.UseMouseFollowsFocus)
+        MoveCursorToCenterOfWindow(KWMFocus.Window);
 }
 
 void MarkWindowContainer()
