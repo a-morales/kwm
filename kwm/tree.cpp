@@ -189,6 +189,15 @@ tree_node *GetLastLeafNode(tree_node *Node)
     return NULL;
 }
 
+tree_node *GetFirstPseudoLeafNode(tree_node *Node)
+{
+    tree_node *Leaf = GetFirstLeafNode(Node);
+    while(Leaf && Leaf->WindowID != -1)
+        Leaf = GetNearestNodeToTheRight(Leaf, SpaceModeBSP);
+
+    return Leaf;
+}
+
 bool IsLeftChild(tree_node *Node)
 {
     if(Node && IsLeafNode(Node))

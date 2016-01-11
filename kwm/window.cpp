@@ -593,7 +593,17 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
                 if(!IsApplicationFloating(&WindowLst[WindowIndex]) &&
                    !IsWindowFloating(WindowLst[WindowIndex].WID, NULL))
                 {
-                    AddWindowToBSPTree(Screen, WindowLst[WindowIndex].WID);
+                    tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
+                    if(Insert)
+                    {
+                        Insert->WindowID = WindowLst[WindowIndex].WID;
+                        ApplyNodeContainer(Insert, SpaceModeBSP);
+                    }
+                    else
+                    {
+                        AddWindowToBSPTree(Screen, WindowLst[WindowIndex].WID);
+                    }
+
                     SetWindowFocus(&WindowLst[WindowIndex]);
                     MoveCursorToCenterOfFocusedWindow();
                 }
