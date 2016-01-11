@@ -351,6 +351,14 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
             ApplyNodeContainer(Space->RootNode, Space->Mode);
         }
     }
+    else if(Tokens[1] == "save")
+    {
+        SaveBSPTreeToFile(KWMScreen.Current, Tokens[2]);
+    }
+    else if(Tokens[1] == "restore")
+    {
+        LoadBSPTreeFromFile(KWMScreen.Current, Tokens[2]);
+    }
 }
 
 void KwmScreenCommand(std::vector<std::string> &Tokens)

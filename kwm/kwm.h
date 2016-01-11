@@ -208,6 +208,7 @@ struct kwm_path
 {
     std::string EnvHome;
     std::string FilePath;
+    std::string ConfigFolder;
     std::string ConfigFile;
     std::string HotkeySOFullPath;
 };
@@ -328,7 +329,7 @@ void AllowRoleForApplication(std::string, std::string);
 
 void UpdateWindowTree();
 void UpdateActiveWindowList(screen_info *);
-bool FilterWindowList();
+bool FilterWindowList(screen_info *);
 void MarkWindowContainer();
 void ShiftWindowFocus(int);
 void SwapFocusedWindowWithNearest(int);
@@ -378,6 +379,17 @@ bool KwmStartDaemon();
 void KwmDaemonHandleConnection();
 void * KwmDaemonHandleConnectionBG(void *);
 void KwmTerminateDaemon();
+
+void SaveBSPTreeToFile(screen_info *, std::string);
+void LoadBSPTreeFromFile(screen_info *, std::string);
+void SerializeParentNode(tree_node *, std::string, std::vector<std::string> &);
+tree_node *DeserializeNodeTree(std::vector<std::string> &);
+int DeserializeChildNode(tree_node *, std::vector<std::string> &, int);
+int DeserializeParentNode(tree_node *, std::vector<std::string> &, int);
+void FillDeserializedTree(tree_node *);
+void CreateDeserializedNodeContainer(tree_node *);
+int ConvertStringToInt(std::string);
+double ConvertStringToDouble(std::string);
 
 std::string KwmReadFromSocket(int);
 void KwmWriteToSocket(int, std::string);
