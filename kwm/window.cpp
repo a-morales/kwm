@@ -396,6 +396,9 @@ void UpdateWindowTree()
 {
     KWMScreen.OldScreenID = KWMScreen.Current->ID;
     KWMScreen.Current = GetDisplayOfMousePointer();
+    if(!KWMScreen.Current)
+        return;
+
     UpdateActiveWindowList(KWMScreen.Current);
 
     if(KWMToggles.EnableTilingMode &&
@@ -453,7 +456,7 @@ void UpdateActiveWindowList(screen_info *Screen)
     KWMScreen.ForceRefreshFocus = true;
     KWMScreen.PrevSpace = Screen->ActiveSpace;
 
-    if(Screen->ID != KWMScreen.OldScreenID)
+    if(KWMScreen.OldScreenID != Screen->ID)
     {
         if(Screen == KWMScreen.Current)
             ActivateScreen(Screen);
@@ -486,8 +489,10 @@ void UpdateActiveWindowList(screen_info *Screen)
                 CFRelease(KWMScreen.Identifier);
 
             KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
-            //if(FocusWindowOfOSX())
-               //MoveCursorToCenterOfFocusedWindow();
+            if(FocusWindowOfOSX())
+                MoveCursorToCenterOfFocusedWindow();
+            else
+                FocusWindowBelowCursor();
         }
     }
 
@@ -506,7 +511,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
     DEBUG("CreateWindowNodeTree() Create Tree")
     if(!IsSpaceInitializedForScreen(Screen))
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        Space = &Screen->Space[Screen->ActiveSpace];
         DEBUG("CreateWindowNodeTree() Create Space")
 
         Space->Mode = KwmSpaceMode;
@@ -516,7 +521,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
     }
     else
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        Space = &Screen->Space[Screen->ActiveSpace];
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
         if(Space->RootNode)
         {
