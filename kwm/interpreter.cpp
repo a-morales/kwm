@@ -204,6 +204,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     else if(Tokens[1] == "split-ratio")
     {
         std::string Output = std::to_string(KWMScreen.SplitRatio);
+        Output.erase(Output.find_last_not_of('0') + 1, std::string::npos);
         KwmWriteToSocket(ClientSockFD, Output);
     }
     else if(Tokens[1] == "split-mode")
