@@ -474,9 +474,9 @@ void UpdateActiveWindowList(screen_info *Screen)
     KWMScreen.ForceRefreshFocus = true;
     KWMScreen.PrevSpace = Screen->ActiveSpace;
 
+    bool WindowBelowCursor = IsAnyWindowBelowCursor();
     if(KWMScreen.OldScreenID != Screen->ID)
     {
-        bool WindowBelowCursor = IsAnyWindowBelowCursor();
         if(Screen->ActiveSpace == -1)
             Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
 
@@ -492,6 +492,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         }
 
         DEBUG("UpdateActiveWindowList() Active Display Changed")
+
         if(WindowBelowCursor)
             FocusWindowBelowCursor();
         else
@@ -507,10 +508,11 @@ void UpdateActiveWindowList(screen_info *Screen)
                 CFRelease(KWMScreen.Identifier);
 
             KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
-            if(FocusWindowOfOSX())
-                MoveCursorToCenterOfFocusedWindow();
-            else
+
+            if(WindowBelowCursor)
                 FocusWindowBelowCursor();
+            else if(FocusWindowOfOSX())
+                MoveCursorToCenterOfFocusedWindow();
         }
     }
 
@@ -879,14 +881,28 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
             CurrentNode->RightChild = NewNode;
             NewNode->LeftChild = CurrentNode;
             ResizeWindowToContainerSize(NewNode);
-            //Screen->ForceContainerUpdate = true;
         }
     }
     else
     {
-        std::vector<window_info*> WindowsOnDisplay;
-        WindowsOnDisplay.push_back(Window);
-        CreateWindowNodeTree(Screen, &WindowsOnDisplay);
+        if(Space->Mode == SpaceModeBSP || Space->Mode == SpaceModeMonocle)
+        {
+            std::vector<window_info*> WindowsOnDisplay;
+            WindowsOnDisplay.push_back(Window);
+            CreateWindowNodeTree(Screen, &WindowsOnDisplay);
+        }
+        else if(Space->Mode == SpaceModeFloating)
+        {
+            AXUIElementRef WindowRef;
+            if(GetWindowRef(Window, &WindowRef))
+            {
+                SetWindowDimensions(WindowRef, Window,
+                                    Screen->X + (Screen->Width / 4),
+                                    Screen->Y + (Screen->Height / 4),
+                                    Screen->Width / 2,
+                                    Screen->Height / 2);
+            }
+        }
     }
 }
 
