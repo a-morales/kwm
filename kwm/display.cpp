@@ -285,7 +285,7 @@ int GetIndexOfPrevScreen()
 void ActivateScreen(screen_info *Screen)
 {
     CGPoint CursorPos = GetCursorPos();
-    CGPoint ClickPos = CGPointMake(Screen->X, Screen->Y + Screen->Width);
+    CGPoint ClickPos = CGPointMake(Screen->X, Screen->Y + Screen->Height);
 
     CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
     CGEventSetFlags(MoveEvent, 0);
