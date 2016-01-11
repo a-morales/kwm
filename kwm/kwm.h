@@ -312,6 +312,7 @@ void AddWindowToMonocleTree(screen_info *, int);
 void RemoveWindowFromMonocleTree(screen_info *, int, bool);
 
 bool IsWindowBelowCursor(window_info *);
+bool IsAnyWindowBelowCursor();
 bool IsSpaceFloating(int);
 bool IsApplicationFloating(window_info *);
 bool IsApplicationCapturedByScreen(window_info *);
@@ -355,6 +356,7 @@ void SetWindowRefFocus(AXUIElementRef, window_info *);
 void SetWindowFocus(window_info *);
 void SetWindowFocusByNode(tree_node *);
 void MoveCursorToCenterOfFocusedWindow();
+void MoveCursorToCenterOfWindow(window_info *);
 
 std::string GetWindowTitle(AXUIElementRef);
 CGPoint GetWindowPos(AXUIElementRef);
