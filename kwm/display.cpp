@@ -320,6 +320,19 @@ void GiveFocusToScreen(int ScreenIndex)
                 FocusWindowBelowCursor();
             }
         }
+        else
+        {
+            if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating)
+            {
+                CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2),
+                                                Screen->Y + (Screen->Height / 2));
+
+                CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
+                CGEventSetFlags(MoveEvent, 0);
+                CGEventPost(kCGHIDEventTap, MoveEvent);
+                CFRelease(MoveEvent);
+            }
+        }
     }
 }
 
