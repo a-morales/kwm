@@ -7,7 +7,7 @@ KWM_PLIST=kwm.plist
 SAMPLE_CONFIG=examples/kwmrc
 BUILD_PATH=./bin
 BUILD_FLAGS=-O3
-BINS=$(BUILD_PATH)/hotkeys.so $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwmrc
+BINS=$(BUILD_PATH)/hotkeys.so $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwm/kwmrc
 
 all: $(BINS)
 
@@ -24,7 +24,7 @@ install: clean $(BINS)
 $(BINS): | $(BUILD_PATH)
 
 $(BUILD_PATH):
-	mkdir -p $(BUILD_PATH)
+	mkdir -p $(BUILD_PATH) && mkdir -p $(HOME)/.kwm
 
 clean:
 	rm -rf $(BUILD_PATH)
@@ -41,5 +41,5 @@ $(BUILD_PATH)/kwmc: $(KWMC_SRCS)
 $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@
 
-$(HOME)/.kwmrc: $(SAMPLE_CONFIG)
+$(HOME)/.kwm/kwmrc: $(SAMPLE_CONFIG)
 	cp -n $^ $@
