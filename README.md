@@ -1,4 +1,4 @@
-## brief description
+## Brief Description
 
 [*Kwm*](https://koekeishiya.github.io/kwm) started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
 It is now a tiling window manager that represents windows as the leaves of a binary tree.  
@@ -40,19 +40,16 @@ hotkeys.cpp. The user may use an external program for running a specific command
 Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.  
 
 *Multiple monitor support (in progress):*  
-There are different ways to move a window between monitors.  
-The first one is by using `kwmc screen -m prev|next|id`.  
-The other option is to make the window floating and manually move it with the mouse, then un-float it.  
-When moving a window directly with the mouse, *Kwm* will detect on mouse-release that the window  
-position has changed, and automatically make it floating (Due to technical limitations this event  
-must occur on the monitor which currently holds the window).
-
-Moving the mouse to a different monitor should activate the monitor automatically.  
-`kwmc screen -f prev|next|id` can also be used to give focus to a different monitor.  
+`kwmc screen -f prev|next|id` can be used to give focus to a different monitor.  
+To move a window between monitors, `kwmc screen -m prev|next|id` can be used.  
+Making a window floating and manually moving it with the mouse also works.  
+If a tiled window is moved with the mouse, *Kwm* will detect on mouse-release  
+that the window position has changed, and automatically make it floating.  
+(Technical limitations: This event must occur on the monitor that tiled the window).
 
 ## Build:
 
-Because there is no app bundle, *Kwm* has to be started from a terminal.
+Because there is no app bundle, *Kwm* has to be started from a terminal.  
 To compile and start *Kwm*, simply run
 
       make
