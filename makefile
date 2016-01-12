@@ -6,7 +6,7 @@ KWMC_SRCS=kwmc/kwmc.cpp kwmc/help.cpp
 KWM_PLIST=kwm.plist
 SAMPLE_CONFIG=examples/kwmrc
 BUILD_PATH=./bin
-BUILD_FLAGS=-O3
+BUILD_FLAGS=-O3 -Wall
 BINS=$(BUILD_PATH)/hotkeys.so $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwm/kwmrc
 
 all: $(BINS)

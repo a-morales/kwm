@@ -1,8 +1,10 @@
 #include "kwm.h"
 
+/*
 static const CGKeyCode kVK_SPECIAL_Å = 0x21;
 static const CGKeyCode kVK_SPECIAL_Ø = 0x29;
 static const CGKeyCode kVK_SPECIAL_Æ = 0x27;
+*/
 
 std::string KwmcFilePath;
 std::string KwmcCommandToExecute;
