@@ -30,13 +30,13 @@ clean:
 	rm -rf $(BUILD_PATH)
 
 $(BUILD_PATH)/hotkeys.so: $(HOTKEYS_SRCS)
-	g++ $^ $(DEBUG_BUILD) $(BUILD_FLAGS) -shared -o $@
+	g++ $^ $(BUILD_FLAGS) -shared -o $@
 
 $(BUILD_PATH)/kwm: $(KWM_SRCS)
 	g++ $^ $(DEBUG_BUILD) $(BUILD_FLAGS) -lpthread $(FRAMEWORKS) -o $@
 
 $(BUILD_PATH)/kwmc: $(KWMC_SRCS)
-	g++ $^ $(DEBUG_BUILD) $(BUILD_FLAGS) -o $@
+	g++ $^ $(BUILD_FLAGS) -o $@
 
 $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@
