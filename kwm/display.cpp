@@ -312,7 +312,11 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
     if(Screen)
     {
         DEBUG("GiveFocusToScreen() " << ScreenIndex)
-        tree_node *FocusFirstNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+        tree_node *FocusFirstNode = NULL;
+        bool Initialized = IsSpaceInitializedForScreen(Screen);
+        if(Initialized)
+            FocusFirstNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+
         if(Focus)
         {
             CGWarpMouseCursorPosition(CGPointMake(Focus->Container.X + Focus->Container.Width / 2,
@@ -327,14 +331,46 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
         }
         else
         {
-            if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating)
+            if(!Initialized)
             {
                 CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2),
                                                 Screen->Y + (Screen->Height / 2));
 
-                CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
+                CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, CursorPos, kCGMouseButtonLeft);
                 CGEventSetFlags(MoveEvent, 0);
                 CGEventPost(kCGHIDEventTap, MoveEvent);
+                CFRelease(MoveEvent);
+
+                MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, CursorPos, kCGMouseButtonLeft);
+                CGEventSetFlags(MoveEvent, 0);
+                CGEventPost(kCGHIDEventTap, MoveEvent);
+                CFRelease(MoveEvent);
+
+                MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
+                CGEventSetFlags(MoveEvent, 0);
+                CGEventPost(kCGHIDEventTap, MoveEvent);
+                CFRelease(MoveEvent);
+            }
+            else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
+                    Screen->Space[Screen->ActiveSpace].RootNode == NULL)
+            {
+                CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2),
+                                                Screen->Y + (Screen->Height / 2));
+
+                CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, CursorPos, kCGMouseButtonLeft);
+                CGEventSetFlags(MoveEvent, 0);
+                CGEventPost(kCGHIDEventTap, MoveEvent);
+                CFRelease(MoveEvent);
+
+                MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, CursorPos, kCGMouseButtonLeft);
+                CGEventSetFlags(MoveEvent, 0);
+                CGEventPost(kCGHIDEventTap, MoveEvent);
+                CFRelease(MoveEvent);
+
+                MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
+                CGEventSetFlags(MoveEvent, 0);
+                CGEventPost(kCGHIDEventTap, MoveEvent);
+                CFRelease(MoveEvent);
                 CFRelease(MoveEvent);
             }
         }
