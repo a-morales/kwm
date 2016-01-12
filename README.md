@@ -1,4 +1,4 @@
-## Brief Description
+## brief description
 
 [*Kwm*](https://koekeishiya.github.io/kwm) started as a simple project to get true focus-follows-mouse support on OSX through event tapping.  
 It is now a tiling window manager that represents windows as the leaves of a binary tree.  
@@ -116,6 +116,12 @@ Example:
 ---------------------   ---------------------   ---------------------
 
 ```
+
+By taking advantage of the fact that bsp-trees can be saved and restored  
+from file, it is trivial to create layouts that can be loaded on the press  
+of a hotkey. This allows the user to quickly get a given space to tile  
+according to their needs as they change through the day.  
+To save/restore a bsp-layout, see `kwmc help tree`.  
 
 In addition to bsp, *Kwm* supports both monocle and floating spaces.  
 If a space is set to floating mode, nothing will be tiled for this space.  
