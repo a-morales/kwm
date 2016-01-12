@@ -1516,26 +1516,25 @@ void FreeWindowRefCache(int PID)
 
 bool GetWindowFocusedByOSX(int *WindowWID)
 {
-    bool Result = false;
-
     static AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
+
     AXUIElementRef App;
     AXUIElementCopyAttributeValue(SystemWideElement, kAXFocusedApplicationAttribute, (CFTypeRef*)&App);
-
     if(App)
     {
-        AXUIElementRef Window;
-        AXError Error = AXUIElementCopyAttributeValue(App, kAXFocusedWindowAttribute, (CFTypeRef*)&Window);
+        AXUIElementRef WindowRef;
+        AXError Error = AXUIElementCopyAttributeValue(App, kAXFocusedWindowAttribute, (CFTypeRef*)&WindowRef);
         CFRelease(App);
 
         if (Error == kAXErrorSuccess)
         {
-            _AXUIElementGetWindow(Window, WindowWID);
-            Result = true;
+            _AXUIElementGetWindow(WindowRef, WindowWID);
+            CFRelease(WindowRef);
+            return true;
         }
     }
 
-    return Result;
+    return false;
 }
 
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
