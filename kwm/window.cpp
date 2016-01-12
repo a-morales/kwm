@@ -1099,52 +1099,48 @@ void ShiftWindowFocus(int Shift)
     tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
     if(FocusedWindowNode)
     {
-        tree_node *NewFocusNode = NULL;
+        tree_node *FocusNode = NULL;
 
         if(Shift == 1)
         {
-            NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
-            if(KwmCycleMode == CycleModeScreen && !NewFocusNode)
+            FocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
+            if(KwmCycleMode == CycleModeScreen && !FocusNode)
             {
-                NewFocusNode = GetFirstLeafNode(Space->RootNode);
+                FocusNode = GetFirstLeafNode(Space->RootNode);
             }
-            else if(KwmCycleMode == CycleModeAll && !NewFocusNode)
+            else if(KwmCycleMode == CycleModeAll && !FocusNode)
             {
                 int ScreenIndex = GetIndexOfNextScreen();
-                GiveFocusToScreen(ScreenIndex);
                 screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-                NewFocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
-                if(NewFocusNode)
+                FocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+                if(FocusNode)
                 {
-                    window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
-                    MoveCursorToCenterOfWindow(NewWindow);
-                    FocusWindowBelowCursor();
+                    GiveFocusToScreen(ScreenIndex, FocusNode);
+                    return;
                 }
             }
         }
         else if(Shift == -1)
         {
-            NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
-            if(KwmCycleMode == CycleModeScreen && !NewFocusNode)
+            FocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
+            if(KwmCycleMode == CycleModeScreen && !FocusNode)
             {
-                NewFocusNode = GetLastLeafNode(Space->RootNode);
+                FocusNode = GetLastLeafNode(Space->RootNode);
             }
-            else if(KwmCycleMode == CycleModeAll && !NewFocusNode)
+            else if(KwmCycleMode == CycleModeAll && !FocusNode)
             {
                 int ScreenIndex = GetIndexOfPrevScreen();
-                GiveFocusToScreen(ScreenIndex);
                 screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-                NewFocusNode = GetLastLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
-                if(NewFocusNode)
+                FocusNode = GetLastLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+                if(FocusNode)
                 {
-                    window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
-                    MoveCursorToCenterOfWindow(NewWindow);
-                    FocusWindowBelowCursor();
+                    GiveFocusToScreen(ScreenIndex, FocusNode);
+                    return;
                 }
             }
         }
 
-        SetWindowFocusByNode(NewFocusNode);
+        SetWindowFocusByNode(FocusNode);
     }
 }
 

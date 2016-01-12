@@ -306,22 +306,24 @@ void ActivateScreen(screen_info *Screen)
     CFRelease(MoveEvent);
 }
 
-void GiveFocusToScreen(int ScreenIndex)
+void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     if(Screen)
     {
         DEBUG("GiveFocusToScreen() " << ScreenIndex)
-        UpdateActiveWindowList(Screen);
-        tree_node *NewFocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
-        if(NewFocusNode)
+        tree_node *FocusFirstNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+        if(Focus)
         {
-            window_info *NewWindow = GetWindowByID(NewFocusNode->WindowID);
-            if(NewWindow)
-            {
-                MoveCursorToCenterOfWindow(NewWindow);
-                FocusWindowBelowCursor();
-            }
+            CGWarpMouseCursorPosition(CGPointMake(Focus->Container.X + Focus->Container.Width / 2,
+                                                  Focus->Container.Y + Focus->Container.Height / 2));
+            FocusWindowBelowCursor();
+        }
+        else if(FocusFirstNode)
+        {
+            CGWarpMouseCursorPosition(CGPointMake(FocusFirstNode->Container.X + FocusFirstNode->Container.Width / 2,
+                                                  FocusFirstNode->Container.Y + FocusFirstNode->Container.Height / 2));
+            FocusWindowBelowCursor();
         }
         else
         {
