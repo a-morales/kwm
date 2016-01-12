@@ -221,7 +221,7 @@ void KwmClearSettings()
     for(It = AllowedWindowRoles.begin(); It != AllowedWindowRoles.end(); ++It)
     {
         std::vector<CFTypeRef> &WindowRoles = It->second;
-        for(int RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
+        for(std::size_t RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
             CFRelease(WindowRoles[RoleIndex]);
 
         WindowRoles.clear();
@@ -298,7 +298,7 @@ void AddKwmToLaunchd()
         PlistContents.push_back(Line);
 
     DEBUG("AddKwmToLaunchd() Creating file: " << PlistFullPath)
-    for(int LineNumber = 0; LineNumber < PlistContents.size(); ++LineNumber)
+    for(std::size_t LineNumber = 0; LineNumber < PlistContents.size(); ++LineNumber)
     {
         if(LineNumber == 8)
             OutFD << "    <string>" + KWMPath.FilePath + "/kwm</string>" << std::endl;

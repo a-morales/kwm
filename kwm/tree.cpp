@@ -253,7 +253,7 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
     if(Windows.size() >= 2)
     {
         tree_node *Root = RootNode;
-        int FirstIndex;
+        std::size_t FirstIndex;
         bool FoundValidWindow = false;
         for(FirstIndex = 0; FirstIndex < Windows.size(); ++FirstIndex)
         {
@@ -268,7 +268,7 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
         if(!FoundValidWindow)
             return false;
 
-        for(int WindowIndex = FirstIndex + 1; WindowIndex < Windows.size(); ++WindowIndex)
+        for(std::size_t WindowIndex = FirstIndex + 1; WindowIndex < Windows.size(); ++WindowIndex)
         {
             if(!IsWindowFloating(Windows[WindowIndex]->WID, NULL))
             {
@@ -307,7 +307,7 @@ bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<win
         tree_node *Root = RootNode;
         Root->WindowID = Windows[0]->WID;
 
-        for(int WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
+        for(std::size_t WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
         {
             tree_node *Next = CreateRootNode();
             SetRootNodeContainer(Screen, Next);
@@ -557,11 +557,9 @@ void CreateDeserializedNodeContainer(tree_node *Node)
 void FillDeserializedTree(tree_node *RootNode)
 {
     std::vector<window_info*> Windows = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
-
     tree_node *Current = GetFirstLeafNode(RootNode);
-    tree_node *Root = RootNode;
 
-    int Counter = 0, Leafs = 0;
+    std::size_t Counter = 0, Leafs = 0;
     while(Current)
     {
         if(Counter < Windows.size())
@@ -636,9 +634,9 @@ void SerializeParentNode(tree_node *Parent, std::string Role, std::vector<std::s
     }
 }
 
-int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, int Index)
+unsigned int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index)
 {
-    int LineNumber = Index;
+    unsigned int LineNumber = Index;
     for(;LineNumber < Serialized.size(); ++LineNumber)
     {
         std::string Line = Serialized[LineNumber];
@@ -668,9 +666,9 @@ int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialize
     return LineNumber;
 }
 
-int DeserializeChildNode(tree_node *Parent, std::vector<std::string> &Serialized, int Index)
+unsigned int DeserializeChildNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index)
 {
-    int LineNumber = Index;
+    unsigned int LineNumber = Index;
     for(;LineNumber < Serialized.size(); ++LineNumber)
     {
         std::string Line = Serialized[LineNumber];
@@ -738,7 +736,7 @@ void SaveBSPTreeToFile(screen_info *Screen, std::string Name)
         std::vector<std::string> SerializedTree;
         SerializeParentNode(Root, "parent", SerializedTree);
 
-        for(int LineNumber = 0; LineNumber < SerializedTree.size(); ++LineNumber)
+        for(std::size_t LineNumber = 0; LineNumber < SerializedTree.size(); ++LineNumber)
             OutFD << SerializedTree[LineNumber] << std::endl;
 
         OutFD.close();

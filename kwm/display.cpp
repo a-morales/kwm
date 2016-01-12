@@ -69,7 +69,7 @@ void GetActiveDisplays()
 {
     KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * KWMScreen.MaxCount);
     CGGetActiveDisplayList(KWMScreen.MaxCount, KWMScreen.Displays, &KWMScreen.ActiveCount);
-    for(int DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
+    for(std::size_t DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
     {
         unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
         DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);;
@@ -88,7 +88,7 @@ void RefreshActiveDisplays()
 
     KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * KWMScreen.MaxCount);
     CGGetActiveDisplayList(KWMScreen.MaxCount, KWMScreen.Displays, &KWMScreen.ActiveCount);
-    for(int DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
+    for(std::size_t DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
     {
         unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
         std::map<unsigned int, screen_info>::iterator It = DisplayMap.find(DisplayID);
@@ -104,7 +104,7 @@ void RefreshActiveDisplays()
     KWMScreen.Current = GetDisplayOfMousePointer();
 }
 
-screen_info *GetDisplayFromScreenID(int ID)
+screen_info *GetDisplayFromScreenID(unsigned int ID)
 {
     std::map<unsigned int, screen_info>::iterator It;
     for(It = DisplayMap.begin(); It != DisplayMap.end(); ++It)
@@ -152,7 +152,7 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     std::vector<window_info*> ScreenWindowLst;
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         window_info *Window = &WindowLst[WindowIndex];
         if(!IsApplicationFloating(&WindowLst[WindowIndex]))
@@ -169,7 +169,7 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     std::vector<int> ScreenWindowIDLst;
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         window_info *Window = &WindowLst[WindowIndex];
         if(!IsApplicationFloating(&WindowLst[WindowIndex]))
@@ -279,7 +279,10 @@ int GetIndexOfNextScreen()
 
 int GetIndexOfPrevScreen()
 {
-    return KWMScreen.Current->ID - 1 < 0 ? KWMScreen.ActiveCount - 1 : KWMScreen.Current->ID - 1;
+    if(KWMScreen.Current->ID == 0)
+        return KWMScreen.ActiveCount - 1;
+    else
+        return KWMScreen.Current->ID - 1;
 }
 
 void ActivateScreen(screen_info *Screen)

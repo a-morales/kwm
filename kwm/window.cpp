@@ -110,7 +110,7 @@ bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubR
     if(It != AllowedWindowRoles.end())
     {
         std::vector<CFTypeRef> &WindowRoles = It->second;
-        for(int RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
+        for(std::size_t RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
         {
             if(CFEqual(Role, WindowRoles[RoleIndex]) || CFEqual(SubRole, WindowRoles[RoleIndex]))
                 return true;
@@ -124,7 +124,7 @@ bool IsContextMenusAndSimilarVisible()
 {
     bool Result = false;
 
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         if((WindowLst[WindowIndex].Owner != "Dock" ||
             WindowLst[WindowIndex].Name != "Dock") &&
@@ -143,7 +143,7 @@ bool FilterWindowList(screen_info *Screen)
     bool Result = true;
     std::vector<window_info> FilteredWindowLst;
 
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         // Mission-Control mode is on and so we do not try to tile windows
         if(WindowLst[WindowIndex].Owner == "Dock" &&
@@ -237,7 +237,7 @@ bool IsApplicationFloating(window_info *Window)
 {
     bool Result = false;
 
-    for(int WindowIndex = 0; WindowIndex < FloatingAppLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < FloatingAppLst.size(); ++WindowIndex)
     {
         if(Window->Owner == FloatingAppLst[WindowIndex])
         {
@@ -253,7 +253,7 @@ bool IsWindowFloating(int WindowID, int *Index)
 {
     bool Result = false;
 
-    for(int WindowIndex = 0; WindowIndex < FloatingWindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < FloatingWindowLst.size(); ++WindowIndex)
     {
         if(WindowID == FloatingWindowLst[WindowIndex])
         {
@@ -273,7 +273,7 @@ bool IsWindowFloating(int WindowID, int *Index)
 bool IsAnyWindowBelowCursor()
 {
     CGPoint Cursor = GetCursorPos();
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         window_info *Window = &WindowLst[WindowIndex];
         if(Cursor.x >= Window->X &&
@@ -327,7 +327,7 @@ bool DoesSpaceExistInMapOfScreen(screen_info *Screen)
 
 bool IsWindowOnActiveSpace(int WindowID)
 {
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         if(WindowID == WindowLst[WindowIndex].WID)
         {
@@ -375,7 +375,7 @@ bool FocusWindowOfOSX()
            !IsSpaceInitializedForScreen(KWMScreen.Current))
                 return false;
 
-        for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+        for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
         {
             if(WindowLst[WindowIndex].WID == WindowID)
             {
@@ -396,7 +396,7 @@ void FocusWindowBelowCursor()
        (KWMToggles.UseContextMenuFix && IsContextualMenusVisible))
            return;
 
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         if(IsWindowBelowCursor(&WindowLst[WindowIndex]))
         {
@@ -521,7 +521,7 @@ void UpdateActiveWindowList(screen_info *Screen)
 
 void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)
 {
-    for(int WindowIndex = 0; WindowIndex < Windows->size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < Windows->size(); ++WindowIndex)
     {
         if(Screen != GetDisplayOfWindow((*Windows)[WindowIndex]))
             return;
@@ -586,7 +586,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
     if(WindowLst.size() > Screen->OldWindowListCount)
     {
         DEBUG("ShouldBSPTreeUpdate() Add Window")
-        for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+        for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
         {
             if(GetNodeFromWindowID(Space->RootNode, WindowLst[WindowIndex].WID, Space->Mode) == NULL)
             {
@@ -622,10 +622,10 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
             CurrentNode = GetNearestNodeToTheRight(CurrentNode, SpaceModeBSP);
         }
 
-        for(int IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
+        for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
         {
             bool Found = false;
-            for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+            for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
             {
                 if(WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
                 {
@@ -765,7 +765,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
     if(WindowLst.size() > Screen->OldWindowListCount)
     {
         DEBUG("ShouldMonocleTreeUpdate() Add Window")
-        for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+        for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
         {
             if(GetNodeFromWindowID(Space->RootNode, WindowLst[WindowIndex].WID, Space->Mode) == NULL)
             {
@@ -799,10 +799,10 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
 
         if(WindowIDsInTree.size() >= 2)
         {
-            for(int IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
+            for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
             {
                 bool Found = false;
-                for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+                for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
                 {
                     if(WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
                     {
@@ -1075,7 +1075,7 @@ void SwapFocusedWindowWithNearest(int Shift)
     tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
     if(FocusedWindowNode)
     {
-        tree_node *NewFocusNode;
+        tree_node *NewFocusNode = NULL;;
 
         if(Shift == 1)
             NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
@@ -1099,7 +1099,7 @@ void ShiftWindowFocus(int Shift)
     tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
     if(FocusedWindowNode)
     {
-        tree_node *NewFocusNode;
+        tree_node *NewFocusNode = NULL;
 
         if(Shift == 1)
         {
@@ -1377,7 +1377,7 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef)
 
 window_info *GetWindowByID(int WindowID)
 {
-    for(int WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
     {
         if(WindowLst[WindowIndex].WID == WindowID)
             return &WindowLst[WindowIndex];
@@ -1481,7 +1481,7 @@ bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
 
     if(IsCached)
     {
-        for(int ElementIndex = 0; ElementIndex < Elements.size(); ++ElementIndex)
+        for(std::size_t ElementIndex = 0; ElementIndex < Elements.size(); ++ElementIndex)
         {
             int AppWindowRefWID = -1;
             _AXUIElementGetWindow(Elements[ElementIndex], &AppWindowRefWID);

@@ -162,7 +162,7 @@ struct space_info
 
 struct screen_info
 {
-    int ID;
+    unsigned int ID;
     int X, Y;
     double Width, Height;
     container_offset Offset;
@@ -227,15 +227,15 @@ struct kwm_screen
     bool ForceRefreshFocus;
     double SplitRatio;
 
+    unsigned int OldScreenID;
     int MarkedWindow;
-    int OldScreenID;
     int SplitMode;
     int PrevSpace;
 
     container_offset DefaultOffset;
     CGDirectDisplayID *Displays;
-    uint32_t MaxCount;
-    uint32_t ActiveCount;
+    unsigned int MaxCount;
+    unsigned int ActiveCount;
 };
 
 container_offset CreateDefaultScreenOffset();
@@ -287,7 +287,7 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int);
 std::vector<int> GetAllWindowIDsOnDisplay(int);
 bool DoesSpaceExistInMapOfScreen(screen_info *);
 bool IsSpaceInitializedForScreen(screen_info *);
-screen_info *GetDisplayFromScreenID(int);
+screen_info *GetDisplayFromScreenID(unsigned int);
 int GetIndexOfPrevScreen();
 int GetIndexOfNextScreen();
 void GiveFocusToScreen(int);
@@ -385,8 +385,8 @@ void SaveBSPTreeToFile(screen_info *, std::string);
 void LoadBSPTreeFromFile(screen_info *, std::string);
 void SerializeParentNode(tree_node *, std::string, std::vector<std::string> &);
 tree_node *DeserializeNodeTree(std::vector<std::string> &);
-int DeserializeChildNode(tree_node *, std::vector<std::string> &, int);
-int DeserializeParentNode(tree_node *, std::vector<std::string> &, int);
+unsigned int DeserializeChildNode(tree_node *, std::vector<std::string> &, unsigned int);
+unsigned int DeserializeParentNode(tree_node *, std::vector<std::string> &, unsigned int);
 void FillDeserializedTree(tree_node *);
 void CreateDeserializedNodeContainer(tree_node *);
 int ConvertStringToInt(std::string);

@@ -105,7 +105,7 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
     TempHotkey.Mod = Mod;
     TempHotkey.Key = Keycode;
 
-    for(int HotkeyIndex = 0; HotkeyIndex < KwmHotkeys.size(); ++HotkeyIndex)
+    for(std::size_t HotkeyIndex = 0; HotkeyIndex < KwmHotkeys.size(); ++HotkeyIndex)
     {
         if(HotkeysAreEqual(&KwmHotkeys[HotkeyIndex], &TempHotkey))
         {
@@ -126,7 +126,7 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
         return false;
 
     std::vector<std::string> Modifiers = SplitString(KeyTokens[0], '+');
-    for(int ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
+    for(std::size_t ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
     {
         if(Modifiers[ModIndex] == "cmd")
             Hotkey->Mod.CmdKey = true;
@@ -179,7 +179,7 @@ void KwmRemoveHotkey(std::string KeySym)
     hotkey NewHotkey = {};
     if(KwmParseHotkey(KeySym, "", &NewHotkey))
     {
-        for(int HotkeyIndex = 0; HotkeyIndex < KwmHotkeys.size(); ++HotkeyIndex)
+        for(std::size_t HotkeyIndex = 0; HotkeyIndex < KwmHotkeys.size(); ++HotkeyIndex)
         {
             if(HotkeysAreEqual(&KwmHotkeys[HotkeyIndex], &NewHotkey))
             {
@@ -272,7 +272,7 @@ bool KeycodeForChar(char Key, CGKeyCode *Keycode)
         if (!CharToCodeDict)
             return false;
 
-        for (size_t KeyIndex = 0; KeyIndex < 128; ++KeyIndex)
+        for(std::size_t KeyIndex = 0; KeyIndex < 128; ++KeyIndex)
         {
             CFStringRef KeyString = KeycodeToString((CGKeyCode)KeyIndex);
             if (KeyString != NULL)
@@ -298,7 +298,7 @@ void KwmEmitKeystrokes(std::string Text)
     CGEventRef EventKeyUp = CGEventCreateKeyboardEvent(NULL, 0, false);
 
     UniChar OutputBuffer;
-    for (int CharIndex = 0; CharIndex < Text.size(); ++CharIndex)
+    for(std::size_t CharIndex = 0; CharIndex < Text.size(); ++CharIndex)
     {
         CFStringGetCharacters(TextRef, CFRangeMake(CharIndex, 1), &OutputBuffer);
 

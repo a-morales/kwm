@@ -13,9 +13,7 @@ extern std::vector<std::string> FloatingAppLst;
 std::string CreateStringFromTokens(std::vector<std::string> Tokens, int StartIndex)
 {
     std::string Text = "";
-    int TokenIndex = StartIndex;
-
-    for(; TokenIndex < Tokens.size(); ++TokenIndex)
+    for(std::size_t TokenIndex = StartIndex; TokenIndex < Tokens.size(); ++TokenIndex)
     {
         Text += Tokens[TokenIndex];
         if(TokenIndex < Tokens.size() - 1)
