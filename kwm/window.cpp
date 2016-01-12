@@ -509,7 +509,7 @@ void UpdateActiveWindowList(screen_info *Screen)
 
             KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
 
-            if(WindowBelowCursor)
+            if(WindowBelowCursor && KwmFocusMode != FocusModeDisabled)
                 FocusWindowBelowCursor();
             else if(FocusWindowOfOSX())
                 MoveCursorToCenterOfFocusedWindow();
