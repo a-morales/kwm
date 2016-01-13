@@ -18,6 +18,10 @@ Tested on El Capitan (10.11.1 / 10.11.2).
 
 ![img](https://cloud.githubusercontent.com/assets/6175959/12092967/8d8853d8-b300-11e5-8a44-ec1245efdc74.png)
 For more screenshots, [click here](https://github.com/koekeishiya/kwm/issues/2)  
+[herrbischoff](https://github.com/herrbischoff) has re-created my bar from the screenshots as a widget  
+for [Übersicht](http://tracesof.net/uebersicht/) for those that would like to have a decent bar with their setup.  
+This widget can be found here: https://github.com/herrbischoff/nerdbar.widget  
+
 
 ## Extended Information:
 
