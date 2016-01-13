@@ -371,7 +371,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
                 CGEventSetFlags(MoveEvent, 0);
                 CGEventPost(kCGHIDEventTap, MoveEvent);
                 CFRelease(MoveEvent);
-                CFRelease(MoveEvent);
             }
         }
     }
