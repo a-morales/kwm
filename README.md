@@ -44,7 +44,7 @@ hotkeys.cpp. The user may use an external program for running a specific command
 Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.  
 
 *Multiple monitor support:*  
-Kwm does support external monitors and have commands that allow for focusing screens,  moving windows, and capturing applications.  
+Kwm does support external monitors and have commands that allow for focusing screens,  moving windows, and capturing applications.
 For more information, see `kwmc help screen` and `kwmc config capture`.  
 
 ## Build:
