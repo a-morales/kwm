@@ -228,6 +228,7 @@ struct kwm_screen
     double SplitRatio;
 
     unsigned int OldScreenID;
+    bool UpdateSpace;
     int MarkedWindow;
     int SplitMode;
     int PrevSpace;

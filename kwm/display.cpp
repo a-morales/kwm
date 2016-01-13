@@ -317,17 +317,35 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
         if(Initialized)
             FocusFirstNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
 
-        if(Focus)
+        if(Initialized && Focus)
         {
+            KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
             CGWarpMouseCursorPosition(CGPointMake(Focus->Container.X + Focus->Container.Width / 2,
                                                   Focus->Container.Y + Focus->Container.Height / 2));
+            KWMScreen.ForceRefreshFocus = true;
             FocusWindowBelowCursor();
+            KWMScreen.ForceRefreshFocus = false;
+            if(KWMScreen.Identifier)
+                CFRelease(KWMScreen.Identifier);
+
+            KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
+            KWMScreen.OldScreenID = KWMScreen.Current->ID;
+            KWMScreen.Current = Screen;
         }
-        else if(FocusFirstNode)
+        else if(Initialized && FocusFirstNode)
         {
+            KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
             CGWarpMouseCursorPosition(CGPointMake(FocusFirstNode->Container.X + FocusFirstNode->Container.Width / 2,
                                                   FocusFirstNode->Container.Y + FocusFirstNode->Container.Height / 2));
+            KWMScreen.ForceRefreshFocus = true;
             FocusWindowBelowCursor();
+            KWMScreen.ForceRefreshFocus = false;
+            if(KWMScreen.Identifier)
+                CFRelease(KWMScreen.Identifier);
+
+            KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
+            KWMScreen.OldScreenID = KWMScreen.Current->ID;
+            KWMScreen.Current = Screen;
         }
         else
         {
@@ -335,7 +353,16 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
                Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
                Screen->Space[Screen->ActiveSpace].RootNode == NULL)
             {
+                KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
                 ActivateScreen(Screen);
+                Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
+
+                if(KWMScreen.Identifier)
+                    CFRelease(KWMScreen.Identifier);
+
+                KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
+                KWMScreen.OldScreenID = KWMScreen.Current->ID;
+                KWMScreen.Current = Screen;
             }
         }
     }

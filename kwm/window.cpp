@@ -346,6 +346,7 @@ bool IsSpaceTransitionInProgress()
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
+        KWMScreen.UpdateSpace = true;
     }
 
     return Result;
@@ -471,35 +472,28 @@ void UpdateActiveWindowList(screen_info *Screen)
     }
     CFRelease(OsxWindowLst);
 
+    bool WindowBelowCursor = IsAnyWindowBelowCursor();
     KWMScreen.ForceRefreshFocus = true;
     KWMScreen.PrevSpace = Screen->ActiveSpace;
 
-    bool WindowBelowCursor = IsAnyWindowBelowCursor();
+    if(Screen->ForceContainerUpdate)
+    {
+        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        ApplyNodeContainer(Space->RootNode, Space->Mode);
+        Screen->ForceContainerUpdate = false;
+    }
+
     if(KWMScreen.OldScreenID != Screen->ID)
     {
-        if(Screen->ActiveSpace == -1)
-            Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
-
-        if(KWMScreen.Identifier)
-            CFRelease(KWMScreen.Identifier);
-
-        KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
-        if(Screen->ForceContainerUpdate)
-        {
-            space_info *Space = &Screen->Space[Screen->ActiveSpace];
-            ApplyNodeContainer(Space->RootNode, Space->Mode);
-            Screen->ForceContainerUpdate = false;
-        }
-
         DEBUG("UpdateActiveWindowList() Active Display Changed")
         GiveFocusToScreen(Screen->ID, NULL);
     }
-    else
+    else if(KWMScreen.UpdateSpace)
     {
         Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
         if(KWMScreen.PrevSpace != Screen->ActiveSpace)
         {
-            DEBUG("UpdateActiveWindowList() Space transition ended")
+            DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
             if(KWMScreen.Identifier)
                 CFRelease(KWMScreen.Identifier);
 
@@ -510,6 +504,7 @@ void UpdateActiveWindowList(screen_info *Screen)
             else if(FocusWindowOfOSX())
                 MoveCursorToCenterOfFocusedWindow();
         }
+        KWMScreen.UpdateSpace = false;
     }
 
     KWMScreen.ForceRefreshFocus = false;
@@ -528,7 +523,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
     if(!IsSpaceInitializedForScreen(Screen))
     {
         Space = &Screen->Space[Screen->ActiveSpace];
-        DEBUG("CreateWindowNodeTree() Create Space")
+        DEBUG("CreateWindowNodeTree() Create Space " << Screen->ActiveSpace)
 
         Space->Mode = KwmSpaceMode;
         Space->Initialized = true;
