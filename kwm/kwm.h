@@ -344,7 +344,7 @@ void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowFullscreen();
 void ToggleFocusedWindowParentContainer();
 void SetWindowDimensions(AXUIElementRef, window_info *, int, int, int, int);
-void CenterWindow(screen_info *);
+void CenterWindow(screen_info *, window_info *);
 void ModifyContainerSplitRatio(double);
 void ResizeWindowToContainerSize(tree_node *);
 void ResizeWindowToContainerSize();

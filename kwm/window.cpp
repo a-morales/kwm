@@ -719,7 +719,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
 
         if(Center)
         {
-            CenterWindow(Screen);
+            CenterWindow(Screen, KWMFocus.Window);
         }
         else
         {
@@ -736,7 +736,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
         free(WindowNode);
         Screen->Space[Screen->ActiveSpace].RootNode = NULL;
         if(Center)
-            CenterWindow(Screen);
+            CenterWindow(Screen, KWMFocus.Window);
     }
 }
 
@@ -843,8 +843,15 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 {
-    if(!Screen || !Window || Screen == GetDisplayOfWindow(Window) || !IsSpaceInitializedForScreen(Screen))
+    if(!Screen || !Window || Screen == GetDisplayOfWindow(Window))
         return;
+
+    if(!IsSpaceInitializedForScreen(Screen))
+    {
+        CenterWindow(Screen, Window);
+        Screen->ForceContainerUpdate = true;
+        return;
+    }
 
     space_info *Space = &Screen->Space[Screen->ActiveSpace];
     if(Space->RootNode)
@@ -883,24 +890,8 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
     }
     else
     {
-        if(Space->Mode == SpaceModeBSP || Space->Mode == SpaceModeMonocle)
-        {
-            std::vector<window_info*> WindowsOnDisplay;
-            WindowsOnDisplay.push_back(Window);
-            CreateWindowNodeTree(Screen, &WindowsOnDisplay);
-        }
-        else if(Space->Mode == SpaceModeFloating)
-        {
-            AXUIElementRef WindowRef;
-            if(GetWindowRef(Window, &WindowRef))
-            {
-                SetWindowDimensions(WindowRef, Window,
-                                    Screen->X + (Screen->Width / 4),
-                                    Screen->Y + (Screen->Height / 4),
-                                    Screen->Width / 2,
-                                    Screen->Height / 2);
-            }
-        }
+        CenterWindow(Screen, Window);
+        Screen->ForceContainerUpdate = true;
     }
 }
 
@@ -1234,16 +1225,16 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         CFRelease(NewWindowSize);
 }
 
-void CenterWindow(screen_info *Screen)
+void CenterWindow(screen_info *Screen, window_info *Window)
 {
     AXUIElementRef WindowRef;
-    if(GetWindowRef(KWMFocus.Window, &WindowRef))
+    if(GetWindowRef(Window, &WindowRef))
     {
         int NewX = Screen->X + Screen->Width / 4;
         int NewY = Screen->Y + Screen->Height / 4;
         int NewWidth = Screen->Width / 2;
         int NewHeight = Screen->Height / 2;
-        SetWindowDimensions(WindowRef, KWMFocus.Window, NewX, NewY, NewWidth, NewHeight);
+        SetWindowDimensions(WindowRef, Window, NewX, NewY, NewWidth, NewHeight);
     }
 }
 
