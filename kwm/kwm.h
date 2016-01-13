@@ -291,8 +291,8 @@ bool IsSpaceInitializedForScreen(screen_info *);
 screen_info *GetDisplayFromScreenID(unsigned int);
 int GetIndexOfPrevScreen();
 int GetIndexOfNextScreen();
-void GiveFocusToScreen(int, tree_node *);
-void ActivateScreen(screen_info *);
+void GiveFocusToScreen(int, tree_node *, bool);
+void ActivateScreen(screen_info *, bool);
 void MoveWindowToDisplay(window_info *, int, bool);
 void CaptureApplicationToScreen(int, std::string);
 

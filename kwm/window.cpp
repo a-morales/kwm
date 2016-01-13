@@ -486,7 +486,7 @@ void UpdateActiveWindowList(screen_info *Screen)
     if(KWMScreen.OldScreenID != Screen->ID)
     {
         DEBUG("UpdateActiveWindowList() Active Display Changed")
-        GiveFocusToScreen(Screen->ID, NULL);
+        GiveFocusToScreen(Screen->ID, NULL, true);
     }
     else if(KWMScreen.UpdateSpace)
     {
@@ -1106,7 +1106,7 @@ void ShiftWindowFocus(int Shift)
                 FocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
                 if(FocusNode)
                 {
-                    GiveFocusToScreen(ScreenIndex, FocusNode);
+                    GiveFocusToScreen(ScreenIndex, FocusNode, false);
                     return;
                 }
             }
@@ -1125,7 +1125,7 @@ void ShiftWindowFocus(int Shift)
                 FocusNode = GetLastLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
                 if(FocusNode)
                 {
-                    GiveFocusToScreen(ScreenIndex, FocusNode);
+                    GiveFocusToScreen(ScreenIndex, FocusNode, false);
                     return;
                 }
             }

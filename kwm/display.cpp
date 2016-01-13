@@ -1,6 +1,7 @@
 #include "kwm.h"
 
 extern kwm_screen KWMScreen;
+extern kwm_focus KWMFocus;
 extern pthread_mutex_t BackgroundLock;
 
 extern std::map<unsigned int, screen_info> DisplayMap;
@@ -285,17 +286,20 @@ int GetIndexOfPrevScreen()
         return KWMScreen.Current->ID - 1;
 }
 
-void ActivateScreen(screen_info *Screen)
+void ActivateScreen(screen_info *Screen, bool Mouse)
 {
-    CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2),
-                                    Screen->Y + (Screen->Height / 2));
+    CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2), Screen->Y + (Screen->Height / 2));
+    CGPoint ClickPos = CursorPos;
 
-    CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, CursorPos, kCGMouseButtonLeft);
+    if(Mouse)
+        CursorPos = GetCursorPos();
+
+    CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
     CGEventSetFlags(MoveEvent, 0);
     CGEventPost(kCGHIDEventTap, MoveEvent);
     CFRelease(MoveEvent);
 
-    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, CursorPos, kCGMouseButtonLeft);
+    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
     CGEventSetFlags(MoveEvent, 0);
     CGEventPost(kCGHIDEventTap, MoveEvent);
     CFRelease(MoveEvent);
@@ -306,7 +310,7 @@ void ActivateScreen(screen_info *Screen)
     CFRelease(MoveEvent);
 }
 
-void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
+void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     if(Screen)
@@ -319,33 +323,59 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
 
         if(Initialized && Focus)
         {
+            DEBUG("Populated Screen 'Window -f Focus'")
             KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-            CGWarpMouseCursorPosition(CGPointMake(Focus->Container.X + Focus->Container.Width / 2,
-                                                  Focus->Container.Y + Focus->Container.Height / 2));
-            KWMScreen.ForceRefreshFocus = true;
-            FocusWindowBelowCursor();
-            KWMScreen.ForceRefreshFocus = false;
+            KWMScreen.OldScreenID = KWMScreen.Current->ID;
+            KWMScreen.Current = Screen;
+
             if(KWMScreen.Identifier)
                 CFRelease(KWMScreen.Identifier);
 
             KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
-            KWMScreen.OldScreenID = KWMScreen.Current->ID;
-            KWMScreen.Current = Screen;
+            CGWarpMouseCursorPosition(CGPointMake(Focus->Container.X + Focus->Container.Width / 2,
+                                                  Focus->Container.Y + Focus->Container.Height / 2));
+
+            UpdateActiveWindowList(Screen);
+            FilterWindowList(Screen);
+            KWMScreen.ForceRefreshFocus = true;
+            FocusWindowBelowCursor();
+            KWMScreen.ForceRefreshFocus = false;
         }
         else if(Initialized && FocusFirstNode)
         {
+            DEBUG("Populated Screen Key/Mouse Focus")
             KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-            CGWarpMouseCursorPosition(CGPointMake(FocusFirstNode->Container.X + FocusFirstNode->Container.Width / 2,
-                                                  FocusFirstNode->Container.Y + FocusFirstNode->Container.Height / 2));
-            KWMScreen.ForceRefreshFocus = true;
-            FocusWindowBelowCursor();
-            KWMScreen.ForceRefreshFocus = false;
+            KWMScreen.OldScreenID = KWMScreen.Current->ID;
+            KWMScreen.Current = Screen;
+
             if(KWMScreen.Identifier)
                 CFRelease(KWMScreen.Identifier);
 
             KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
-            KWMScreen.OldScreenID = KWMScreen.Current->ID;
-            KWMScreen.Current = Screen;
+            bool WindowBelowCursor = IsAnyWindowBelowCursor();
+            if(Mouse && !WindowBelowCursor)
+            {
+                ActivateScreen(Screen, Mouse);
+                UpdateActiveWindowList(Screen);
+                FilterWindowList(Screen);
+            }
+            else if(Mouse && WindowBelowCursor)
+            {
+                UpdateActiveWindowList(Screen);
+                FilterWindowList(Screen);
+                FocusWindowBelowCursor();
+            }
+            else
+            {
+                CGWarpMouseCursorPosition(CGPointMake(FocusFirstNode->Container.X + FocusFirstNode->Container.Width / 2,
+                                                      FocusFirstNode->Container.Y + FocusFirstNode->Container.Height / 2));
+                UpdateActiveWindowList(Screen);
+                FilterWindowList(Screen);
+            }
+
+            KWMScreen.ForceRefreshFocus = true;
+            FocusWindowBelowCursor();
+            KWMScreen.ForceRefreshFocus = false;
         }
         else
         {
@@ -353,8 +383,9 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
                Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
                Screen->Space[Screen->ActiveSpace].RootNode == NULL)
             {
+                DEBUG("Empty Screen")
                 KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-                ActivateScreen(Screen);
+                ActivateScreen(Screen, Mouse);
                 Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
 
                 if(KWMScreen.Identifier)
@@ -363,6 +394,12 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
                 KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
                 KWMScreen.OldScreenID = KWMScreen.Current->ID;
                 KWMScreen.Current = Screen;
+
+                if(Mouse && KWMFocus.Window)
+                {
+                    if(IsWindowFloating(KWMFocus.Window->WID, NULL))
+                        ToggleFocusedWindowFloating();
+                }
             }
         }
     }

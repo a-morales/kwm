@@ -364,15 +364,15 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
     if(Tokens[1] == "-f")
     {
         if(Tokens[2] == "prev")
-            GiveFocusToScreen(GetIndexOfPrevScreen(), NULL);
+            GiveFocusToScreen(GetIndexOfPrevScreen(), NULL, false);
         else if(Tokens[2] == "next")
-            GiveFocusToScreen(GetIndexOfNextScreen(), NULL);
+            GiveFocusToScreen(GetIndexOfNextScreen(), NULL, false);
         else 
         {
             int Index = 0;
             std::stringstream Stream(Tokens[2]);
             Stream >> Index;
-            GiveFocusToScreen(Index, NULL);
+            GiveFocusToScreen(Index, NULL, false);
         }
     }
     else if(Tokens[1] == "-s")
