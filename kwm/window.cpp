@@ -342,7 +342,9 @@ bool IsWindowOnActiveSpace(int WindowID)
 
 bool IsSpaceTransitionInProgress()
 {
-    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)KWMScreen.Identifier);
+    int CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
+    CFStringRef Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
+    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)Identifier);
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
@@ -494,11 +496,6 @@ void UpdateActiveWindowList(screen_info *Screen)
         if(KWMScreen.PrevSpace != Screen->ActiveSpace)
         {
             DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
-            if(KWMScreen.Identifier)
-                CFRelease(KWMScreen.Identifier);
-
-            KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
-
             if(WindowBelowCursor && KwmFocusMode != FocusModeDisabled)
                 FocusWindowBelowCursor();
             else if(FocusWindowOfOSX())

@@ -222,7 +222,6 @@ struct kwm_focus
 
 struct kwm_screen
 {
-    CFStringRef Identifier;
     screen_info *Current;
     bool ForceRefreshFocus;
     double SplitRatio;

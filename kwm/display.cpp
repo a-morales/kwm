@@ -328,10 +328,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
             KWMScreen.OldScreenID = KWMScreen.Current->ID;
             KWMScreen.Current = Screen;
 
-            if(KWMScreen.Identifier)
-                CFRelease(KWMScreen.Identifier);
-
-            KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
             CGWarpMouseCursorPosition(CGPointMake(Focus->Container.X + Focus->Container.Width / 2,
                                                   Focus->Container.Y + Focus->Container.Height / 2));
 
@@ -348,10 +344,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
             KWMScreen.OldScreenID = KWMScreen.Current->ID;
             KWMScreen.Current = Screen;
 
-            if(KWMScreen.Identifier)
-                CFRelease(KWMScreen.Identifier);
-
-            KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
             bool WindowBelowCursor = IsAnyWindowBelowCursor();
             if(Mouse && !WindowBelowCursor)
             {
@@ -384,14 +376,11 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                Screen->Space[Screen->ActiveSpace].RootNode == NULL)
             {
                 DEBUG("Empty Screen")
+                KWMScreen.UpdateSpace = true;
                 KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
                 ActivateScreen(Screen, Mouse);
                 Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
 
-                if(KWMScreen.Identifier)
-                    CFRelease(KWMScreen.Identifier);
-
-                KWMScreen.Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, Screen->ActiveSpace);
                 KWMScreen.OldScreenID = KWMScreen.Current->ID;
                 KWMScreen.Current = Screen;
 
