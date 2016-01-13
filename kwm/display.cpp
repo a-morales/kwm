@@ -287,15 +287,15 @@ int GetIndexOfPrevScreen()
 
 void ActivateScreen(screen_info *Screen)
 {
-    CGPoint CursorPos = GetCursorPos();
-    CGPoint ClickPos = CGPointMake(Screen->X, Screen->Y + Screen->Height);
+    CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2),
+                                    Screen->Y + (Screen->Height / 2));
 
-    CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
+    CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, CursorPos, kCGMouseButtonLeft);
     CGEventSetFlags(MoveEvent, 0);
     CGEventPost(kCGHIDEventTap, MoveEvent);
     CFRelease(MoveEvent);
 
-    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
+    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, CursorPos, kCGMouseButtonLeft);
     CGEventSetFlags(MoveEvent, 0);
     CGEventPost(kCGHIDEventTap, MoveEvent);
     CFRelease(MoveEvent);
@@ -331,46 +331,11 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus)
         }
         else
         {
-            if(!Initialized)
+            if(!Initialized ||
+               Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
+               Screen->Space[Screen->ActiveSpace].RootNode == NULL)
             {
-                CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2),
-                                                Screen->Y + (Screen->Height / 2));
-
-                CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, CursorPos, kCGMouseButtonLeft);
-                CGEventSetFlags(MoveEvent, 0);
-                CGEventPost(kCGHIDEventTap, MoveEvent);
-                CFRelease(MoveEvent);
-
-                MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, CursorPos, kCGMouseButtonLeft);
-                CGEventSetFlags(MoveEvent, 0);
-                CGEventPost(kCGHIDEventTap, MoveEvent);
-                CFRelease(MoveEvent);
-
-                MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
-                CGEventSetFlags(MoveEvent, 0);
-                CGEventPost(kCGHIDEventTap, MoveEvent);
-                CFRelease(MoveEvent);
-            }
-            else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
-                    Screen->Space[Screen->ActiveSpace].RootNode == NULL)
-            {
-                CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2),
-                                                Screen->Y + (Screen->Height / 2));
-
-                CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, CursorPos, kCGMouseButtonLeft);
-                CGEventSetFlags(MoveEvent, 0);
-                CGEventPost(kCGHIDEventTap, MoveEvent);
-                CFRelease(MoveEvent);
-
-                MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, CursorPos, kCGMouseButtonLeft);
-                CGEventSetFlags(MoveEvent, 0);
-                CGEventPost(kCGHIDEventTap, MoveEvent);
-                CFRelease(MoveEvent);
-
-                MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
-                CGEventSetFlags(MoveEvent, 0);
-                CGEventPost(kCGHIDEventTap, MoveEvent);
-                CFRelease(MoveEvent);
+                ActivateScreen(Screen);
             }
         }
     }

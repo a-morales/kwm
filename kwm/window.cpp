@@ -492,11 +492,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         }
 
         DEBUG("UpdateActiveWindowList() Active Display Changed")
-
-        if(WindowBelowCursor)
-            FocusWindowBelowCursor();
-        else
-            ActivateScreen(Screen);
+        GiveFocusToScreen(Screen->ID, NULL);
     }
     else
     {
