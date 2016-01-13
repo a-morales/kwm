@@ -44,12 +44,8 @@ hotkeys.cpp. The user may use an external program for running a specific command
 Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.  
 
 *Multiple monitor support:*  
-`kwmc screen -f prev|next|id` can be used to give focus to a different monitor.  
-To move a window between monitors, `kwmc screen -m prev|next|id` can be used.  
-Making a window floating and manually moving it with the mouse also works.  
-If a tiled window is moved with the mouse, *Kwm* will detect on mouse-release  
-that the window position has changed, and automatically make it floating.  
-(Technical limitations: This event must occur on the monitor that tiled the window).
+Kwm does support external monitors and have commands that allow for focusing screens,  moving windows, and capturing applications.  
+For more information, see `kwmc help screen` and `kwmc config capture`.  
 
 ## Build:
 
