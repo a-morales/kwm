@@ -5,20 +5,9 @@ static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
-
-extern std::vector<window_info> WindowLst;
-extern std::vector<std::string> FloatingAppLst;
-extern std::vector<int> FloatingWindowLst;
-extern std::map<std::string, int> CapturedAppLst;
-extern std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
-
-extern focus_option KwmFocusMode;
-extern space_tiling_option KwmSpaceMode;
-extern cycle_focus_option KwmCycleMode;
-bool IsContextualMenusVisible = false;
-
-std::map<int, window_role> WindowRoleCache;
-std::map<int, std::vector<AXUIElementRef> > WindowRefsCache;
+extern kwm_mode KWMMode;
+extern kwm_tiling KWMTiling;
+extern kwm_cache KWMCache;
 
 bool GetTagForCurrentSpace(std::string &Tag)
 {
@@ -96,18 +85,18 @@ bool WindowsAreEqual(window_info *Window, window_info *Match)
 
 void AllowRoleForApplication(std::string Application, std::string Role)
 {
-    std::map<std::string, std::vector<CFTypeRef> >::iterator It = AllowedWindowRoles.find(Application);
-    if(It == AllowedWindowRoles.end())
-        AllowedWindowRoles[Application] = std::vector<CFTypeRef>();
+    std::map<std::string, std::vector<CFTypeRef> >::iterator It = KWMTiling.AllowedWindowRoles.find(Application);
+    if(It == KWMTiling.AllowedWindowRoles.end())
+        KWMTiling.AllowedWindowRoles[Application] = std::vector<CFTypeRef>();
 
     CFStringRef RoleRef = CFStringCreateWithCString(NULL, Role.c_str(), kCFStringEncodingMacRoman);
-    AllowedWindowRoles[Application].push_back(RoleRef);
+    KWMTiling.AllowedWindowRoles[Application].push_back(RoleRef);
 }
 
 bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubRole)
 {
-    std::map<std::string, std::vector<CFTypeRef> >::iterator It = AllowedWindowRoles.find(Window->Owner);
-    if(It != AllowedWindowRoles.end())
+    std::map<std::string, std::vector<CFTypeRef> >::iterator It = KWMTiling.AllowedWindowRoles.find(Window->Owner);
+    if(It != KWMTiling.AllowedWindowRoles.end())
     {
         std::vector<CFTypeRef> &WindowRoles = It->second;
         for(std::size_t RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
@@ -124,11 +113,11 @@ bool IsContextMenusAndSimilarVisible()
 {
     bool Result = false;
 
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
-        if((WindowLst[WindowIndex].Owner != "Dock" ||
-            WindowLst[WindowIndex].Name != "Dock") &&
-            WindowLst[WindowIndex].Layer != 0)
+        if((KWMTiling.WindowLst[WindowIndex].Owner != "Dock" ||
+            KWMTiling.WindowLst[WindowIndex].Name != "Dock") &&
+            KWMTiling.WindowLst[WindowIndex].Layer != 0)
         {
             Result = true;
             break;
@@ -143,31 +132,31 @@ bool FilterWindowList(screen_info *Screen)
     bool Result = true;
     std::vector<window_info> FilteredWindowLst;
 
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
         // Mission-Control mode is on and so we do not try to tile windows
-        if(WindowLst[WindowIndex].Owner == "Dock" &&
-           WindowLst[WindowIndex].Name == "")
+        if(KWMTiling.WindowLst[WindowIndex].Owner == "Dock" &&
+           KWMTiling.WindowLst[WindowIndex].Name == "")
                Result = false;
 
         if(KWMToggles.UseContextMenuFix)
-            IsContextualMenusVisible = IsContextMenusAndSimilarVisible();
+            KWMTiling.NonZeroLayer = IsContextMenusAndSimilarVisible();
 
-        CaptureApplication(&WindowLst[WindowIndex]);
-        if(WindowLst[WindowIndex].Layer == 0 &&
-           Screen == GetDisplayOfWindow(&WindowLst[WindowIndex]))
+        CaptureApplication(&KWMTiling.WindowLst[WindowIndex]);
+        if(KWMTiling.WindowLst[WindowIndex].Layer == 0 &&
+           Screen == GetDisplayOfWindow(&KWMTiling.WindowLst[WindowIndex]))
         {
             CFTypeRef Role, SubRole;
-            if(GetWindowRole(&WindowLst[WindowIndex], &Role, &SubRole))
+            if(GetWindowRole(&KWMTiling.WindowLst[WindowIndex], &Role, &SubRole))
             {
                 if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
-                   IsAppSpecificWindowRole(&WindowLst[WindowIndex], Role, SubRole))
-                        FilteredWindowLst.push_back(WindowLst[WindowIndex]);
+                   IsAppSpecificWindowRole(&KWMTiling.WindowLst[WindowIndex], Role, SubRole))
+                        FilteredWindowLst.push_back(KWMTiling.WindowLst[WindowIndex]);
             }
         }
     }
 
-    WindowLst = FilteredWindowLst;
+    KWMTiling.WindowLst = FilteredWindowLst;
     return Result;
 }
 
@@ -211,8 +200,8 @@ bool IsApplicationCapturedByScreen(window_info *Window)
 {
     bool Result = false;
 
-    std::map<std::string, int>::iterator It = CapturedAppLst.find(Window->Owner);
-    if(It != CapturedAppLst.end())
+    std::map<std::string, int>::iterator It = KWMTiling.CapturedAppLst.find(Window->Owner);
+    if(It != KWMTiling.CapturedAppLst.end())
         Result = true;
 
     return Result;
@@ -222,7 +211,7 @@ void CaptureApplication(window_info *Window)
 {
     if(IsApplicationCapturedByScreen(Window))
     {
-        int CapturedID = CapturedAppLst[Window->Owner];
+        int CapturedID = KWMTiling.CapturedAppLst[Window->Owner];
         screen_info *Screen = GetDisplayFromScreenID(CapturedID);
         if(Screen && Screen != GetDisplayOfWindow(Window))
         {
@@ -237,9 +226,9 @@ bool IsApplicationFloating(window_info *Window)
 {
     bool Result = false;
 
-    for(std::size_t WindowIndex = 0; WindowIndex < FloatingAppLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FloatingAppLst.size(); ++WindowIndex)
     {
-        if(Window->Owner == FloatingAppLst[WindowIndex])
+        if(Window->Owner == KWMTiling.FloatingAppLst[WindowIndex])
         {
             Result = true;
             break;
@@ -253,9 +242,9 @@ bool IsWindowFloating(int WindowID, int *Index)
 {
     bool Result = false;
 
-    for(std::size_t WindowIndex = 0; WindowIndex < FloatingWindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FloatingWindowLst.size(); ++WindowIndex)
     {
-        if(WindowID == FloatingWindowLst[WindowIndex])
+        if(WindowID == KWMTiling.FloatingWindowLst[WindowIndex])
         {
             DEBUG("IsWindowFloating(): floating " << WindowID)
             Result = true;
@@ -273,9 +262,9 @@ bool IsWindowFloating(int WindowID, int *Index)
 bool IsAnyWindowBelowCursor()
 {
     CGPoint Cursor = GetCursorPos();
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
-        window_info *Window = &WindowLst[WindowIndex];
+        window_info *Window = &KWMTiling.WindowLst[WindowIndex];
         if(Cursor.x >= Window->X &&
            Cursor.x <= Window->X + Window->Width &&
            Cursor.y >= Window->Y &&
@@ -327,9 +316,9 @@ bool DoesSpaceExistInMapOfScreen(screen_info *Screen)
 
 bool IsWindowOnActiveSpace(int WindowID)
 {
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
-        if(WindowID == WindowLst[WindowIndex].WID)
+        if(WindowID == KWMTiling.WindowLst[WindowIndex].WID)
         {
             DEBUG("IsWindowOnActiveSpace() window found")
             return true;
@@ -378,11 +367,11 @@ bool FocusWindowOfOSX()
            !IsSpaceInitializedForScreen(KWMScreen.Current))
                 return false;
 
-        for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
-            if(WindowLst[WindowIndex].WID == WindowID)
+            if(KWMTiling.WindowLst[WindowIndex].WID == WindowID)
             {
-                SetWindowFocus(&WindowLst[WindowIndex]);
+                SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
                 return true;
             }
         }
@@ -396,17 +385,17 @@ void FocusWindowBelowCursor()
     if(IsSpaceTransitionInProgress() ||
        IsSpaceSystemOrFullscreen() ||
        !IsSpaceInitializedForScreen(KWMScreen.Current) ||
-       (KWMToggles.UseContextMenuFix && IsContextualMenusVisible))
+       (KWMToggles.UseContextMenuFix && KWMTiling.NonZeroLayer))
            return;
 
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
-        if(IsWindowBelowCursor(&WindowLst[WindowIndex]))
+        if(IsWindowBelowCursor(&KWMTiling.WindowLst[WindowIndex]))
         {
-            if(WindowsAreEqual(KWMFocus.Window, &WindowLst[WindowIndex]))
-                KWMFocus.Cache = WindowLst[WindowIndex];
+            if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.WindowLst[WindowIndex]))
+                KWMFocus.Cache = KWMTiling.WindowLst[WindowIndex];
             else
-                SetWindowFocus(&WindowLst[WindowIndex]);
+                SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
 
             break;
         }
@@ -458,8 +447,8 @@ void UpdateWindowTree()
 
 void UpdateActiveWindowList(screen_info *Screen)
 {
-    Screen->OldWindowListCount = WindowLst.size();
-    WindowLst.clear();
+    Screen->OldWindowListCount = KWMTiling.WindowLst.size();
+    KWMTiling.WindowLst.clear();
 
     CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
     if(!OsxWindowLst)
@@ -469,7 +458,7 @@ void UpdateActiveWindowList(screen_info *Screen)
     for(CFIndex WindowIndex = 0; WindowIndex < OsxWindowCount; ++WindowIndex)
     {
         CFDictionaryRef Elem = (CFDictionaryRef)CFArrayGetValueAtIndex(OsxWindowLst, WindowIndex);
-        WindowLst.push_back(window_info());
+        KWMTiling.WindowLst.push_back(window_info());
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
     }
     CFRelease(OsxWindowLst);
@@ -496,7 +485,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         if(KWMScreen.PrevSpace != Screen->ActiveSpace)
         {
             DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
-            if(WindowBelowCursor && KwmFocusMode != FocusModeDisabled)
+            if(WindowBelowCursor && KWMMode.Focus != FocusModeDisabled)
                 FocusWindowBelowCursor();
             else if(FocusWindowOfOSX())
                 MoveCursorToCenterOfFocusedWindow();
@@ -522,7 +511,8 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Space = &Screen->Space[Screen->ActiveSpace];
         DEBUG("CreateWindowNodeTree() Create Space " << Screen->ActiveSpace)
 
-        Space->Mode = KwmSpaceMode;
+        // TODO(Koe): Every screen has its own space-mode
+        Space->Mode = KWMMode.Space;
         Space->Initialized = true;
         Space->Offset = Screen->Offset;
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
@@ -571,34 +561,34 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 
 void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
 {
-    if(WindowLst.size() > Screen->OldWindowListCount)
+    if(KWMTiling.WindowLst.size() > Screen->OldWindowListCount)
     {
         DEBUG("ShouldBSPTreeUpdate() Add Window")
-        for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
-            if(GetNodeFromWindowID(Space->RootNode, WindowLst[WindowIndex].WID, Space->Mode) == NULL)
+            if(GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode) == NULL)
             {
-                if(!IsApplicationFloating(&WindowLst[WindowIndex]) &&
-                   !IsWindowFloating(WindowLst[WindowIndex].WID, NULL))
+                if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]) &&
+                   !IsWindowFloating(KWMTiling.WindowLst[WindowIndex].WID, NULL))
                 {
                     tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
                     if(Insert)
                     {
-                        Insert->WindowID = WindowLst[WindowIndex].WID;
+                        Insert->WindowID = KWMTiling.WindowLst[WindowIndex].WID;
                         ApplyNodeContainer(Insert, SpaceModeBSP);
                     }
                     else
                     {
-                        AddWindowToBSPTree(Screen, WindowLst[WindowIndex].WID);
+                        AddWindowToBSPTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
                     }
 
-                    SetWindowFocus(&WindowLst[WindowIndex]);
+                    SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
                     MoveCursorToCenterOfFocusedWindow();
                 }
             }
         }
     }
-    else if(WindowLst.size() < Screen->OldWindowListCount)
+    else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
     {
         DEBUG("ShouldBSPTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
@@ -613,9 +603,9 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
         for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
         {
             bool Found = false;
-            for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+            for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
             {
-                if(WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
+                if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
                 {
                     Found = true;
                     break;
@@ -750,30 +740,30 @@ void RemoveWindowFromBSPTree()
 
 void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
 {
-    if(WindowLst.size() > Screen->OldWindowListCount)
+    if(KWMTiling.WindowLst.size() > Screen->OldWindowListCount)
     {
         DEBUG("ShouldMonocleTreeUpdate() Add Window")
-        for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
-            if(GetNodeFromWindowID(Space->RootNode, WindowLst[WindowIndex].WID, Space->Mode) == NULL)
+            if(GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode) == NULL)
             {
-                if(!IsApplicationFloating(&WindowLst[WindowIndex]))
+                if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]))
                 {
                     tree_node *CurrentNode = GetLastLeafNode(Space->RootNode);
                     tree_node *NewNode = CreateRootNode();
                     SetRootNodeContainer(Screen, NewNode);
 
-                    NewNode->WindowID = WindowLst[WindowIndex].WID;
+                    NewNode->WindowID = KWMTiling.WindowLst[WindowIndex].WID;
                     CurrentNode->RightChild = NewNode;
                     NewNode->LeftChild = CurrentNode;
 
                     ApplyNodeContainer(NewNode, SpaceModeMonocle);
-                    SetWindowFocus(&WindowLst[WindowIndex]);
+                    SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
                 }
             }
         }
     }
-    else if(WindowLst.size() < Screen->OldWindowListCount)
+    else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
     {
         DEBUG("ShouldMonocleTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
@@ -790,9 +780,9 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
             for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
             {
                 bool Found = false;
-                for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+                for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
                 {
-                    if(WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
+                    if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
                     {
                         Found = true;
                         break;
@@ -953,12 +943,12 @@ void ToggleFocusedWindowFloating()
         int WindowIndex;
         if(IsWindowFloating(KWMFocus.Window->WID, &WindowIndex))
         {
-            FloatingWindowLst.erase(FloatingWindowLst.begin() + WindowIndex);
+            KWMTiling.FloatingWindowLst.erase(KWMTiling.FloatingWindowLst.begin() + WindowIndex);
             AddWindowToBSPTree();
         }
         else
         {
-            FloatingWindowLst.push_back(KWMFocus.Window->WID);
+            KWMTiling.FloatingWindowLst.push_back(KWMFocus.Window->WID);
             RemoveWindowFromBSPTree();
         }
     }
@@ -1083,11 +1073,11 @@ void ShiftWindowFocus(int Shift)
         if(Shift == 1)
         {
             FocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
-            if(KwmCycleMode == CycleModeScreen && !FocusNode)
+            if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
             {
                 FocusNode = GetFirstLeafNode(Space->RootNode);
             }
-            else if(KwmCycleMode == CycleModeAll && !FocusNode)
+            else if(KWMMode.Cycle == CycleModeAll && !FocusNode)
             {
                 int ScreenIndex = GetIndexOfNextScreen();
                 screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
@@ -1102,11 +1092,11 @@ void ShiftWindowFocus(int Shift)
         else if(Shift == -1)
         {
             FocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
-            if(KwmCycleMode == CycleModeScreen && !FocusNode)
+            if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
             {
                 FocusNode = GetLastLeafNode(Space->RootNode);
             }
-            else if(KwmCycleMode == CycleModeAll && !FocusNode)
+            else if(KWMMode.Cycle == CycleModeAll && !FocusNode)
             {
                 int ScreenIndex = GetIndexOfPrevScreen();
                 screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
@@ -1172,7 +1162,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(WindowRef, kAXRaiseAction);
 
-    if(KwmFocusMode != FocusModeAutofocus)
+    if(KWMMode.Focus != FocusModeAutofocus)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name)
@@ -1352,10 +1342,10 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef)
 
 window_info *GetWindowByID(int WindowID)
 {
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
-        if(WindowLst[WindowIndex].WID == WindowID)
-            return &WindowLst[WindowIndex];
+        if(KWMTiling.WindowLst[WindowIndex].WID == WindowID)
+            return &KWMTiling.WindowLst[WindowIndex];
     }
 
     return NULL;
@@ -1365,11 +1355,11 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole)
 {
     bool Result = false;
 
-    std::map<int, window_role>::iterator It = WindowRoleCache.find(Window->WID);
-    if(It != WindowRoleCache.end())
+    std::map<int, window_role>::iterator It = KWMCache.WindowRole.find(Window->WID);
+    if(It != KWMCache.WindowRole.end())
     {
-        *Role = WindowRoleCache[Window->WID].Role;
-        *SubRole = WindowRoleCache[Window->WID].SubRole;
+        *Role = KWMCache.WindowRole[Window->WID].Role;
+        *SubRole = KWMCache.WindowRole[Window->WID].SubRole;
         Result = true;
     }
     else
@@ -1380,7 +1370,7 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole)
             AXUIElementCopyAttributeValue(WindowRef, kAXRoleAttribute, (CFTypeRef *)Role);
             AXUIElementCopyAttributeValue(WindowRef, kAXSubroleAttribute, (CFTypeRef *)SubRole);
             window_role RoleEntry = { *Role, *SubRole };
-            WindowRoleCache[Window->WID] = RoleEntry;
+            KWMCache.WindowRole[Window->WID] = RoleEntry;
             Result = true;
         }
     }
@@ -1416,7 +1406,7 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
         AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
         if(AppWindowRef != NULL)
         {
-            WindowRefsCache[Window->PID].push_back(AppWindowRef);
+            KWMCache.WindowRefs[Window->PID].push_back(AppWindowRef);
             if(!Found)
             {
                 int AppWindowRefWID = -1;
@@ -1437,9 +1427,9 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 bool IsApplicationInCache(int PID, std::vector<AXUIElementRef> *Elements)
 {
     bool Result = false;
-    std::map<int, std::vector<AXUIElementRef> >::iterator It = WindowRefsCache.find(PID);
+    std::map<int, std::vector<AXUIElementRef> >::iterator It = KWMCache.WindowRefs.find(PID);
 
-    if(It != WindowRefsCache.end())
+    if(It != KWMCache.WindowRefs.end())
     {
         *Elements = It->second;
         Result = true;
@@ -1470,22 +1460,22 @@ bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
     }
 
     if(!IsCached)
-        WindowRefsCache[Window->PID] = std::vector<AXUIElementRef>();
+        KWMCache.WindowRefs[Window->PID] = std::vector<AXUIElementRef>();
 
     return Result;
 }
 
 void FreeWindowRefCache(int PID)
 {
-    std::map<int, std::vector<AXUIElementRef> >::iterator It = WindowRefsCache.find(PID);
+    std::map<int, std::vector<AXUIElementRef> >::iterator It = KWMCache.WindowRefs.find(PID);
 
-    if(It != WindowRefsCache.end())
+    if(It != KWMCache.WindowRefs.end())
     {
-        int NumElements = WindowRefsCache[PID].size();
+        int NumElements = KWMCache.WindowRefs[PID].size();
         for(int RefIndex = 0; RefIndex < NumElements; ++RefIndex)
-            CFRelease(WindowRefsCache[PID][RefIndex]);
+            CFRelease(KWMCache.WindowRefs[PID][RefIndex]);
 
-        WindowRefsCache[PID].clear();
+        KWMCache.WindowRefs[PID].clear();
     }
 }
 
@@ -1525,9 +1515,9 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
         {
             std::string ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
             if(KeyStr == "kCGWindowName")
-                WindowLst[WindowLst.size()-1].Name = ValueStr;
+                KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Name = ValueStr;
             else if(KeyStr == "kCGWindowOwnerName")
-                WindowLst[WindowLst.size()-1].Owner = ValueStr;
+                KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Owner = ValueStr;
         }
     }
     else if(ID == CFNumberGetTypeID())
@@ -1536,19 +1526,19 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
         CFNumberRef V = (CFNumberRef)Value;
         CFNumberGetValue(V, kCFNumberSInt64Type, &MyInt);
         if(KeyStr == "kCGWindowNumber")
-            WindowLst[WindowLst.size()-1].WID = MyInt;
+            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].WID = MyInt;
         else if(KeyStr == "kCGWindowOwnerPID")
-            WindowLst[WindowLst.size()-1].PID = MyInt;
+            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].PID = MyInt;
         else if(KeyStr == "kCGWindowLayer")
-            WindowLst[WindowLst.size()-1].Layer = MyInt;
+            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Layer = MyInt;
         else if(KeyStr == "X")
-            WindowLst[WindowLst.size()-1].X = MyInt;
+            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].X = MyInt;
         else if(KeyStr == "Y")
-            WindowLst[WindowLst.size()-1].Y = MyInt;
+            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Y = MyInt;
         else if(KeyStr == "Width")
-            WindowLst[WindowLst.size()-1].Width = MyInt;
+            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Width = MyInt;
         else if(KeyStr == "Height")
-            WindowLst[WindowLst.size()-1].Height = MyInt;
+            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Height = MyInt;
     }
     else if(ID == CFDictionaryGetTypeID())
     {

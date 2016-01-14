@@ -3,12 +3,8 @@
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
 extern kwm_focus KWMFocus;
-
-extern focus_option KwmFocusMode;
-extern space_tiling_option KwmSpaceMode;
-extern cycle_focus_option KwmCycleMode;
-
-extern std::vector<std::string> FloatingAppLst;
+extern kwm_mode KWMMode;
+extern kwm_tiling KWMTiling;
 
 std::string CreateStringFromTokens(std::vector<std::string> Tokens, int StartIndex)
 {
@@ -77,11 +73,11 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "space")
     {
         if(Tokens[2] == "bsp")
-            KwmSpaceMode = SpaceModeBSP;
+            KWMMode.Space = SpaceModeBSP;
         else if(Tokens[2] == "monocle")
-            KwmSpaceMode = SpaceModeMonocle;
+            KWMMode.Space = SpaceModeMonocle;
         else if(Tokens[2] == "float")
-            KwmSpaceMode = SpaceModeFloating;
+            KWMMode.Space = SpaceModeFloating;
     }
     else if(Tokens[1] == "focus")
     {
@@ -94,28 +90,28 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         }
         else if(Tokens[2] == "toggle")
         {
-            if(KwmFocusMode == FocusModeDisabled)
-                KwmFocusMode = FocusModeAutofocus;
-            else if(KwmFocusMode == FocusModeAutofocus)
-                KwmFocusMode = FocusModeAutoraise;
-            else if(KwmFocusMode == FocusModeAutoraise)
-                KwmFocusMode = FocusModeDisabled;
+            if(KWMMode.Focus == FocusModeDisabled)
+                KWMMode.Focus = FocusModeAutofocus;
+            else if(KWMMode.Focus == FocusModeAutofocus)
+                KWMMode.Focus = FocusModeAutoraise;
+            else if(KWMMode.Focus == FocusModeAutoraise)
+                KWMMode.Focus = FocusModeDisabled;
         }
         else if(Tokens[2] == "autofocus")
-            KwmFocusMode = FocusModeAutofocus;
+            KWMMode.Focus = FocusModeAutofocus;
         else if(Tokens[2] == "autoraise")
-            KwmFocusMode = FocusModeAutoraise;
+            KWMMode.Focus = FocusModeAutoraise;
         else if(Tokens[2] == "disabled")
-            KwmFocusMode = FocusModeDisabled;
+            KWMMode.Focus = FocusModeDisabled;
     }
     else if(Tokens[1] == "cycle-focus")
     {
         if(Tokens[2] == "screen")
-            KwmCycleMode = CycleModeScreen;
+            KWMMode.Cycle = CycleModeScreen;
         else if(Tokens[2] == "all")
-            KwmCycleMode = CycleModeAll;
+            KWMMode.Cycle = CycleModeAll;
         else if(Tokens[2] == "disabled")
-            KwmCycleMode = CycleModeDisabled;;
+            KWMMode.Cycle = CycleModeDisabled;;
     }
     else if(Tokens[1] == "hotkeys")
     {
@@ -140,7 +136,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "float")
     {
-        FloatingAppLst.push_back(CreateStringFromTokens(Tokens, 2));
+        KWMTiling.FloatingAppLst.push_back(CreateStringFromTokens(Tokens, 2));
     }
     else if(Tokens[1] == "add-role")
     {
@@ -220,11 +216,11 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     else if(Tokens[1] == "focus")
     {
         std::string Output;
-        if(KwmFocusMode == FocusModeAutofocus)
+        if(KWMMode.Focus == FocusModeAutofocus)
             Output = "autofocus";
-        else if(KwmFocusMode == FocusModeAutoraise)
+        else if(KWMMode.Focus == FocusModeAutoraise)
             Output = "autoraise";
-        else if(KwmFocusMode == FocusModeDisabled)
+        else if(KWMMode.Focus == FocusModeDisabled)
             Output = "disabled";
 
         KwmWriteToSocket(ClientSockFD, Output);
@@ -242,9 +238,9 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     else if(Tokens[1] == "space")
     {
         std::string Output;
-        if(KwmSpaceMode == SpaceModeBSP)
+        if(KWMMode.Space == SpaceModeBSP)
             Output = "bsp";
-        else if(KwmSpaceMode == SpaceModeMonocle)
+        else if(KWMMode.Space == SpaceModeMonocle)
             Output = "monocle";
         else 
             Output = "float";
@@ -254,9 +250,9 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     else if(Tokens[1] == "cycle-focus")
     {
         std::string Output;
-        if(KwmCycleMode == CycleModeScreen)
+        if(KWMMode.Cycle == CycleModeScreen)
             Output = "screen";
-        else if(KwmCycleMode == CycleModeAll)
+        else if(KWMMode.Cycle == CycleModeAll)
             Output = "all";
         else 
             Output = "disabled";

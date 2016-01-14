@@ -10,26 +10,15 @@ kwm_screen KWMScreen = {};
 kwm_toggles KWMToggles = {};
 kwm_prefix KWMPrefix = {};
 kwm_focus KWMFocus = {};
+kwm_mode KWMMode = {};
+kwm_tiling KWMTiling = {};
+kwm_cache KWMCache = {};
+kwm_thread KWMThread = {};
 std::vector<hotkey> KwmHotkeys;
-
-std::map<unsigned int, screen_info> DisplayMap;
-std::vector<window_info> WindowLst;
-std::vector<int> FloatingWindowLst;
-std::vector<std::string> FloatingAppLst;
-std::map<std::string, int> CapturedAppLst;
-std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
-
-space_tiling_option KwmSpaceMode;
-focus_option KwmFocusMode;
-cycle_focus_option KwmCycleMode;
-
-pthread_t BackgroundThread;
-pthread_t DaemonThread;
-pthread_mutex_t BackgroundLock;
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
-    pthread_mutex_lock(&BackgroundLock);
+    pthread_mutex_lock(&KWMThread.Lock);
 
     switch(Type)
     {
@@ -43,31 +32,31 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             if(KWMToggles.UseBuiltinHotkeys && KwmMainHotkeyTrigger(&Event))
             {
-                    pthread_mutex_unlock(&BackgroundLock);
+                    pthread_mutex_unlock(&KWMThread.Lock);
                     return NULL;
             }
 
-            if(KwmFocusMode == FocusModeAutofocus)
+            if(KWMMode.Focus == FocusModeAutofocus)
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&KWMFocus.PSN, Event);
-                pthread_mutex_unlock(&BackgroundLock);
+                pthread_mutex_unlock(&KWMThread.Lock);
                 return NULL;
             }
         } break;
         case kCGEventKeyUp:
         {
-            if(KwmFocusMode == FocusModeAutofocus)
+            if(KWMMode.Focus == FocusModeAutofocus)
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&KWMFocus.PSN, Event);
-                pthread_mutex_unlock(&BackgroundLock);
+                pthread_mutex_unlock(&KWMThread.Lock);
                 return NULL;
             }
         } break;
         case kCGEventMouseMoved:
         {
-            if(KwmFocusMode != FocusModeDisabled)
+            if(KWMMode.Focus != FocusModeDisabled)
                 FocusWindowBelowCursor();
         } break;
         case kCGEventLeftMouseDown:
@@ -91,7 +80,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
     }
 
-    pthread_mutex_unlock(&BackgroundLock);
+    pthread_mutex_unlock(&KWMThread.Lock);
     return Event;
 }
 
@@ -189,9 +178,9 @@ void * KwmWindowMonitor(void*)
 {
     while(1)
     {
-        pthread_mutex_lock(&BackgroundLock);
+        pthread_mutex_lock(&KWMThread.Lock);
         UpdateWindowTree();
-        pthread_mutex_unlock(&BackgroundLock);
+        pthread_mutex_unlock(&KWMThread.Lock);
         usleep(200000);
     }
 }
@@ -218,7 +207,7 @@ void KwmReloadConfig()
 void KwmClearSettings()
 {
     std::map<std::string, std::vector<CFTypeRef> >::iterator It;
-    for(It = AllowedWindowRoles.begin(); It != AllowedWindowRoles.end(); ++It)
+    for(It = KWMTiling.AllowedWindowRoles.begin(); It != KWMTiling.AllowedWindowRoles.end(); ++It)
     {
         std::vector<CFTypeRef> &WindowRoles = It->second;
         for(std::size_t RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
@@ -227,7 +216,7 @@ void KwmClearSettings()
         WindowRoles.clear();
     }
 
-    FloatingAppLst.clear();
+    KWMTiling.FloatingAppLst.clear();
     KwmHotkeys.clear();
     KWMPrefix.Enabled = false;
 }
@@ -351,11 +340,11 @@ void KwmInit()
     if(!CheckPrivileges())
         Fatal("Could not access OSX Accessibility!"); 
 
-    if (pthread_mutex_init(&BackgroundLock, NULL) != 0)
+    if (pthread_mutex_init(&KWMThread.Lock, NULL) != 0)
         Fatal("Could not create mutex!");
 
     if(KwmStartDaemon())
-        pthread_create(&DaemonThread, NULL, &KwmDaemonHandleConnectionBG, NULL);
+        pthread_create(&KWMThread.Daemon, NULL, &KwmDaemonHandleConnectionBG, NULL);
     else
         Fatal("Kwm: Could not start daemon..");
 
@@ -376,9 +365,9 @@ void KwmInit()
     KWMToggles.UseMouseFollowsFocus = true;
     KWMToggles.WindowDragInProgress = false;
 
-    KwmSpaceMode = SpaceModeBSP;
-    KwmFocusMode = FocusModeAutoraise;
-    KwmCycleMode = CycleModeScreen;
+    KWMMode.Space = SpaceModeBSP;
+    KWMMode.Focus = FocusModeAutoraise;
+    KWMMode.Cycle = CycleModeScreen;
 
     KWMPrefix.Enabled = false;
     KWMPrefix.Active = false;
@@ -391,7 +380,7 @@ void KwmInit()
     KwmExecuteConfig();
     GetActiveDisplays();
 
-    pthread_create(&BackgroundThread, NULL, &KwmWindowMonitor, NULL);
+    pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
 }
 
 bool CheckPrivileges()

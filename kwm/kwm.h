@@ -43,6 +43,10 @@ struct kwm_toggles;
 struct kwm_path;
 struct kwm_focus;
 struct kwm_screen;
+struct kwm_tiling;
+struct kwm_cache;
+struct kwm_mode;
+struct kwm_thread;
 
 #ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
@@ -236,6 +240,39 @@ struct kwm_screen
     CGDirectDisplayID *Displays;
     unsigned int MaxCount;
     unsigned int ActiveCount;
+};
+
+struct kwm_tiling
+{
+    bool NonZeroLayer;
+    std::map<unsigned int, screen_info> DisplayMap;
+
+    std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
+    std::map<std::string, int> CapturedAppLst;
+    std::vector<std::string> FloatingAppLst;
+
+    std::vector<window_info> WindowLst;
+    std::vector<int> FloatingWindowLst;
+};
+
+struct kwm_cache
+{
+    std::map<int, window_role> WindowRole;
+    std::map<int, std::vector<AXUIElementRef> > WindowRefs;
+};
+
+struct kwm_mode
+{
+    space_tiling_option Space;
+    cycle_focus_option Cycle;
+    focus_option Focus;
+};
+
+struct kwm_thread
+{
+    pthread_t WindowMonitor;
+    pthread_t Daemon;
+    pthread_mutex_t Lock;
 };
 
 container_offset CreateDefaultScreenOffset();

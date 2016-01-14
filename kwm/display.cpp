@@ -2,15 +2,12 @@
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
-extern pthread_mutex_t BackgroundLock;
-
-extern std::map<unsigned int, screen_info> DisplayMap;
-extern std::map<std::string, int> CapturedAppLst;
-extern std::vector<window_info> WindowLst;
+extern kwm_tiling KWMTiling;
+extern kwm_thread KWMThread;
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
-    pthread_mutex_lock(&BackgroundLock);
+    pthread_mutex_lock(&KWMThread.Lock);
 
     if (Flags & kCGDisplayAddFlag)
     {
@@ -23,14 +20,14 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
         // Display has been removed
         DEBUG("Display has been removed! DisplayID: " << Display)
         std::map<int, space_info>::iterator It;
-        for(It = DisplayMap[Display].Space.begin(); It != DisplayMap[Display].Space.end(); ++It)
+        for(It = KWMTiling.DisplayMap[Display].Space.begin(); It != KWMTiling.DisplayMap[Display].Space.end(); ++It)
             DestroyNodeTree(It->second.RootNode, It->second.Mode);
 
-        DisplayMap.erase(Display);
+        KWMTiling.DisplayMap.erase(Display);
         RefreshActiveDisplays();
     }
 
-    pthread_mutex_unlock(&BackgroundLock);
+    pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
@@ -73,7 +70,7 @@ void GetActiveDisplays()
     for(std::size_t DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
     {
         unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
-        DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);;
+        KWMTiling.DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);;
 
         DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
     }
@@ -92,12 +89,12 @@ void RefreshActiveDisplays()
     for(std::size_t DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
     {
         unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
-        std::map<unsigned int, screen_info>::iterator It = DisplayMap.find(DisplayID);
+        std::map<unsigned int, screen_info>::iterator It = KWMTiling.DisplayMap.find(DisplayID);
 
-        if(It != DisplayMap.end())
-            UpdateExistingScreenInfo(&DisplayMap[DisplayID], DisplayID, DisplayIndex);
+        if(It != KWMTiling.DisplayMap.end())
+            UpdateExistingScreenInfo(&KWMTiling.DisplayMap[DisplayID], DisplayID, DisplayIndex);
         else
-            DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);
+            KWMTiling.DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);
 
         DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
     }
@@ -108,7 +105,7 @@ void RefreshActiveDisplays()
 screen_info *GetDisplayFromScreenID(unsigned int ID)
 {
     std::map<unsigned int, screen_info>::iterator It;
-    for(It = DisplayMap.begin(); It != DisplayMap.end(); ++It)
+    for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
     {
         screen_info *Screen = &It->second;
         if(Screen->ID == ID)
@@ -121,7 +118,7 @@ screen_info *GetDisplayFromScreenID(unsigned int ID)
 screen_info *GetDisplayOfMousePointer()
 {
     std::map<unsigned int, screen_info>::iterator It;
-    for(It = DisplayMap.begin(); It != DisplayMap.end(); ++It)
+    for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
     {
         CGPoint Cursor = GetCursorPos();
         screen_info *Screen = &It->second;
@@ -138,7 +135,7 @@ screen_info *GetDisplayOfWindow(window_info *Window)
     if(Window)
     {
         std::map<unsigned int, screen_info>::iterator It;
-        for(It = DisplayMap.begin(); It != DisplayMap.end(); ++It)
+        for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
         {
             screen_info *Screen = &It->second;
             if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
@@ -153,10 +150,10 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     std::vector<window_info*> ScreenWindowLst;
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
-        window_info *Window = &WindowLst[WindowIndex];
-        if(!IsApplicationFloating(&WindowLst[WindowIndex]))
+        window_info *Window = &KWMTiling.WindowLst[WindowIndex];
+        if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]))
         {
             if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
                 ScreenWindowLst.push_back(Window);
@@ -170,10 +167,10 @@ std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     std::vector<int> ScreenWindowIDLst;
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
-        window_info *Window = &WindowLst[WindowIndex];
-        if(!IsApplicationFloating(&WindowLst[WindowIndex]))
+        window_info *Window = &KWMTiling.WindowLst[WindowIndex];
+        if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]))
         {
             if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
                 ScreenWindowIDLst.push_back(Window->WID);
@@ -396,13 +393,13 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
 
 void CaptureApplicationToScreen(int ScreenID, std::string Application)
 {
-    std::map<std::string, int>::iterator It = CapturedAppLst.find(Application);
-    if(It == CapturedAppLst.end())
+    std::map<std::string, int>::iterator It = KWMTiling.CapturedAppLst.find(Application);
+    if(It == KWMTiling.CapturedAppLst.end())
     {
         screen_info *Screen = GetDisplayFromScreenID(ScreenID);
         if(Screen)
         {
-            CapturedAppLst[Application] = ScreenID;
+            KWMTiling.CapturedAppLst[Application] = ScreenID;
             DEBUG("CaptureApplicationToScreen() " << ScreenID << " " << Application)
         }
     }
