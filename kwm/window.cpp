@@ -511,8 +511,10 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Space = &Screen->Space[Screen->ActiveSpace];
         DEBUG("CreateWindowNodeTree() Create Space " << Screen->ActiveSpace)
 
-        // TODO(Koe): Every screen has its own space-mode
-        Space->Mode = KWMMode.Space;
+        Space->Mode = GetSpaceModeOfDisplay(Screen->ID);
+        if(Space->Mode == SpaceModeDefault)
+            Space->Mode = KWMMode.Space;
+
         Space->Initialized = true;
         Space->Offset = Screen->Offset;
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);

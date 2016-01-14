@@ -92,7 +92,8 @@ enum space_tiling_option
 {
     SpaceModeBSP,
     SpaceModeMonocle,
-    SpaceModeFloating
+    SpaceModeFloating,
+    SpaceModeDefault
 };
 
 struct modifiers
@@ -246,6 +247,7 @@ struct kwm_tiling
 {
     bool NonZeroLayer;
     std::map<unsigned int, screen_info> DisplayMap;
+    std::map<unsigned int, space_tiling_option> DisplayMode;
 
     std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
     std::map<std::string, int> CapturedAppLst;
@@ -318,6 +320,8 @@ void UpdateExistingScreenInfo(screen_info *, int, int);
 void DisplayReconfigurationCallBack(CGDirectDisplayID, CGDisplayChangeSummaryFlags, void *);
 void GetActiveDisplays();
 void RefreshActiveDisplays();
+void SetSpaceModeOfDisplay(unsigned int, std::string);
+space_tiling_option GetSpaceModeOfDisplay(unsigned int);
 screen_info *GetDisplayOfMousePointer();
 screen_info *GetDisplayOfWindow(window_info *);
 std::vector<window_info*> GetAllWindowsOnDisplay(int);

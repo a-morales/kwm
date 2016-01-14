@@ -163,12 +163,19 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             SetDefaultGapOfDisplay(Tokens[2], Value);
         }
     }
-    if(Tokens[1] == "split-ratio")
+    else if(Tokens[1] == "split-ratio")
     {
         double Value = 0;
         std::stringstream Stream(Tokens[2]);
         Stream >> Value;
         ChangeSplitRatio(Value);
+    }
+    else if(Tokens[1] == "screen")
+    {
+        int ScreenIndex = 0;
+        std::stringstream Stream(Tokens[2]);
+        Stream >> ScreenIndex;
+        SetSpaceModeOfDisplay(ScreenIndex, Tokens[3]);
     }
 }
 
