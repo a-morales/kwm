@@ -34,7 +34,7 @@ kwmc config hotkeys enable
 # context-menus or the menubar is visible.
 # If the menubar is not set to auto-hide,
 # disable this setting.
-kwmc config menu-fix enable
+kwmc config menu-fix disable
 
 # Set focus-follows-mouse-mode to autoraise
 kwmc config focus autoraise
