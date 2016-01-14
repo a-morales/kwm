@@ -54,6 +54,10 @@ kwmc config tiling enable
 # Default tiling mode for new spaces
 kwmc config space bsp
 
+# Override default tiling mode for given monitors
+# kwmc config screen 0 bsp
+# kwmc config screen 1 monocle
+
 # Set default split ratio
 kwmc config split-ratio 0.5
 
