@@ -699,7 +699,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
         Parent->LeftChild = NULL;
         Parent->RightChild = NULL;
 
-        DEBUG("RemoveWindowFromBSPTree() " << KWMFocus.Window->Name)
+        DEBUG("RemoveWindowFromBSPTree()")
         Parent->WindowID = AccessChild->WindowID;
         if(AccessChild->LeftChild && AccessChild->RightChild)
         {
@@ -731,7 +731,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
     }
     else if(!Parent)
     {
-        DEBUG("RemoveWindowFromBSPTree() " << KWMFocus.Window->Name)
+        DEBUG("RemoveWindowFromBSPTree()")
 
         free(WindowNode);
         Screen->Space[Screen->ActiveSpace].RootNode = NULL;
