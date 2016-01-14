@@ -41,6 +41,9 @@
         Set default tiling mode
             kwmc config space bsp|monocle|float
 
+        Override default tiling mode for screen
+            kwmc config screen id bsp|monocle|float
+
         Set state of Kwm's hotkeys
             kwmc config hotkeys enable|disable
 

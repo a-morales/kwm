@@ -46,6 +46,7 @@ void ShowHelp(std::string Command)
             "   focus mouse-follows enable|disable                     Set state of mouse-follows-focus\n"
             "   tiling enable|disable                                  Should Kwm perform tiling\n"
             "   space bsp|monocle|float                                Set default tiling mode\n"
+            "   screen id bsp|monocle|float                            Override default tiling mode for screen\n"
             "   hotkeys enable|disable                                 Set state of Kwm's hotkeys\n"
             "   dragndrop enable|disable                               Allow drag&drop to make window floating\n"
             "   menu-fix enable|disable                                Prevent focus-follows-mouse if context-menus|menubar is visible\n"
