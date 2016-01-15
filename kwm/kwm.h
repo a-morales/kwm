@@ -96,6 +96,13 @@ enum space_tiling_option
     SpaceModeDefault
 };
 
+enum hotkey_state
+{
+    HotkeyStateNone,
+    HotkeyStateInclude,
+    HotkeyStateExclude
+};
+
 struct modifiers
 {
     bool CmdKey;
@@ -106,7 +113,9 @@ struct modifiers
 
 struct hotkey
 {
+    std::vector<std::string> List;
     bool IsSystemCommand;
+    hotkey_state State;
 
     modifiers Mod;
     CGKeyCode Key;
@@ -448,6 +457,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *);
 bool KwmIsPrefixKey(hotkey *, modifiers *, CGKeyCode);
 bool KwmParseHotkey(std::string, std::string, hotkey *);
 bool HotkeysAreEqual(hotkey *, hotkey *);
+void DetermineHotkeyState(hotkey *, std::string &);
 bool KwmExecuteHotkey(modifiers, CGKeyCode);
 bool HotkeyExists(modifiers, CGKeyCode, hotkey *);
 void KwmAddHotkey(std::string, std::string);

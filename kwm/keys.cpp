@@ -85,15 +85,46 @@ bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
     hotkey Hotkey = {};
     if(HotkeyExists(Mod, Keycode, &Hotkey))
     {
-        if(Hotkey.Command.empty())
+        bool ShouldExecute = false;
+        if(Hotkey.State == HotkeyStateInclude && KWMFocus.Window)
+        {
+            for(std::size_t AppIndex = 0; AppIndex < Hotkey.List.size(); ++AppIndex)
+            {
+                if(KWMFocus.Window->Owner == Hotkey.List[AppIndex])
+                {
+                    ShouldExecute = true;
+                    break;
+                }
+            }
+        }
+        else if(Hotkey.State == HotkeyStateExclude && KWMFocus.Window)
+        {
+            bool IsValid = true;
+            for(std::size_t AppIndex = 0; AppIndex < Hotkey.List.size(); ++AppIndex)
+            {
+                if(KWMFocus.Window->Owner == Hotkey.List[AppIndex])
+                {
+                    IsValid = false;
+                    break;
+                }
+            }
+            ShouldExecute = IsValid;
+        }
+        else if(Hotkey.State == HotkeyStateNone)
+            ShouldExecute = true;
+
+        if(ShouldExecute)
+        {
+            if(Hotkey.Command.empty())
+                return true;
+
+            if(Hotkey.IsSystemCommand)
+                system(Hotkey.Command.c_str());
+            else
+                KwmInterpretCommand(Hotkey.Command, 0);
+
             return true;
-
-        if(Hotkey.IsSystemCommand)
-            system(Hotkey.Command.c_str());
-        else
-            KwmInterpretCommand(Hotkey.Command, 0);
-
-        return true;
+        }
     }
 
     return false;
@@ -119,6 +150,32 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
     return false;
 }
 
+void DetermineHotkeyState(hotkey *Hotkey, std::string &Command)
+{
+    std::size_t StartOfList = Command.find("{");
+    std::size_t EndOfList = Command.find("}");
+    if(Command.empty() ||
+       StartOfList == std::string::npos ||
+       EndOfList == std::string::npos)
+    {
+        Hotkey->State = HotkeyStateNone;
+        return;
+    }
+
+    std::string Applications = Command.substr(StartOfList + 1, EndOfList - (StartOfList + 1));
+    Hotkey->List = SplitString(Applications, ',');
+
+    if(Command[Command.size()-2] == '-')
+    {
+        if(Command[Command.size()-1] == 'e')
+            Hotkey->State = HotkeyStateExclude;
+        else if(Command[Command.size()-1] == 'i')
+            Hotkey->State = HotkeyStateInclude;
+
+        Command = Command.substr(0, StartOfList - 1);
+    }
+}
+
 bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
 {
     std::vector<std::string> KeyTokens = SplitString(KeySym, '-');
@@ -138,8 +195,14 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
             Hotkey->Mod.ShiftKey = true;
     }
 
+    DetermineHotkeyState(Hotkey, Command);
     Hotkey->IsSystemCommand = IsPrefixOfString(Command, "sys");
     Hotkey->Command = Command;
+
+
+    /*
+     * sys open -na /Applications/iTerm.app {App1,App2,App3} -e
+     * */
 
     CGKeyCode Keycode;
     bool Result = GetLayoutIndependentKeycode(KeyTokens[1], &Keycode);
