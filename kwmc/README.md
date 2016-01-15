@@ -56,11 +56,17 @@
         Set split-ratio to use for containers (0 < value < 1, default: 0.5)
             kwmc config split-ratio value
 
-        Create hotkeys on the fly (use `sys` prefix for non kwmc command)
-            kwmc unbind mod+mod+mod-key
+        Create a global hotkey (use `sys` prefix for non kwmc command)
             kwmc bind mod+mod+mod-key command
-                e.g: kwmc bind cmd+alt-l window -f next
-                e.g: kwmc unbind cmd+alt-l
+
+        Hotkey is not enabled while the listed applications have focus
+            kwmc bind mod+mod+mod-key command {app,app,app} -e
+
+        Hotkey is only enabled while he listed applications have focus
+            kwmc bind mod+mod+mod-key command {app,app,app} -i
+
+        Unbind a hotkey that has already been set
+            kwmc unbind mod+mod+mod-key
 
         Add custom role for which windows Kwm should tile.
         To find the role of a window that Kwm doesn't tile, 
