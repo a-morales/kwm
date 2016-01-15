@@ -5,6 +5,7 @@ HOTKEYS_SRCS=kwm/hotkeys.cpp
 KWMC_SRCS=kwmc/kwmc.cpp kwmc/help.cpp
 KWM_PLIST=kwm.plist
 SAMPLE_CONFIG=examples/kwmrc
+CONFIG_DIR=$(HOME)/.kwm
 BUILD_PATH=./bin
 BUILD_FLAGS=-O3 -Wall
 BINS=$(BUILD_PATH)/hotkeys.so $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwm/kwmrc
@@ -42,5 +43,5 @@ $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@
 
 $(HOME)/.kwm/kwmrc: $(SAMPLE_CONFIG)
-	mkdir -p $@
+	mkdir -p $(CONFIG_DIR)
 	cp -n $^ $@
