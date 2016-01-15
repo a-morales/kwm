@@ -199,11 +199,6 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
     Hotkey->IsSystemCommand = IsPrefixOfString(Command, "sys");
     Hotkey->Command = Command;
 
-
-    /*
-     * sys open -na /Applications/iTerm.app {App1,App2,App3} -e
-     * */
-
     CGKeyCode Keycode;
     bool Result = GetLayoutIndependentKeycode(KeyTokens[1], &Keycode);
     if(!Result)
