@@ -59,10 +59,10 @@
         Create a global hotkey (use `sys` prefix for non kwmc command)
             kwmc bind mod+mod+mod-key command
 
-        Hotkey is not enabled while the listed applications have focus
+        Hotkey is NOT enabled while the listed applications have focus
             kwmc bind mod+mod+mod-key command {app,app,app} -e
 
-        Hotkey is only enabled while he listed applications have focus
+        Hotkey is ONLY enabled while the listed applications have focus
             kwmc bind mod+mod+mod-key command {app,app,app} -i
 
         Unbind a hotkey that has already been set
