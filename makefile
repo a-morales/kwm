@@ -42,4 +42,5 @@ $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@
 
 $(HOME)/.kwm/kwmrc: $(SAMPLE_CONFIG)
+	mkdir -p $@
 	cp -n $^ $@
