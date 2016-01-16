@@ -705,14 +705,12 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
             NewFocusNode = IsLeafNode(Parent->LeftChild) ? Parent->LeftChild : Parent->RightChild;
         }
 
-        free(AccessChild);
-        free(WindowNode);
         ApplyNodeContainer(Parent, Space->Mode);
-
         if(Center)
         {
             window_info *WindowInfo = GetWindowByID(WindowNode->WindowID);
-            CenterWindow(Screen, WindowInfo);
+            if(WindowInfo)
+                CenterWindow(Screen, WindowInfo);
         }
         else
         {
@@ -721,18 +719,23 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
 
             SetWindowFocusByNode(NewFocusNode);
         }
+
+        free(AccessChild);
+        free(WindowNode);
     }
     else if(!Parent)
     {
         DEBUG("RemoveWindowFromBSPTree()")
 
-        free(WindowNode);
         Screen->Space[Screen->ActiveSpace].RootNode = NULL;
         if(Center)
         {
             window_info *WindowInfo = GetWindowByID(WindowNode->WindowID);
-            CenterWindow(Screen, WindowInfo);
+            if(WindowInfo)
+                CenterWindow(Screen, WindowInfo);
         }
+
+        free(WindowNode);
     }
 }
 

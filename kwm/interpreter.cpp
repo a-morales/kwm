@@ -333,11 +333,10 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "-x")
     {
         int Marked = KWMScreen.MarkedWindow;
-        if(KWMFocus.Window && Marked == KWMFocus.Window->WID)
+        if(Marked == -1 || (KWMFocus.Window && Marked == KWMFocus.Window->WID))
             return;
 
         ToggleWindowFloating(Marked);
-        usleep(250000);
         KWMScreen.MarkedWindow = -1;
         ToggleWindowFloating(Marked);
     }
