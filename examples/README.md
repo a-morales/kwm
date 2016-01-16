@@ -18,6 +18,7 @@
     - ctrl+alt:
         - p: send window to previous screen
         - n: send window to next screen
+        - m: detach marked window and insert at the focused container
 
         - 1: send window to screen id 0
         - 2: send window to screen id 1
