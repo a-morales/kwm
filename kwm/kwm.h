@@ -391,6 +391,7 @@ bool FocusWindowOfOSX();
 void FloatFocusedSpace();
 void TileFocusedSpace(space_tiling_option);
 void ToggleFocusedSpaceFloating();
+void ToggleWindowFloating(int);
 void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowFullscreen();
 void ToggleFocusedWindowParentContainer();

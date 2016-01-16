@@ -97,6 +97,7 @@ kwmc bind cmd+alt+ctrl-p window -t parent
 kwmc bind cmd+alt+ctrl-w window -t float
 kwmc bind cmd+alt+ctrl-return sys open -na /Applications/iTerm.app
 
+kwmc bind ctrl+alt-m window -x
 kwmc bind ctrl+alt-p screen -m prev
 kwmc bind ctrl+alt-n screen -m next
 

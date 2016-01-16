@@ -105,6 +105,9 @@
         Swap window position
             kwmc window -s prev|next|mark
 
+        Move marked window to new leaf
+            kwmc window -x
+
         Rotate window-tree
             kwmc tree -r 90|180|270
 

@@ -711,7 +711,8 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
 
         if(Center)
         {
-            CenterWindow(Screen, KWMFocus.Window);
+            window_info *WindowInfo = GetWindowByID(WindowNode->WindowID);
+            CenterWindow(Screen, WindowInfo);
         }
         else
         {
@@ -728,7 +729,10 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
         free(WindowNode);
         Screen->Space[Screen->ActiveSpace].RootNode = NULL;
         if(Center)
-            CenterWindow(Screen, KWMFocus.Window);
+        {
+            window_info *WindowInfo = GetWindowByID(WindowNode->WindowID);
+            CenterWindow(Screen, WindowInfo);
+        }
     }
 }
 
@@ -936,24 +940,29 @@ void ToggleFocusedSpaceFloating()
     }
 }
 
-void ToggleFocusedWindowFloating()
+void ToggleWindowFloating(int WindowID)
 {
-    if(KWMFocus.Window &&
-       IsWindowOnActiveSpace(KWMFocus.Window->WID) &&
+    if(IsWindowOnActiveSpace(WindowID) &&
        KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeBSP)
     {
         int WindowIndex;
-        if(IsWindowFloating(KWMFocus.Window->WID, &WindowIndex))
+        if(IsWindowFloating(WindowID, &WindowIndex))
         {
             KWMTiling.FloatingWindowLst.erase(KWMTiling.FloatingWindowLst.begin() + WindowIndex);
-            AddWindowToBSPTree();
+            AddWindowToBSPTree(KWMScreen.Current, WindowID);
         }
         else
         {
-            KWMTiling.FloatingWindowLst.push_back(KWMFocus.Window->WID);
-            RemoveWindowFromBSPTree();
+            KWMTiling.FloatingWindowLst.push_back(WindowID);
+            RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, true);
         }
     }
+}
+
+void ToggleFocusedWindowFloating()
+{
+    if(KWMFocus.Window)
+        ToggleWindowFloating(KWMFocus.Window->WID);
 }
 
 void ToggleFocusedWindowParentContainer()

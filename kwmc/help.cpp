@@ -73,6 +73,7 @@ void ShowHelp(std::string Command)
             "   -c reduce|expand amount                                Change split-ratio of the focused container (0 < amount < 1)\n"
             "   -f prev|next|curr                                      Change window focus\n"
             "   -s prev|next|mark                                      Swap window position\n"
+            "   -x                                                     Moved marked window to new leaf\n"
         ;
     }
     else if (Command == "tree")
