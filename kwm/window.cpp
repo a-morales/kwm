@@ -149,6 +149,7 @@ bool FilterWindowList(screen_info *Screen)
             CFTypeRef Role, SubRole;
             if(GetWindowRole(&KWMTiling.WindowLst[WindowIndex], &Role, &SubRole))
             {
+                //DEBUG(KWMTiling.WindowLst[WindowIndex].Owner)
                 if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
                    IsAppSpecificWindowRole(&KWMTiling.WindowLst[WindowIndex], Role, SubRole))
                         FilteredWindowLst.push_back(KWMTiling.WindowLst[WindowIndex]);

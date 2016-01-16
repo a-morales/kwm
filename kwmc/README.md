@@ -8,10 +8,13 @@
         Let launchd manage Kwm (automatically start on login)
             kwmc config launchd enable|disable
 
-        Set a global prefix for all of Kwms hotkeys (optional)
+        Set a prefix for Kwms hotkeys (optional)
             kwmc config prefix mod+mod+mod-key
 
-        Set global prefix timeout in seconds (default: 0.75)
+        Make prefix global (apply for all binds)
+            kwmc config prefix-global enable|disable
+
+        Set prefix timeout in seconds (default: 0.75)
             kwmc config prefix-timeout seconds
 
         Set default padding
@@ -60,13 +63,13 @@
             kwmc config split-ratio value
 
         Create a global hotkey (use `sys` prefix for non kwmc command)
-            kwmc bind mod+mod+mod-key command
+            kwmc bind prefix+mod+mod+mod-key command
 
         Hotkey is NOT enabled while the listed applications have focus
-            kwmc bind mod+mod+mod-key command {app,app,app} -e
+            kwmc bind prefix+mod+mod+mod-key command {app,app,app} -e
 
         Hotkey is ONLY enabled while the listed applications have focus
-            kwmc bind mod+mod+mod-key command {app,app,app} -i
+            kwmc bind prefix+mod+mod+mod-key command {app,app,app} -i
 
         Unbind a hotkey that has already been set
             kwmc unbind mod+mod+mod-key

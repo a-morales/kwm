@@ -40,14 +40,21 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "prefix")
     {
-        KwmSetGlobalPrefix(Tokens[2]);
+        KwmSetPrefix(Tokens[2]);
+    }
+    else if(Tokens[1] == "prefix-global")
+    {
+        if(Tokens[2] == "disable")
+            KwmSetPrefixGlobal(false);
+        else if(Tokens[2] == "enable")
+            KwmSetPrefixGlobal(true);
     }
     else if(Tokens[1] == "prefix-timeout")
     {
         double Value = 0;
         std::stringstream Stream(Tokens[2]);
         Stream >> Value;
-        KwmSetGlobalPrefixTimeout(Value);
+        KwmSetPrefixTimeout(Value);
     }
     else  if(Tokens[1] == "launchd")
     {

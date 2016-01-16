@@ -23,12 +23,10 @@ kwmc config gap horizontal 20
 # Let Kwm listen for hotkeys
 kwmc config hotkeys enable
 
-# Set global prefix for all of Kwms hotkeys
-# This hotkey must be pressed for binds to activate!
-# kwmc config prefix ctrl-k
-
-# Timeout duration for prefix-key in seconds
-# kwmc config prefix-timeout 0.75
+# Set prefix for Kwms hotkeys
+kwmc config prefix ctrl-k
+kwmc config prefix-global disable
+kwmc config prefix-timeout 0.75
 
 # Turn off focus-follows-mouse if any
 # context-menus or the menubar is visible.
@@ -81,6 +79,11 @@ kwmc config float Photoshop
 # given screen, if the screen exists. By doing this
 # the application can no longer be moved to other screens
 # kwmc config capture 1 iTunes
+
+#### These binds are prefixed
+# kwmc bind prefix+cmd+alt+ctrl-t config focus toggle
+# kwmc bind prefix+cmd+alt+ctrl-r window -c refresh
+# kwmc bind prefix+cmd+alt+ctrl-q quit
 
 #### Default Keybindings For Interacting With Kwm
 kwmc bind cmd+alt+ctrl-t config focus toggle

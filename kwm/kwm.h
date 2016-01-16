@@ -38,6 +38,7 @@ struct node_container;
 struct tree_node;
 
 struct kwm_code;
+struct kwm_hotkeys;
 struct kwm_prefix;
 struct kwm_toggles;
 struct kwm_path;
@@ -119,6 +120,7 @@ struct hotkey
 
     modifiers Mod;
     CGKeyCode Key;
+    bool Prefixed;
 
     std::string Command;
 };
@@ -206,6 +208,13 @@ struct kwm_prefix
     double Timeout;
     bool Enabled;
     bool Active;
+    bool Global;
+};
+
+struct kwm_hotkeys
+{
+    std::vector<hotkey> List;
+    kwm_prefix Prefix;
 };
 
 struct kwm_toggles
@@ -467,8 +476,9 @@ void KwmRemoveHotkey(std::string);
 
 void KwmInit();
 void KwmQuit();
-void KwmSetGlobalPrefix(std::string);
-void KwmSetGlobalPrefixTimeout(double);
+void KwmSetPrefix(std::string);
+void KwmSetPrefixGlobal(bool);
+void KwmSetPrefixTimeout(double);
 bool GetTagForCurrentSpace(std::string &);
 bool GetKwmFilePath();
 bool IsKwmAlreadyAddedToLaunchd();

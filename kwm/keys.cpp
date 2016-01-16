@@ -1,8 +1,7 @@
 #include "kwm.h"
 
-extern std::vector<hotkey> KwmHotkeys;
-extern kwm_prefix KWMPrefix;
 extern kwm_focus KWMFocus;
+extern kwm_hotkeys KWMHotkeys;
 
 bool HotkeysAreEqual(hotkey *A, hotkey *B)
 {
@@ -29,45 +28,37 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event)
     Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
     CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(*Event, kCGKeyboardEventKeycode);
 
-    if(KWMPrefix.Enabled && KwmIsPrefixKey(&KWMPrefix.Key, &Mod, Keycode))
+    if(KWMHotkeys.Prefix.Enabled && KwmIsPrefixKey(&KWMHotkeys.Prefix.Key, &Mod, Keycode))
     {
-        KWMPrefix.Active = true;
-        KWMPrefix.Time = std::chrono::steady_clock::now();
+        KWMHotkeys.Prefix.Active = true;
+        KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
         return true;
     }
 
-    if(!KWMPrefix.Enabled || KWMPrefix.Active)
+    if(KWMHotkeys.Prefix.Active)
     {
-        if(KWMPrefix.Active)
+        kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
+        std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.Prefix.Time;
+        if(Diff.count() > KWMHotkeys.Prefix.Timeout)
         {
-            kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
-            std::chrono::duration<double> Diff = NewPrefixTime - KWMPrefix.Time;
-            if(Diff.count() > KWMPrefix.Timeout)
-            {
-                KWMPrefix.Active = false;
-                return false;
-            }
-        }
-
-        // Hotkeys bound using `kwmc bind keys command`
-        if(KwmExecuteHotkey(Mod, Keycode))
-        {
-            if(KWMPrefix.Active)
-                KWMPrefix.Time = std::chrono::steady_clock::now();
-
-            return true;
-        }
-
-        // Code for live-coded hotkey system; hotkeys.cpp
-        if(KwmRunLiveCodeHotkeySystem(Event, &Mod, Keycode))
-        {
-            if(KWMPrefix.Active)
-                KWMPrefix.Time = std::chrono::steady_clock::now();
-
-            return true;
+            KWMHotkeys.Prefix.Active = false;
+            return false;
         }
     }
-    
+
+    // Hotkeys bound using `kwmc bind keys command`
+    if(KwmExecuteHotkey(Mod, Keycode))
+        return true;
+
+    // Code for live-coded hotkey system; hotkeys.cpp
+    if(KwmRunLiveCodeHotkeySystem(Event, &Mod, Keycode))
+    {
+        if(KWMHotkeys.Prefix.Active)
+            KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
+
+        return true;
+    }
+
     return false;
 }
 
@@ -85,6 +76,17 @@ bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
     hotkey Hotkey = {};
     if(HotkeyExists(Mod, Keycode, &Hotkey))
     {
+        if(KWMHotkeys.Prefix.Enabled)
+        {
+            if((Hotkey.Prefixed || KWMHotkeys.Prefix.Global) &&
+                !KWMHotkeys.Prefix.Active)
+                    return false;
+
+            if((Hotkey.Prefixed || KWMHotkeys.Prefix.Global) &&
+                KWMHotkeys.Prefix.Active)
+                    KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
+        }
+
         bool ShouldExecute = false;
         if(Hotkey.State == HotkeyStateInclude && KWMFocus.Window)
         {
@@ -136,12 +138,12 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
     TempHotkey.Mod = Mod;
     TempHotkey.Key = Keycode;
 
-    for(std::size_t HotkeyIndex = 0; HotkeyIndex < KwmHotkeys.size(); ++HotkeyIndex)
+    for(std::size_t HotkeyIndex = 0; HotkeyIndex < KWMHotkeys.List.size(); ++HotkeyIndex)
     {
-        if(HotkeysAreEqual(&KwmHotkeys[HotkeyIndex], &TempHotkey))
+        if(HotkeysAreEqual(&KWMHotkeys.List[HotkeyIndex], &TempHotkey))
         {
             if(Hotkey)
-                *Hotkey = KwmHotkeys[HotkeyIndex];
+                *Hotkey = KWMHotkeys.List[HotkeyIndex];
 
             return true;
         }
@@ -193,6 +195,8 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
             Hotkey->Mod.CtrlKey = true;
         else if(Modifiers[ModIndex] == "shift")
             Hotkey->Mod.ShiftKey = true;
+        else if(Modifiers[ModIndex] == "prefix")
+            Hotkey->Prefixed = true;
     }
 
     DetermineHotkeyState(Hotkey, Command);
@@ -208,20 +212,25 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
     return Result;
 }
 
-void KwmSetGlobalPrefix(std::string KeySym)
+void KwmSetPrefix(std::string KeySym)
 {
     hotkey Hotkey = {};
     if(KwmParseHotkey(KeySym, "", &Hotkey))
     {
-        KWMPrefix.Key = Hotkey;
-        KWMPrefix.Active = false;
-        KWMPrefix.Enabled = true;
+        KWMHotkeys.Prefix.Key = Hotkey;
+        KWMHotkeys.Prefix.Active = false;
+        KWMHotkeys.Prefix.Enabled = true;
     }
 }
 
-void KwmSetGlobalPrefixTimeout(double Timeout)
+void KwmSetPrefixGlobal(bool Global)
 {
-    KWMPrefix.Timeout = Timeout;
+    KWMHotkeys.Prefix.Global = Global;
+}
+
+void KwmSetPrefixTimeout(double Timeout)
+{
+    KWMHotkeys.Prefix.Timeout = Timeout;
 }
 
 void KwmAddHotkey(std::string KeySym, std::string Command)
@@ -229,7 +238,7 @@ void KwmAddHotkey(std::string KeySym, std::string Command)
     hotkey Hotkey = {};
     if(KwmParseHotkey(KeySym, Command, &Hotkey) &&
        !HotkeyExists(Hotkey.Mod, Hotkey.Key, NULL))
-            KwmHotkeys.push_back(Hotkey);
+            KWMHotkeys.List.push_back(Hotkey);
 }
 
 void KwmRemoveHotkey(std::string KeySym)
@@ -237,11 +246,11 @@ void KwmRemoveHotkey(std::string KeySym)
     hotkey NewHotkey = {};
     if(KwmParseHotkey(KeySym, "", &NewHotkey))
     {
-        for(std::size_t HotkeyIndex = 0; HotkeyIndex < KwmHotkeys.size(); ++HotkeyIndex)
+        for(std::size_t HotkeyIndex = 0; HotkeyIndex < KWMHotkeys.List.size(); ++HotkeyIndex)
         {
-            if(HotkeysAreEqual(&KwmHotkeys[HotkeyIndex], &NewHotkey))
+            if(HotkeysAreEqual(&KWMHotkeys.List[HotkeyIndex], &NewHotkey))
             {
-                KwmHotkeys.erase(KwmHotkeys.begin() + HotkeyIndex);
+                KWMHotkeys.List.erase(KWMHotkeys.List.begin() + HotkeyIndex);
                 break;
             }
         }

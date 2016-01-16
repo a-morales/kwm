@@ -1,6 +1,6 @@
 #include "kwm.h"
 
-const std::string KwmCurrentVersion = "Kwm Version 1.0.6";
+const std::string KwmCurrentVersion = "Kwm Version 1.0.7";
 const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
 CFMachPortRef EventTap;
@@ -8,13 +8,12 @@ kwm_path KWMPath = {};
 kwm_code KWMCode = {};
 kwm_screen KWMScreen = {};
 kwm_toggles KWMToggles = {};
-kwm_prefix KWMPrefix = {};
 kwm_focus KWMFocus = {};
 kwm_mode KWMMode = {};
 kwm_tiling KWMTiling = {};
 kwm_cache KWMCache = {};
 kwm_thread KWMThread = {};
-std::vector<hotkey> KwmHotkeys;
+kwm_hotkeys KWMHotkeys = {};
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
@@ -217,8 +216,8 @@ void KwmClearSettings()
     }
 
     KWMTiling.FloatingAppLst.clear();
-    KwmHotkeys.clear();
-    KWMPrefix.Enabled = false;
+    KWMHotkeys.List.clear();
+    KWMHotkeys.Prefix.Enabled = false;
 }
 
 void KwmExecuteConfig()
@@ -369,9 +368,10 @@ void KwmInit()
     KWMMode.Focus = FocusModeAutoraise;
     KWMMode.Cycle = CycleModeScreen;
 
-    KWMPrefix.Enabled = false;
-    KWMPrefix.Active = false;
-    KWMPrefix.Timeout = 0.75;
+    KWMHotkeys.Prefix.Enabled = false;
+    KWMHotkeys.Prefix.Global = false;
+    KWMHotkeys.Prefix.Active = false;
+    KWMHotkeys.Prefix.Timeout = 0.75;
 
     KWMPath.ConfigFile = "kwmrc";
     if(GetKwmFilePath())
