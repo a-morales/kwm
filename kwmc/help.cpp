@@ -35,7 +35,7 @@ void ShowHelp(std::string Command)
             "Usage: kwmc config <options>\n"
             "\n"
             "Options:\n"
-            "   reload                                                 Reload config ($HOME/.kwmrc)\n"
+            "   reload                                                 Reload config ($HOME/.kwm/kwmrc)\n"
             "   launchd enable|disable                                 Let launchd manage Kwm (automatically start on login)\n"
             "   prefix mod+mod+mod-key                                 Set global prefix for all of Kwms hotkeys\n"
             "   prefix-timeout seconds                                 Set global prefix timeout in seconds (default: 0.75)\n"
