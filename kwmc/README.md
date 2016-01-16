@@ -20,6 +20,9 @@
         Set default container gaps
             kwmc config gap vertical|horizontal value
 
+        The container position to be occupied by the new window
+            kwmc config spawn left|right
+
         Always float application
             kwmc config float application
 

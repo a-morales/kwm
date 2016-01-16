@@ -41,6 +41,7 @@ void ShowHelp(std::string Command)
             "   prefix-timeout seconds                                 Set global prefix timeout in seconds (default: 0.75)\n"
             "   padding top|bottom|left|right value                    Set default padding\n"
             "   gap vertical|horizontal value                          Set default container gaps\n"
+            "   spawn left|right                                       The container position to be occupied by the new window\n"
             "   capture id application                                 Capture application to screen\n"
             "   float application                                      Always float application\n"
             "   focus toggle|autofocus|autoraise|disabled              Set focus-mode\n"
