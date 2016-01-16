@@ -2,6 +2,7 @@
 
 extern kwm_path KWMPath;
 extern kwm_screen KWMScreen;
+extern kwm_tiling KWMTiling;
 
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
@@ -140,11 +141,14 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
     Node->Container.Type = 0;
 }
 
-void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int LeftWindowID, int RightWindowID, int SplitMode)
+void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, int SplitMode)
 {
     Parent->WindowID = -1;
     Parent->SplitMode = SplitMode;
     Parent->SplitRatio = KWMScreen.SplitRatio;
+
+    int LeftWindowID = KWMTiling.SpawnAsLeftChild ? SecondWindowID : FirstWindowID;
+    int RightWindowID = KWMTiling.SpawnAsLeftChild ? FirstWindowID : SecondWindowID;
 
     if(SplitMode == 1)
     {

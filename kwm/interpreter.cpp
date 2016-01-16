@@ -56,6 +56,13 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "enable")
             AddKwmToLaunchd();
     }
+    else if(Tokens[1] == "spawn")
+    {
+        if(Tokens[2] == "left")
+            KWMTiling.SpawnAsLeftChild = true;
+        else if(Tokens[2] == "right")
+            KWMTiling.SpawnAsLeftChild = false;
+    }
     else if(Tokens[1] == "tiling")
     {
         if(Tokens[2] == "disable")
