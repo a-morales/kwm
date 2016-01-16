@@ -2,7 +2,7 @@
 
 ## Kwmc Info:
     Configure Kwm
-        Reload config ($HOME/.kwmrc)
+        Reload config ($HOME/.kwm/kwmrc)
             kwmc config reload
 
         Let launchd manage Kwm (automatically start on login)
