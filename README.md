@@ -17,6 +17,7 @@ The *Kwmc* tool also has a built-in help system that can be accessed from the te
 Tested on El Capitan (10.11.1 / 10.11.2).
 
 ![img](https://cloud.githubusercontent.com/assets/6175959/12092967/8d8853d8-b300-11e5-8a44-ec1245efdc74.png)
+The focused-border is achieved through a script for hammerspoon: [focused border @ gist](https://gist.github.com/koekeishiya/dc48db74f4fdbfbf5648)  
 For more screenshots, [click here.](https://github.com/koekeishiya/kwm/issues/2)  
 
 [herrbischoff](https://github.com/herrbischoff) has re-created my bar from the screenshots as a widget  
