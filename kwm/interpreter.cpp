@@ -63,6 +63,13 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "enable")
             AddKwmToLaunchd();
     }
+    else if(Tokens[1] == "float-non-resizable")
+    {
+        if(Tokens[2] == "disable")
+            KWMTiling.FloatNonResizable = false;
+        else if(Tokens[2] == "enable")
+            KWMTiling.FloatNonResizable = true;
+    }
     else if(Tokens[1] == "spawn")
     {
         if(Tokens[2] == "left")

@@ -253,6 +253,7 @@ struct kwm_tiling
 {
     bool NonZeroLayer;
     bool SpawnAsLeftChild;
+    bool FloatNonResizable;
     std::map<unsigned int, screen_info> DisplayMap;
     std::map<unsigned int, space_tiling_option> DisplayMode;
 

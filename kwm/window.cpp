@@ -765,16 +765,9 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
             {
                 if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]))
                 {
-                    tree_node *CurrentNode = GetLastLeafNode(Space->RootNode);
-                    tree_node *NewNode = CreateRootNode();
-                    SetRootNodeContainer(Screen, NewNode);
-
-                    NewNode->WindowID = KWMTiling.WindowLst[WindowIndex].WID;
-                    CurrentNode->RightChild = NewNode;
-                    NewNode->LeftChild = CurrentNode;
-
-                    ApplyNodeContainer(NewNode, SpaceModeMonocle);
+                    AddWindowToMonocleTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
                     SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
+                    MoveCursorToCenterOfFocusedWindow();
                 }
             }
         }
@@ -806,33 +799,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
                 }
 
                 if(!Found)
-                {
-                    tree_node *WindowNode = GetNodeFromWindowID(Space->RootNode, WindowIDsInTree[IDIndex], SpaceModeMonocle);
-                    if(!WindowNode)
-                        return;
-
-                    tree_node *NewFocusNode = NULL;
-                    tree_node *Prev = WindowNode->LeftChild;
-                    tree_node *Next = WindowNode->RightChild;
-
-                    if(Prev)
-                    {
-                        Prev->RightChild = Next;
-                        NewFocusNode = Prev;
-                    }
-
-                    if(Next)
-                        Next->LeftChild = Prev;
-
-                    if(WindowNode == Space->RootNode)
-                    {
-                        Space->RootNode = Next;
-                        NewFocusNode = Next;
-                    }
-
-                    free(WindowNode);
-                    SetWindowFocusByNode(NewFocusNode);
-                }
+                    RemoveWindowFromMonocleTree(Screen, WindowIDsInTree[IDIndex], false);
             }
         }
         else
@@ -845,6 +812,56 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
             Space->RootNode = NULL;
         }
     }
+}
+
+void AddWindowToMonocleTree(screen_info *Screen, int WindowID)
+{
+    if(!Screen || !DoesSpaceExistInMapOfScreen(Screen))
+        return;
+
+    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    tree_node *CurrentNode = GetLastLeafNode(Space->RootNode);
+    tree_node *NewNode = CreateRootNode();
+    SetRootNodeContainer(Screen, NewNode);
+
+    NewNode->WindowID = WindowID;
+    CurrentNode->RightChild = NewNode;
+    NewNode->LeftChild = CurrentNode;
+
+    ApplyNodeContainer(NewNode, SpaceModeMonocle);
+}
+
+void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center)
+{
+    if(!DoesSpaceExistInMapOfScreen(Screen))
+        return;
+
+    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    tree_node *WindowNode = GetNodeFromWindowID(Space->RootNode, WindowID, Space->Mode);
+    if(!WindowNode)
+        return;
+
+    tree_node *NewFocusNode = NULL;
+    tree_node *Prev = WindowNode->LeftChild;
+    tree_node *Next = WindowNode->RightChild;
+
+    if(Prev)
+    {
+        Prev->RightChild = Next;
+        NewFocusNode = Prev;
+    }
+
+    if(Next)
+        Next->LeftChild = Prev;
+
+    if(WindowNode == Space->RootNode)
+    {
+        Space->RootNode = Next;
+        NewFocusNode = Next;
+    }
+
+    free(WindowNode);
+    SetWindowFocusByNode(NewFocusNode);
 }
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
@@ -1222,9 +1239,9 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
 
     AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
     AXError Error = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-    if(Error != kAXErrorSuccess)
+    if(KWMTiling.FloatNonResizable && Error != kAXErrorSuccess)
     {
-        KWMTiling.FloatingWindowLst.push_back(Window->WID);
+        KWMTiling.FloatingAppLst.push_back(Window->Owner);
         RemoveWindowFromBSPTree(KWMScreen.Current, Window->WID, true);
     }
 
