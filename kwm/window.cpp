@@ -1243,6 +1243,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     AXError PosError = kAXErrorFailure;
     AXError SizeError = kAXErrorFailure;
 
+    bool UpdateWindowInfo = true;
     if(KWMTiling.FloatNonResizable)
     {
         SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
@@ -1263,6 +1264,8 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
                 else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeMonocle)
                     RemoveWindowFromMonocleTree(Screen, Window->WID, false);
             }
+
+            UpdateWindowInfo = false;
         }
     }
     else
@@ -1271,10 +1274,13 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
     }
 
-    Window->X = X;
-    Window->Y = Y;
-    Window->Width = Width;
-    Window->Height = Height;
+    if(UpdateWindowInfo)
+    {
+        Window->X = X;
+        Window->Y = Y;
+        Window->Width = Width;
+        Window->Height = Height;
+    }
 
     DEBUG("SetWindowDimensions() Window " << Window->Name << ": " << Window->X << "," << Window->Y)
 
