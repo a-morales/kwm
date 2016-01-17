@@ -44,7 +44,7 @@ void ShowHelp(std::string Command)
             "   gap vertical|horizontal value                          Set default container gaps\n"
             "   spawn left|right                                       The container position to be occupied by the new window\n"
             "   capture id application                                 Capture application to screen\n"
-            "   float-non-resizable enable|disable                     Automatically float non-resizable applications\n"
+            "   float-non-resizable enable|disable                     Automatically float non-resizable windows\n"
             "   float application                                      Always float application\n"
             "   focus toggle|autofocus|autoraise|disabled              Set focus-mode\n"
             "   cycle-focus screen|all|disabled                        Set wrap-around for 'window -f prev|next'\n"

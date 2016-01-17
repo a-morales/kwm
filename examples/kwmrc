@@ -68,7 +68,7 @@ kwmc config split-ratio 0.5
 # AXWindowRole and AXStandardWindowSubRole
 kwmc config add-role AXDialog iTerm2
 
-# Automatically float non-resizable applications
+# Automatically float non-resizable windows
 kwmc config float-non-resizable enable
 
 # The following command blacklists a specific application
