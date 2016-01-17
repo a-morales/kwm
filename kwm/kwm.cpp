@@ -164,6 +164,8 @@ void KwmExecuteConfig()
                 system(Line.c_str());
         }
     }
+
+    ConfigFD.close();
 }
 
 bool IsKwmAlreadyAddedToLaunchd()
@@ -183,14 +185,13 @@ void AddKwmToLaunchd()
     if(IsKwmAlreadyAddedToLaunchd())
         return;
 
-    std::string PlistFullPath = KWMPath.FilePath + "/" + PlistFile;
     std::string SymlinkFullPath = KWMPath.EnvHome + "/Library/LaunchAgents/" + PlistFile;
 
     std::ifstream TemplateFD(KWMPath.FilePath + "/kwm_template.plist");
     if(TemplateFD.fail())
         return;
 
-    std::ofstream OutFD(PlistFullPath);
+    std::ofstream OutFD(SymlinkFullPath);
     if(OutFD.fail())
         return;
 
@@ -199,7 +200,7 @@ void AddKwmToLaunchd()
     while(std::getline(TemplateFD, Line))
         PlistContents.push_back(Line);
 
-    DEBUG("AddKwmToLaunchd() Creating file: " << PlistFullPath)
+    DEBUG("AddKwmToLaunchd() Creating file: " << SymlinkFullPath)
     for(std::size_t LineNumber = 0; LineNumber < PlistContents.size(); ++LineNumber)
     {
         if(LineNumber == 8)
@@ -210,11 +211,6 @@ void AddKwmToLaunchd()
 
     TemplateFD.close();
     OutFD.close();
-
-    std::string PerformSymlink = "mv " + PlistFullPath + " " + SymlinkFullPath;
-    system(PerformSymlink.c_str());
-
-    DEBUG("AddKwmToLaunchd() Moved plist to: " << SymlinkFullPath)
 }
 
 void RemoveKwmFromLaunchd()
