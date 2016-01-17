@@ -26,6 +26,9 @@
         The container position to be occupied by the new window
             kwmc config spawn left|right
 
+        Automatically float non-resizable applications
+            kwmc config float-non-resizable enable|disable
+
         Always float application
             kwmc config float application
 
