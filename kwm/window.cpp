@@ -724,6 +724,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
                 NewFocusNode = Parent;
 
             SetWindowFocusByNode(NewFocusNode);
+            MoveCursorToCenterOfFocusedWindow();
         }
 
         free(AccessChild);
@@ -861,6 +862,7 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center)
 
     free(WindowNode);
     SetWindowFocusByNode(NewFocusNode);
+    MoveCursorToCenterOfFocusedWindow();
 }
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
@@ -1147,6 +1149,7 @@ void ShiftWindowFocus(int Shift)
         }
 
         SetWindowFocusByNode(FocusNode);
+        MoveCursorToCenterOfFocusedWindow();
     }
 }
 
@@ -1222,7 +1225,6 @@ void SetWindowFocusByNode(tree_node *Node)
             DEBUG("SetWindowFocusByNode()")
             KWMScreen.ForceRefreshFocus = true;
             SetWindowFocus(Window);
-            MoveCursorToCenterOfFocusedWindow();
             KWMScreen.ForceRefreshFocus = false;
         }
     }
@@ -1236,20 +1238,35 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     CGSize WindowSize = CGSizeMake(Width, Height);
     CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
 
-    AXError PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-    AXError SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-    if(KWMTiling.FloatNonResizable && (PosError != kAXErrorSuccess || SizeError != kAXErrorSuccess))
+    AXError PosError = kAXErrorFailure;
+    AXError SizeError = kAXErrorFailure;
+
+    if(KWMTiling.FloatNonResizable)
     {
-        //KWMTiling.FloatingAppLst.push_back(Window->Owner);
-        KWMTiling.FloatingWindowLst.push_back(Window->WID);
-        screen_info *Screen = GetDisplayOfWindow(Window);
-        if(Screen && DoesSpaceExistInMapOfScreen(Screen))
+        SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+        if(SizeError == kAXErrorSuccess )
         {
-            if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
-                RemoveWindowFromBSPTree(Screen, Window->WID, true);
-            else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeMonocle)
-                RemoveWindowFromMonocleTree(Screen, Window->WID, true);
+            PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+            SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
         }
+
+        if(PosError != kAXErrorSuccess || SizeError != kAXErrorSuccess)
+        {
+            KWMTiling.FloatingWindowLst.push_back(Window->WID);
+            screen_info *Screen = GetDisplayOfWindow(Window);
+            if(Screen && DoesSpaceExistInMapOfScreen(Screen))
+            {
+                if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
+                    RemoveWindowFromBSPTree(Screen, Window->WID, false);
+                else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeMonocle)
+                    RemoveWindowFromMonocleTree(Screen, Window->WID, false);
+            }
+        }
+    }
+    else
+    {
+        PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+        SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
     }
 
     Window->X = X;
