@@ -37,7 +37,6 @@ struct space_info;
 struct node_container;
 struct tree_node;
 
-struct kwm_code;
 struct kwm_hotkeys;
 struct kwm_prefix;
 struct kwm_toggles;
@@ -187,17 +186,6 @@ struct screen_info
     int OldWindowListCount;
     bool ForceContainerUpdate;
     std::map<int, space_info> Space;
-};
-
-struct kwm_code
-{
-    void *KwmHotkeySO;
-    std::string HotkeySOFileTime;
-
-    kwm_hotkey_commands *KWMHotkeyCommands;
-    kwm_key_remap *RemapKeys;
-
-    bool IsValid;
 };
 
 struct kwm_prefix
@@ -432,10 +420,6 @@ bool GetWindowFocusedByOSX(int *);
 bool IsApplicationInCache(int, std::vector<AXUIElementRef> *);
 bool GetWindowRefFromCache(window_info *, AXUIElementRef *);
 void FreeWindowRefCache(int);
-
-kwm_code LoadKwmCode();
-void UnloadKwmCode(kwm_code *);
-std::string KwmGetFileTime(const char *);
 
 bool KwmStartDaemon();
 void KwmDaemonHandleConnection();

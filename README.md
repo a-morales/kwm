@@ -6,7 +6,7 @@ It is now a tiling window manager that represents windows as the leaves of a bin
 
 *Kwm* uses the event taps API (Quartz Event Services) to observe, filter and alter user input events prior  
 to their delivery to a foreground application. This allows for functionality such as focus-follows-mouse,  
-remapping keys, and most importantly global hotkeys.  
+and different types of hotkeys.  
 
 *Kwm* runs a local daemon to read messages and trigger functions.  
 *Kwmc* is used to write to *Kwm*'s socket, and must be used when interacting with and configuring how *Kwm* works.  
@@ -39,12 +39,12 @@ a window is specifically made floating.
 
 *System-Wide Hotkeys:*  
 Kwm allows the user to bind and unbind hotkeys to commands through the *Kwmc* tool, using a bind and unbind option.  
-For more advanced use, there is also an instantaneous live-coding hotkey system and this can be customized by editing  
-hotkeys.cpp. The user may use an external program for running a specific command on keypress instead.  
+These binds support the use of a single prefix, which may be bind-specific or global (apply to all binds).  
+There are 3 types of hotkeys: global, global + blacklist applications, specified applications.  
 Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.  
 
 *Multiple monitor support:*  
-Kwm does support external monitors and have commands that allow for focusing screens,  moving windows, and capturing applications.
+Kwm supports external monitors and have commands that allow for focusing screens,  moving windows, and capturing applications.
 For more information, see `kwmc help screen` and `kwmc config capture`.  
 
 ## Build:
@@ -58,9 +58,6 @@ To compile and start *Kwm*, simply run
 By default, debug prints are enabled, and these can be turned off by running
 
       make install
-
-The hotkeys.cpp file can be edited live and recompiled separately using `make` again.  
-By doing this, the user may change hotkeys without having to restart *Kwm*.  
 
 To make *Kwm* start automatically on login, run the following command the first time *Kwm* starts 
 

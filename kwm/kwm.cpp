@@ -5,7 +5,6 @@ const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
 CFMachPortRef EventTap;
 kwm_path KWMPath = {};
-kwm_code KWMCode = {};
 kwm_screen KWMScreen = {};
 kwm_toggles KWMToggles = {};
 kwm_focus KWMFocus = {};
@@ -81,91 +80,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
     pthread_mutex_unlock(&KWMThread.Lock);
     return Event;
-}
-
-bool KwmRunLiveCodeHotkeySystem(CGEventRef *Event, modifiers *Mod, CGKeyCode Keycode)
-{
-    std::string NewHotkeySOFileTime = KwmGetFileTime(KWMPath.HotkeySOFullPath.c_str());
-    if(NewHotkeySOFileTime != "file not found" &&
-       NewHotkeySOFileTime != KWMCode.HotkeySOFileTime)
-    {
-        DEBUG("Reloading hotkeys.so")
-        UnloadKwmCode(&KWMCode);
-        KWMCode = LoadKwmCode();
-    }
-
-    if(KWMCode.IsValid)
-    {
-        // Capture custom hotkeys specified in hotkeys.cpp
-        if(KWMCode.KWMHotkeyCommands(*Mod, Keycode))
-            return true;
-
-        // Check if key should be remapped
-        int NewKeycode;
-        KWMCode.RemapKeys(Mod, Keycode, &NewKeycode);
-        if(NewKeycode != -1)
-        {
-            CGEventSetFlags(*Event, 0);
-
-            if(Mod->CmdKey)
-                CGEventSetFlags(*Event, kCGEventFlagMaskCommand);
-
-            if(Mod->AltKey)
-                CGEventSetFlags(*Event, kCGEventFlagMaskAlternate);
-
-            if(Mod->CtrlKey)
-                CGEventSetFlags(*Event, kCGEventFlagMaskControl);
-
-            if(Mod->ShiftKey)
-                CGEventSetFlags(*Event, kCGEventFlagMaskShift);
-
-            CGEventSetIntegerValueField(*Event, kCGKeyboardEventKeycode, NewKeycode);
-        }
-    }
-
-    return false;
-}
-
-kwm_code LoadKwmCode()
-{
-    kwm_code Code = {};
-
-    Code.HotkeySOFileTime = KwmGetFileTime(KWMPath.HotkeySOFullPath.c_str());
-    Code.KwmHotkeySO = dlopen(KWMPath.HotkeySOFullPath.c_str(),  RTLD_LAZY);
-    if(Code.KwmHotkeySO)
-    {
-        Code.KWMHotkeyCommands = (kwm_hotkey_commands*) dlsym(Code.KwmHotkeySO, "KWMHotkeyCommands");
-        Code.RemapKeys = (kwm_key_remap*) dlsym(Code.KwmHotkeySO, "RemapKeys");
-    }
-    else
-    {
-        DEBUG("LoadKwmCode() Could not open '" << KWMPath.HotkeySOFullPath << "'")
-    }
-
-    Code.IsValid = (Code.KWMHotkeyCommands && Code.RemapKeys);
-    return Code;
-}
-
-void UnloadKwmCode(kwm_code *Code)
-{
-    if(Code->KwmHotkeySO)
-        dlclose(Code->KwmHotkeySO);
-
-    Code->HotkeySOFileTime = "";
-    Code->KWMHotkeyCommands = 0;
-    Code->RemapKeys = 0;
-    Code->IsValid = 0;
-}
-
-std::string KwmGetFileTime(const char *File)
-{
-    struct stat attr;
-
-    int Result = stat(File, &attr);
-    if(Result == -1)
-        return "file not found";
-
-    return ctime(&attr.st_mtime);
 }
 
 void KwmQuit()
@@ -247,7 +161,7 @@ void KwmExecuteConfig()
             if(IsPrefixOfString(Line, "kwmc"))
                 KwmInterpretCommand(Line, 0);
             else if(IsPrefixOfString(Line, "sys"))
-                    system(Line.c_str());
+                system(Line.c_str());
         }
     }
 }
@@ -374,8 +288,7 @@ void KwmInit()
     KWMHotkeys.Prefix.Timeout = 0.75;
 
     KWMPath.ConfigFile = "kwmrc";
-    if(GetKwmFilePath())
-        KWMCode = LoadKwmCode();
+    GetKwmFilePath();
 
     KwmExecuteConfig();
     GetActiveDisplays();

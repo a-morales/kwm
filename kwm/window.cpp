@@ -393,6 +393,10 @@ void FocusWindowBelowCursor()
     {
         if(IsWindowBelowCursor(&KWMTiling.WindowLst[WindowIndex]))
         {
+            if(KWMTiling.WindowLst[WindowIndex].Owner == "Hammerspoon" &&
+               KWMTiling.WindowLst[WindowIndex].Name == "")
+                    continue;
+
             if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.WindowLst[WindowIndex]))
                 KWMFocus.Cache = KWMTiling.WindowLst[WindowIndex];
             else

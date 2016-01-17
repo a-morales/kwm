@@ -46,20 +46,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event)
         }
     }
 
-    // Hotkeys bound using `kwmc bind keys command`
-    if(KwmExecuteHotkey(Mod, Keycode))
-        return true;
-
-    // Code for live-coded hotkey system; hotkeys.cpp
-    if(KwmRunLiveCodeHotkeySystem(Event, &Mod, Keycode))
-    {
-        if(KWMHotkeys.Prefix.Active)
-            KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
-
-        return true;
-    }
-
-    return false;
+    return KwmExecuteHotkey(Mod, Keycode);
 }
 
 bool KwmIsPrefixKey(hotkey *PrefixKey, modifiers *Mod, CGKeyCode Keycode)
