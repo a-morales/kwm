@@ -1240,7 +1240,8 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     AXError SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
     if(KWMTiling.FloatNonResizable && (PosError != kAXErrorSuccess || SizeError != kAXErrorSuccess))
     {
-        KWMTiling.FloatingAppLst.push_back(Window->Owner);
+        //KWMTiling.FloatingAppLst.push_back(Window->Owner);
+        KWMTiling.FloatingWindowLst.push_back(Window->WID);
         screen_info *Screen = GetDisplayOfWindow(Window);
         if(Screen && DoesSpaceExistInMapOfScreen(Screen))
         {
