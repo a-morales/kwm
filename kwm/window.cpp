@@ -119,6 +119,7 @@ bool IsContextMenusAndSimilarVisible()
             KWMTiling.WindowLst[WindowIndex].Name != "Dock") &&
            (KWMTiling.WindowLst[WindowIndex].Owner != "Hammerspoon" ||
             KWMTiling.WindowLst[WindowIndex].Name != "") &&
+            KWMTiling.WindowLst[WindowIndex].Owner != "Honer" &&
             KWMTiling.WindowLst[WindowIndex].Layer != 0)
         {
             Result = true;
@@ -394,8 +395,9 @@ void FocusWindowBelowCursor()
     {
         if(IsWindowBelowCursor(&KWMTiling.WindowLst[WindowIndex]))
         {
-            if(KWMTiling.WindowLst[WindowIndex].Owner == "Hammerspoon" &&
-               KWMTiling.WindowLst[WindowIndex].Name == "")
+            if(KWMTiling.WindowLst[WindowIndex].Owner == "Honer" ||
+               (KWMTiling.WindowLst[WindowIndex].Owner == "Hammerspoon" &&
+                KWMTiling.WindowLst[WindowIndex].Name == ""))
                     continue;
 
             if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.WindowLst[WindowIndex]))
