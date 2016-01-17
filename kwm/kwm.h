@@ -444,7 +444,6 @@ std::vector<std::string> SplitString(std::string, char);
 bool IsPrefixOfString(std::string &, std::string);
 std::string CreateStringFromTokens(std::vector<std::string>, int);
 
-bool KwmRunLiveCodeHotkeySystem(CGEventRef *, modifiers *, CGKeyCode);
 CFStringRef KeycodeToString(CGKeyCode);
 bool KeycodeForChar(char, CGKeyCode *);
 bool GetLayoutIndependentKeycode(std::string, CGKeyCode *);
