@@ -117,6 +117,8 @@ bool IsContextMenusAndSimilarVisible()
     {
         if((KWMTiling.WindowLst[WindowIndex].Owner != "Dock" ||
             KWMTiling.WindowLst[WindowIndex].Name != "Dock") &&
+           (KWMTiling.WindowLst[WindowIndex].Owner != "Hammerspoon" ||
+            KWMTiling.WindowLst[WindowIndex].Name != "") &&
             KWMTiling.WindowLst[WindowIndex].Layer != 0)
         {
             Result = true;
