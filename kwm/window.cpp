@@ -1236,9 +1236,9 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     CGSize WindowSize = CGSizeMake(Width, Height);
     CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
 
-    AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-    AXError Error = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-    if(KWMTiling.FloatNonResizable && Error != kAXErrorSuccess)
+    AXError PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+    AXError SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+    if(KWMTiling.FloatNonResizable && (PosError != kAXErrorSuccess || SizeError != kAXErrorSuccess))
     {
         KWMTiling.FloatingAppLst.push_back(Window->Owner);
         screen_info *Screen = GetDisplayOfWindow(Window);
