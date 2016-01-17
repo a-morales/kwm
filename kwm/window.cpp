@@ -151,7 +151,6 @@ bool FilterWindowList(screen_info *Screen)
             CFTypeRef Role, SubRole;
             if(GetWindowRole(&KWMTiling.WindowLst[WindowIndex], &Role, &SubRole))
             {
-                //DEBUG(KWMTiling.WindowLst[WindowIndex].Owner)
                 if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
                    IsAppSpecificWindowRole(&KWMTiling.WindowLst[WindowIndex], Role, SubRole))
                         FilteredWindowLst.push_back(KWMTiling.WindowLst[WindowIndex]);
@@ -1242,7 +1241,14 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     if(KWMTiling.FloatNonResizable && Error != kAXErrorSuccess)
     {
         KWMTiling.FloatingAppLst.push_back(Window->Owner);
-        RemoveWindowFromBSPTree(KWMScreen.Current, Window->WID, true);
+        screen_info *Screen = GetDisplayOfWindow(Window);
+        if(Screen && DoesSpaceExistInMapOfScreen(Screen))
+        {
+            if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
+                RemoveWindowFromBSPTree(Screen, Window->WID, true);
+            else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeMonocle)
+                RemoveWindowFromMonocleTree(Screen, Window->WID, true);
+        }
     }
 
     Window->X = X;
