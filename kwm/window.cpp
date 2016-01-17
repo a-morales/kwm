@@ -1221,7 +1221,12 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
 
     AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-    AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+    AXError Error = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+    if(Error != kAXErrorSuccess)
+    {
+        KWMTiling.FloatingWindowLst.push_back(Window->WID);
+        RemoveWindowFromBSPTree(KWMScreen.Current, Window->WID, true);
+    }
 
     Window->X = X;
     Window->Y = Y;
