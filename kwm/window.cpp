@@ -51,6 +51,11 @@ void UpdateBorder(std::string Border)
                 {
                     std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
                     KWMBorder.FHandle = popen(OverlayBin.c_str(), "w");
+                    if(KWMBorder.FHandle == NULL)
+                    {
+                        KWMBorder.FEnabled = false;
+                        return;
+                    }
                 }
 
                 DEBUG("UpdateFocusedBorder()")
@@ -91,6 +96,11 @@ void UpdateBorder(std::string Border)
             {
                 std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
                 KWMBorder.MHandle = popen(OverlayBin.c_str(), "w");
+                if(KWMBorder.MHandle == NULL)
+                {
+                    KWMBorder.MEnabled = false;
+                    return;
+                }
             }
 
             if(KWMScreen.MarkedWindow == -1)
