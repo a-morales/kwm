@@ -50,7 +50,7 @@ void UpdateFocusedBorder()
             std::string as = std::to_string((double)a/255);
 
             DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
-                std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
+            std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
             fwrite(Border.c_str(), Border.size(), 1, KWMBorder.Handle);
             fflush(KWMBorder.Handle);
         }
@@ -1069,12 +1069,14 @@ void ToggleFocusedWindowParentContainer()
             DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container")
             Node->Parent->WindowID = Node->WindowID;
             ResizeWindowToContainerSize(Node->Parent);
+            UpdateFocusedBorder();
         }
         else
         {
             DEBUG("ToggleFocusedWindowParentContainer() Restore Window Container")
             Node->Parent->WindowID = -1;
             ResizeWindowToContainerSize(Node);
+            UpdateFocusedBorder();
         }
     }
 }
@@ -1096,6 +1098,7 @@ void ToggleFocusedWindowFullscreen()
                 DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
                 Space->RootNode->WindowID = Node->WindowID;
                 ResizeWindowToContainerSize(Space->RootNode);
+                UpdateFocusedBorder();
             }
         }
         else
@@ -1107,6 +1110,7 @@ void ToggleFocusedWindowFullscreen()
             if(Node)
             {
                 ResizeWindowToContainerSize(Node);
+                UpdateFocusedBorder();
             }
         }
     }
