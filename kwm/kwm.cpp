@@ -1,6 +1,6 @@
 #include "kwm.h"
 
-const std::string KwmCurrentVersion = "Kwm Version 1.0.7";
+const std::string KwmCurrentVersion = "Kwm Version 1.0.8";
 const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
 CFMachPortRef EventTap;
