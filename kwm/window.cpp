@@ -396,6 +396,9 @@ bool IsSpaceTransitionInProgress()
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
+        std::string Border = "clear";
+        fwrite(Border.c_str(), Border.size(), 1, KWMBorder.Handle);
+        fflush(KWMBorder.Handle);
         KWMScreen.UpdateSpace = true;
     }
 
