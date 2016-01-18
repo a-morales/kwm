@@ -61,11 +61,11 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "enable")
         {
-            KWMBorder.Enabled = true;
+            KWMBorder.FEnabled = true;
         }
         else if(Tokens[2] == "disable")
         {
-            KWMBorder.Enabled = false;
+            KWMBorder.FEnabled = false;
         }
         else if(Tokens[2] == "size")
         {
@@ -85,17 +85,15 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "marked-border")
     {
-        /*
         if(Tokens[2] == "enable")
         {
-            KWMBorder.Enabled = true;
+            KWMBorder.MEnabled = true;
         }
         else if(Tokens[2] == "disable")
         {
-            KWMBorder.Enabled = false;
+            KWMBorder.MEnabled = false;
         }
-        */
-        if(Tokens[2] == "size")
+        else if(Tokens[2] == "size")
         {
             int Width = 4;
             std::stringstream Stream(Tokens[3]);
@@ -408,6 +406,7 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
         ToggleWindowFloating(Marked);
         ClearMarkedWindow();
         ToggleWindowFloating(Marked);
+        MoveCursorToCenterOfFocusedWindow();
     }
 }
 

@@ -193,7 +193,8 @@ struct kwm_border
 {
     FILE *FHandle;
     FILE *MHandle;
-    bool Enabled;
+    bool FEnabled;
+    bool MEnabled;
 
     int FWidth;
     unsigned int FColor;

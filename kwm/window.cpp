@@ -41,9 +41,9 @@ kwm_time_point PerformUpdateBorderTimer(kwm_time_point Time)
 
 void UpdateBorder(std::string Border)
 {
-    if(KWMBorder.Enabled)
+    if(Border == "focused")
     {
-        if(Border == "focused")
+        if(KWMBorder.FEnabled)
         {
             if(KWMFocus.Window)
             {
@@ -72,7 +72,20 @@ void UpdateBorder(std::string Border)
                 fflush(KWMBorder.FHandle);
             }
         }
-        else if(Border == "marked")
+        else
+        {
+            if(KWMBorder.FHandle)
+            {
+                std::string Terminate = "quit";
+                fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.FHandle);
+                pclose(KWMBorder.FHandle);
+                KWMBorder.FHandle = NULL;
+            }
+        }
+    }
+    else if(Border == "marked")
+    {
+        if(KWMBorder.MEnabled)
         {
             if(!KWMBorder.MHandle)
             {
@@ -107,15 +120,15 @@ void UpdateBorder(std::string Border)
                 fflush(KWMBorder.MHandle);
             }
         }
-    }
-    else
-    {
-        if(KWMBorder.FHandle || KWMBorder.MHandle)
+        else
         {
-            std::string Terminate = "killall kwm-overlay";
-            system(Terminate.c_str());
-            KWMBorder.FHandle = NULL;
-            KWMBorder.MHandle = NULL;
+            if(KWMBorder.MHandle)
+            {
+                std::string Terminate = "quit";
+                fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.MHandle);
+                pclose(KWMBorder.MHandle);
+                KWMBorder.MHandle = NULL;
+            }
         }
     }
 }
