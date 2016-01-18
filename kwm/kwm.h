@@ -237,6 +237,9 @@ struct kwm_path
 
 struct kwm_focus
 {
+    AXObserverRef Observer;
+    AXUIElementRef Application;
+
     ProcessSerialNumber PSN;
     window_info *Window;
     window_info Cache;
@@ -469,6 +472,10 @@ bool KwmExecuteHotkey(modifiers, CGKeyCode);
 bool HotkeyExists(modifiers, CGKeyCode, hotkey *);
 void KwmAddHotkey(std::string, std::string);
 void KwmRemoveHotkey(std::string);
+
+void CreateApplicationNotifications();
+void DestroyApplicationNotifications();
+void FocusedAXObserverCallback(AXObserverRef, AXUIElementRef, CFStringRef, void *);
 
 void KwmInit();
 void KwmQuit();

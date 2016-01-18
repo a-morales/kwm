@@ -11,6 +11,11 @@ extern kwm_cache KWMCache;
 extern kwm_path KWMPath;
 extern kwm_border KWMBorder;
 
+void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
+{
+    UpdateFocusedBorder();
+}
+
 void UpdateFocusedBorder()
 {
     if(KWMBorder.Enabled)
@@ -24,6 +29,7 @@ void UpdateFocusedBorder()
         if(KWMFocus.Window)
         {
             DEBUG("UpdateFocusedBorder()")
+
             kwm_time_point NewBorderTime = std::chrono::steady_clock::now();
             std::chrono::duration<double> Diff = NewBorderTime - KWMBorder.Time;
             while(Diff.count() < 0.10)
@@ -43,8 +49,8 @@ void UpdateFocusedBorder()
             std::string bs = std::to_string((double)b/255);
             std::string as = std::to_string((double)a/255);
 
-            std::cout << "alpha: " + as + " r:" + rs + " g: " + gs + " b:" + bs << std::endl;
-            std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
+            DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
+                std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
             fwrite(Border.c_str(), Border.size(), 1, KWMBorder.Handle);
             fflush(KWMBorder.Handle);
         }
@@ -1063,14 +1069,12 @@ void ToggleFocusedWindowParentContainer()
             DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container")
             Node->Parent->WindowID = Node->WindowID;
             ResizeWindowToContainerSize(Node->Parent);
-            UpdateFocusedBorder();
         }
         else
         {
             DEBUG("ToggleFocusedWindowParentContainer() Restore Window Container")
             Node->Parent->WindowID = -1;
             ResizeWindowToContainerSize(Node);
-            UpdateFocusedBorder();
         }
     }
 }
@@ -1092,7 +1096,6 @@ void ToggleFocusedWindowFullscreen()
                 DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
                 Space->RootNode->WindowID = Node->WindowID;
                 ResizeWindowToContainerSize(Space->RootNode);
-                UpdateFocusedBorder();
             }
         }
         else
@@ -1104,7 +1107,6 @@ void ToggleFocusedWindowFullscreen()
             if(Node)
             {
                 ResizeWindowToContainerSize(Node);
-                UpdateFocusedBorder();
             }
         }
     }
@@ -1126,7 +1128,6 @@ void SwapFocusedWindowWithMarked()
             {
                 SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
                 MoveCursorToCenterOfFocusedWindow();
-                UpdateFocusedBorder();
             }
         }
     }
@@ -1154,7 +1155,6 @@ void SwapFocusedWindowWithNearest(int Shift)
         {
             SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
             MoveCursorToCenterOfFocusedWindow();
-            UpdateFocusedBorder();
         }
     }
 }
@@ -1252,12 +1252,14 @@ void CloseWindow(window_info *Window)
 
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
 {
+    DestroyApplicationNotifications();
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
     KWMFocus.PSN = NewPSN;
     KWMFocus.Cache = *Window;
     KWMFocus.Window = &KWMFocus.Cache;
+    KWMFocus.Application = AXUIElementCreateApplication(Window->PID);
 
     AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
@@ -1267,6 +1269,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
     UpdateFocusedBorder();
+    CreateApplicationNotifications();
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name)
 }
 
@@ -1340,7 +1343,6 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         Window->Y = Y;
         Window->Width = Width;
         Window->Height = Height;
-        UpdateFocusedBorder();
     }
 
     DEBUG("SetWindowDimensions() Window " << Window->Name << ": " << Window->X << "," << Window->Y)
@@ -1382,7 +1384,6 @@ void ModifyContainerSplitRatio(double Offset)
                 Node->Parent->SplitRatio += Offset;
                 ResizeNodeContainer(KWMScreen.Current, Node->Parent);
                 ApplyNodeContainer(Node->Parent, Space->Mode);
-                UpdateFocusedBorder();
             }
         }
     }
@@ -1682,4 +1683,31 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
         CFDictionaryRef Elem = (CFDictionaryRef)Value;
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
     } 
+}
+
+void DestroyApplicationNotifications()
+{
+    if(KWMFocus.Observer == NULL)
+        return;
+    
+    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification);
+    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification);
+    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification);
+    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXFocusedWindowChangedNotification);
+    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
+    
+    CFRelease(KWMFocus.Observer);
+    KWMFocus.Observer = NULL;
+    CFRelease(KWMFocus.Application);
+    KWMFocus.Application = NULL;
+}
+
+void CreateApplicationNotifications()
+{
+    AXObserverCreate(KWMFocus.Window->PID, FocusedAXObserverCallback, &KWMFocus.Observer);
+    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification, NULL);
+    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification, NULL);
+    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification, NULL);
+    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXFocusedWindowChangedNotification, NULL);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
 }

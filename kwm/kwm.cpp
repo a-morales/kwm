@@ -4,6 +4,7 @@ const std::string KwmCurrentVersion = "Kwm Version 1.0.7";
 const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
 CFMachPortRef EventTap;
+
 kwm_path KWMPath = {};
 kwm_screen KWMScreen = {};
 kwm_toggles KWMToggles = {};
@@ -349,9 +350,6 @@ int main(int argc, char **argv)
 
     KwmInit();
     CGEventMask EventMask;
-
-    CFRunLoopSourceRef RunLoopSource;
-
     EventMask = ((1 << kCGEventKeyDown) |
                  (1 << kCGEventKeyUp) |
                  (1 << kCGEventMouseMoved) |
@@ -359,11 +357,10 @@ int main(int argc, char **argv)
                  (1 << kCGEventLeftMouseUp));
 
     EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, EventMask, CGEventCallback, NULL);
-
     if(!EventTap || !CGEventTapIsEnabled(EventTap))
         Fatal("ERROR: Could not create event-tap!");
 
-    RunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, EventTap, 0);
+    CFRunLoopSourceRef RunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, EventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), RunLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(EventTap, true);
     NSApplicationLoad();
