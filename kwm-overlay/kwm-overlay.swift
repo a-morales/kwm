@@ -198,6 +198,8 @@ class OverlayController: NSObject, NSApplicationDelegate
 
                     if (trimmedString == "clear") {
                         self.window.contentView = nil
+                    } else if (trimmedString == "quit") {
+                        exit(0)
                     } else {
                         let args = trimmedString.componentsSeparatedByString(" ")
                         self.showOverlayView(args)
