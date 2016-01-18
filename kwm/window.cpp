@@ -44,8 +44,6 @@ void UpdateFocusedBorder()
             std::string as = std::to_string((double)a/255);
 
             std::cout << "alpha: " + as + " r:" + rs + " g: " + gs + " b:" + bs << std::endl;
-
-            //std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
             std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
             fwrite(Border.c_str(), Border.size(), 1, KWMBorder.Handle);
             fflush(KWMBorder.Handle);
@@ -1065,14 +1063,15 @@ void ToggleFocusedWindowParentContainer()
             DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container")
             Node->Parent->WindowID = Node->WindowID;
             ResizeWindowToContainerSize(Node->Parent);
+            UpdateFocusedBorder();
         }
         else
         {
             DEBUG("ToggleFocusedWindowParentContainer() Restore Window Container")
             Node->Parent->WindowID = -1;
             ResizeWindowToContainerSize(Node);
+            UpdateFocusedBorder();
         }
-        UpdateFocusedBorder();
     }
 }
 
@@ -1093,6 +1092,7 @@ void ToggleFocusedWindowFullscreen()
                 DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
                 Space->RootNode->WindowID = Node->WindowID;
                 ResizeWindowToContainerSize(Space->RootNode);
+                UpdateFocusedBorder();
             }
         }
         else
@@ -1102,9 +1102,11 @@ void ToggleFocusedWindowFullscreen()
 
             Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
             if(Node)
+            {
                 ResizeWindowToContainerSize(Node);
+                UpdateFocusedBorder();
+            }
         }
-        UpdateFocusedBorder();
     }
 }
 
@@ -1257,8 +1259,6 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     KWMFocus.Cache = *Window;
     KWMFocus.Window = &KWMFocus.Cache;
 
-    UpdateFocusedBorder();
-
     AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(WindowRef, kAXRaiseAction);
@@ -1266,6 +1266,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     if(KWMMode.Focus != FocusModeAutofocus)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
+    UpdateFocusedBorder();
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name)
 }
 
