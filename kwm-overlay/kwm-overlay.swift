@@ -12,11 +12,12 @@ func parseFrame(args: Array<String>) -> NSRect
     let windowId = Int(args[0])
 
     if (windowId != nil) {
-        let option = CGWindowListOption(arrayLiteral: CGWindowListOption.OptionAll)
+        let option = CGWindowListOption(arrayLiteral: CGWindowListOption.ExcludeDesktopElements, CGWindowListOption.OptionOnScreenOnly)
         let relativeToWindow = CGWindowID(windowId!)
         let windowInfoListRef = CGWindowListCopyWindowInfo(option, relativeToWindow)
         let windowInfoList = windowInfoListRef as NSArray? as? [[String: AnyObject]]
-        let scrn: NSScreen = NSScreen.mainScreen()!
+        let scrns: Array<NSScreen> = NSScreen.screens()!
+        let scrn: NSScreen = scrns[0]
         let scrnHeight: Int = Int(scrn.frame.size.height)
 
         for windowInfo in windowInfoList! {
