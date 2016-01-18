@@ -8,6 +8,49 @@ extern kwm_toggles KWMToggles;
 extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
+extern kwm_path KWMPath;
+extern kwm_border KWMBorder;
+
+void UpdateFocusedBorder()
+{
+    if(KWMBorder.Enabled)
+    {
+        std::cout << "OVerlay enabled" << std::endl;
+        if(!KWMBorder.Handle)
+        {
+            std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
+            KWMBorder.Handle = popen(OverlayBin.c_str(), "w");
+        }
+
+        if(KWMFocus.Window)
+        {
+            short r = (KWMBorder.Color >> 16) & 0xff;
+            short g = (KWMBorder.Color >> 8) & 0xff;
+            short b = (KWMBorder.Color >> 0) & 0xff;
+            short a = (KWMBorder.Color >> 24) & 0xff;
+
+            std::string rs = std::to_string((double)r/255);
+            std::string gs = std::to_string((double)g/255);
+            std::string bs = std::to_string((double)b/255);
+            std::string as = std::to_string((double)a/255);
+
+            std::cout << "alpha: " + as + " r:" + rs + " g: " + gs + " b:" + bs << std::endl;
+
+            std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
+            fwrite(Border.c_str(), Border.size(), 1, KWMBorder.Handle);
+            fflush(KWMBorder.Handle);
+        }
+    }
+    else
+    {
+        if(KWMBorder.Handle)
+        {
+            std::string Terminate = "pkill kwm-overlay";
+            system(Terminate.c_str());
+            KWMBorder.Handle = NULL;
+        }
+    }
+}
 
 bool GetTagForCurrentSpace(std::string &Tag)
 {
@@ -1012,12 +1055,14 @@ void ToggleFocusedWindowParentContainer()
             DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container")
             Node->Parent->WindowID = Node->WindowID;
             ResizeWindowToContainerSize(Node->Parent);
+            UpdateFocusedBorder();
         }
         else
         {
             DEBUG("ToggleFocusedWindowParentContainer() Restore Window Container")
             Node->Parent->WindowID = -1;
             ResizeWindowToContainerSize(Node);
+            UpdateFocusedBorder();
         }
     }
 }
@@ -1039,6 +1084,7 @@ void ToggleFocusedWindowFullscreen()
                 DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
                 Space->RootNode->WindowID = Node->WindowID;
                 ResizeWindowToContainerSize(Space->RootNode);
+                UpdateFocusedBorder();
             }
         }
         else
@@ -1048,7 +1094,10 @@ void ToggleFocusedWindowFullscreen()
 
             Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
             if(Node)
+            {
                 ResizeWindowToContainerSize(Node);
+                UpdateFocusedBorder();
+            }
         }
     }
 }
@@ -1069,6 +1118,7 @@ void SwapFocusedWindowWithMarked()
             {
                 SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
                 MoveCursorToCenterOfFocusedWindow();
+                UpdateFocusedBorder();
             }
         }
     }
@@ -1096,6 +1146,7 @@ void SwapFocusedWindowWithNearest(int Shift)
         {
             SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
             MoveCursorToCenterOfFocusedWindow();
+            UpdateFocusedBorder();
         }
     }
 }
@@ -1199,6 +1250,8 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     KWMFocus.PSN = NewPSN;
     KWMFocus.Cache = *Window;
     KWMFocus.Window = &KWMFocus.Cache;
+
+    UpdateFocusedBorder();
 
     AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
@@ -1321,6 +1374,7 @@ void ModifyContainerSplitRatio(double Offset)
                 Node->Parent->SplitRatio += Offset;
                 ResizeNodeContainer(KWMScreen.Current, Node->Parent);
                 ApplyNodeContainer(Node->Parent, Space->Mode);
+                UpdateFocusedBorder();
             }
         }
     }

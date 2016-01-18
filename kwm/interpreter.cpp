@@ -5,6 +5,7 @@ extern kwm_toggles KWMToggles;
 extern kwm_focus KWMFocus;
 extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
+extern kwm_border KWMBorder;
 
 std::string CreateStringFromTokens(std::vector<std::string> Tokens, int StartIndex)
 {
@@ -55,6 +56,33 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         std::stringstream Stream(Tokens[2]);
         Stream >> Value;
         KwmSetPrefixTimeout(Value);
+    }
+    else if(Tokens[1] == "focused-border")
+    {
+        if(Tokens[2] == "enable")
+        {
+            KWMBorder.Enabled = true;
+        }
+        else if(Tokens[2] == "disable")
+        {
+            KWMBorder.Enabled = false;
+        }
+        else if(Tokens[2] == "size")
+        {
+            int Width = 4;
+            std::stringstream Stream(Tokens[3]);
+            Stream >> Width;
+            KWMBorder.Width = Width;
+        }
+        else if(Tokens[2] == "color")
+        {
+            unsigned int Color = 0xffffff;
+            std::stringstream Stream;
+            Stream << std::hex << Tokens[3];
+            Stream >> Color;
+            KWMBorder.Color = Color;
+        }
+
     }
     else  if(Tokens[1] == "launchd")
     {

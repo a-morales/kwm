@@ -13,6 +13,7 @@ kwm_tiling KWMTiling = {};
 kwm_cache KWMCache = {};
 kwm_thread KWMThread = {};
 kwm_hotkeys KWMHotkeys = {};
+kwm_border KWMBorder = {};
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
@@ -84,6 +85,9 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
 void KwmQuit()
 {
+    if(KWMBorder.Handle)
+        fclose(KWMBorder.Handle);
+
     exit(0);
 }
 

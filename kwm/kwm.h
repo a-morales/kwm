@@ -37,6 +37,7 @@ struct space_info;
 struct node_container;
 struct tree_node;
 
+struct kwm_border;
 struct kwm_hotkeys;
 struct kwm_prefix;
 struct kwm_toggles;
@@ -186,6 +187,15 @@ struct screen_info
     int OldWindowListCount;
     bool ForceContainerUpdate;
     std::map<int, space_info> Space;
+};
+
+struct kwm_border
+{
+    FILE *Handle;
+    bool Enabled;
+    int Width;
+
+    unsigned int Color;
 };
 
 struct kwm_prefix
