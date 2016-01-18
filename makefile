@@ -9,7 +9,7 @@ SAMPLE_CONFIG=examples/kwmrc
 CONFIG_DIR=$(HOME)/.kwm
 BUILD_PATH=./bin
 BUILD_FLAGS=-O3 -Wall
-BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwm/kwmrc $(BUILD_PATH)/kwm-overlay
+BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwm/kwmrc
 
 all: $(BINS)
 
