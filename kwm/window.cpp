@@ -252,7 +252,6 @@ bool IsContextMenusAndSimilarVisible()
         if((KWMTiling.WindowLst[WindowIndex].Owner != "Dock" ||
             KWMTiling.WindowLst[WindowIndex].Name != "Dock") &&
             KWMTiling.WindowLst[WindowIndex].Owner != "kwm-overlay" &&
-            KWMTiling.WindowLst[WindowIndex].Owner != "Honer" &&
             KWMTiling.WindowLst[WindowIndex].Layer != 0)
         {
             Result = true;
@@ -530,11 +529,8 @@ void FocusWindowBelowCursor()
     {
         if(IsWindowBelowCursor(&KWMTiling.WindowLst[WindowIndex]))
         {
-            if(KWMTiling.WindowLst[WindowIndex].Owner == "Honer" ||
-               KWMTiling.WindowLst[WindowIndex].Owner == "kwm-overlay" ||
-               (KWMTiling.WindowLst[WindowIndex].Owner == "Hammerspoon" &&
-                KWMTiling.WindowLst[WindowIndex].Name == ""))
-                    continue;
+            if(KWMTiling.WindowLst[WindowIndex].Owner == "kwm-overlay")
+                continue;
 
             if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.WindowLst[WindowIndex]))
                 KWMFocus.Cache = KWMTiling.WindowLst[WindowIndex];
