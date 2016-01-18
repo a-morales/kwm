@@ -26,12 +26,12 @@
         Customize focused-window border
             kwmc config focused-border enable|disable
             kwmc config focused-border size number
-            kwmc config focused-border color rrggbb (hex value)
+            kwmc config focused-border color aarrggbb (hex value)
 
         Customize marked-window border
             kwmc config marked-border enable|disable
             kwmc config marked-border size number
-            kwmc config marked-border color rrggbb (hex value)
+            kwmc config marked-border color aarrggbb (hex value)
 
         The container position to be occupied by the new window
             kwmc config spawn left|right
