@@ -23,6 +23,16 @@
         Set default container gaps
             kwmc config gap vertical|horizontal value
 
+        Customize focused-window border
+            kwmc config focused-border enable|disable
+            kwmc config focused-border size number
+            kwmc config focused-border color rrggbb (hex value)
+
+        Customize marked-window border
+            kwmc config marked-border enable|disable
+            kwmc config marked-border size number
+            kwmc config marked-border color rrggbb (hex value)
+
         The container position to be occupied by the new window
             kwmc config spawn left|right
 
