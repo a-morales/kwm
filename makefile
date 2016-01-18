@@ -1,13 +1,15 @@
 DEBUG_BUILD=-DDEBUG_BUILD
 FRAMEWORKS=-framework ApplicationServices -framework Carbon -framework Cocoa
+SDK_ROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
 KWM_SRCS=kwm/kwm.cpp kwm/tree.cpp kwm/window.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp
 KWMC_SRCS=kwmc/kwmc.cpp kwmc/help.cpp
+KWMO_SRCS=kwm-overlay/kwm-overlay.swift
 KWM_PLIST=kwm.plist
 SAMPLE_CONFIG=examples/kwmrc
 CONFIG_DIR=$(HOME)/.kwm
 BUILD_PATH=./bin
 BUILD_FLAGS=-O3 -Wall
-BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwm/kwmrc
+BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwm/kwmrc $(BUILD_PATH)/kwm-overlay
 
 all: $(BINS)
 
@@ -34,6 +36,9 @@ $(BUILD_PATH)/kwm: $(KWM_SRCS)
 
 $(BUILD_PATH)/kwmc: $(KWMC_SRCS)
 	g++ $^ $(BUILD_FLAGS) -o $@
+
+$(BUILD_PATH)/kwm-overlay: $(KWMO_SRCS)
+	swiftc -sdk $(SDK_ROOT) $^ -o $@
 
 $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@
