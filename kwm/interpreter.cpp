@@ -72,7 +72,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             int Width = 4;
             std::stringstream Stream(Tokens[3]);
             Stream >> Width;
-            KWMBorder.Width = Width;
+            KWMBorder.FWidth = Width;
         }
         else if(Tokens[2] == "color")
         {
@@ -80,9 +80,36 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             std::stringstream Stream;
             Stream << std::hex << Tokens[3];
             Stream >> Color;
-            KWMBorder.Color = Color;
+            KWMBorder.FColor = Color;
         }
-
+    }
+    else if(Tokens[1] == "marked-border")
+    {
+        /*
+        if(Tokens[2] == "enable")
+        {
+            KWMBorder.Enabled = true;
+        }
+        else if(Tokens[2] == "disable")
+        {
+            KWMBorder.Enabled = false;
+        }
+        */
+        if(Tokens[2] == "size")
+        {
+            int Width = 4;
+            std::stringstream Stream(Tokens[3]);
+            Stream >> Width;
+            KWMBorder.MWidth = Width;
+        }
+        else if(Tokens[2] == "color")
+        {
+            unsigned int Color = 0xffffff;
+            std::stringstream Stream;
+            Stream << std::hex << Tokens[3];
+            Stream >> Color;
+            KWMBorder.MColor = Color;
+        }
     }
     else  if(Tokens[1] == "launchd")
     {
@@ -379,7 +406,7 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             return;
 
         ToggleWindowFloating(Marked);
-        KWMScreen.MarkedWindow = -1;
+        ClearMarkedWindow();
         ToggleWindowFloating(Marked);
     }
 }

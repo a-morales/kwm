@@ -13,55 +13,109 @@ extern kwm_border KWMBorder;
 
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
-    UpdateFocusedBorder();
+    UpdateBorder("focused");
 }
 
-void UpdateFocusedBorder()
+void ClearFocusedBorder()
+{
+    if(KWMBorder.FHandle)
+    {
+        std::string Border = "clear";
+        fwrite(Border.c_str(), Border.size(), 1, KWMBorder.FHandle);
+        fflush(KWMBorder.FHandle);
+    }
+}
+
+kwm_time_point PerformUpdateBorderTimer(kwm_time_point Time)
+{
+    kwm_time_point NewBorderTime = std::chrono::steady_clock::now();
+    std::chrono::duration<double> Diff = NewBorderTime - Time;
+    while(Diff.count() < 0.10)
+    {
+        NewBorderTime = std::chrono::steady_clock::now();
+        Diff = NewBorderTime - Time;
+    }
+
+    return NewBorderTime;
+}
+
+void UpdateBorder(std::string Border)
 {
     if(KWMBorder.Enabled)
     {
-        if(!KWMBorder.Handle)
+        if(Border == "focused")
         {
-            std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
-            KWMBorder.Handle = popen(OverlayBin.c_str(), "w");
-        }
-
-        if(KWMFocus.Window)
-        {
-            DEBUG("UpdateFocusedBorder()")
-
-            kwm_time_point NewBorderTime = std::chrono::steady_clock::now();
-            std::chrono::duration<double> Diff = NewBorderTime - KWMBorder.Time;
-            while(Diff.count() < 0.10)
+            if(KWMFocus.Window)
             {
-                NewBorderTime = std::chrono::steady_clock::now();
-                Diff = NewBorderTime - KWMBorder.Time;
+                if(!KWMBorder.FHandle)
+                {
+                    std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
+                    KWMBorder.FHandle = popen(OverlayBin.c_str(), "w");
+                }
+
+                DEBUG("UpdateFocusedBorder()")
+                KWMBorder.FTime = PerformUpdateBorderTimer(KWMBorder.FTime);
+
+                short r = (KWMBorder.FColor >> 16) & 0xff;
+                short g = (KWMBorder.FColor >> 8) & 0xff;
+                short b = (KWMBorder.FColor >> 0) & 0xff;
+                short a = (KWMBorder.FColor >> 24) & 0xff;
+
+                std::string rs = std::to_string((double)r/255);
+                std::string gs = std::to_string((double)g/255);
+                std::string bs = std::to_string((double)b/255);
+                std::string as = std::to_string((double)a/255);
+
+                DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
+                std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.FWidth);
+                fwrite(Border.c_str(), Border.size(), 1, KWMBorder.FHandle);
+                fflush(KWMBorder.FHandle);
+            }
+        }
+        else if(Border == "marked")
+        {
+            if(!KWMBorder.MHandle)
+            {
+                std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
+                KWMBorder.MHandle = popen(OverlayBin.c_str(), "w");
             }
 
-            KWMBorder.Time = NewBorderTime;
-            short r = (KWMBorder.Color >> 16) & 0xff;
-            short g = (KWMBorder.Color >> 8) & 0xff;
-            short b = (KWMBorder.Color >> 0) & 0xff;
-            short a = (KWMBorder.Color >> 24) & 0xff;
+            if(KWMScreen.MarkedWindow == -1)
+            {
+                std::string Border = "clear";
+                fwrite(Border.c_str(), Border.size(), 1, KWMBorder.MHandle);
+                fflush(KWMBorder.MHandle);
+            }
+            else
+            {
+                DEBUG("UpdateMarkedBorder()")
+                KWMBorder.MTime = PerformUpdateBorderTimer(KWMBorder.MTime);
 
-            std::string rs = std::to_string((double)r/255);
-            std::string gs = std::to_string((double)g/255);
-            std::string bs = std::to_string((double)b/255);
-            std::string as = std::to_string((double)a/255);
+                short r = (KWMBorder.MColor >> 16) & 0xff;
+                short g = (KWMBorder.MColor >> 8) & 0xff;
+                short b = (KWMBorder.MColor >> 0) & 0xff;
+                short a = (KWMBorder.MColor >> 24) & 0xff;
 
-            DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
-            std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
-            fwrite(Border.c_str(), Border.size(), 1, KWMBorder.Handle);
-            fflush(KWMBorder.Handle);
+                std::string rs = std::to_string((double)r/255);
+                std::string gs = std::to_string((double)g/255);
+                std::string bs = std::to_string((double)b/255);
+                std::string as = std::to_string((double)a/255);
+
+                DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
+                std::string Border = std::to_string(KWMScreen.MarkedWindow) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.MWidth);
+                fwrite(Border.c_str(), Border.size(), 1, KWMBorder.MHandle);
+                fflush(KWMBorder.MHandle);
+            }
         }
     }
     else
     {
-        if(KWMBorder.Handle)
+        if(KWMBorder.FHandle || KWMBorder.MHandle)
         {
-            std::string Terminate = "pkill kwm-overlay";
+            std::string Terminate = "killall kwm-overlay";
             system(Terminate.c_str());
-            KWMBorder.Handle = NULL;
+            KWMBorder.FHandle = NULL;
+            KWMBorder.MHandle = NULL;
         }
     }
 }
@@ -396,10 +450,9 @@ bool IsSpaceTransitionInProgress()
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
-        std::string Border = "clear";
-        fwrite(Border.c_str(), Border.size(), 1, KWMBorder.Handle);
-        fflush(KWMBorder.Handle);
         KWMScreen.UpdateSpace = true;
+        ClearFocusedBorder();
+        ClearMarkedWindow();
     }
 
     return Result;
@@ -546,6 +599,7 @@ void UpdateActiveWindowList(screen_info *Screen)
     {
         DEBUG("UpdateActiveWindowList() Active Display Changed")
         GiveFocusToScreen(Screen->ID, NULL, true);
+        ClearMarkedWindow();
     }
     else if(KWMScreen.UpdateSpace)
     {
@@ -722,7 +776,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     else
     {
         CurrentNode = GetNodeFromWindowID(RootNode, KWMScreen.MarkedWindow, Space->Mode);
-        KWMScreen.MarkedWindow = -1;
+        ClearMarkedWindow();
     }
 
     if(CurrentNode)
@@ -1072,14 +1126,14 @@ void ToggleFocusedWindowParentContainer()
             DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container")
             Node->Parent->WindowID = Node->WindowID;
             ResizeWindowToContainerSize(Node->Parent);
-            UpdateFocusedBorder();
+            UpdateBorder("focused");
         }
         else
         {
             DEBUG("ToggleFocusedWindowParentContainer() Restore Window Container")
             Node->Parent->WindowID = -1;
             ResizeWindowToContainerSize(Node);
-            UpdateFocusedBorder();
+            UpdateBorder("focused");
         }
     }
 }
@@ -1101,7 +1155,7 @@ void ToggleFocusedWindowFullscreen()
                 DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
                 Space->RootNode->WindowID = Node->WindowID;
                 ResizeWindowToContainerSize(Space->RootNode);
-                UpdateFocusedBorder();
+                UpdateBorder("focused");
             }
         }
         else
@@ -1113,7 +1167,7 @@ void ToggleFocusedWindowFullscreen()
             if(Node)
             {
                 ResizeWindowToContainerSize(Node);
-                UpdateFocusedBorder();
+                UpdateBorder("focused");
             }
         }
     }
@@ -1139,7 +1193,7 @@ void SwapFocusedWindowWithMarked()
         }
     }
 
-    KWMScreen.MarkedWindow = -1;
+    ClearMarkedWindow();
 }
 
 void SwapFocusedWindowWithNearest(int Shift)
@@ -1234,12 +1288,19 @@ void MoveCursorToCenterOfFocusedWindow()
         MoveCursorToCenterOfWindow(KWMFocus.Window);
 }
 
+void ClearMarkedWindow()
+{
+    KWMScreen.MarkedWindow = -1;
+    UpdateBorder("marked");
+}
+
 void MarkWindowContainer()
 {
     if(KWMFocus.Window)
     {
         DEBUG("MarkWindowContainer() Marked " << KWMFocus.Window->Name)
         KWMScreen.MarkedWindow = KWMFocus.Window->WID;
+        UpdateBorder("marked");
     }
 }
 
@@ -1275,7 +1336,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     if(KWMMode.Focus != FocusModeAutofocus)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
-    UpdateFocusedBorder();
+    UpdateBorder("focused");
     CreateApplicationNotifications();
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name)
 }

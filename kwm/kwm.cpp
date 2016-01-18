@@ -85,9 +85,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
 void KwmQuit()
 {
-    if(KWMBorder.Handle)
-        pclose(KWMBorder.Handle);
-
     exit(0);
 }
 

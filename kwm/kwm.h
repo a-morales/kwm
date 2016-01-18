@@ -191,12 +191,17 @@ struct screen_info
 
 struct kwm_border
 {
-    FILE *Handle;
+    FILE *FHandle;
+    FILE *MHandle;
     bool Enabled;
 
-    int Width;
-    unsigned int Color;
-    kwm_time_point Time;
+    int FWidth;
+    unsigned int FColor;
+    kwm_time_point FTime;
+
+    int MWidth;
+    unsigned int MColor;
+    kwm_time_point MTime;
 };
 
 struct kwm_prefix
@@ -395,6 +400,7 @@ void UpdateWindowTree();
 void UpdateActiveWindowList(screen_info *);
 bool FilterWindowList(screen_info *);
 void MarkWindowContainer();
+void ClearMarkedWindow();
 void ShiftWindowFocus(int);
 void SwapFocusedWindowWithNearest(int);
 void SwapFocusedWindowWithMarked();
@@ -416,7 +422,9 @@ void ResizeWindowToContainerSize();
 bool IsCursorInsideFocusedWindow();
 CGPoint GetCursorPos();
 
-void UpdateFocusedBorder();
+kwm_time_point PerformUpdateBorderTimer(kwm_time_point);
+void UpdateBorder(std::string);
+void ClearFocusedBorder();
 void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
 void SetWindowRefFocus(AXUIElementRef, window_info *);
