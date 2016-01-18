@@ -67,7 +67,7 @@ void UpdateBorder(std::string Border)
                 std::string as = std::to_string((double)a/255);
 
                 DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
-                std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.FWidth);
+                std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(KWMBorder.FWidth);
                 fwrite(Border.c_str(), Border.size(), 1, KWMBorder.FHandle);
                 fflush(KWMBorder.FHandle);
             }
@@ -115,7 +115,7 @@ void UpdateBorder(std::string Border)
                 std::string as = std::to_string((double)a/255);
 
                 DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
-                std::string Border = std::to_string(KWMScreen.MarkedWindow) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.MWidth);
+                std::string Border = std::to_string(KWMScreen.MarkedWindow) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(KWMBorder.MWidth);
                 fwrite(Border.c_str(), Border.size(), 1, KWMBorder.MHandle);
                 fflush(KWMBorder.MHandle);
             }
