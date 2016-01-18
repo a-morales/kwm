@@ -258,6 +258,8 @@ void KwmInit()
     else
         Fatal("Kwm: Could not start daemon..");
 
+    signal(SIGSEGV, SignalHandler);
+
     KWMScreen.SplitRatio = 0.5;
     KWMScreen.SplitMode = -1;
     KWMScreen.MarkedWindow = -1;
@@ -326,6 +328,25 @@ bool CheckArguments(int argc, char **argv)
     }
 
     return Result;
+}
+
+void SignalHandler(int Signum)
+{
+    std::string Terminate = "quit";
+    if(KWMBorder.FHandle)
+    {
+        fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.FHandle);
+        fflush(KWMBorder.FHandle);
+    }
+
+    if(KWMBorder.MHandle)
+    {
+        fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.MHandle);
+        fflush(KWMBorder.MHandle);
+    }
+
+    signal(Signum, SIG_DFL);
+    kill(getpid(), Signum);
 }
 
 void Fatal(const std::string &Err)

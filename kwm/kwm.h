@@ -15,6 +15,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <libproc.h>
+#include <signal.h>
 
 #include <pthread.h>
 #include <dlfcn.h>
@@ -488,6 +489,7 @@ void FocusedAXObserverCallback(AXObserverRef, AXUIElementRef, CFStringRef, void 
 
 void KwmInit();
 void KwmQuit();
+void SignalHandler(int);
 void KwmSetPrefix(std::string);
 void KwmSetPrefixGlobal(bool);
 void KwmSetPrefixTimeout(double);
