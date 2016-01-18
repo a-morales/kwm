@@ -15,7 +15,6 @@ void UpdateFocusedBorder()
 {
     if(KWMBorder.Enabled)
     {
-        std::cout << "OVerlay enabled" << std::endl;
         if(!KWMBorder.Handle)
         {
             std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
@@ -24,6 +23,16 @@ void UpdateFocusedBorder()
 
         if(KWMFocus.Window)
         {
+            DEBUG("UpdateFocusedBorder()")
+            kwm_time_point NewBorderTime = std::chrono::steady_clock::now();
+            std::chrono::duration<double> Diff = NewBorderTime - KWMBorder.Time;
+            while(Diff.count() < 0.10)
+            {
+                NewBorderTime = std::chrono::steady_clock::now();
+                Diff = NewBorderTime - KWMBorder.Time;
+            }
+
+            KWMBorder.Time = NewBorderTime;
             short r = (KWMBorder.Color >> 16) & 0xff;
             short g = (KWMBorder.Color >> 8) & 0xff;
             short b = (KWMBorder.Color >> 0) & 0xff;
@@ -36,6 +45,7 @@ void UpdateFocusedBorder()
 
             std::cout << "alpha: " + as + " r:" + rs + " g: " + gs + " b:" + bs << std::endl;
 
+            //std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
             std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " s:" + std::to_string(KWMBorder.Width);
             fwrite(Border.c_str(), Border.size(), 1, KWMBorder.Handle);
             fflush(KWMBorder.Handle);
@@ -160,8 +170,7 @@ bool IsContextMenusAndSimilarVisible()
     {
         if((KWMTiling.WindowLst[WindowIndex].Owner != "Dock" ||
             KWMTiling.WindowLst[WindowIndex].Name != "Dock") &&
-           (KWMTiling.WindowLst[WindowIndex].Owner != "Hammerspoon" ||
-            KWMTiling.WindowLst[WindowIndex].Name != "") &&
+            KWMTiling.WindowLst[WindowIndex].Owner != "kwm-overlay" &&
             KWMTiling.WindowLst[WindowIndex].Owner != "Honer" &&
             KWMTiling.WindowLst[WindowIndex].Layer != 0)
         {
@@ -439,6 +448,7 @@ void FocusWindowBelowCursor()
         if(IsWindowBelowCursor(&KWMTiling.WindowLst[WindowIndex]))
         {
             if(KWMTiling.WindowLst[WindowIndex].Owner == "Honer" ||
+               KWMTiling.WindowLst[WindowIndex].Owner == "kwm-overlay" ||
                (KWMTiling.WindowLst[WindowIndex].Owner == "Hammerspoon" &&
                 KWMTiling.WindowLst[WindowIndex].Name == ""))
                     continue;
@@ -1055,15 +1065,14 @@ void ToggleFocusedWindowParentContainer()
             DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container")
             Node->Parent->WindowID = Node->WindowID;
             ResizeWindowToContainerSize(Node->Parent);
-            UpdateFocusedBorder();
         }
         else
         {
             DEBUG("ToggleFocusedWindowParentContainer() Restore Window Container")
             Node->Parent->WindowID = -1;
             ResizeWindowToContainerSize(Node);
-            UpdateFocusedBorder();
         }
+        UpdateFocusedBorder();
     }
 }
 
@@ -1084,7 +1093,6 @@ void ToggleFocusedWindowFullscreen()
                 DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
                 Space->RootNode->WindowID = Node->WindowID;
                 ResizeWindowToContainerSize(Space->RootNode);
-                UpdateFocusedBorder();
             }
         }
         else
@@ -1094,11 +1102,9 @@ void ToggleFocusedWindowFullscreen()
 
             Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
             if(Node)
-            {
                 ResizeWindowToContainerSize(Node);
-                UpdateFocusedBorder();
-            }
         }
+        UpdateFocusedBorder();
     }
 }
 
@@ -1333,6 +1339,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         Window->Y = Y;
         Window->Width = Width;
         Window->Height = Height;
+        UpdateFocusedBorder();
     }
 
     DEBUG("SetWindowDimensions() Window " << Window->Name << ": " << Window->X << "," << Window->Y)
