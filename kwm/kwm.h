@@ -413,6 +413,7 @@ void ResizeWindowToContainerSize();
 bool IsCursorInsideFocusedWindow();
 CGPoint GetCursorPos();
 
+void UpdateFocusedBorder();
 void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
 void SetWindowRefFocus(AXUIElementRef, window_info *);
