@@ -60,7 +60,6 @@ void ShowHelp(std::string Command)
             "   screen id bsp|monocle|float                            Override default tiling mode for screen\n"
             "   hotkeys enable|disable                                 Set state of Kwm's hotkeys\n"
             "   dragndrop enable|disable                               Allow drag&drop to make window floating\n"
-            "   menu-fix enable|disable                                Prevent focus-follows-mouse if context-menus|menubar is visible\n"
             "   split-ratio value                                      Set split-ratio to use for containers (0 < value < 1, default: 0.5)\n"
             "   add-role role application\n"
             "        Add custom role for which windows Kwm should tile.\n"

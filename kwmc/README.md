@@ -69,9 +69,6 @@
         Allow drag&drop to make window floating
             kwmc config dragndrop enable|disable
 
-        Prevent focus-follows-mouse if context-menus|menubar is visible
-            kwmc config menu-fix enable|disable
-
         Set split-ratio to use for containers (0 < value < 1, default: 0.5)
             kwmc config split-ratio value
 

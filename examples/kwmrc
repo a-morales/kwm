@@ -37,12 +37,6 @@ kwmc config prefix ctrl-k
 kwmc config prefix-global disable
 kwmc config prefix-timeout 0.75
 
-# Turn off focus-follows-mouse if any
-# context-menus or the menubar is visible.
-# If the menubar is not set to auto-hide,
-# disable this setting.
-kwmc config menu-fix disable
-
 # Set focus-follows-mouse-mode to autoraise
 kwmc config focus autoraise
 
