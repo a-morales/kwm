@@ -983,6 +983,9 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
     if(!Screen || !Window || Screen == GetDisplayOfWindow(Window))
         return;
 
+    if(Window->WID == KWMScreen.MarkedWindow)
+        ClearMarkedWindow();
+
     if(!IsSpaceInitializedForScreen(Screen))
     {
         CenterWindow(Screen, Window);
@@ -1213,6 +1216,10 @@ void SwapFocusedWindowWithNearest(int Shift)
         {
             SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
             MoveCursorToCenterOfFocusedWindow();
+
+            if(FocusedWindowNode->WindowID == KWMScreen.MarkedWindow ||
+               NewFocusNode->WindowID == KWMScreen.MarkedWindow)
+                   UpdateBorder("marked");
         }
     }
 }
@@ -1295,9 +1302,17 @@ void MarkWindowContainer()
 {
     if(KWMFocus.Window)
     {
-        DEBUG("MarkWindowContainer() Marked " << KWMFocus.Window->Name)
-        KWMScreen.MarkedWindow = KWMFocus.Window->WID;
-        UpdateBorder("marked");
+        if(KWMScreen.MarkedWindow == KWMFocus.Window->WID)
+        {
+            DEBUG("MarkWindowContainer() Unmarked " << KWMFocus.Window->Name)
+            ClearMarkedWindow();
+        }
+        else
+        {
+            DEBUG("MarkWindowContainer() Marked " << KWMFocus.Window->Name)
+            KWMScreen.MarkedWindow = KWMFocus.Window->WID;
+            UpdateBorder("marked");
+        }
     }
 }
 
