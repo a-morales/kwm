@@ -769,5 +769,7 @@ void LoadBSPTreeFromFile(screen_info *Screen, std::string Name)
         Space->RootNode = DeserializeNodeTree(SerializedTree);
         FillDeserializedTree(Space->RootNode);
         ApplyNodeContainer(Space->RootNode, SpaceModeBSP);
+        UpdateBorder("focused");
+        UpdateBorder("marked");
     }
 }
