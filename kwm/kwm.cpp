@@ -273,7 +273,6 @@ void KwmInit()
     KWMToggles.EnableTilingMode = true;
     KWMToggles.UseBuiltinHotkeys = true;
     KWMToggles.EnableDragAndDrop = true;
-    KWMToggles.UseContextMenuFix = true;
     KWMToggles.UseMouseFollowsFocus = true;
     KWMToggles.WindowDragInProgress = false;
 

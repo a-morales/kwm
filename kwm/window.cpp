@@ -243,25 +243,6 @@ bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubR
     return false;
 }
 
-bool IsContextMenusAndSimilarVisible()
-{
-    bool Result = false;
-
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-    {
-        if((KWMTiling.WindowLst[WindowIndex].Owner != "Dock" ||
-            KWMTiling.WindowLst[WindowIndex].Name != "Dock") &&
-            KWMTiling.WindowLst[WindowIndex].Owner != "kwm-overlay" &&
-            KWMTiling.WindowLst[WindowIndex].Layer != 0)
-        {
-            Result = true;
-            break;
-        }
-    }
-
-    return Result;
-}
-
 bool FilterWindowList(screen_info *Screen)
 {
     bool Result = true;
@@ -273,9 +254,6 @@ bool FilterWindowList(screen_info *Screen)
         if(KWMTiling.WindowLst[WindowIndex].Owner == "Dock" &&
            KWMTiling.WindowLst[WindowIndex].Name == "")
                Result = false;
-
-        if(KWMToggles.UseContextMenuFix)
-            KWMTiling.NonZeroLayer = IsContextMenusAndSimilarVisible();
 
         CaptureApplication(&KWMTiling.WindowLst[WindowIndex]);
         if(KWMTiling.WindowLst[WindowIndex].Layer == 0 &&
@@ -521,21 +499,20 @@ void FocusWindowBelowCursor()
 {
     if(IsSpaceTransitionInProgress() ||
        IsSpaceSystemOrFullscreen() ||
-       !IsSpaceInitializedForScreen(KWMScreen.Current) ||
-       (KWMToggles.UseContextMenuFix && KWMTiling.NonZeroLayer))
+       !IsSpaceInitializedForScreen(KWMScreen.Current))
            return;
 
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
     {
-        if(IsWindowBelowCursor(&KWMTiling.WindowLst[WindowIndex]))
+        if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]))
         {
-            if(KWMTiling.WindowLst[WindowIndex].Owner == "kwm-overlay")
+            if(KWMTiling.FocusLst[WindowIndex].Owner == "kwm-overlay")
                 continue;
 
-            if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.WindowLst[WindowIndex]))
-                KWMFocus.Cache = KWMTiling.WindowLst[WindowIndex];
+            if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
+                KWMFocus.Cache = KWMTiling.FocusLst[WindowIndex];
             else
-                SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
+                SetWindowFocus(&KWMTiling.FocusLst[WindowIndex]);
 
             break;
         }
@@ -602,6 +579,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
     }
     CFRelease(OsxWindowLst);
+    KWMTiling.FocusLst = KWMTiling.WindowLst;
 
     bool WindowBelowCursor = IsAnyWindowBelowCursor();
     KWMScreen.ForceRefreshFocus = true;

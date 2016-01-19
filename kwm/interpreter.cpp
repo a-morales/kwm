@@ -201,13 +201,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "enable")
             KWMToggles.EnableDragAndDrop = true;
     }
-    else if(Tokens[1] == "menu-fix")
-    {
-        if(Tokens[2] == "disable")
-            KWMToggles.UseContextMenuFix = false;
-        else if(Tokens[2] == "enable")
-            KWMToggles.UseContextMenuFix = true;
-    }
     else if(Tokens[1] == "float")
     {
         KWMTiling.FloatingAppLst.push_back(CreateStringFromTokens(Tokens, 2));

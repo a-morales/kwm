@@ -230,7 +230,6 @@ struct kwm_toggles
     bool EnableTilingMode;
     bool UseBuiltinHotkeys;
     bool EnableDragAndDrop;
-    bool UseContextMenuFix;
 };
 
 struct kwm_path
@@ -272,7 +271,6 @@ struct kwm_screen
 
 struct kwm_tiling
 {
-    bool NonZeroLayer;
     bool SpawnAsLeftChild;
     bool FloatNonResizable;
     std::map<unsigned int, screen_info> DisplayMap;
@@ -282,6 +280,7 @@ struct kwm_tiling
     std::map<std::string, int> CapturedAppLst;
     std::vector<std::string> FloatingAppLst;
 
+    std::vector<window_info> FocusLst;
     std::vector<window_info> WindowLst;
     std::vector<int> FloatingWindowLst;
 };
@@ -393,7 +392,6 @@ bool IsWindowFloating(int, int *);
 bool IsWindowOnActiveSpace(int);
 bool IsSpaceTransitionInProgress();
 bool IsSpaceSystemOrFullscreen();
-bool IsContextMenusAndSimilarVisible();
 bool WindowsAreEqual(window_info *, window_info *);
 bool IsAppSpecificWindowRole(window_info *, CFTypeRef, CFTypeRef);
 void AllowRoleForApplication(std::string, std::string);
