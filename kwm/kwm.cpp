@@ -85,6 +85,20 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
 void KwmQuit()
 {
+    if(KWMBorder.FHandle)
+    {
+        std::string Terminate = "quit";
+        fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.FHandle);
+        fflush(KWMBorder.FHandle);
+    }
+
+    if(KWMBorder.MHandle)
+    {
+        std::string Terminate = "quit";
+        fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.MHandle);
+        fflush(KWMBorder.MHandle);
+    }
+
     exit(0);
 }
 
