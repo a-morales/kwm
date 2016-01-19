@@ -45,7 +45,7 @@ void UpdateBorder(std::string Border)
     {
         if(KWMBorder.FEnabled)
         {
-            if(KWMFocus.Window)
+            if(KWMFocus.Window && KWMFocus.Window->Layer == 0)
             {
                 if(!KWMBorder.FHandle)
                 {
