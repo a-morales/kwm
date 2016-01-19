@@ -1009,7 +1009,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 
             int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
             CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
-            ResizeWindowToContainerSize(CurrentNode->RightChild);
+            ResizeWindowToContainerSize(KWMTiling.SpawnAsLeftChild ? CurrentNode->LeftChild : CurrentNode->RightChild);
             Screen->ForceContainerUpdate = true;
         }
         else if(Space->Mode == SpaceModeMonocle)
