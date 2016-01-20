@@ -13,6 +13,11 @@ extern kwm_border KWMBorder;
 
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
+    if(KWMToggles.EnableDragAndDrop &&
+       CFEqual(Notification, kAXWindowMovedNotification) &&
+       !IsWindowFloating(KWMFocus.Window->WID, NULL))
+           ToggleFocusedWindowFloating();
+
     if(IsFocusedWindowFloating() ||
        (IsSpaceInitializedForScreen(KWMScreen.Current) &&
         KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeFloating))
@@ -280,28 +285,6 @@ bool FilterWindowList(screen_info *Screen)
     }
 
     KWMTiling.WindowLst = FilteredWindowLst;
-    return Result;
-}
-
-bool IsCursorInsideFocusedWindow()
-{
-    bool Result = false;
-
-    if(KWMScreen.Current && DoesSpaceExistInMapOfScreen(KWMScreen.Current) && KWMFocus.Window)
-    {
-        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
-        tree_node *Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
-        if(Node)
-        {
-            CGPoint Cursor = GetCursorPos();
-            if((Cursor.x >= Node->Container.X) &&
-                (Cursor.x <= Node->Container.X + Node->Container.Width) &&
-                (Cursor.y >= Node->Container.Y) &&
-                (Cursor.y <= Node->Container.Y + Node->Container.Height))
-                    Result = true;
-        }
-    }
-
     return Result;
 }
 

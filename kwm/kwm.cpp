@@ -4,7 +4,6 @@ const std::string KwmCurrentVersion = "Kwm Version 1.0.8";
 const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
 CFMachPortRef EventTap;
-
 kwm_path KWMPath = {};
 kwm_screen KWMScreen = {};
 kwm_toggles KWMToggles = {};
@@ -64,20 +63,10 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             DEBUG("Left mouse button was pressed")
             FocusWindowBelowCursor();
-            if(KWMToggles.EnableDragAndDrop && IsCursorInsideFocusedWindow())
-               KWMToggles.WindowDragInProgress = true;
         } break;
         case kCGEventLeftMouseUp:
         {
             DEBUG("Left mouse button was released")
-            if(KWMToggles.EnableDragAndDrop && KWMToggles.WindowDragInProgress)
-            {
-                if(!IsCursorInsideFocusedWindow())
-                    ToggleFocusedWindowFloating();
-
-                KWMToggles.WindowDragInProgress = false;
-            }
-
             if(KWMFocus.Window && KWMBorder.FEnabled)
             {
                 if(IsWindowFloating(KWMFocus.Window->WID, NULL))
@@ -297,7 +286,6 @@ void KwmInit()
     KWMToggles.UseBuiltinHotkeys = true;
     KWMToggles.EnableDragAndDrop = true;
     KWMToggles.UseMouseFollowsFocus = true;
-    KWMToggles.WindowDragInProgress = false;
 
     KWMMode.Space = SpaceModeBSP;
     KWMMode.Focus = FocusModeAutoraise;

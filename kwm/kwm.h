@@ -227,7 +227,6 @@ struct kwm_hotkeys
 struct kwm_toggles
 {
     bool UseMouseFollowsFocus;
-    bool WindowDragInProgress;
     bool EnableTilingMode;
     bool UseBuiltinHotkeys;
     bool EnableDragAndDrop;
@@ -429,7 +428,6 @@ void ModifyContainerSplitRatio(double);
 void ResizeWindowToContainerSize(tree_node *);
 void ResizeWindowToContainerSize();
 
-bool IsCursorInsideFocusedWindow();
 CGPoint GetCursorPos();
 
 kwm_time_point PerformUpdateBorderTimer(kwm_time_point);
