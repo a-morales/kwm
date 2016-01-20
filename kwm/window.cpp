@@ -13,7 +13,8 @@ extern kwm_border KWMBorder;
 
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
-    UpdateBorder("focused");
+    if(KWMFocus.Window && IsWindowFloating(KWMFocus.Window->WID, NULL))
+        UpdateBorder("focused");
 }
 
 void ClearFocusedBorder()
@@ -1332,14 +1333,12 @@ void CloseWindow(window_info *Window)
 
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
 {
-    DestroyApplicationNotifications();
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
     KWMFocus.PSN = NewPSN;
     KWMFocus.Cache = *Window;
     KWMFocus.Window = &KWMFocus.Cache;
-    KWMFocus.Application = AXUIElementCreateApplication(Window->PID);
 
     AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
@@ -1348,8 +1347,14 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     if(KWMMode.Focus != FocusModeAutofocus)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
-    UpdateBorder("focused");
-    CreateApplicationNotifications();
+    if(Window->Layer == 0)
+    {
+        DestroyApplicationNotifications();
+        KWMFocus.Application = AXUIElementCreateApplication(Window->PID);
+        CreateApplicationNotifications();
+        UpdateBorder("focused");
+    }
+
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name)
 }
 
@@ -1423,6 +1428,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         Window->Y = Y;
         Window->Width = Width;
         Window->Height = Height;
+        UpdateBorder("focused");
     }
 
     DEBUG("SetWindowDimensions() Window " << Window->Name << ": " << Window->X << "," << Window->Y)
@@ -1773,7 +1779,6 @@ void DestroyApplicationNotifications()
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification);
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification);
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification);
-    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXFocusedWindowChangedNotification);
     CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
     
     CFRelease(KWMFocus.Observer);
@@ -1788,6 +1793,5 @@ void CreateApplicationNotifications()
     AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification, NULL);
     AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification, NULL);
     AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification, NULL);
-    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXFocusedWindowChangedNotification, NULL);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
 }
