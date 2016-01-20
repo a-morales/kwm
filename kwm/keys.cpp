@@ -35,17 +35,6 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event)
         return true;
     }
 
-    if(KWMHotkeys.Prefix.Active)
-    {
-        kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
-        std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.Prefix.Time;
-        if(Diff.count() > KWMHotkeys.Prefix.Timeout)
-        {
-            KWMHotkeys.Prefix.Active = false;
-            return false;
-        }
-    }
-
     return KwmExecuteHotkey(Mod, Keycode);
 }
 
@@ -65,6 +54,14 @@ bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
     {
         if(KWMHotkeys.Prefix.Enabled)
         {
+            if(KWMHotkeys.Prefix.Active)
+            {
+                kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
+                std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.Prefix.Time;
+                if(Diff.count() > KWMHotkeys.Prefix.Timeout)
+                    KWMHotkeys.Prefix.Active = false;
+            }
+
             if((Hotkey.Prefixed || KWMHotkeys.Prefix.Global) &&
                 !KWMHotkeys.Prefix.Active)
                     return false;
