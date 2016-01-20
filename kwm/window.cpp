@@ -452,7 +452,7 @@ bool IsSpaceTransitionInProgress()
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
         KWMScreen.UpdateSpace = true;
-        ClearFocusedBorder();
+        ClearFocusedWindow();
         ClearMarkedWindow();
     }
 
@@ -496,6 +496,33 @@ bool FocusWindowOfOSX()
     return false;
 }
 
+void ClearFocusedWindow()
+{
+    ClearFocusedBorder();
+    KWMFocus.Window = NULL;
+    KWMFocus.Cache = KWMFocus.NULLWindowInfo;
+}
+
+bool ShouldWindowGainFocus(window_info *Window)
+{
+    if(Window->Layer == CGWindowLevelForKey(kCGNormalWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGFloatingWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGDockWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGMainMenuWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGMaximumWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGModalPanelWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGUtilityWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGOverlayWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGHelpWindowLevelKey) ||
+       Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey))
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void FocusWindowBelowCursor()
 {
     if(IsSpaceTransitionInProgress() ||
@@ -505,7 +532,7 @@ void FocusWindowBelowCursor()
 
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
     {
-        if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]))
+        if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]) && ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
         {
             if(KWMTiling.FocusLst[WindowIndex].Owner == "kwm-overlay")
                 continue;
@@ -515,7 +542,7 @@ void FocusWindowBelowCursor()
             else
                 SetWindowFocus(&KWMTiling.FocusLst[WindowIndex]);
 
-            break;
+            return;
         }
     }
 }
@@ -848,6 +875,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
     {
         DEBUG("RemoveWindowFromBSPTree()")
 
+        ClearFocusedWindow();
         Screen->Space[Screen->ActiveSpace].RootNode = NULL;
         if(Center)
         {
@@ -924,6 +952,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
 
             free(WindowNode);
             Space->RootNode = NULL;
+            ClearFocusedWindow();
         }
     }
 }

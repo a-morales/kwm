@@ -249,6 +249,7 @@ struct kwm_focus
     ProcessSerialNumber PSN;
     window_info *Window;
     window_info Cache;
+    window_info NULLWindowInfo;
 };
 
 struct kwm_screen
@@ -401,9 +402,11 @@ void UpdateActiveWindowList(screen_info *);
 bool FilterWindowList(screen_info *);
 void MarkWindowContainer();
 void ClearMarkedWindow();
+void ClearFocusedWindow();
 void ShiftWindowFocus(int);
 void SwapFocusedWindowWithNearest(int);
 void SwapFocusedWindowWithMarked();
+bool ShouldWindowGainFocus(window_info *);
 void FocusWindowBelowCursor();
 bool FocusWindowOfOSX();
 void FloatFocusedSpace();
