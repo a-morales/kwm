@@ -13,8 +13,10 @@ extern kwm_border KWMBorder;
 
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
-    if(KWMFocus.Window && IsWindowFloating(KWMFocus.Window->WID, NULL))
-        UpdateBorder("focused");
+    if((KWMFocus.Window && IsWindowFloating(KWMFocus.Window->WID, NULL))  ||
+       (IsSpaceInitializedForScreen(KWMScreen.Current) &&
+        KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeFloating))
+            UpdateBorder("focused");
 }
 
 void ClearFocusedBorder()
@@ -566,11 +568,11 @@ void UpdateWindowTree()
        !IsSpaceSystemOrFullscreen() &&
        FilterWindowList(KWMScreen.Current))
     {
+        std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(KWMScreen.Current->ActiveSpace);
+        std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
+
         if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
         {
-            std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(KWMScreen.Current->ActiveSpace);
-            std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
-
             if(It == KWMScreen.Current->Space.end() && !WindowsOnDisplay.empty())
             {
                 CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
@@ -592,6 +594,10 @@ void UpdateWindowTree()
                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode = NULL;
                 ClearFocusedWindow();
             }
+        }
+        else if(It != KWMScreen.Current->Space.end())
+        {
+            ShouldFloatingSpaceUpdate(KWMScreen.Current, &It->second);
         }
     }
 }
@@ -712,6 +718,32 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
         ShouldBSPTreeUpdate(Screen, Space);
     else if(Space->Mode == SpaceModeMonocle)
         ShouldMonocleTreeUpdate(Screen, Space);
+}
+
+void ShouldFloatingSpaceUpdate(screen_info *Screen, space_info *Space)
+{
+    if(KWMTiling.WindowLst.size() > Screen->OldWindowListCount)
+    {
+        DEBUG("ShouldFloatingSpaceUpdate() Add Window")
+        if(FocusWindowOfOSX())
+        {
+            MoveCursorToCenterOfFocusedWindow();
+            UpdateBorder("focused");
+        }
+    }
+    else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
+    {
+        ClearFocusedWindow();
+        DEBUG("ShouldFloatingSpaceUpdate() Remove Window")
+
+        if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
+            FocusWindowBelowCursor();
+        else if(FocusWindowOfOSX())
+        {
+            MoveCursorToCenterOfFocusedWindow();
+            UpdateBorder("focused");
+        }
+    }
 }
 
 void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)

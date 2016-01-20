@@ -383,6 +383,8 @@ void ShouldMonocleTreeUpdate(screen_info *, space_info *);
 void AddWindowToMonocleTree(screen_info *, int);
 void RemoveWindowFromMonocleTree(screen_info *, int, bool);
 
+void ShouldFloatingSpaceUpdate(screen_info *, space_info *);
+
 bool IsWindowBelowCursor(window_info *);
 bool IsAnyWindowBelowCursor();
 bool IsSpaceFloating(int);
