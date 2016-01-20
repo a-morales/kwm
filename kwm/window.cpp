@@ -81,6 +81,7 @@ void UpdateBorder(std::string Border)
 
                 DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
                 std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(KWMBorder.FWidth);
+                DEBUG(Border)
                 fwrite(Border.c_str(), Border.size(), 1, KWMBorder.FHandle);
                 fflush(KWMBorder.FHandle);
             }
@@ -174,7 +175,7 @@ bool GetTagForCurrentSpace(std::string &Tag)
         int FocusedIndex = 0;
         int NumberOfWindows = 0;
 
-        if(Node)
+        if(Node && KWMFocus.Window)
         {
             FocusedIndex = 1;
             NumberOfWindows = 1;
