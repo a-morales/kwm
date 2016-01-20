@@ -231,6 +231,7 @@ struct kwm_toggles
     bool UseBuiltinHotkeys;
     bool EnableDragAndDrop;
     bool StandbyOnFloat;
+    bool DragInProgress;
 };
 
 struct kwm_path
@@ -377,7 +378,7 @@ void ShouldWindowNodeTreeUpdate(screen_info *);
 void ShouldBSPTreeUpdate(screen_info *, space_info *);
 void AddWindowToBSPTree(screen_info *, int);
 void AddWindowToBSPTree();
-void RemoveWindowFromBSPTree(screen_info *, int, bool);
+void RemoveWindowFromBSPTree(screen_info *, int, bool, bool);
 void RemoveWindowFromBSPTree();
 
 void ShouldMonocleTreeUpdate(screen_info *, space_info *);

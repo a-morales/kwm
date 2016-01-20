@@ -14,9 +14,17 @@ extern kwm_border KWMBorder;
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
     if(KWMToggles.EnableDragAndDrop &&
+       KWMToggles.DragInProgress &&
        CFEqual(Notification, kAXWindowMovedNotification) &&
        !IsWindowFloating(KWMFocus.Window->WID, NULL))
-           ToggleFocusedWindowFloating();
+    {
+        KWMToggles.DragInProgress = false;
+        KWMTiling.FloatingWindowLst.push_back(KWMFocus.Window->WID);
+        RemoveWindowFromBSPTree(KWMScreen.Current, KWMFocus.Window->WID, false, false);
+
+        if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
+            KWMMode.Focus = FocusModeStandby;
+    }
 
     if(IsFocusedWindowFloating() ||
        (IsSpaceInitializedForScreen(KWMScreen.Current) &&
@@ -810,7 +818,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
             }
 
             if(!Found)
-                RemoveWindowFromBSPTree(Screen, WindowIDsInTree[IDIndex], false);
+                RemoveWindowFromBSPTree(Screen, WindowIDsInTree[IDIndex], false, true);
         }
 
         if(KWMFocus.Window == NULL)
@@ -876,7 +884,7 @@ void AddWindowToBSPTree()
     AddWindowToBSPTree(KWMScreen.Current, KWMFocus.Window->WID);
 }
 
-void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
+void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool Refresh)
 {
     if(!DoesSpaceExistInMapOfScreen(Screen))
         return;
@@ -920,8 +928,11 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
             if(!NewFocusNode)
                 NewFocusNode = Parent;
 
-            SetWindowFocusByNode(NewFocusNode);
-            MoveCursorToCenterOfFocusedWindow();
+            if(Refresh)
+            {
+                SetWindowFocusByNode(NewFocusNode);
+                MoveCursorToCenterOfFocusedWindow();
+            }
         }
 
         free(AccessChild);
@@ -948,7 +959,7 @@ void RemoveWindowFromBSPTree()
     if(!KWMScreen.Current)
         return;
 
-    RemoveWindowFromBSPTree(KWMScreen.Current, KWMFocus.Window->WID, true);
+    RemoveWindowFromBSPTree(KWMScreen.Current, KWMFocus.Window->WID, true, true);
 }
 
 void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
@@ -1185,7 +1196,7 @@ void ToggleWindowFloating(int WindowID)
         else
         {
             KWMTiling.FloatingWindowLst.push_back(WindowID);
-            RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, true);
+            RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, true, true);
 
             if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
                 KWMMode.Focus = FocusModeStandby;
@@ -1499,7 +1510,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
             if(Screen && DoesSpaceExistInMapOfScreen(Screen))
             {
                 if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
-                    RemoveWindowFromBSPTree(Screen, Window->WID, false);
+                    RemoveWindowFromBSPTree(Screen, Window->WID, false, true);
                 else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeMonocle)
                     RemoveWindowFromMonocleTree(Screen, Window->WID, false);
             }

@@ -63,10 +63,15 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             DEBUG("Left mouse button was pressed")
             FocusWindowBelowCursor();
+            if(KWMToggles.EnableDragAndDrop)
+                KWMToggles.DragInProgress = true;
         } break;
         case kCGEventLeftMouseUp:
         {
             DEBUG("Left mouse button was released")
+            if(KWMToggles.EnableDragAndDrop && KWMToggles.DragInProgress)
+                KWMToggles.DragInProgress = false;
+
             if(KWMFocus.Window && KWMBorder.FEnabled)
             {
                 if(IsWindowFloating(KWMFocus.Window->WID, NULL))
