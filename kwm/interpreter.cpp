@@ -380,6 +380,10 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             ShiftWindowFocus(1);
         else if(Tokens[2] == "curr")
             FocusWindowBelowCursor();
+        else if(Tokens[2] == "first")
+            FocusFirstLeafNode();
+        else if(Tokens[2] == "last")
+            FocusLastLeafNode();
     }
     else if(Tokens[1] == "-s")
     {

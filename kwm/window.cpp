@@ -530,6 +530,24 @@ bool ShouldWindowGainFocus(window_info *Window)
     return false;
 }
 
+void FocusFirstLeafNode()
+{
+    if(!KWMScreen.Current || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+        return;
+
+    SetWindowFocusByNode(GetFirstLeafNode(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode));
+    MoveCursorToCenterOfFocusedWindow();
+}
+
+void FocusLastLeafNode()
+{
+    if(!KWMScreen.Current || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+        return;
+
+    SetWindowFocusByNode(GetLastLeafNode(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode));
+    MoveCursorToCenterOfFocusedWindow();
+}
+
 void FocusWindowBelowCursor()
 {
     if(IsSpaceTransitionInProgress() ||

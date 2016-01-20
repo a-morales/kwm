@@ -411,6 +411,8 @@ void SwapFocusedWindowWithMarked();
 bool ShouldWindowGainFocus(window_info *);
 void FocusWindowBelowCursor();
 bool FocusWindowOfOSX();
+void FocusFirstLeafNode();
+void FocusLastLeafNode();
 void FloatFocusedSpace();
 void TileFocusedSpace(space_tiling_option);
 void ToggleFocusedSpaceFloating();
