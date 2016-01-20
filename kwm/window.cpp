@@ -254,7 +254,12 @@ bool FilterWindowList(screen_info *Screen)
         // Mission-Control mode is on and so we do not try to tile windows
         if(KWMTiling.WindowLst[WindowIndex].Owner == "Dock" &&
            KWMTiling.WindowLst[WindowIndex].Name == "")
-               Result = false;
+        {
+                Result = false;
+                KWMScreen.UpdateSpace = true;
+                ClearFocusedWindow();
+                ClearMarkedWindow();
+        }
 
         CaptureApplication(&KWMTiling.WindowLst[WindowIndex]);
         if(KWMTiling.WindowLst[WindowIndex].Layer == 0 &&
@@ -376,9 +381,9 @@ bool IsWindowFloating(int WindowID, int *Index)
 bool IsAnyWindowBelowCursor()
 {
     CGPoint Cursor = GetCursorPos();
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
     {
-        window_info *Window = &KWMTiling.WindowLst[WindowIndex];
+        window_info *Window = &KWMTiling.FocusLst[WindowIndex];
         if(Cursor.x >= Window->X &&
            Cursor.x <= Window->X + Window->Width &&
            Cursor.y >= Window->Y &&
@@ -739,6 +744,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
     }
     else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
     {
+        ClearFocusedWindow();
         DEBUG("ShouldBSPTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
 
@@ -763,6 +769,14 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
 
             if(!Found)
                 RemoveWindowFromBSPTree(Screen, WindowIDsInTree[IDIndex], false);
+        }
+
+        if(KWMFocus.Window == NULL)
+        {
+            if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
+                FocusWindowBelowCursor();
+            else if(FocusWindowOfOSX())
+                MoveCursorToCenterOfFocusedWindow();
         }
     }
 }
@@ -875,7 +889,6 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center)
     {
         DEBUG("RemoveWindowFromBSPTree()")
 
-        ClearFocusedWindow();
         Screen->Space[Screen->ActiveSpace].RootNode = NULL;
         if(Center)
         {
@@ -952,7 +965,6 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
 
             free(WindowNode);
             Space->RootNode = NULL;
-            ClearFocusedWindow();
         }
     }
 }
@@ -1378,10 +1390,10 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
 
     if(Window->Layer == 0)
     {
+        UpdateBorder("focused");
         DestroyApplicationNotifications();
         KWMFocus.Application = AXUIElementCreateApplication(Window->PID);
         CreateApplicationNotifications();
-        UpdateBorder("focused");
     }
 
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name)
