@@ -77,6 +77,12 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
                 KWMToggles.WindowDragInProgress = false;
             }
+
+            if(KWMFocus.Window && KWMBorder.FEnabled)
+            {
+                if(IsWindowFloating(KWMFocus.Window->WID, NULL))
+                    UpdateBorder("focused");
+            }
         } break;
     }
 
