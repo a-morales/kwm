@@ -590,6 +590,7 @@ void UpdateWindowTree()
                 DestroyNodeTree(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode, 
                                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode);
                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode = NULL;
+                ClearFocusedWindow();
             }
         }
     }
