@@ -80,6 +80,7 @@ enum focus_option
 { 
     FocusModeAutofocus, 
     FocusModeAutoraise, 
+    FocusModeStandby,
     FocusModeDisabled 
 };
 
@@ -230,6 +231,7 @@ struct kwm_toggles
     bool EnableTilingMode;
     bool UseBuiltinHotkeys;
     bool EnableDragAndDrop;
+    bool StandbyOnFloat;
 };
 
 struct kwm_path
@@ -391,6 +393,7 @@ bool IsSpaceFloating(int);
 bool IsApplicationFloating(window_info *);
 bool IsApplicationCapturedByScreen(window_info *);
 void CaptureApplication(window_info *);
+bool IsFocusedWindowFloating();
 bool IsWindowFloating(int, int *);
 bool IsWindowOnActiveSpace(int);
 bool IsSpaceTransitionInProgress();

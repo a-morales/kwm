@@ -55,6 +55,7 @@ void ShowHelp(std::string Command)
             "   focus toggle|autofocus|autoraise|disabled              Set focus-mode\n"
             "   cycle-focus screen|all|disabled                        Set wrap-around for 'window -f prev|next'\n"
             "   focus mouse-follows enable|disable                     Set state of mouse-follows-focus\n"
+            "   focus standby-on-float enable|disable                  Disables focus-follows-mouse when a floating window gains focus\n"
             "   tiling enable|disable                                  Should Kwm perform tiling\n"
             "   space bsp|monocle|float                                Set default tiling mode\n"
             "   screen id bsp|monocle|float                            Override default tiling mode for screen\n"

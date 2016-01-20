@@ -56,7 +56,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
-            if(KWMMode.Focus != FocusModeDisabled)
+            if(KWMMode.Focus != FocusModeDisabled &&
+               KWMMode.Focus != FocusModeStandby)
                 FocusWindowBelowCursor();
         } break;
         case kCGEventLeftMouseDown:
@@ -90,6 +91,7 @@ void KwmQuit()
         std::string Terminate = "quit";
         fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.FHandle);
         fflush(KWMBorder.FHandle);
+        pclose(KWMBorder.FHandle);
     }
 
     if(KWMBorder.MHandle)
@@ -97,6 +99,7 @@ void KwmQuit()
         std::string Terminate = "quit";
         fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.MHandle);
         fflush(KWMBorder.MHandle);
+        pclose(KWMBorder.MHandle);
     }
 
     exit(0);
@@ -350,12 +353,14 @@ void SignalHandler(int Signum)
     {
         fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.FHandle);
         fflush(KWMBorder.FHandle);
+        pclose(KWMBorder.FHandle);
     }
 
     if(KWMBorder.MHandle)
     {
         fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.MHandle);
         fflush(KWMBorder.MHandle);
+        pclose(KWMBorder.MHandle);
     }
 
     signal(Signum, SIG_DFL);

@@ -48,6 +48,9 @@
         Set focus-mode
             kwmc config focus toggle|autofocus|autoraise|disabled
 
+        Disable focus-follows-mouse when a floating window gains focus
+            kwmc config focus standby-on-float enable|disable
+
         Set focus-wrap-around for 'window -f prev|next'
             kwmc config cycle-focus screen|all|disabled
 

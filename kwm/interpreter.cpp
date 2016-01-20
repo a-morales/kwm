@@ -66,6 +66,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "disable")
         {
             KWMBorder.FEnabled = false;
+            UpdateBorder("focused");
         }
         else if(Tokens[2] == "size")
         {
@@ -92,6 +93,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "disable")
         {
             KWMBorder.MEnabled = false;
+            UpdateBorder("marked");
         }
         else if(Tokens[2] == "size")
         {
@@ -161,6 +163,13 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
                 KWMToggles.UseMouseFollowsFocus = false;
             else if(Tokens[3] == "enable")
                 KWMToggles.UseMouseFollowsFocus = true;
+        }
+        else if(Tokens[2] == "standby-on-float")
+        {
+            if(Tokens[3] == "disable")
+                KWMToggles.StandbyOnFloat = false;
+            else if(Tokens[3] == "enable")
+                KWMToggles.StandbyOnFloat = true;
         }
         else if(Tokens[2] == "toggle")
         {

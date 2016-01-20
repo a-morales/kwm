@@ -13,7 +13,7 @@ extern kwm_border KWMBorder;
 
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
-    if((KWMFocus.Window && IsWindowFloating(KWMFocus.Window->WID, NULL))  ||
+    if(IsFocusedWindowFloating() ||
        (IsSpaceInitializedForScreen(KWMScreen.Current) &&
         KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeFloating))
             UpdateBorder("focused");
@@ -86,6 +86,7 @@ void UpdateBorder(std::string Border)
             {
                 std::string Terminate = "quit";
                 fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.FHandle);
+                fflush(KWMBorder.FHandle);
                 pclose(KWMBorder.FHandle);
                 KWMBorder.FHandle = NULL;
             }
@@ -139,6 +140,7 @@ void UpdateBorder(std::string Border)
             {
                 std::string Terminate = "quit";
                 fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.MHandle);
+                fflush(KWMBorder.MHandle);
                 pclose(KWMBorder.MHandle);
                 KWMBorder.MHandle = NULL;
             }
@@ -357,6 +359,11 @@ bool IsApplicationFloating(window_info *Window)
     }
 
     return Result;
+}
+
+bool IsFocusedWindowFloating()
+{
+    return KWMFocus.Window && (IsWindowFloating(KWMFocus.Window->WID, NULL) || IsApplicationFloating(KWMFocus.Window));
 }
 
 bool IsWindowFloating(int WindowID, int *Index)
@@ -1187,11 +1194,17 @@ void ToggleWindowFloating(int WindowID)
         {
             KWMTiling.FloatingWindowLst.erase(KWMTiling.FloatingWindowLst.begin() + WindowIndex);
             AddWindowToBSPTree(KWMScreen.Current, WindowID);
+
+            if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
+                KWMMode.Focus = FocusModeAutoraise;
         }
         else
         {
             KWMTiling.FloatingWindowLst.push_back(WindowID);
             RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, true);
+
+            if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
+                KWMMode.Focus = FocusModeStandby;
         }
     }
 }
@@ -1436,18 +1449,20 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(WindowRef, kAXRaiseAction);
 
-    if(KWMMode.Focus != FocusModeAutofocus)
+    if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
     if(Window->Layer == 0)
     {
-        UpdateBorder("focused");
         DestroyApplicationNotifications();
         KWMFocus.Application = AXUIElementCreateApplication(Window->PID);
         CreateApplicationNotifications();
+        UpdateBorder("focused");
     }
 
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name)
+    if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
+        KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
 }
 
 void SetWindowFocus(window_info *Window)
@@ -1487,7 +1502,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     if(KWMTiling.FloatNonResizable)
     {
         SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-        if(SizeError == kAXErrorSuccess )
+        if(SizeError == kAXErrorSuccess)
         {
             PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
             SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
@@ -1523,8 +1538,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         UpdateBorder("focused");
     }
 
-    DEBUG("SetWindowDimensions() Window " << Window->Name << ": " << Window->X << "," << Window->Y)
-
+    DEBUG("SetWindowDimensions()")
     if(NewWindowPos != NULL)
         CFRelease(NewWindowPos);
     if(NewWindowSize != NULL)
