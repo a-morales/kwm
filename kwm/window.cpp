@@ -26,10 +26,8 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             KWMMode.Focus = FocusModeStandby;
     }
 
-    if(IsFocusedWindowFloating() ||
-       (IsSpaceInitializedForScreen(KWMScreen.Current) &&
-        KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeFloating))
-            UpdateBorder("focused");
+    if(IsFocusedWindowFloating())
+        UpdateBorder("focused");
 }
 
 void ClearFocusedBorder()
@@ -298,13 +296,18 @@ bool FilterWindowList(screen_info *Screen)
     return Result;
 }
 
+bool IsActiveSpaceFloating()
+{
+    return KWMScreen.Current && IsSpaceFloating(KWMScreen.Current->ActiveSpace);
+}
+
 bool IsSpaceFloating(int SpaceID)
 {
     bool Result = false;
 
     if(IsSpaceInitializedForScreen(KWMScreen.Current))
     {
-        std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(KWMScreen.Current->ActiveSpace);
+        std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(SpaceID);
         if(It != KWMScreen.Current->Space.end())
             Result = KWMScreen.Current->Space[SpaceID].Mode == SpaceModeFloating;
     }
@@ -562,7 +565,8 @@ void FocusWindowBelowCursor()
             if(KWMTiling.FocusLst[WindowIndex].Owner == "kwm-overlay")
                 continue;
 
-            if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock")
+            if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock" &&
+               KWMTiling.FocusLst[WindowIndex].Name == "Dock")
                 continue;
 
             if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
@@ -618,7 +622,7 @@ void UpdateWindowTree()
         }
         else if(It != KWMScreen.Current->Space.end())
         {
-            ShouldFloatingSpaceUpdate(KWMScreen.Current, &It->second);
+            //ShouldFloatingSpaceUpdate(KWMScreen.Current, &It->second);
         }
     }
 }
@@ -665,10 +669,13 @@ void UpdateActiveWindowList(screen_info *Screen)
         if(KWMScreen.PrevSpace != Screen->ActiveSpace)
         {
             DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
-            if(WindowBelowCursor && KWMMode.Focus != FocusModeDisabled)
-                FocusWindowBelowCursor();
-            else if(FocusWindowOfOSX())
-                MoveCursorToCenterOfFocusedWindow();
+            if(Screen->Space[Screen->ActiveSpace].Mode != SpaceModeFloating)
+            {
+                if(WindowBelowCursor && KWMMode.Focus != FocusModeDisabled)
+                    FocusWindowBelowCursor();
+                else if(FocusWindowOfOSX())
+                    MoveCursorToCenterOfFocusedWindow();
+            }
         }
         KWMScreen.UpdateSpace = false;
     }
@@ -739,32 +746,6 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
         ShouldBSPTreeUpdate(Screen, Space);
     else if(Space->Mode == SpaceModeMonocle)
         ShouldMonocleTreeUpdate(Screen, Space);
-}
-
-void ShouldFloatingSpaceUpdate(screen_info *Screen, space_info *Space)
-{
-    if(KWMTiling.WindowLst.size() > Screen->OldWindowListCount)
-    {
-        DEBUG("ShouldFloatingSpaceUpdate() Add Window")
-        if(FocusWindowOfOSX())
-        {
-            MoveCursorToCenterOfFocusedWindow();
-            UpdateBorder("focused");
-        }
-    }
-    else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
-    {
-        ClearFocusedWindow();
-        DEBUG("ShouldFloatingSpaceUpdate() Remove Window")
-
-        if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
-            FocusWindowBelowCursor();
-        else if(FocusWindowOfOSX())
-        {
-            MoveCursorToCenterOfFocusedWindow();
-            UpdateBorder("focused");
-        }
-    }
 }
 
 void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
@@ -1147,6 +1128,7 @@ void FloatFocusedSpace()
         DestroyNodeTree(Space->RootNode, Space->Mode);
         Space->RootNode = NULL;
         Space->Mode = SpaceModeFloating;
+        ClearFocusedWindow();
     }
 }
 
@@ -1451,7 +1433,9 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
-    if(Window->Layer == 0)
+    if(KWMScreen.Current &&
+       !IsActiveSpaceFloating() &&
+       Window->Layer == 0)
     {
         DestroyApplicationNotifications();
         KWMFocus.Application = AXUIElementCreateApplication(Window->PID);

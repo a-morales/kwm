@@ -35,7 +35,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                     return NULL;
             }
 
-            if(KWMMode.Focus == FocusModeAutofocus)
+            if(KWMMode.Focus == FocusModeAutofocus &&
+               !IsActiveSpaceFloating())
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&KWMFocus.PSN, Event);
@@ -45,7 +46,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyUp:
         {
-            if(KWMMode.Focus == FocusModeAutofocus)
+            if(KWMMode.Focus == FocusModeAutofocus &&
+               !IsActiveSpaceFloating())
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&KWMFocus.PSN, Event);
@@ -56,26 +58,33 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         case kCGEventMouseMoved:
         {
             if(KWMMode.Focus != FocusModeDisabled &&
-               KWMMode.Focus != FocusModeStandby)
+               KWMMode.Focus != FocusModeStandby &&
+               !IsActiveSpaceFloating())
                 FocusWindowBelowCursor();
         } break;
         case kCGEventLeftMouseDown:
         {
             DEBUG("Left mouse button was pressed")
-            FocusWindowBelowCursor();
-            if(KWMToggles.EnableDragAndDrop)
-                KWMToggles.DragInProgress = true;
+            if(!IsActiveSpaceFloating())
+            {
+                FocusWindowBelowCursor();
+                if(KWMToggles.EnableDragAndDrop)
+                    KWMToggles.DragInProgress = true;
+            }
         } break;
         case kCGEventLeftMouseUp:
         {
             DEBUG("Left mouse button was released")
-            if(KWMToggles.EnableDragAndDrop && KWMToggles.DragInProgress)
-                KWMToggles.DragInProgress = false;
-
-            if(KWMFocus.Window && KWMBorder.FEnabled)
+            if(!IsActiveSpaceFloating())
             {
-                if(IsWindowFloating(KWMFocus.Window->WID, NULL))
-                    UpdateBorder("focused");
+                if(KWMToggles.EnableDragAndDrop && KWMToggles.DragInProgress)
+                    KWMToggles.DragInProgress = false;
+
+                if(KWMFocus.Window && KWMBorder.FEnabled)
+                {
+                    if(IsWindowFloating(KWMFocus.Window->WID, NULL))
+                        UpdateBorder("focused");
+                }
             }
         } break;
     }

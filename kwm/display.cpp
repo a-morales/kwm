@@ -387,10 +387,19 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         }
         else
         {
+            DEBUG("ELSE")
             if(!Initialized ||
                Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
                Screen->Space[Screen->ActiveSpace].RootNode == NULL)
             {
+                if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating)
+                {
+                    DEBUG("SPACE IS FLOATING")
+                    ActivateScreen(Screen, Mouse);
+                    ClearFocusedWindow();
+                    return;
+                }
+
                 DEBUG("Empty Screen")
                 KWMScreen.UpdateSpace = true;
                 KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;

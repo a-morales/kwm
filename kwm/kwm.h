@@ -384,12 +384,10 @@ void RemoveWindowFromBSPTree();
 void ShouldMonocleTreeUpdate(screen_info *, space_info *);
 void AddWindowToMonocleTree(screen_info *, int);
 void RemoveWindowFromMonocleTree(screen_info *, int, bool);
-
-void ShouldFloatingSpaceUpdate(screen_info *, space_info *);
-
+bool IsSpaceFloating(int);
 bool IsWindowBelowCursor(window_info *);
 bool IsAnyWindowBelowCursor();
-bool IsSpaceFloating(int);
+bool IsActiveSpaceFloating();
 bool IsApplicationFloating(window_info *);
 bool IsApplicationCapturedByScreen(window_info *);
 void CaptureApplication(window_info *);
