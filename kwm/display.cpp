@@ -340,8 +340,11 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         if(Initialized && Focus)
         {
             DEBUG("Populated Screen 'Window -f Focus'")
-            KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-            KWMScreen.OldScreenID = KWMScreen.Current->ID;
+            if(KWMScreen.PrevSpace != Screen->ActiveSpace)
+                DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
+
+            KWMScreen.PrevSpace = Screen->ActiveSpace;
+            KWMScreen.OldScreenID = Screen->ID;
             KWMScreen.Current = Screen;
 
             CGWarpMouseCursorPosition(CGPointMake(Focus->Container.X + Focus->Container.Width / 2,
@@ -356,8 +359,11 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         else if(Initialized && FocusFirstNode)
         {
             DEBUG("Populated Screen Key/Mouse Focus")
-            KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-            KWMScreen.OldScreenID = KWMScreen.Current->ID;
+            if(KWMScreen.PrevSpace != Screen->ActiveSpace)
+                DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
+
+            KWMScreen.PrevSpace = Screen->ActiveSpace;
+            KWMScreen.OldScreenID = Screen->ID;
             KWMScreen.Current = Screen;
 
             bool WindowBelowCursor = IsAnyWindowBelowCursor();
@@ -391,6 +397,10 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
                Screen->Space[Screen->ActiveSpace].RootNode == NULL)
             {
+                Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
+                if(KWMScreen.PrevSpace != Screen->ActiveSpace)
+                    DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
+
                 if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating)
                 {
                     DEBUG("Space is floating")
@@ -400,13 +410,11 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                 }
 
                 DEBUG("Empty Screen")
-                KWMScreen.UpdateSpace = true;
-                KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-                ActivateScreen(Screen, Mouse);
-                Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
-
-                KWMScreen.OldScreenID = KWMScreen.Current->ID;
+                KWMScreen.PrevSpace = Screen->ActiveSpace;
+                KWMScreen.OldScreenID = Screen->ID;
                 KWMScreen.Current = Screen;
+                KWMScreen.UpdateSpace = true;
+                ActivateScreen(Screen, Mouse);
 
                 if(Mouse && KWMFocus.Window)
                 {
