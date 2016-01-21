@@ -125,3 +125,9 @@ user can switch between open windows using the kwmc command `window -f prev|next
 If a window is not detected by Kwm, it is most likely due to a 'window role' mismatch.  
 Use the command `kwmc config add-role role application` to fix this.  
 See https://github.com/koekeishiya/kwm/issues/40 for information.  
+
+### Donate
+First of all, Kwm will always be free and open source, however some users have  
+expressed interest in some way to show their support.  
+
+If you wish to do so, I have set up a patreon [here](https://www.patreon.com/aasvi).  
