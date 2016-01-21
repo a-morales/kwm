@@ -387,14 +387,13 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         }
         else
         {
-            DEBUG("ELSE")
             if(!Initialized ||
                Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
                Screen->Space[Screen->ActiveSpace].RootNode == NULL)
             {
                 if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating)
                 {
-                    DEBUG("SPACE IS FLOATING")
+                    DEBUG("Space is floating")
                     ActivateScreen(Screen, Mouse);
                     ClearFocusedWindow();
                     return;
