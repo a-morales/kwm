@@ -1,6 +1,13 @@
 import Foundation
 import AppKit
 
+func trim(str: String) -> String {
+    return str.stringByTrimmingCharactersInSet(
+        NSCharacterSet.whitespaceAndNewlineCharacterSet()
+    )
+
+}
+
 func parseFrame(args: Array<String>) -> NSRect
 {
     var frameHash = [String: Int]()
@@ -23,11 +30,13 @@ func parseFrame(args: Array<String>) -> NSRect
         for windowInfo in windowInfoList! {
             let windowNumber = windowInfo["kCGWindowNumber"]! as! Int
             if (windowNumber == windowId) {
-                let windowBounds = windowInfo["kCGWindowBounds"]! as! [String : Int]
-                frameHash["w"] = windowBounds["Width"]
-                frameHash["h"] = windowBounds["Height"]!
-                frameHash["x"] = windowBounds["X"]
-                frameHash["y"] = scrnHeight - (windowBounds["Y"]! + windowBounds["Height"]!)
+                if (windowInfo["kCGWindowBounds"] != nil) {
+                    let windowBounds = windowInfo["kCGWindowBounds"]! as! [String : Int]
+                    frameHash["w"] = windowBounds["Width"]
+                    frameHash["h"] = windowBounds["Height"]!
+                    frameHash["x"] = windowBounds["X"]
+                    frameHash["y"] = scrnHeight - (windowBounds["Y"]! + windowBounds["Height"]!)
+                }
                 break
             }
         }
@@ -37,20 +46,24 @@ func parseFrame(args: Array<String>) -> NSRect
         if ((arg.characters.indexOf(":")) != nil) {
             let pair: Array = arg.componentsSeparatedByString(":")
             let key: String = pair[0]
-            let val: String = pair[1]
+            let val: String = trim(pair[1])
+            let intVal = Int(val)
+            if (intVal == nil) {
+                continue
+            }
 
             switch key {
             case "x":
-                frameHash["x"] = Int(val)
+                frameHash["x"] = intVal
                 break
             case "y":
-                frameHash["y"] = Int(val)
+                frameHash["y"] = intVal
                 break
             case "w", "width":
-                frameHash["w"] = Int(val)
+                frameHash["w"] = intVal
                 break
             case "h", "height":
-                frameHash["h"] = Int(val)
+                frameHash["h"] = intVal
                 break
             default:
                 break
@@ -73,19 +86,24 @@ func parseColor(args: Array<String>) -> NSColor
         if ((arg.characters.indexOf(":")) != nil) {
             let pair: Array = arg.componentsSeparatedByString(":")
             let key: String = pair[0]
-            let val: String = pair[1]
+            let val: String = trim(pair[1])
+            let floatVal = Float(val)
+            if (floatVal == nil) {
+                continue
+            }
+
             switch key {
             case "r", "red":
-                colorHash["r"] = CGFloat(Float(val)!)
+                colorHash["r"] = CGFloat(floatVal!)
                 break
             case "b", "blue":
-                colorHash["b"] = CGFloat(Float(val)!)
+                colorHash["b"] = CGFloat(floatVal!)
                 break
             case "g", "green":
-                colorHash["g"] = CGFloat(Float(val)!)
+                colorHash["g"] = CGFloat(floatVal!)
                 break
             case "a", "alpha":
-                colorHash["a"] = CGFloat(Float(val)!)
+                colorHash["a"] = CGFloat(floatVal!)
                 break
             default:
                 break
@@ -104,10 +122,15 @@ func parseWidth(args: Array<String>) -> CGFloat
         if ((arg.characters.indexOf(":")) != nil) {
             let pair: Array = arg.componentsSeparatedByString(":")
             let key: String = pair[0]
-            let val: String = pair[1]
+            let val: String = trim(pair[1])
+            let floatVal = Float(val)
+            if (floatVal == nil) {
+                continue
+            }
+
             switch key {
             case "s", "stroke":
-                widthVal = CGFloat(Float(val)!)
+                widthVal = CGFloat(floatVal!)
                 break
             default:
                 break
@@ -192,9 +215,7 @@ class OverlayController: NSObject, NSApplicationDelegate
             let data = outHandle.availableData
             if (data.length > 0) {
                 if let str = NSString(data: data, encoding: NSUTF8StringEncoding) as String? {
-                    let trimmedString = str.stringByTrimmingCharactersInSet(
-                        NSCharacterSet.whitespaceAndNewlineCharacterSet()
-                    )
+                    let trimmedString = trim(str);
 
                     if (trimmedString == "clear") {
                         self.window.contentView = nil
