@@ -277,6 +277,7 @@ bool FilterWindowList(screen_info *Screen)
                 KWMScreen.UpdateSpace = true;
                 ClearFocusedWindow();
                 ClearMarkedWindow();
+                return Result;
         }
 
         CaptureApplication(&KWMTiling.WindowLst[WindowIndex]);
@@ -559,6 +560,9 @@ void FocusWindowBelowCursor()
         if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]) && ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
         {
             if(KWMTiling.FocusLst[WindowIndex].Owner == "kwm-overlay")
+                continue;
+
+            if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock")
                 continue;
 
             if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
