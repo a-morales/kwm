@@ -8,7 +8,7 @@ KWM_PLIST=kwm.plist
 SAMPLE_CONFIG=examples/kwmrc
 CONFIG_DIR=$(HOME)/.kwm
 BUILD_PATH=./bin
-BUILD_FLAGS=-O3 -Wall
+BUILD_FLAGS=-O3 -Wall -std=c++11
 BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwm/kwmrc
 
 all: $(BINS)
