@@ -8,9 +8,6 @@ extern kwm_toggles KWMToggles;
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
-    if(KWMToggles.IsSystemSleeping)
-        return;
-
     pthread_mutex_lock(&KWMThread.Lock);
 
     if (Flags & kCGDisplayAddFlag)
