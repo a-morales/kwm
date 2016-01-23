@@ -3,7 +3,7 @@
 const std::string KwmCurrentVersion = "Kwm Version 1.0.8";
 const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
-CFMachPortRef EventTap;
+kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
 kwm_screen KWMScreen = {};
 kwm_toggles KWMToggles = {};
@@ -15,6 +15,36 @@ kwm_thread KWMThread = {};
 kwm_hotkeys KWMHotkeys = {};
 kwm_border KWMBorder = {};
 
+void MySleepCallBack(void *RefCon, io_service_t Service, natural_t MessageType, void *MessageArgument)
+{
+    switch(MessageType)
+    {
+        case kIOMessageCanSystemSleep:
+        {
+            std::cout << "Idle Sleep: Going To Sleep" << std::endl;
+            KWMToggles.EnableTilingMode = false;
+            IOAllowPowerChange(KWMMach.RootPort, (long)MessageArgument);
+            //IOCancelPowerChange(KWMMach.RootPort, (long)MessageArgument);
+        } break;
+        case kIOMessageSystemWillSleep:
+        {
+            std::cout << "Forced Sleep: Going To Sleep" << std::endl;
+            IOAllowPowerChange(KWMMach.RootPort, (long)MessageArgument);
+        } break;
+        case kIOMessageSystemWillPowerOn:
+        {
+            std::cout << "Wakeup: System is waking up" << std::endl;
+        } break;
+        case kIOMessageSystemHasPoweredOn:
+        {
+            std::cout << "Wakeup: System has returned from sleep" << std::endl;
+            KWMToggles.EnableTilingMode = true;
+        } break;
+        default:
+        {} break;
+    }
+}
+
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
     pthread_mutex_lock(&KWMThread.Lock);
@@ -25,7 +55,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         case kCGEventTapDisabledByUserInput:
         {
             DEBUG("Restarting Event Tap")
-            CGEventTapEnable(EventTap, true);
+            CGEventTapEnable(KWMMach.EventTap, true);
         } break;
         case kCGEventKeyDown:
         {
@@ -387,22 +417,29 @@ int main(int argc, char **argv)
         return 0;
 
     KwmInit();
-    CGEventMask EventMask;
-    EventMask = ((1 << kCGEventKeyDown) |
-                 (1 << kCGEventKeyUp) |
-                 (1 << kCGEventMouseMoved) |
-                 (1 << kCGEventLeftMouseDown) |
-                 (1 << kCGEventLeftMouseUp));
 
-    EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, EventMask, CGEventCallback, NULL);
-    if(!EventTap || !CGEventTapIsEnabled(EventTap))
+    KWMMach.EventMask = ((1 << kCGEventKeyDown) |
+                         (1 << kCGEventKeyUp) |
+                         (1 << kCGEventMouseMoved) |
+                         (1 << kCGEventLeftMouseDown) |
+                         (1 << kCGEventLeftMouseUp));
+
+    KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, KWMMach.EventMask, CGEventCallback, NULL);
+    if(!KWMMach.EventTap || !CGEventTapIsEnabled(KWMMach.EventTap))
         Fatal("ERROR: Could not create event-tap!");
 
-    CFRunLoopSourceRef RunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, EventTap, 0);
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), RunLoopSource, kCFRunLoopCommonModes);
-    CGEventTapEnable(EventTap, true);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(),
+                       CFMachPortCreateRunLoopSource(kCFAllocatorDefault, KWMMach.EventTap, 0),
+                       kCFRunLoopCommonModes);
+
+    CGEventTapEnable(KWMMach.EventTap, true);
+
+    KWMMach.RootPort = IORegisterForSystemPower(NULL, &KWMMach.NotifyPortRef, MySleepCallBack, &KWMMach.NotifierObject);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(),
+                       IONotificationPortGetRunLoopSource(KWMMach.NotifyPortRef),
+                       kCFRunLoopCommonModes);
+
     NSApplicationLoad();
     CFRunLoopRun();
-
     return 0;
 }

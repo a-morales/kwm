@@ -1,5 +1,5 @@
 DEBUG_BUILD=-DDEBUG_BUILD
-FRAMEWORKS=-framework ApplicationServices -framework Carbon -framework Cocoa
+FRAMEWORKS=-framework ApplicationServices -framework Carbon -framework Cocoa -framework IOKit
 SDK_ROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
 KWM_SRCS=kwm/kwm.cpp kwm/tree.cpp kwm/window.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp
 KWMC_SRCS=kwmc/kwmc.cpp kwmc/help.cpp
