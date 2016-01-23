@@ -108,7 +108,15 @@ void RefreshActiveDisplays()
         DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
     }
 
-    KWMScreen.Current = GetDisplayOfMousePointer();
+    if(KWMScreen.Current)
+        KWMScreen.Current->ForceSpaceUpdate = true;
+
+    screen_info *NewScreen = GetDisplayOfMousePointer();
+    if(NewScreen)
+    {
+        GiveFocusToScreen(NewScreen->ID, NULL, true);
+        NewScreen->ForceSpaceUpdate = true;
+    }
 }
 
 screen_info *GetDisplayFromScreenID(unsigned int ID)

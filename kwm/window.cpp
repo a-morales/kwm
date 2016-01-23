@@ -663,6 +663,12 @@ void UpdateActiveWindowList(screen_info *Screen)
         DEBUG("UpdateActiveWindowList() Active Display Changed")
         GiveFocusToScreen(Screen->ID, NULL, true);
         ClearMarkedWindow();
+
+        if(Screen->ForceSpaceUpdate)
+        {
+            Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
+            Screen->ForceSpaceUpdate = false;
+        }
     }
     else if(KWMScreen.UpdateSpace)
     {

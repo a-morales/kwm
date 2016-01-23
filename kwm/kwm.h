@@ -189,6 +189,7 @@ struct screen_info
     int ActiveSpace;
     int OldWindowListCount;
     bool ForceContainerUpdate;
+    bool ForceSpaceUpdate;
     std::map<int, space_info> Space;
 };
 
