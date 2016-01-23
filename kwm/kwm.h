@@ -249,6 +249,7 @@ struct kwm_toggles
     bool EnableDragAndDrop;
     bool StandbyOnFloat;
     bool DragInProgress;
+    bool IsSystemSleeping;
 };
 
 struct kwm_path

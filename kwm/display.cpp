@@ -4,9 +4,13 @@ extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_tiling KWMTiling;
 extern kwm_thread KWMThread;
+extern kwm_toggles KWMToggles;
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
+    if(KWMToggles.IsSystemSleeping)
+        return;
+
     pthread_mutex_lock(&KWMThread.Lock);
 
     if (Flags & kCGDisplayAddFlag)

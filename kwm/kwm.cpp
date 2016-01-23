@@ -22,6 +22,7 @@ void MySleepCallBack(void *RefCon, io_service_t Service, natural_t MessageType, 
         case kIOMessageCanSystemSleep:
         {
             std::cout << "Idle Sleep: Going To Sleep" << std::endl;
+            KWMToggles.IsSystemSleeping = true;
             KWMToggles.EnableTilingMode = false;
             IOAllowPowerChange(KWMMach.RootPort, (long)MessageArgument);
             //IOCancelPowerChange(KWMMach.RootPort, (long)MessageArgument);
@@ -29,6 +30,8 @@ void MySleepCallBack(void *RefCon, io_service_t Service, natural_t MessageType, 
         case kIOMessageSystemWillSleep:
         {
             std::cout << "Forced Sleep: Going To Sleep" << std::endl;
+            KWMToggles.IsSystemSleeping = true;
+            KWMToggles.EnableTilingMode = false;
             IOAllowPowerChange(KWMMach.RootPort, (long)MessageArgument);
         } break;
         case kIOMessageSystemWillPowerOn:
@@ -39,6 +42,7 @@ void MySleepCallBack(void *RefCon, io_service_t Service, natural_t MessageType, 
         {
             std::cout << "Wakeup: System has returned from sleep" << std::endl;
             KWMToggles.EnableTilingMode = true;
+            KWMToggles.IsSystemSleeping = false;
         } break;
         default:
         {} break;
