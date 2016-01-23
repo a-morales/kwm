@@ -643,7 +643,6 @@ void UpdateActiveWindowList(screen_info *Screen)
         CFDictionaryRef Elem = (CFDictionaryRef)CFArrayGetValueAtIndex(OsxWindowLst, WindowIndex);
         KWMTiling.WindowLst.push_back(window_info());
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
-        CFShow(Elem);
     }
     CFRelease(OsxWindowLst);
     KWMTiling.FocusLst = KWMTiling.WindowLst;
