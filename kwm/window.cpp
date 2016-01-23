@@ -242,7 +242,7 @@ void AllowRoleForApplication(std::string Application, std::string Role)
     if(It == KWMTiling.AllowedWindowRoles.end())
         KWMTiling.AllowedWindowRoles[Application] = std::vector<CFTypeRef>();
 
-    CFStringRef RoleRef = CFStringCreateWithCString(NULL, Role.c_str(), kCFStringEncodingMacRoman);
+    CFStringRef RoleRef = CFStringCreateWithCString(NULL, Role.c_str(), kCFStringEncodingMacRomanLatin1);
     KWMTiling.AllowedWindowRoles[Application].push_back(RoleRef);
 }
 
@@ -643,6 +643,7 @@ void UpdateActiveWindowList(screen_info *Screen)
         CFDictionaryRef Elem = (CFDictionaryRef)CFArrayGetValueAtIndex(OsxWindowLst, WindowIndex);
         KWMTiling.WindowLst.push_back(window_info());
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
+        CFShow(Elem);
     }
     CFRelease(OsxWindowLst);
     KWMTiling.FocusLst = KWMTiling.WindowLst;
@@ -1617,8 +1618,8 @@ std::string GetWindowTitle(AXUIElementRef WindowRef)
     std::string WindowTitle;
 
     AXUIElementCopyAttributeValue(WindowRef, kAXTitleAttribute, (CFTypeRef*)&Temp);
-    if(CFStringGetCStringPtr(Temp, kCFStringEncodingMacRoman))
-        WindowTitle = CFStringGetCStringPtr(Temp, kCFStringEncodingMacRoman);
+    if(CFStringGetCStringPtr(Temp, kCFStringEncodingMacRomanLatin1))
+        WindowTitle = CFStringGetCStringPtr(Temp, kCFStringEncodingMacRomanLatin1);
 
     if(Temp != NULL)
         CFRelease(Temp);
@@ -1819,15 +1820,15 @@ bool GetWindowFocusedByOSX(int *WindowWID)
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
 {
     CFStringRef K = (CFStringRef)Key;
-    std::string KeyStr = CFStringGetCStringPtr(K, kCFStringEncodingMacRoman);
+    std::string KeyStr = CFStringGetCStringPtr(K, kCFStringEncodingMacRomanLatin1);
 
     CFTypeID ID = CFGetTypeID(Value);
     if(ID == CFStringGetTypeID())
     {
         CFStringRef V = (CFStringRef)Value;
-        if(CFStringGetCStringPtr(V, kCFStringEncodingMacRoman))
+        if(CFStringGetCStringPtr(V, kCFStringEncodingMacRomanLatin1))
         {
-            std::string ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
+            std::string ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRomanLatin1);
             if(KeyStr == "kCGWindowName")
                 KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Name = ValueStr;
             else if(KeyStr == "kCGWindowOwnerName")
