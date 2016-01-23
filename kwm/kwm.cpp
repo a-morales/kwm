@@ -15,37 +15,6 @@ kwm_thread KWMThread = {};
 kwm_hotkeys KWMHotkeys = {};
 kwm_border KWMBorder = {};
 
-void MySleepCallBack(void *RefCon, io_service_t Service, natural_t MessageType, void *MessageArgument)
-{
-    switch(MessageType)
-    {
-        case kIOMessageCanSystemSleep:
-        {
-            std::cout << "Idle Sleep: Going To Sleep" << std::endl;
-            CGDisplayRemoveReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
-            IOAllowPowerChange(KWMMach.RootPort, (long)MessageArgument);
-            //IOCancelPowerChange(KWMMach.RootPort, (long)MessageArgument);
-        } break;
-        case kIOMessageSystemWillSleep:
-        {
-            std::cout << "Forced Sleep: Going To Sleep" << std::endl;
-            CGDisplayRemoveReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
-            IOAllowPowerChange(KWMMach.RootPort, (long)MessageArgument);
-        } break;
-        case kIOMessageSystemWillPowerOn:
-        {
-            std::cout << "Wakeup: System is waking up" << std::endl;
-        } break;
-        case kIOMessageSystemHasPoweredOn:
-        {
-            std::cout << "Wakeup: System has returned from sleep" << std::endl;
-            CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
-        } break;
-        default:
-        {} break;
-    }
-}
-
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
     pthread_mutex_lock(&KWMThread.Lock);
@@ -418,7 +387,6 @@ int main(int argc, char **argv)
         return 0;
 
     KwmInit();
-
     KWMMach.EventMask = ((1 << kCGEventKeyDown) |
                          (1 << kCGEventKeyUp) |
                          (1 << kCGEventMouseMoved) |
@@ -434,12 +402,6 @@ int main(int argc, char **argv)
                        kCFRunLoopCommonModes);
 
     CGEventTapEnable(KWMMach.EventTap, true);
-
-    KWMMach.RootPort = IORegisterForSystemPower(NULL, &KWMMach.NotifyPortRef, MySleepCallBack, &KWMMach.NotifierObject);
-    CFRunLoopAddSource(CFRunLoopGetCurrent(),
-                       IONotificationPortGetRunLoopSource(KWMMach.NotifyPortRef),
-                       kCFRunLoopCommonModes);
-
     NSApplicationLoad();
     CFRunLoopRun();
     return 0;

@@ -19,12 +19,20 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
     else if (Flags & kCGDisplayRemoveFlag)
     {
         // Display has been removed
-        DEBUG("Display has been removed! DisplayID: " << Display)
-        std::map<int, space_info>::iterator It;
-        for(It = KWMTiling.DisplayMap[Display].Space.begin(); It != KWMTiling.DisplayMap[Display].Space.end(); ++It)
-            DestroyNodeTree(It->second.RootNode, It->second.Mode);
+        if(CGDisplayIsAsleep(Display))
+        {
+            DEBUG("Display " << Display << " is asleep!")
+        }
+        else
+        {
+            DEBUG("Display has been removed! DisplayID: " << Display)
+            std::map<int, space_info>::iterator It;
+            for(It = KWMTiling.DisplayMap[Display].Space.begin(); It != KWMTiling.DisplayMap[Display].Space.end(); ++It)
+                DestroyNodeTree(It->second.RootNode, It->second.Mode);
 
-        KWMTiling.DisplayMap.erase(Display);
+            KWMTiling.DisplayMap.erase(Display);
+        }
+
         RefreshActiveDisplays();
     }
 

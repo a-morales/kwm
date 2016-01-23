@@ -2,11 +2,6 @@
 #define KWM_H
 
 #include <Carbon/Carbon.h>
-#include <mach/mach_port.h>
-#include <mach/mach_interface.h>
-#include <mach/mach_init.h>
-#include <IOKit/pwr_mgt/IOPMLib.h>
-#include <IOKit/IOMessage.h>
 
 #include <iostream>
 #include <vector>
@@ -202,10 +197,6 @@ struct kwm_mach
     CFRunLoopSourceRef RunLoopSource;
     CFMachPortRef EventTap;
     CGEventMask EventMask;
-
-    IONotificationPortRef NotifyPortRef;
-    io_object_t NotifierObject;
-    io_connect_t  RootPort;
 };
 
 struct kwm_border
