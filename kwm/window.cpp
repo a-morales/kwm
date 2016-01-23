@@ -1847,8 +1847,8 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
     {
         CFStringRef V = (CFStringRef)Value;
         std::string ValueStr = GetUTF8String(V);
-        if(ValueStr.empty())
-            ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
+        if(ValueStr.empty() && CFStringGetCStringPtr(V, kCFStringEncodingMacRoman))
+                ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
 
         if(KeyStr == "kCGWindowName")
             KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Name = ValueStr;
