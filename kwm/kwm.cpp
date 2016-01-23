@@ -22,14 +22,14 @@ void MySleepCallBack(void *RefCon, io_service_t Service, natural_t MessageType, 
         case kIOMessageCanSystemSleep:
         {
             std::cout << "Idle Sleep: Going To Sleep" << std::endl;
-            CGDisplayRemoveReconfigurationCallback(DisplayReconfigurcationCallBack, NULL);
+            CGDisplayRemoveReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
             IOAllowPowerChange(KWMMach.RootPort, (long)MessageArgument);
             //IOCancelPowerChange(KWMMach.RootPort, (long)MessageArgument);
         } break;
         case kIOMessageSystemWillSleep:
         {
             std::cout << "Forced Sleep: Going To Sleep" << std::endl;
-            CGDisplayRemoveReconfigurationCallback(DisplayReconfigurcationCallBack, NULL);
+            CGDisplayRemoveReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
             IOAllowPowerChange(KWMMach.RootPort, (long)MessageArgument);
         } break;
         case kIOMessageSystemWillPowerOn:
