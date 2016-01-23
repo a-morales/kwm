@@ -440,6 +440,7 @@ void SetWindowFocusByNode(tree_node *);
 void MoveCursorToCenterOfFocusedWindow();
 void MoveCursorToCenterOfWindow(window_info *);
 
+std::string GetUTF8String(CFStringRef);
 std::string GetWindowTitle(AXUIElementRef);
 CGPoint GetWindowPos(AXUIElementRef);
 CGSize GetWindowSize(AXUIElementRef);
