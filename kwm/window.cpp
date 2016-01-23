@@ -26,6 +26,9 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             KWMMode.Focus = FocusModeStandby;
     }
 
+    if(CFEqual(Notification, kAXTitleChangedNotification) && KWMFocus.Window)
+        KWMFocus.Window->Name = GetWindowTitle(Element);
+
     if(IsFocusedWindowFloating())
         UpdateBorder("focused");
 }
@@ -87,7 +90,6 @@ void UpdateBorder(std::string Border)
 
                 DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
                 std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(KWMBorder.FWidth);
-                DEBUG(Border)
                 fwrite(Border.c_str(), Border.size(), 1, KWMBorder.FHandle);
                 fflush(KWMBorder.FHandle);
             }
@@ -1867,6 +1869,7 @@ void DestroyApplicationNotifications()
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification);
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification);
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification);
+    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXTitleChangedNotification);
     CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
     
     CFRelease(KWMFocus.Observer);
@@ -1881,5 +1884,6 @@ void CreateApplicationNotifications()
     AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification, NULL);
     AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification, NULL);
     AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification, NULL);
+    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXTitleChangedNotification, NULL);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
 }
