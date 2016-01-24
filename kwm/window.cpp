@@ -9,7 +9,6 @@ extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
 extern kwm_path KWMPath;
-extern kwm_border KWMBorder;
 
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
