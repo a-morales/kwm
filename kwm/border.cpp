@@ -1,4 +1,4 @@
-#include "kwm.h"
+#include "border.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;

@@ -1,4 +1,8 @@
-#include "kwm.h"
+#include "space.h"
+#include "display.h"
+#include "window.h"
+#include "tree.h"
+#include "border.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
@@ -177,4 +181,3 @@ void ToggleFocusedSpaceFloating()
             TileFocusedSpace(SpaceModeBSP);
     }
 }
-

@@ -1,4 +1,9 @@
-#include "kwm.h"
+#include "window.h"
+#include "display.h"
+#include "space.h"
+#include "tree.h"
+#include "notifications.h"
+#include "border.h"
 
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 

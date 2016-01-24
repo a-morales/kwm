@@ -1,4 +1,4 @@
-#include "kwm.h"
+#include "daemon.h"
 
 int KwmSockFD;
 bool KwmDaemonIsRunning;
@@ -74,6 +74,6 @@ bool KwmStartDaemon()
         return false;
 
     KwmDaemonIsRunning = true;
-    DEBUG("Local Daemon is now running.." << std::endl)
+    DEBUG("Local Daemon is now running..")
     return true;
 }

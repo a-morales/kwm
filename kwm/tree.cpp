@@ -1,4 +1,9 @@
-#include "kwm.h"
+#include "tree.h"
+#include "helpers.h"
+#include "display.h"
+#include "space.h"
+#include "window.h"
+#include "border.h"
 
 extern kwm_path KWMPath;
 extern kwm_screen KWMScreen;
@@ -591,22 +596,6 @@ void FillDeserializedTree(tree_node *RootNode)
             Root = RootNode;
         }
     }
-}
-
-int ConvertStringToInt(std::string Integer)
-{
-    int SplitMode;
-    std::stringstream Stream(Integer);
-    Stream >> SplitMode;
-    return SplitMode;
-}
-
-double ConvertStringToDouble(std::string Double)
-{
-    double SplitRatio;
-    std::stringstream Stream(Double);
-    Stream >> SplitRatio;
-    return SplitRatio;
 }
 
 void SerializeParentNode(tree_node *Parent, std::string Role, std::vector<std::string> &Serialized)

@@ -1,4 +1,7 @@
-#include "kwm.h"
+#include "display.h"
+#include "space.h"
+#include "window.h"
+#include "tree.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
@@ -309,10 +312,7 @@ int GetIndexOfNextScreen()
 
 int GetIndexOfPrevScreen()
 {
-    if(KWMScreen.Current->ID == 0)
-        return KWMScreen.ActiveCount - 1;
-    else
-        return KWMScreen.Current->ID - 1;
+    return KWMScreen.Current->ID == 0 ? KWMScreen.ActiveCount - 1 : KWMScreen.Current->ID - 1;
 }
 
 void ActivateScreen(screen_info *Screen, bool Mouse)
