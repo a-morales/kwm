@@ -33,192 +33,6 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
         UpdateBorder("focused");
 }
 
-void ClearFocusedBorder()
-{
-    if(KWMBorder.FHandle)
-    {
-        std::string Border = "clear";
-        fwrite(Border.c_str(), Border.size(), 1, KWMBorder.FHandle);
-        fflush(KWMBorder.FHandle);
-    }
-}
-
-kwm_time_point PerformUpdateBorderTimer(kwm_time_point Time)
-{
-    kwm_time_point NewBorderTime = std::chrono::steady_clock::now();
-    std::chrono::duration<double> Diff = NewBorderTime - Time;
-    while(Diff.count() < 0.10)
-    {
-        NewBorderTime = std::chrono::steady_clock::now();
-        Diff = NewBorderTime - Time;
-    }
-
-    return NewBorderTime;
-}
-
-void UpdateBorder(std::string Border)
-{
-    if(Border == "focused")
-    {
-        if(KWMBorder.FEnabled)
-        {
-            if(KWMFocus.Window && KWMFocus.Window->Layer == 0)
-            {
-                if(!KWMBorder.FHandle)
-                {
-                    std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
-                    KWMBorder.FHandle = popen(OverlayBin.c_str(), "w");
-                    if(KWMBorder.FHandle == NULL)
-                    {
-                        KWMBorder.FEnabled = false;
-                        return;
-                    }
-                }
-
-                DEBUG("UpdateFocusedBorder()")
-                KWMBorder.FTime = PerformUpdateBorderTimer(KWMBorder.FTime);
-
-                short r = (KWMBorder.FColor >> 16) & 0xff;
-                short g = (KWMBorder.FColor >> 8) & 0xff;
-                short b = (KWMBorder.FColor >> 0) & 0xff;
-                short a = (KWMBorder.FColor >> 24) & 0xff;
-
-                std::string rs = std::to_string((double)r/255);
-                std::string gs = std::to_string((double)g/255);
-                std::string bs = std::to_string((double)b/255);
-                std::string as = std::to_string((double)a/255);
-
-                DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
-                std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(KWMBorder.FWidth);
-                fwrite(Border.c_str(), Border.size(), 1, KWMBorder.FHandle);
-                fflush(KWMBorder.FHandle);
-            }
-        }
-        else
-        {
-            if(KWMBorder.FHandle)
-            {
-                std::string Terminate = "quit";
-                fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.FHandle);
-                fflush(KWMBorder.FHandle);
-                pclose(KWMBorder.FHandle);
-                KWMBorder.FHandle = NULL;
-            }
-        }
-    }
-    else if(Border == "marked")
-    {
-        if(KWMBorder.MEnabled)
-        {
-            if(!KWMBorder.MHandle)
-            {
-                std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
-                KWMBorder.MHandle = popen(OverlayBin.c_str(), "w");
-                if(KWMBorder.MHandle == NULL)
-                {
-                    KWMBorder.MEnabled = false;
-                    return;
-                }
-            }
-
-            if(KWMScreen.MarkedWindow == -1)
-            {
-                std::string Border = "clear";
-                fwrite(Border.c_str(), Border.size(), 1, KWMBorder.MHandle);
-                fflush(KWMBorder.MHandle);
-            }
-            else
-            {
-                DEBUG("UpdateMarkedBorder()")
-                KWMBorder.MTime = PerformUpdateBorderTimer(KWMBorder.MTime);
-
-                short r = (KWMBorder.MColor >> 16) & 0xff;
-                short g = (KWMBorder.MColor >> 8) & 0xff;
-                short b = (KWMBorder.MColor >> 0) & 0xff;
-                short a = (KWMBorder.MColor >> 24) & 0xff;
-
-                std::string rs = std::to_string((double)r/255);
-                std::string gs = std::to_string((double)g/255);
-                std::string bs = std::to_string((double)b/255);
-                std::string as = std::to_string((double)a/255);
-
-                DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
-                std::string Border = std::to_string(KWMScreen.MarkedWindow) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(KWMBorder.MWidth);
-                fwrite(Border.c_str(), Border.size(), 1, KWMBorder.MHandle);
-                fflush(KWMBorder.MHandle);
-            }
-        }
-        else
-        {
-            if(KWMBorder.MHandle)
-            {
-                std::string Terminate = "quit";
-                fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.MHandle);
-                fflush(KWMBorder.MHandle);
-                pclose(KWMBorder.MHandle);
-                KWMBorder.MHandle = NULL;
-            }
-        }
-    }
-}
-
-bool GetTagForCurrentSpace(std::string &Tag)
-{
-    if(KWMScreen.Current && IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
-        if(Space->Mode == SpaceModeBSP)
-        {
-            Tag = "[bsp]";
-            return true;
-        }
-        else if(Space->Mode == SpaceModeFloating)
-        {
-            Tag = "[float]";
-            return true;
-        }
-
-        tree_node *Node = Space->RootNode; 
-        bool FoundFocusedWindow = false;
-        int FocusedIndex = 0;
-        int NumberOfWindows = 0;
-
-        if(Node && KWMFocus.Window)
-        {
-            FocusedIndex = 1;
-            NumberOfWindows = 1;
-
-            if(Node->WindowID == KWMFocus.Window->WID)
-                FoundFocusedWindow = true;
-
-            while(Node->RightChild)
-            {
-                if(Node->WindowID == KWMFocus.Window->WID)
-                    FoundFocusedWindow = true;
-
-                if(!FoundFocusedWindow)
-                    ++FocusedIndex;
-
-                ++NumberOfWindows;
-
-                Node = Node->RightChild;
-            }
-
-            if(Node->WindowID == KWMFocus.Window->WID)
-                FoundFocusedWindow = true;
-        }
-
-        if(FoundFocusedWindow)
-            Tag = "[" + std::to_string(FocusedIndex) + "/" + std::to_string(NumberOfWindows) + "]";
-        else
-            Tag = "[" + std::to_string(NumberOfWindows) + "]";
-
-        return true;
-    }
-
-    return false;
-}
-
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
     bool Result = false;
@@ -295,25 +109,6 @@ bool FilterWindowList(screen_info *Screen)
     }
 
     KWMTiling.WindowLst = FilteredWindowLst;
-    return Result;
-}
-
-bool IsActiveSpaceFloating()
-{
-    return KWMScreen.Current && IsSpaceFloating(KWMScreen.Current->ActiveSpace);
-}
-
-bool IsSpaceFloating(int SpaceID)
-{
-    bool Result = false;
-
-    if(IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(SpaceID);
-        if(It != KWMScreen.Current->Space.end())
-            Result = KWMScreen.Current->Space[SpaceID].Mode == SpaceModeFloating;
-    }
-
     return Result;
 }
 
@@ -422,24 +217,6 @@ bool IsWindowBelowCursor(window_info *Window)
     return Result;
 }
 
-bool IsSpaceInitializedForScreen(screen_info *Screen)
-{
-    std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
-    if(It == Screen->Space.end())
-        return false;
-    else
-        return It->second.Initialized;
-}
-
-bool DoesSpaceExistInMapOfScreen(screen_info *Screen)
-{
-    std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
-    if(It == Screen->Space.end())
-        return false;
-    else
-        return It->second.RootNode != NULL && It->second.Initialized;
-}
-
 bool IsWindowOnActiveSpace(int WindowID)
 {
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
@@ -453,36 +230,6 @@ bool IsWindowOnActiveSpace(int WindowID)
 
     DEBUG("IsWindowOnActiveSpace() window was not found")
     return false;
-}
-
-bool IsSpaceTransitionInProgress()
-{
-    int CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
-    CFStringRef Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
-    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)Identifier);
-    if(Result)
-    {
-        DEBUG("IsSpaceTransitionInProgress() Space transition detected")
-        KWMScreen.UpdateSpace = true;
-        ClearFocusedWindow();
-        ClearMarkedWindow();
-    }
-
-    return Result;
-}
-
-bool IsSpaceSystemOrFullscreen()
-{
-    bool Result = false;
-
-    if(IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        bool Result = CGSSpaceGetType(CGSDefaultConnection, KWMScreen.Current->ActiveSpace) != CGSSpaceTypeUser;
-        if(Result)
-            DEBUG("IsSpaceSystemOrFullscreen() Space is not user created")
-    }
-
-    return Result;
 }
 
 bool FocusWindowOfOSX()
@@ -620,10 +367,6 @@ void UpdateWindowTree()
                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode = NULL;
                 ClearFocusedWindow();
             }
-        }
-        else if(It != KWMScreen.Current->Space.end())
-        {
-            //ShouldFloatingSpaceUpdate(KWMScreen.Current, &It->second);
         }
     }
 }
@@ -1122,56 +865,6 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
     }
 }
 
-void FloatFocusedSpace()
-{
-    if(KWMScreen.Current &&
-       IsSpaceInitializedForScreen(KWMScreen.Current) &&
-       KWMToggles.EnableTilingMode &&
-       !IsSpaceTransitionInProgress() &&
-       !IsSpaceSystemOrFullscreen() &&
-       FilterWindowList(KWMScreen.Current))
-    {
-        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
-        DestroyNodeTree(Space->RootNode, Space->Mode);
-        Space->RootNode = NULL;
-        Space->Mode = SpaceModeFloating;
-        ClearFocusedWindow();
-    }
-}
-
-void TileFocusedSpace(space_tiling_option Mode)
-{
-    if(KWMScreen.Current &&
-       IsSpaceInitializedForScreen(KWMScreen.Current) &&
-       KWMToggles.EnableTilingMode &&
-       !IsSpaceTransitionInProgress() &&
-       !IsSpaceSystemOrFullscreen() &&
-       FilterWindowList(KWMScreen.Current))
-    {
-        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
-        if(Space->Mode == Mode)
-            return;
-
-        DestroyNodeTree(Space->RootNode, Space->Mode);
-        Space->RootNode = NULL;
-
-        Space->Mode = Mode;
-        std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
-        CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
-    }
-}
-
-void ToggleFocusedSpaceFloating()
-{
-    if(KWMScreen.Current && IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
-            FloatFocusedSpace();
-        else
-            TileFocusedSpace(SpaceModeBSP);
-    }
-}
-
 void ToggleWindowFloating(int WindowID)
 {
     if(IsWindowOnActiveSpace(WindowID) &&
@@ -1408,20 +1101,6 @@ void MarkWindowContainer()
             UpdateBorder("marked");
         }
     }
-}
-
-void CloseWindowByRef(AXUIElementRef WindowRef)
-{
-    AXUIElementRef ActionClose;
-    AXUIElementCopyAttributeValue(WindowRef, kAXCloseButtonAttribute, (CFTypeRef*)&ActionClose);
-    AXUIElementPerformAction(ActionClose, kAXPressAction);
-}
-
-void CloseWindow(window_info *Window)
-{
-    AXUIElementRef WindowRef;
-    if(GetWindowRef(Window, &WindowRef))
-        CloseWindowByRef(WindowRef);
 }
 
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)

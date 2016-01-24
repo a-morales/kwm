@@ -438,6 +438,7 @@ void ResizeWindowToContainerSize();
 
 CGPoint GetCursorPos();
 
+std::string ConvertHexToRGBAString(int, int, int);
 kwm_time_point PerformUpdateBorderTimer(kwm_time_point);
 void UpdateBorder(std::string);
 void ClearFocusedBorder();
