@@ -9,7 +9,7 @@ SAMPLE_CONFIG=examples/kwmrc
 CONFIG_DIR=$(HOME)/.kwm
 BUILD_PATH=./bin
 BUILD_FLAGS=-O3 -Wall
-BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(BUILD_PATH)/kwm_template.plist $(HOME)/.kwm/kwmrc
+BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(BUILD_PATH)/kwm_template.plist $(CONFIG_DIR)/kwmrc
 
 all: $(BINS)
 
@@ -26,7 +26,7 @@ install: clean $(BINS)
 $(BINS): | $(BUILD_PATH)
 
 $(BUILD_PATH):
-	mkdir -p $(BUILD_PATH) && mkdir -p $(HOME)/.kwm
+	mkdir -p $(BUILD_PATH) && mkdir -p $(CONFIG_DIR)
 
 clean:
 	rm -rf $(BUILD_PATH)
@@ -43,6 +43,6 @@ $(BUILD_PATH)/kwm-overlay: $(KWMO_SRCS)
 $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@
 
-$(HOME)/.kwm/kwmrc: $(SAMPLE_CONFIG)
+$(CONFIG_DIR)/kwmrc: $(SAMPLE_CONFIG)
 	mkdir -p $(CONFIG_DIR)
 	test ! -e $@ && cp -n $^ $@
