@@ -1284,10 +1284,11 @@ std::string GetUTF8String(CFStringRef Temp)
         char *TempUTF8StringPtr = (char*) malloc(Bytes);
 
         CFStringGetCString(Temp, TempUTF8StringPtr, Bytes, kCFStringEncodingUTF8);
-        Result = TempUTF8StringPtr;
-
         if (TempUTF8StringPtr != NULL)
+        {
+            Result = TempUTF8StringPtr;
             free(TempUTF8StringPtr);
+        }
     }
 
     return Result;
