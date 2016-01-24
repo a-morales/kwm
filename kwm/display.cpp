@@ -46,6 +46,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
 
     Screen.ID = ScreenIndex;
     Screen.ForceContainerUpdate = false;
+    Screen.ForceSpaceUpdate = false;
     Screen.ActiveSpace = -1;
     Screen.OldWindowListCount = -1;
 
@@ -70,6 +71,7 @@ void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenI
 
     Screen->Offset = KWMScreen.DefaultOffset;
     Screen->ForceContainerUpdate = true;
+    Screen->ForceSpaceUpdate = true;
 }
 
 void GetActiveDisplays()
@@ -108,15 +110,9 @@ void RefreshActiveDisplays()
         DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
     }
 
-    if(KWMScreen.Current)
-        KWMScreen.Current->ForceSpaceUpdate = true;
-
     screen_info *NewScreen = GetDisplayOfMousePointer();
     if(NewScreen)
-    {
-        GiveFocusToScreen(NewScreen->ID, NULL, true);
-        NewScreen->ForceSpaceUpdate = true;
-    }
+        GiveFocusToScreen(NewScreen->ID, NULL, false);
 }
 
 screen_info *GetDisplayFromScreenID(unsigned int ID)
