@@ -47,6 +47,7 @@ void ToggleFocusedWindowParentContainer();
 void ToggleFocusedWindowFullscreen();
 
 void SwapFocusedWindowWithMarked();
+void SwapFocusedWindowDirected(int Degrees);
 void SwapFocusedWindowWithNearest(int Shift);
 void MoveCursorToCenterOfWindow(window_info *Window);
 void MoveCursorToCenterOfFocusedWindow();

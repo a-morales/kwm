@@ -995,6 +995,29 @@ void SwapFocusedWindowWithNearest(int Shift)
     }
 }
 
+void SwapFocusedWindowDirected(int Degrees)
+{
+    if(!KWMFocus.Window || !KWMScreen.Current || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+        return;
+
+    space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
+    tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+    if(FocusedWindowNode)
+    {
+        window_info SwapWindow = FindClosestWindow(Degrees);
+        tree_node *NewFocusNode = GetNodeFromWindowID(Space->RootNode, SwapWindow.WID, Space->Mode);
+        if(NewFocusNode)
+        {
+            SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
+            MoveCursorToCenterOfFocusedWindow();
+
+            if(FocusedWindowNode->WindowID == KWMScreen.MarkedWindow ||
+               NewFocusNode->WindowID == KWMScreen.MarkedWindow)
+                   UpdateBorder("marked");
+        }
+    }
+}
+
 bool WindowIsInDirection(window_info *A, window_info *B, int Degrees)
 {
     bool Result = false;
