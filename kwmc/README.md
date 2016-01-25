@@ -162,8 +162,11 @@
         Get tag for current space
             kwmc read tag
 
-        Get id of marked wndow (-1 == none)
+        Get id of marked window (-1 == none)
             kwmc read marked
+
+        Get state of the prefix-key
+            kwmc read prefix
 
         Get tilling mode for current space
             kwmc read space

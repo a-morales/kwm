@@ -15,6 +15,7 @@ extern kwm_focus KWMFocus;
 extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_border KWMBorder;
+extern kwm_hotkeys KWMHotkeys;
 
 // Command types
 void KwmConfigCommand(std::vector<std::string> &Tokens)
@@ -251,7 +252,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 
         KwmWriteToSocket(ClientSockFD, Output);
     }
-    if(Tokens[1] == "marked")
+    else if(Tokens[1] == "marked")
     {
         std::string Output = std::to_string(KWMScreen.MarkedWindow);;
         KwmWriteToSocket(ClientSockFD, Output);
@@ -260,6 +261,11 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     {
         std::string Output;
         GetTagForCurrentSpace(Output);
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
+    else if(Tokens[1] == "prefix")
+    {
+        std::string Output = KWMHotkeys.Prefix.Active ? "active" : "inactive";
         KwmWriteToSocket(ClientSockFD, Output);
     }
     else if(Tokens[1] == "split-ratio")

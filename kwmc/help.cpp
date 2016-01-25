@@ -127,6 +127,7 @@ void ShowHelp(std::string Command)
             "   focused                                                Get owner and title of focused window\n"
             "   tag                                                    Get tag for current space\n"
             "   marked                                                 Get id of marked window (-1 == not marked)\n"
+            "   prefix                                                 Get state of the prefix-key\n"
             "   space                                                  Get tiling mode for current space\n"
             "   cycle-focus                                            Get active cycle-focus mode\n"
             "   focus                                                  Get state of focus-follows-mouse\n"
