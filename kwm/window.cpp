@@ -10,6 +10,7 @@ extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
 extern kwm_path KWMPath;
 extern kwm_border KWMBorder;
+extern kwm_hotkeys KWMHotkeys;
 
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
@@ -78,10 +79,24 @@ void UpdateBorder(std::string Border)
                 DEBUG("UpdateFocusedBorder()")
                 KWMBorder.FTime = PerformUpdateBorderTimer(KWMBorder.FTime);
 
-                short r = (KWMBorder.FColor >> 16) & 0xff;
-                short g = (KWMBorder.FColor >> 8) & 0xff;
-                short b = (KWMBorder.FColor >> 0) & 0xff;
-                short a = (KWMBorder.FColor >> 24) & 0xff;
+                unsigned int BColor;
+                int BWidth;
+
+                if(KWMHotkeys.Prefix.Active && KWMBorder.HEnabled)
+                {
+                    BColor = KWMBorder.HColor;
+                    BWidth = KWMBorder.HWidth;
+                }
+                else
+                {
+                    BColor = KWMBorder.FColor;
+                    BWidth = KWMBorder.FWidth;
+                }
+
+                short r = (BColor >> 16) & 0xff;
+                short g = (BColor >> 8) & 0xff;
+                short b = (BColor >> 0) & 0xff;
+                short a = (BColor >> 24) & 0xff;
 
                 std::string rs = std::to_string((double)r/255);
                 std::string gs = std::to_string((double)g/255);
@@ -89,7 +104,7 @@ void UpdateBorder(std::string Border)
                 std::string as = std::to_string((double)a/255);
 
                 DEBUG("alpha: " << as << " r:" << rs << " g: " << gs << " b:" << bs)
-                std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(KWMBorder.FWidth);
+                std::string Border = std::to_string(KWMFocus.Window->WID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(BWidth);
                 fwrite(Border.c_str(), Border.size(), 1, KWMBorder.FHandle);
                 fflush(KWMBorder.FHandle);
             }
@@ -178,7 +193,7 @@ bool GetTagForCurrentSpace(std::string &Tag)
             return true;
         }
 
-        tree_node *Node = Space->RootNode; 
+        tree_node *Node = Space->RootNode;
         bool FoundFocusedWindow = false;
         int FocusedIndex = 0;
         int NumberOfWindows = 0;
@@ -410,7 +425,7 @@ bool IsWindowBelowCursor(window_info *Window)
     if(Window)
     {
         CGPoint Cursor = GetCursorPos();
-        if(Cursor.x >= Window->X && 
+        if(Cursor.x >= Window->X &&
            Cursor.x <= Window->X + Window->Width &&
            Cursor.y >= Window->Y &&
            Cursor.y <= Window->Y + Window->Height)
@@ -418,7 +433,7 @@ bool IsWindowBelowCursor(window_info *Window)
             Result = true;
         }
     }
-        
+
     return Result;
 }
 
@@ -615,7 +630,7 @@ void UpdateWindowTree()
             }
             else if(It != KWMScreen.Current->Space.end() && WindowsOnDisplay.empty())
             {
-                DestroyNodeTree(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode, 
+                DestroyNodeTree(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode,
                                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode);
                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode = NULL;
                 ClearFocusedWindow();
@@ -1581,7 +1596,7 @@ void ResizeWindowToContainerSize(tree_node *Node)
         if(GetWindowRef(Window, &WindowRef))
         {
             SetWindowDimensions(WindowRef, Window,
-                        Node->Container.X, Node->Container.Y, 
+                        Node->Container.X, Node->Container.Y,
                         Node->Container.Width, Node->Container.Height);
 
             if(WindowsAreEqual(Window, KWMFocus.Window))
@@ -1885,20 +1900,20 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
     {
         CFDictionaryRef Elem = (CFDictionaryRef)Value;
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
-    } 
+    }
 }
 
 void DestroyApplicationNotifications()
 {
     if(KWMFocus.Observer == NULL)
         return;
-    
+
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification);
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification);
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification);
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXTitleChangedNotification);
     CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
-    
+
     CFRelease(KWMFocus.Observer);
     KWMFocus.Observer = NULL;
     CFRelease(KWMFocus.Application);

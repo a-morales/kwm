@@ -52,9 +52,16 @@ struct kwm_mode;
 struct kwm_thread;
 
 #ifdef DEBUG_BUILD
-    #define DEBUG(x) std::cout << x << std::endl;
-#else
+    #define DDEBUG(x) std::cout << x << std::endl;
     #define DEBUG(x) do {} while (0);
+#else
+  #ifdef VERBOSE_BUILD
+    #define DEBUG(x) std::cout << x << std::endl;
+    #define DDEBUG(x) std::cout << x << std::endl;
+  #else
+    #define DEBUG(x) do {} while (0);
+    #define DDEBUG(x) do {} while (0);
+  #endif
 #endif
 
 typedef std::chrono::time_point<std::chrono::steady_clock> kwm_time_point;
@@ -78,11 +85,11 @@ extern "C" void NSApplicationLoad(void);
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);
 
 enum focus_option
-{ 
-    FocusModeAutofocus, 
-    FocusModeAutoraise, 
+{
+    FocusModeAutofocus,
+    FocusModeAutoraise,
     FocusModeStandby,
-    FocusModeDisabled 
+    FocusModeDisabled
 };
 
 enum cycle_focus_option
@@ -136,7 +143,7 @@ struct container_offset
 };
 
 struct node_container
-{    
+{
     double X, Y;
     double Width, Height;
     int Type;
@@ -206,6 +213,7 @@ struct kwm_border
     FILE *MHandle;
     bool FEnabled;
     bool MEnabled;
+    bool HEnabled;
 
     int FWidth;
     unsigned int FColor;
@@ -214,6 +222,9 @@ struct kwm_border
     int MWidth;
     unsigned int MColor;
     kwm_time_point MTime;
+
+    int HWidth;
+    unsigned int HColor;
 };
 
 struct kwm_prefix
@@ -440,6 +451,7 @@ CGPoint GetCursorPos();
 
 kwm_time_point PerformUpdateBorderTimer(kwm_time_point);
 void UpdateBorder(std::string);
+void ClearBorder(std::string);
 void ClearFocusedBorder();
 void CloseWindowByRef(AXUIElementRef);
 void CloseWindow(window_info *);
@@ -493,6 +505,7 @@ bool KwmIsPrefixKey(hotkey *, modifiers *, CGKeyCode);
 bool KwmParseHotkey(std::string, std::string, hotkey *);
 bool HotkeysAreEqual(hotkey *, hotkey *);
 void DetermineHotkeyState(hotkey *, std::string &);
+void UpdatePrefixTime();
 bool KwmExecuteHotkey(modifiers, CGKeyCode);
 bool HotkeyExists(modifiers, CGKeyCode, hotkey *);
 void KwmAddHotkey(std::string, std::string);

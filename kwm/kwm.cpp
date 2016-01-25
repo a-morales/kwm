@@ -29,6 +29,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyDown:
         {
+            if(KWMHotkeys.Prefix.Active)
+                UpdatePrefixTime();
             if(KWMToggles.UseBuiltinHotkeys && KwmMainHotkeyTrigger(&Event))
             {
                     pthread_mutex_unlock(&KWMThread.Lock);
@@ -46,6 +48,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyUp:
         {
+            if(KWMHotkeys.Prefix.Active)
+                UpdatePrefixTime();
             if(KWMMode.Focus == FocusModeAutofocus &&
                !IsActiveSpaceFloating())
             {
@@ -274,7 +278,7 @@ bool GetKwmFilePath()
 void KwmInit()
 {
     if(!CheckPrivileges())
-        Fatal("Could not access OSX Accessibility!"); 
+        Fatal("Could not access OSX Accessibility!");
 
     if (pthread_mutex_init(&KWMThread.Lock, NULL) != 0)
         Fatal("Could not create mutex!");
@@ -326,7 +330,7 @@ bool CheckPrivileges()
     const void * Values[] = { kCFBooleanTrue };
 
     CFDictionaryRef Options;
-    Options = CFDictionaryCreate(kCFAllocatorDefault, 
+    Options = CFDictionaryCreate(kCFAllocatorDefault,
             Keys, Values, sizeof(Keys) / sizeof(*Keys),
             &kCFCopyStringDictionaryKeyCallBacks,
             &kCFTypeDictionaryValueCallBacks);

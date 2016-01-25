@@ -111,6 +111,33 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             KWMBorder.MColor = Color;
         }
     }
+    else if(Tokens[1] == "hotkey-border")
+    {
+      if(Tokens[2] == "enable")
+      {
+            KWMBorder.HEnabled = true;
+      }
+      else if(Tokens[2] == "disable")
+      {
+            KWMBorder.MEnabled = false;
+            UpdateBorder("hotkey");
+      }
+      else if(Tokens[2] == "size")
+      {
+            int Width = 4;
+            std::stringstream Stream(Tokens[3]);
+            Stream >> Width;
+            KWMBorder.HWidth = Width;
+      }
+      else if(Tokens[2] == "color")
+      {
+            unsigned int Color = 0xffffff;
+            std::stringstream Stream;
+            Stream << std::hex << Tokens[3];
+            Stream >> Color;
+            KWMBorder.HColor = Color;
+      }
+    }
     else  if(Tokens[1] == "launchd")
     {
         if(Tokens[2] == "disable")
@@ -313,7 +340,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         std::string Output;
         if(KWMToggles.UseMouseFollowsFocus)
             Output = "enabled";
-        else 
+        else
             Output = "disabled";
 
         KwmWriteToSocket(ClientSockFD, Output);
@@ -325,7 +352,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
             Output = "bsp";
         else if(KWMMode.Space == SpaceModeMonocle)
             Output = "monocle";
-        else 
+        else
             Output = "float";
 
         KwmWriteToSocket(ClientSockFD, Output);
@@ -337,7 +364,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
             Output = "screen";
         else if(KWMMode.Cycle == CycleModeAll)
             Output = "all";
-        else 
+        else
             Output = "disabled";
 
         KwmWriteToSocket(ClientSockFD, Output);
@@ -461,7 +488,7 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
             GiveFocusToScreen(GetIndexOfPrevScreen(), NULL, false);
         else if(Tokens[2] == "next")
             GiveFocusToScreen(GetIndexOfNextScreen(), NULL, false);
-        else 
+        else
         {
             int Index = 0;
             std::stringstream Stream(Tokens[2]);

@@ -32,6 +32,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event)
     {
         KWMHotkeys.Prefix.Active = true;
         KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
+        UpdateBorder("hotkey");
         return true;
     }
 
@@ -47,6 +48,17 @@ bool KwmIsPrefixKey(hotkey *PrefixKey, modifiers *Mod, CGKeyCode Keycode)
     return HotkeysAreEqual(PrefixKey, &TempHotkey);
 }
 
+void UpdatePrefixTime()
+{
+      kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
+      std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.Prefix.Time;
+      if(Diff.count() > KWMHotkeys.Prefix.Timeout)
+      {
+          KWMHotkeys.Prefix.Active = false;
+          UpdateBorder("focused");
+      }
+}
+
 bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
 {
     hotkey Hotkey = {};
@@ -56,10 +68,7 @@ bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
         {
             if(KWMHotkeys.Prefix.Active)
             {
-                kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
-                std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.Prefix.Time;
-                if(Diff.count() > KWMHotkeys.Prefix.Timeout)
-                    KWMHotkeys.Prefix.Active = false;
+                UpdatePrefixTime();
             }
 
             if((Hotkey.Prefixed || KWMHotkeys.Prefix.Global) &&
@@ -132,7 +141,7 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -287,7 +296,7 @@ CFStringRef KeycodeToString(CGKeyCode Keycode)
                                          LMGetKbdType(), 0,
                                          &DeadKeyState,
                                          MaxStringLength,
-                                         &ActualStringLength, 
+                                         &ActualStringLength,
                                          UnicodeString);
 
         if (ActualStringLength == 0 && DeadKeyState)
@@ -337,7 +346,7 @@ bool KeycodeForChar(char Key, CGKeyCode *Keycode)
     CharStr = CFStringCreateWithCharacters(kCFAllocatorDefault, &Character, 1);
     if (!CFDictionaryGetValueIfPresent(CharToCodeDict, CharStr, (const void **)Keycode))
         Result = false;
-        
+
     CFRelease(CharStr);
     return Result;
 }
