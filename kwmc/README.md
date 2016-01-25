@@ -116,7 +116,7 @@
             kwmc window -c reduce|expand amount
 
         Change window focus
-            kwmc window -f prev|next|curr|first|last
+            kwmc window -f north|east|south|west|prev|next|curr|first|last
 
         Swap window position
             kwmc window -s prev|next|mark
