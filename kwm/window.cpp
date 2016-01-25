@@ -1052,9 +1052,9 @@ void GetCenterOfWindow(window_info *Window, int *X, int *Y)
     *Y = Window->Y + Window->Height / 2;
 }
 
-int GetWindowDistance(window_info *A, window_info *B)
+double GetWindowDistance(window_info *A, window_info *B)
 {
-    int Dist = INT_MAX;
+    double Dist = INT_MAX;
 
     if(A && B)
     {
@@ -1062,7 +1062,8 @@ int GetWindowDistance(window_info *A, window_info *B)
         GetCenterOfWindow(A, &X1, &Y1);
         GetCenterOfWindow(B, &X2, &Y2);
 
-        Dist = std::sqrt(std::pow(X2-X1, 2) + std::pow(Y2-Y1, 2));
+        int Weight = (X1 == X2 ? 1 : 18) * (Y1 == Y2 ? 1 : 18);
+        Dist = std::sqrt(std::pow(X2-X1, 2) + std::pow(Y2-Y1, 2)) + Weight;
     }
 
     return Dist;
@@ -1074,13 +1075,13 @@ window_info FindClosestWindow(int Degrees)
     window_info Target = KWMFocus.Cache;
     std::vector<window_info> Windows = KWMTiling.WindowLst;
 
-    int MinDist = INT_MAX;
+    double MinDist = INT_MAX;
     for(int Index = 0; Index < Windows.size(); ++Index)
     {
         if(!WindowsAreEqual(Match, &Windows[Index]) &&
             WindowIsInDirection(Match, &Windows[Index], Degrees))
         {
-            int Dist = GetWindowDistance(Match, &Windows[Index]);
+            double Dist = GetWindowDistance(Match, &Windows[Index]);
             if(Dist < MinDist)
             {
                 MinDist = Dist;
