@@ -1077,6 +1077,7 @@ void ShiftWindowFocusDirected(int Degrees)
 
     window_info NewFocusWindow = FindClosestWindow(Degrees);
     SetWindowFocus(&NewFocusWindow);
+    MoveCursorToCenterOfFocusedWindow();
 }
 
 void ShiftWindowFocus(int Shift)
