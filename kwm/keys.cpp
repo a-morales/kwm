@@ -1,4 +1,6 @@
-#include "kwm.h"
+#include "keys.h"
+#include "helpers.h"
+#include "interpreter.h"
 
 extern kwm_focus KWMFocus;
 extern kwm_hotkeys KWMHotkeys;
@@ -375,4 +377,3 @@ void KwmEmitKeystrokes(std::string Text)
     CFRelease(EventKeyDown);
     CFRelease(TextRef);
 }
-

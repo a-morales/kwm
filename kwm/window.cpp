@@ -1,4 +1,9 @@
-#include "kwm.h"
+#include "window.h"
+#include "display.h"
+#include "space.h"
+#include "tree.h"
+#include "notifications.h"
+#include "border.h"
 
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 
@@ -233,6 +238,8 @@ bool GetTagForCurrentSpace(std::string &Tag)
 
     return false;
 }
+=======
+>>>>>>> master
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
@@ -310,25 +317,6 @@ bool FilterWindowList(screen_info *Screen)
     }
 
     KWMTiling.WindowLst = FilteredWindowLst;
-    return Result;
-}
-
-bool IsActiveSpaceFloating()
-{
-    return KWMScreen.Current && IsSpaceFloating(KWMScreen.Current->ActiveSpace);
-}
-
-bool IsSpaceFloating(int SpaceID)
-{
-    bool Result = false;
-
-    if(IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(SpaceID);
-        if(It != KWMScreen.Current->Space.end())
-            Result = KWMScreen.Current->Space[SpaceID].Mode == SpaceModeFloating;
-    }
-
     return Result;
 }
 
@@ -437,24 +425,6 @@ bool IsWindowBelowCursor(window_info *Window)
     return Result;
 }
 
-bool IsSpaceInitializedForScreen(screen_info *Screen)
-{
-    std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
-    if(It == Screen->Space.end())
-        return false;
-    else
-        return It->second.Initialized;
-}
-
-bool DoesSpaceExistInMapOfScreen(screen_info *Screen)
-{
-    std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
-    if(It == Screen->Space.end())
-        return false;
-    else
-        return It->second.RootNode != NULL && It->second.Initialized;
-}
-
 bool IsWindowOnActiveSpace(int WindowID)
 {
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
@@ -468,36 +438,6 @@ bool IsWindowOnActiveSpace(int WindowID)
 
     DEBUG("IsWindowOnActiveSpace() window was not found")
     return false;
-}
-
-bool IsSpaceTransitionInProgress()
-{
-    int CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
-    CFStringRef Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
-    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)Identifier);
-    if(Result)
-    {
-        DEBUG("IsSpaceTransitionInProgress() Space transition detected")
-        KWMScreen.UpdateSpace = true;
-        ClearFocusedWindow();
-        ClearMarkedWindow();
-    }
-
-    return Result;
-}
-
-bool IsSpaceSystemOrFullscreen()
-{
-    bool Result = false;
-
-    if(IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        bool Result = CGSSpaceGetType(CGSDefaultConnection, KWMScreen.Current->ActiveSpace) != CGSSpaceTypeUser;
-        if(Result)
-            DEBUG("IsSpaceSystemOrFullscreen() Space is not user created")
-    }
-
-    return Result;
 }
 
 bool FocusWindowOfOSX()
@@ -635,10 +575,6 @@ void UpdateWindowTree()
                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode = NULL;
                 ClearFocusedWindow();
             }
-        }
-        else if(It != KWMScreen.Current->Space.end())
-        {
-            //ShouldFloatingSpaceUpdate(KWMScreen.Current, &It->second);
         }
     }
 }
@@ -1137,56 +1073,6 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
     }
 }
 
-void FloatFocusedSpace()
-{
-    if(KWMScreen.Current &&
-       IsSpaceInitializedForScreen(KWMScreen.Current) &&
-       KWMToggles.EnableTilingMode &&
-       !IsSpaceTransitionInProgress() &&
-       !IsSpaceSystemOrFullscreen() &&
-       FilterWindowList(KWMScreen.Current))
-    {
-        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
-        DestroyNodeTree(Space->RootNode, Space->Mode);
-        Space->RootNode = NULL;
-        Space->Mode = SpaceModeFloating;
-        ClearFocusedWindow();
-    }
-}
-
-void TileFocusedSpace(space_tiling_option Mode)
-{
-    if(KWMScreen.Current &&
-       IsSpaceInitializedForScreen(KWMScreen.Current) &&
-       KWMToggles.EnableTilingMode &&
-       !IsSpaceTransitionInProgress() &&
-       !IsSpaceSystemOrFullscreen() &&
-       FilterWindowList(KWMScreen.Current))
-    {
-        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
-        if(Space->Mode == Mode)
-            return;
-
-        DestroyNodeTree(Space->RootNode, Space->Mode);
-        Space->RootNode = NULL;
-
-        Space->Mode = Mode;
-        std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
-        CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
-    }
-}
-
-void ToggleFocusedSpaceFloating()
-{
-    if(KWMScreen.Current && IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
-            FloatFocusedSpace();
-        else
-            TileFocusedSpace(SpaceModeBSP);
-    }
-}
-
 void ToggleWindowFloating(int WindowID)
 {
     if(IsWindowOnActiveSpace(WindowID) &&
@@ -1425,20 +1311,6 @@ void MarkWindowContainer()
     }
 }
 
-void CloseWindowByRef(AXUIElementRef WindowRef)
-{
-    AXUIElementRef ActionClose;
-    AXUIElementCopyAttributeValue(WindowRef, kAXCloseButtonAttribute, (CFTypeRef*)&ActionClose);
-    AXUIElementPerformAction(ActionClose, kAXPressAction);
-}
-
-void CloseWindow(window_info *Window)
-{
-    AXUIElementRef WindowRef;
-    if(GetWindowRef(Window, &WindowRef))
-        CloseWindowByRef(WindowRef);
-}
-
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
 {
     ProcessSerialNumber NewPSN;
@@ -1643,10 +1515,11 @@ std::string GetUTF8String(CFStringRef Temp)
         char *TempUTF8StringPtr = (char*) malloc(Bytes);
 
         CFStringGetCString(Temp, TempUTF8StringPtr, Bytes, kCFStringEncodingUTF8);
-        Result = TempUTF8StringPtr;
-
         if (TempUTF8StringPtr != NULL)
+        {
+            Result = TempUTF8StringPtr;
             free(TempUTF8StringPtr);
+        }
     }
 
     return Result;
@@ -1901,31 +1774,4 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
         CFDictionaryRef Elem = (CFDictionaryRef)Value;
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
     }
-}
-
-void DestroyApplicationNotifications()
-{
-    if(KWMFocus.Observer == NULL)
-        return;
-
-    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification);
-    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification);
-    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification);
-    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXTitleChangedNotification);
-    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
-
-    CFRelease(KWMFocus.Observer);
-    KWMFocus.Observer = NULL;
-    CFRelease(KWMFocus.Application);
-    KWMFocus.Application = NULL;
-}
-
-void CreateApplicationNotifications()
-{
-    AXObserverCreate(KWMFocus.Window->PID, FocusedAXObserverCallback, &KWMFocus.Observer);
-    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification, NULL);
-    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification, NULL);
-    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification, NULL);
-    AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXTitleChangedNotification, NULL);
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
 }

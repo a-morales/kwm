@@ -1,6 +1,14 @@
 #include "kwm.h"
+#include "helpers.h"
+#include "daemon.h"
+#include "display.h"
+#include "space.h"
+#include "window.h"
+#include "keys.h"
+#include "interpreter.h"
+#include "border.h"
 
-const std::string KwmCurrentVersion = "Kwm Version 1.0.8";
+const std::string KwmCurrentVersion = "Kwm Version 1.0.9";
 const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
 kwm_mach KWMMach = {};
@@ -127,19 +135,6 @@ void * KwmWindowMonitor(void*)
         pthread_mutex_unlock(&KWMThread.Lock);
         usleep(200000);
     }
-}
-
-bool IsPrefixOfString(std::string &Line, std::string Prefix)
-{
-    bool Result = false;
-
-    if(Line.substr(0, Prefix.size()) == Prefix)
-    {
-        Line = Line.substr(Prefix.size()+1);
-        Result = true;
-    }
-
-    return Result;
 }
 
 void KwmReloadConfig()

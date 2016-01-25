@@ -1,4 +1,13 @@
+#include "interpreter.h"
+#include "helpers.h"
 #include "kwm.h"
+#include "daemon.h"
+#include "display.h"
+#include "space.h"
+#include "window.h"
+#include "tree.h"
+#include "keys.h"
+#include "border.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
@@ -6,31 +15,6 @@ extern kwm_focus KWMFocus;
 extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_border KWMBorder;
-
-std::string CreateStringFromTokens(std::vector<std::string> Tokens, int StartIndex)
-{
-    std::string Text = "";
-    for(std::size_t TokenIndex = StartIndex; TokenIndex < Tokens.size(); ++TokenIndex)
-    {
-        Text += Tokens[TokenIndex];
-        if(TokenIndex < Tokens.size() - 1)
-            Text += " ";
-    }
-
-    return Text;
-}
-
-std::vector<std::string> SplitString(std::string Line, char Delim)
-{
-    std::vector<std::string> Elements;
-    std::stringstream Stream(Line);
-    std::string Temp;
-
-    while(std::getline(Stream, Temp, Delim))
-        Elements.push_back(Temp);
-
-    return Elements;
-}
 
 // Command types
 void KwmConfigCommand(std::vector<std::string> &Tokens)

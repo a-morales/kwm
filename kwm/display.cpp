@@ -1,4 +1,7 @@
-#include "kwm.h"
+#include "display.h"
+#include "space.h"
+#include "window.h"
+#include "tree.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
@@ -46,6 +49,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
 
     Screen.ID = ScreenIndex;
     Screen.ForceContainerUpdate = false;
+    Screen.ForceSpaceUpdate = false;
     Screen.ActiveSpace = -1;
     Screen.OldWindowListCount = -1;
 
@@ -70,6 +74,7 @@ void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenI
 
     Screen->Offset = KWMScreen.DefaultOffset;
     Screen->ForceContainerUpdate = true;
+    Screen->ForceSpaceUpdate = true;
 }
 
 void GetActiveDisplays()
@@ -108,15 +113,9 @@ void RefreshActiveDisplays()
         DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex)
     }
 
-    if(KWMScreen.Current)
-        KWMScreen.Current->ForceSpaceUpdate = true;
-
     screen_info *NewScreen = GetDisplayOfMousePointer();
     if(NewScreen)
-    {
-        GiveFocusToScreen(NewScreen->ID, NULL, true);
-        NewScreen->ForceSpaceUpdate = true;
-    }
+        GiveFocusToScreen(NewScreen->ID, NULL, false);
 }
 
 screen_info *GetDisplayFromScreenID(unsigned int ID)
@@ -313,10 +312,7 @@ int GetIndexOfNextScreen()
 
 int GetIndexOfPrevScreen()
 {
-    if(KWMScreen.Current->ID == 0)
-        return KWMScreen.ActiveCount - 1;
-    else
-        return KWMScreen.Current->ID - 1;
+    return KWMScreen.Current->ID == 0 ? KWMScreen.ActiveCount - 1 : KWMScreen.Current->ID - 1;
 }
 
 void ActivateScreen(screen_info *Screen, bool Mouse)
