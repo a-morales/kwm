@@ -38,8 +38,10 @@
         - d: set mode of current space to float
         - r: rotate window-tree by 90 degrees
 
-        - h: focus previous window
-        - l: focus next window
+        - h: focus window west
+        - j: focus window south
+        - k: focus window north
+        - l: focus window east
 
         - p: swap with the previous window
         - n: swap with the next window

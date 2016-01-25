@@ -127,8 +127,12 @@ kwmc bind cmd+alt-f space -t monocle
 kwmc bind cmd+alt-d space -t float
 kwmc bind cmd+alt-r tree -r 90
 
-kwmc bind cmd+alt-h window -f prev
-kwmc bind cmd+alt-l window -f next
+# kwmc bind cmd+alt-h window -f prev
+# kwmc bind cmd+alt-l window -f next
+kwmc bind cmd+alt-h window -f west
+kwmc bind cmd+alt-j window -f south
+kwmc bind cmd+alt-k window -f north
+kwmc bind cmd+alt-l window -f east
 
 kwmc bind cmd+alt-p window -s prev
 kwmc bind cmd+alt-n window -s next
