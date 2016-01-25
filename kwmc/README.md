@@ -119,7 +119,7 @@
             kwmc window -f north|east|south|west|prev|next|curr|first|last
 
         Swap window position
-            kwmc window -s prev|next|mark
+            kwmc window -s north|east|south|west|prev|next|mark
 
         Move marked window to new leaf
             kwmc window -x
