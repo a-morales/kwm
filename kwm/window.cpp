@@ -5,6 +5,8 @@
 #include "notifications.h"
 #include "border.h"
 
+#include <cmath>
+
 static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
 
 extern kwm_screen KWMScreen;
@@ -993,6 +995,90 @@ void SwapFocusedWindowWithNearest(int Shift)
     }
 }
 
+bool WindowIsInDirection(window_info *A, window_info *B, int Degrees)
+{
+    bool Result = false;
+
+    if(Degrees == 0)
+    {
+        if(B->Y + B->Height < A->Y)
+            Result = true;
+    }
+    else if(Degrees == 90)
+    {
+        if(B->X > A->X + A->Width)
+            Result = true;
+    }
+    else if(Degrees == 180)
+    {
+        if(B->Y > A->Y + A->Height)
+            Result = true;
+    }
+    else if(Degrees == 270)
+    {
+        if(B->X + B->Width < A->X)
+            Result = true;
+    }
+
+    return Result;
+}
+
+void GetCenterOfWindow(window_info *Window, int *X, int *Y)
+{
+    *X = Window->X + Window->Width / 2;
+    *Y = Window->Y + Window->Height / 2;
+}
+
+int GetWindowDistance(window_info *A, window_info *B)
+{
+    int Dist = INT_MAX;
+
+    if(A && B)
+    {
+        int X1, Y1, X2, Y2;
+        GetCenterOfWindow(A, &X1, &Y1);
+        GetCenterOfWindow(B, &X2, &Y2);
+
+        Dist = std::sqrt(std::pow(X2-X1, 2) + std::pow(Y2-Y1, 2));
+    }
+
+    return Dist;
+}
+
+window_info FindClosestWindow(int Degrees)
+{
+    window_info *Match = KWMFocus.Window;
+    window_info Target = KWMFocus.Cache;
+    std::vector<window_info> Windows = KWMTiling.WindowLst;
+
+    int MinDist = INT_MAX;
+    for(int Index = 0; Index < Windows.size(); ++Index)
+    {
+        if(!WindowsAreEqual(Match, &Windows[Index]) &&
+            WindowIsInDirection(Match, &Windows[Index], Degrees))
+        {
+            int Dist = GetWindowDistance(Match, &Windows[Index]);
+            if(Dist < MinDist)
+            {
+                MinDist = Dist;
+                Target = Windows[Index];
+            }
+        }
+    }
+
+    return Target;
+}
+
+void ShiftWindowFocusDirected(int Degrees)
+{
+    /* North = 0, East = 90, South = 180, West = 270 */
+    if(!KWMFocus.Window || !KWMScreen.Current || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+        return;
+
+    window_info NewFocusWindow = FindClosestWindow(Degrees);
+    SetWindowFocus(&NewFocusWindow);
+}
+
 void ShiftWindowFocus(int Shift)
 {
     if(!KWMFocus.Window || !KWMScreen.Current || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
@@ -1111,7 +1197,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
         UpdateBorder("focused");
     }
 
-    DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name)
+    DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name << " " << KWMFocus.Window->X << "," << KWMFocus.Window->Y)
     if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
         KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
 }

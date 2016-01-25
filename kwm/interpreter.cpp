@@ -367,7 +367,15 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "-f")
     {
-        if(Tokens[2] == "prev")
+        if(Tokens[2] == "north")
+            ShiftWindowFocusDirected(0);
+        else if(Tokens[2] == "east")
+            ShiftWindowFocusDirected(90);
+        else if(Tokens[2] == "south")
+            ShiftWindowFocusDirected(180);
+        else if(Tokens[2] == "west")
+            ShiftWindowFocusDirected(270);
+        else if(Tokens[2] == "prev")
             ShiftWindowFocus(-1);
         else if(Tokens[2] == "next")
             ShiftWindowFocus(1);
