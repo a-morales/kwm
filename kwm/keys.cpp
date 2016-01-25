@@ -58,7 +58,6 @@ void CheckPrefixTimeout()
         if(Diff.count() > KWMHotkeys.Prefix.Timeout)
             KWMHotkeys.Prefix.Active = false;
     }
-
 }
 
 bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
