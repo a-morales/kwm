@@ -265,6 +265,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     }
     else if(Tokens[1] == "prefix")
     {
+        CheckPrefixTimeout();
         std::string Output = KWMHotkeys.Prefix.Active ? "active" : "inactive";
         KwmWriteToSocket(ClientSockFD, Output);
     }

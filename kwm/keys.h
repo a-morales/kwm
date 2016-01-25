@@ -18,6 +18,7 @@ void KwmEmitKeystrokes(std::string Text);
 void KwmSetPrefix(std::string KeySym);
 void KwmSetPrefixGlobal(bool Global);
 void KwmSetPrefixTimeout(double Timeout);
+void CheckPrefixTimeout();
 
 CFStringRef KeycodeToString(CGKeyCode Keycode);
 bool KeycodeForChar(char Key, CGKeyCode *Keycode);

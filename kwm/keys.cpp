@@ -49,6 +49,18 @@ bool KwmIsPrefixKey(hotkey *PrefixKey, modifiers *Mod, CGKeyCode Keycode)
     return HotkeysAreEqual(PrefixKey, &TempHotkey);
 }
 
+void CheckPrefixTimeout()
+{
+    if(KWMHotkeys.Prefix.Active)
+    {
+        kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
+        std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.Prefix.Time;
+        if(Diff.count() > KWMHotkeys.Prefix.Timeout)
+            KWMHotkeys.Prefix.Active = false;
+    }
+
+}
+
 bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
 {
     hotkey Hotkey = {};
@@ -56,14 +68,7 @@ bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
     {
         if(KWMHotkeys.Prefix.Enabled)
         {
-            if(KWMHotkeys.Prefix.Active)
-            {
-                kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
-                std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.Prefix.Time;
-                if(Diff.count() > KWMHotkeys.Prefix.Timeout)
-                    KWMHotkeys.Prefix.Active = false;
-            }
-
+            CheckPrefixTimeout();
             if((Hotkey.Prefixed || KWMHotkeys.Prefix.Global) &&
                 !KWMHotkeys.Prefix.Active)
                     return false;
