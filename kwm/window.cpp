@@ -1062,7 +1062,9 @@ double GetWindowDistance(window_info *A, window_info *B)
         GetCenterOfWindow(A, &X1, &Y1);
         GetCenterOfWindow(B, &X2, &Y2);
 
-        int Weight = (X1 == X2 ? 1 : 18) * (Y1 == Y2 ? 1 : 18);
+        int ScoreX = X1 >= X2 - 15 && X1 <= X2 + 15 ? 1 : 11;
+        int ScoreY = Y1 >= Y2 - 10 && Y1 <= Y2 + 10 ? 1 : 22;
+        int Weight = ScoreX * ScoreY;
         Dist = std::sqrt(std::pow(X2-X1, 2) + std::pow(Y2-Y1, 2)) + Weight;
     }
 
