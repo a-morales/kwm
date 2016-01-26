@@ -7,6 +7,7 @@
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
+extern kwm_mode KWMMode;
 
 bool GetTagForCurrentSpace(std::string &Tag)
 {
@@ -58,6 +59,17 @@ bool GetTagForCurrentSpace(std::string &Tag)
             Tag = "[" + std::to_string(FocusedIndex) + "/" + std::to_string(NumberOfWindows) + "]";
         else
             Tag = "[" + std::to_string(NumberOfWindows) + "]";
+
+        return true;
+    }
+    else
+    {
+        if(KWMMode.Space == SpaceModeBSP)
+            Tag = "[bsp]";
+        else if(KWMMode.Space == SpaceModeFloating)
+            Tag = "[float]";
+        else if(KWMMode.Space == SpaceModeMonocle)
+            Tag = "[monocle]";
 
         return true;
     }
