@@ -257,6 +257,7 @@ struct kwm_screen
 {
     screen_info *Current;
     bool ForceRefreshFocus;
+    bool Transitioning;
     double SplitRatio;
 
     unsigned int OldScreenID;

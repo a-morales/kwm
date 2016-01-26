@@ -287,6 +287,7 @@ void FocusLastLeafNode()
 void FocusWindowBelowCursor()
 {
     if(IsSpaceTransitionInProgress() ||
+       KWMScreen.Transitioning ||
        IsSpaceSystemOrFullscreen() ||
        !IsSpaceInitializedForScreen(KWMScreen.Current))
            return;
@@ -403,6 +404,9 @@ void UpdateActiveWindowList(screen_info *Screen)
         if(KWMScreen.PrevSpace != Screen->ActiveSpace)
         {
             DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
+            KWMScreen.Transitioning = false;
+            KWMScreen.UpdateSpace = false;
+
             if(Screen->Space[Screen->ActiveSpace].Mode != SpaceModeFloating)
             {
                 if(WindowBelowCursor && KWMMode.Focus != FocusModeDisabled)
@@ -411,7 +415,6 @@ void UpdateActiveWindowList(screen_info *Screen)
                     MoveCursorToCenterOfFocusedWindow();
             }
         }
-        KWMScreen.UpdateSpace = false;
     }
 
     KWMScreen.ForceRefreshFocus = false;

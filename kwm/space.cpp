@@ -116,12 +116,16 @@ bool DoesSpaceExistInMapOfScreen(screen_info *Screen)
 
 bool IsSpaceTransitionInProgress()
 {
+    if(KWMScreen.Transitioning)
+        return true;
+
     int CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
     CFStringRef Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
     bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)Identifier);
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
+        KWMScreen.Transitioning = true;
         KWMScreen.UpdateSpace = true;
         ClearFocusedWindow();
         ClearMarkedWindow();
