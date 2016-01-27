@@ -1,7 +1,7 @@
 #include "display.h"
 #include "space.h"
-#include "window.h"
 #include "tree.h"
+#include "window.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;

@@ -192,23 +192,11 @@ struct kwm_mach
 
 struct kwm_border
 {
-    FILE *FHandle;
-    FILE *MHandle;
-    bool FEnabled;
-    bool MEnabled;
-    bool HEnabled;
-
-    int FWidth;
-    unsigned int FColor;
-    kwm_time_point FTime;
-
-    int MWidth;
-    unsigned int MColor;
-    kwm_time_point MTime;
-
-    int HWidth;
-    unsigned int HColor;
-    kwm_time_point HTime;
+    bool Enabled;
+    FILE *Handle;
+    int Width;
+    unsigned int Color;
+    kwm_time_point Time;
 };
 
 struct kwm_prefix
@@ -221,6 +209,7 @@ struct kwm_prefix
     bool Active;
     bool Global;
 };
+
 
 struct kwm_hotkeys
 {

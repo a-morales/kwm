@@ -19,6 +19,7 @@ bool WindowsAreEqual(window_info *Window, window_info *Match);
 void ClearFocusedWindow();
 bool ShouldWindowGainFocus(window_info *Window);
 bool GetWindowFocusedByOSX(int *WindowWID);
+int GetFocusedWindowID();
 bool FocusWindowOfOSX();
 void FocusWindowBelowCursor();
 void FocusFirstLeafNode();

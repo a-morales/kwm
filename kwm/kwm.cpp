@@ -21,7 +21,9 @@ kwm_tiling KWMTiling = {};
 kwm_cache KWMCache = {};
 kwm_thread KWMThread = {};
 kwm_hotkeys KWMHotkeys = {};
-kwm_border KWMBorder = {};
+kwm_border FocusedBorder = {};
+kwm_border MarkedBorder = {};
+kwm_border PrefixBorder = {};
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
@@ -90,7 +92,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 if(KWMToggles.EnableDragAndDrop && KWMToggles.DragInProgress)
                     KWMToggles.DragInProgress = false;
 
-                if(KWMFocus.Window && KWMBorder.FEnabled)
+                if(KWMFocus.Window && FocusedBorder.Enabled)
                 {
                     if(IsWindowFloating(KWMFocus.Window->WID, NULL))
                         UpdateBorder("focused");
@@ -105,21 +107,9 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
 void KwmQuit()
 {
-    if(KWMBorder.FHandle)
-    {
-        std::string Terminate = "quit";
-        fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.FHandle);
-        fflush(KWMBorder.FHandle);
-        pclose(KWMBorder.FHandle);
-    }
-
-    if(KWMBorder.MHandle)
-    {
-        std::string Terminate = "quit";
-        fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.MHandle);
-        fflush(KWMBorder.MHandle);
-        pclose(KWMBorder.MHandle);
-    }
+    CloseBorder(&FocusedBorder);
+    CloseBorder(&MarkedBorder);
+    CloseBorder(&PrefixBorder);
 
     exit(0);
 }
@@ -353,20 +343,9 @@ bool CheckArguments(int argc, char **argv)
 
 void SignalHandler(int Signum)
 {
-    std::string Terminate = "quit";
-    if(KWMBorder.FHandle)
-    {
-        fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.FHandle);
-        fflush(KWMBorder.FHandle);
-        pclose(KWMBorder.FHandle);
-    }
-
-    if(KWMBorder.MHandle)
-    {
-        fwrite(Terminate.c_str(), Terminate.size(), 1, KWMBorder.MHandle);
-        fflush(KWMBorder.MHandle);
-        pclose(KWMBorder.MHandle);
-    }
+    CloseBorder(&FocusedBorder);
+    CloseBorder(&MarkedBorder);
+    CloseBorder(&PrefixBorder);
 
     signal(Signum, SIG_DFL);
     kill(getpid(), Signum);

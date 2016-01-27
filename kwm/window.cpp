@@ -16,6 +16,8 @@ extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
 extern kwm_path KWMPath;
+extern kwm_border MarkedBorder;
+extern kwm_border FocusedBorder;
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
@@ -216,6 +218,20 @@ bool IsWindowOnActiveSpace(int WindowID)
     return false;
 }
 
+int GetFocusedWindowID()
+{
+    if(KWMFocus.Window && KWMFocus.Window->Layer == 0)
+      return KWMFocus.Window->WID;
+    return -1;
+}
+
+void ClearFocusedWindow()
+{
+    ClearBorder(&FocusedBorder);
+    KWMFocus.Window = NULL;
+    KWMFocus.Cache = KWMFocus.NULLWindowInfo;
+}
+
 bool FocusWindowOfOSX()
 {
     int WindowID;
@@ -237,13 +253,6 @@ bool FocusWindowOfOSX()
     }
 
     return false;
-}
-
-void ClearFocusedWindow()
-{
-    ClearFocusedBorder();
-    KWMFocus.Window = NULL;
-    KWMFocus.Cache = KWMFocus.NULLWindowInfo;
 }
 
 bool ShouldWindowGainFocus(window_info *Window)
@@ -1243,7 +1252,7 @@ void MoveCursorToCenterOfFocusedWindow()
 void ClearMarkedWindow()
 {
     KWMScreen.MarkedWindow = -1;
-    UpdateBorder("marked");
+    ClearBorder(&MarkedBorder);
 }
 
 void MarkWindowContainer()

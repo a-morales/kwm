@@ -40,16 +40,26 @@ std::vector<std::string> SplitString(std::string Line, char Delim)
 
 int ConvertStringToInt(std::string Integer)
 {
-    int SplitMode;
+    int IntResult;
     std::stringstream Stream(Integer);
-    Stream >> SplitMode;
-    return SplitMode;
+    Stream >> IntResult;
+    return IntResult;
 }
+
+unsigned int ConvertHexStringToInt(std::string HexString)
+{
+    unsigned int HexResult = 0xffffff;
+    std::stringstream Stream;
+    Stream << std::hex << HexString;
+    Stream >> HexResult;
+    return HexResult;
+}
+
 
 double ConvertStringToDouble(std::string Double)
 {
-    double SplitRatio;
+    double DoubleResult;
     std::stringstream Stream(Double);
-    Stream >> SplitRatio;
-    return SplitRatio;
+    Stream >> DoubleResult;
+    return DoubleResult;
 }
