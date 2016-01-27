@@ -1,6 +1,7 @@
 #include "keys.h"
 #include "helpers.h"
 #include "interpreter.h"
+#include "border.h"
 
 extern kwm_focus KWMFocus;
 extern kwm_hotkeys KWMHotkeys;
@@ -56,7 +57,10 @@ void CheckPrefixTimeout()
         kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
         std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.Prefix.Time;
         if(Diff.count() > KWMHotkeys.Prefix.Timeout)
+        {
             KWMHotkeys.Prefix.Active = false;
+            UpdateBorder("focused");
+        }
     }
 }
 
@@ -138,7 +142,7 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -293,7 +297,7 @@ CFStringRef KeycodeToString(CGKeyCode Keycode)
                                          LMGetKbdType(), 0,
                                          &DeadKeyState,
                                          MaxStringLength,
-                                         &ActualStringLength, 
+                                         &ActualStringLength,
                                          UnicodeString);
 
         if (ActualStringLength == 0 && DeadKeyState)
@@ -343,7 +347,7 @@ bool KeycodeForChar(char Key, CGKeyCode *Keycode)
     CharStr = CFStringCreateWithCharacters(kCFAllocatorDefault, &Character, 1);
     if (!CFDictionaryGetValueIfPresent(CharToCodeDict, CharStr, (const void **)Keycode))
         Result = false;
-        
+
     CFRelease(CharStr);
     return Result;
 }

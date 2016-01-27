@@ -189,7 +189,7 @@ bool IsWindowBelowCursor(window_info *Window)
     if(Window)
     {
         CGPoint Cursor = GetCursorPos();
-        if(Cursor.x >= Window->X && 
+        if(Cursor.x >= Window->X &&
            Cursor.x <= Window->X + Window->Width &&
            Cursor.y >= Window->Y &&
            Cursor.y <= Window->Y + Window->Height)
@@ -197,7 +197,7 @@ bool IsWindowBelowCursor(window_info *Window)
             Result = true;
         }
     }
-        
+
     return Result;
 }
 
@@ -347,7 +347,7 @@ void UpdateWindowTree()
             }
             else if(It != KWMScreen.Current->Space.end() && WindowsOnDisplay.empty())
             {
-                DestroyNodeTree(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode, 
+                DestroyNodeTree(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode,
                                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode);
                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode = NULL;
                 ClearFocusedWindow();
@@ -1421,7 +1421,7 @@ void ResizeWindowToContainerSize(tree_node *Node)
         if(GetWindowRef(Window, &WindowRef))
         {
             SetWindowDimensions(WindowRef, Window,
-                        Node->Container.X, Node->Container.Y, 
+                        Node->Container.X, Node->Container.Y,
                         Node->Container.Width, Node->Container.Height);
 
             if(WindowsAreEqual(Window, KWMFocus.Window))
@@ -1726,5 +1726,5 @@ void GetWindowInfo(const void *Key, const void *Value, void *Context)
     {
         CFDictionaryRef Elem = (CFDictionaryRef)Value;
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
-    } 
+    }
 }
