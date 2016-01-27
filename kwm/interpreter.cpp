@@ -8,13 +8,17 @@
 #include "tree.h"
 #include "keys.h"
 #include "border.h"
+#include "types.h"
+#include "helpers.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
 extern kwm_focus KWMFocus;
 extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
-extern kwm_border KWMBorder;
+extern kwm_border FocusedBorder;
+extern kwm_border MarkedBorder;
+extern kwm_border PrefixBorder;
 extern kwm_hotkeys KWMHotkeys;
 
 // Command types
@@ -46,81 +50,60 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "enable")
         {
-            KWMBorder.FEnabled = true;
+            FocusedBorder.Enabled = true;
         }
         else if(Tokens[2] == "disable")
         {
-            KWMBorder.FEnabled = false;
+            FocusedBorder.Enabled = false;
             UpdateBorder("focused");
         }
         else if(Tokens[2] == "size")
         {
-            int Width = 4;
-            std::stringstream Stream(Tokens[3]);
-            Stream >> Width;
-            KWMBorder.FWidth = Width;
+            FocusedBorder.Width = ConvertStringToInt(Tokens[3]);
         }
         else if(Tokens[2] == "color")
         {
-            unsigned int Color = 0xffffff;
-            std::stringstream Stream;
-            Stream << std::hex << Tokens[3];
-            Stream >> Color;
-            KWMBorder.FColor = Color;
+            FocusedBorder.Color = ConvertHexStringToInt(Tokens[3]);
         }
     }
     else if(Tokens[1] == "marked-border")
     {
         if(Tokens[2] == "enable")
         {
-            KWMBorder.MEnabled = true;
+            MarkedBorder.Enabled = true;
         }
         else if(Tokens[2] == "disable")
         {
-            KWMBorder.MEnabled = false;
+            MarkedBorder.Enabled = false;
             UpdateBorder("marked");
         }
         else if(Tokens[2] == "size")
         {
-            int Width = 4;
-            std::stringstream Stream(Tokens[3]);
-            Stream >> Width;
-            KWMBorder.MWidth = Width;
+            MarkedBorder.Width = ConvertStringToInt(Tokens[3]);
         }
         else if(Tokens[2] == "color")
         {
-            unsigned int Color = 0xffffff;
-            std::stringstream Stream;
-            Stream << std::hex << Tokens[3];
-            Stream >> Color;
-            KWMBorder.MColor = Color;
+            MarkedBorder.Color = ConvertHexStringToInt(Tokens[3]);
         }
     }
     else if(Tokens[1] == "hotkey-border")
     {
         if(Tokens[2] == "enable")
         {
-            KWMBorder.HEnabled = true;
+            PrefixBorder.Enabled = true;
         }
         else if(Tokens[2] == "disable")
         {
-            KWMBorder.HEnabled = false;
+            PrefixBorder.Enabled = false;
             UpdateBorder("focused");
         }
         else if(Tokens[2] == "size")
         {
-            int Width = 4;
-            std::stringstream Stream(Tokens[3]);
-            Stream >> Width;
-            KWMBorder.HWidth = Width;
+            PrefixBorder.Width = ConvertStringToInt(Tokens[3]);
         }
         else if(Tokens[2] == "color")
         {
-            unsigned int Color = 0xffffff;
-            std::stringstream Stream;
-            Stream << std::hex << Tokens[3];
-            Stream >> Color;
-            KWMBorder.HColor = Color;
+            PrefixBorder.Color = ConvertHexStringToInt(Tokens[3]);
         }
     }
 
@@ -445,7 +428,7 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             return;
 
         ToggleWindowFloating(Marked);
-        ClearMarkedWindow();
+        ClearBorder(MarkedBorder);
         ToggleWindowFloating(Marked);
         MoveCursorToCenterOfFocusedWindow();
     }

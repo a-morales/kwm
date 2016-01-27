@@ -16,6 +16,8 @@ extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
 extern kwm_path KWMPath;
+extern kwm_border MarkedBorder;
+extern kwm_border FocusedBorder;
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
@@ -73,8 +75,8 @@ bool FilterWindowList(screen_info *Screen)
         {
                 Result = false;
                 KWMScreen.UpdateSpace = true;
-                ClearFocusedWindow();
-                ClearMarkedWindow();
+                ClearBorder(FocusedBorder);
+                ClearBorder(MarkedBorder);
                 return Result;
         }
 
@@ -216,6 +218,13 @@ bool IsWindowOnActiveSpace(int WindowID)
     return false;
 }
 
+int GetFocusedWindowID()
+{
+    if(KWMFocus.Window && KWMFocus.Window->Layer == 0)
+      return KWMFocus.Window->WID;
+    return -1;
+}
+
 bool FocusWindowOfOSX()
 {
     int WindowID;
@@ -237,13 +246,6 @@ bool FocusWindowOfOSX()
     }
 
     return false;
-}
-
-void ClearFocusedWindow()
-{
-    ClearFocusedBorder();
-    KWMFocus.Window = NULL;
-    KWMFocus.Cache = KWMFocus.NULLWindowInfo;
 }
 
 bool ShouldWindowGainFocus(window_info *Window)
@@ -350,7 +352,7 @@ void UpdateWindowTree()
                 DestroyNodeTree(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode,
                                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode);
                 KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode = NULL;
-                ClearFocusedWindow();
+                ClearBorder(FocusedBorder);
             }
         }
     }
@@ -390,7 +392,7 @@ void UpdateActiveWindowList(screen_info *Screen)
     {
         DEBUG("UpdateActiveWindowList() Active Display Changed")
         GiveFocusToScreen(Screen->ID, NULL, true);
-        ClearMarkedWindow();
+        ClearBorder(MarkedBorder);
 
         if(Screen->ForceSpaceUpdate)
         {
@@ -516,7 +518,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
     }
     else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
     {
-        ClearFocusedWindow();
+        ClearBorder(FocusedBorder);
         DEBUG("ShouldBSPTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
 
@@ -587,7 +589,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     else
     {
         CurrentNode = GetNodeFromWindowID(RootNode, KWMScreen.MarkedWindow, Space->Mode);
-        ClearMarkedWindow();
+        ClearBorder(MarkedBorder);
     }
 
     if(CurrentNode)
@@ -801,7 +803,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
         return;
 
     if(Window->WID == KWMScreen.MarkedWindow)
-        ClearMarkedWindow();
+        ClearBorder(MarkedBorder);
 
     if(!IsSpaceInitializedForScreen(Screen))
     {
@@ -967,7 +969,7 @@ void SwapFocusedWindowWithMarked()
         }
     }
 
-    ClearMarkedWindow();
+    ClearBorder(MarkedBorder);
 }
 
 void SwapFocusedWindowWithNearest(int Shift)
@@ -1240,12 +1242,6 @@ void MoveCursorToCenterOfFocusedWindow()
         MoveCursorToCenterOfWindow(KWMFocus.Window);
 }
 
-void ClearMarkedWindow()
-{
-    KWMScreen.MarkedWindow = -1;
-    UpdateBorder("marked");
-}
-
 void MarkWindowContainer()
 {
     if(KWMFocus.Window)
@@ -1253,7 +1249,7 @@ void MarkWindowContainer()
         if(KWMScreen.MarkedWindow == KWMFocus.Window->WID)
         {
             DEBUG("MarkWindowContainer() Unmarked " << KWMFocus.Window->Name)
-            ClearMarkedWindow();
+            ClearBorder(MarkedBorder);
         }
         else
         {

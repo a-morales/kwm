@@ -8,6 +8,8 @@ extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
 extern kwm_mode KWMMode;
+extern kwm_border FocusedBorder;
+extern kwm_border MarkedBorder;
 
 bool GetTagForCurrentSpace(std::string &Tag)
 {
@@ -25,7 +27,7 @@ bool GetTagForCurrentSpace(std::string &Tag)
             return true;
         }
 
-        tree_node *Node = Space->RootNode; 
+        tree_node *Node = Space->RootNode;
         bool FoundFocusedWindow = false;
         int FocusedIndex = 0;
         int NumberOfWindows = 0;
@@ -127,8 +129,8 @@ bool IsSpaceTransitionInProgress()
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
         KWMScreen.Transitioning = true;
         KWMScreen.UpdateSpace = true;
-        ClearFocusedWindow();
-        ClearMarkedWindow();
+        ClearBorder(FocusedBorder);
+        ClearBorder(MarkedBorder);
     }
 
     return Result;
@@ -161,7 +163,7 @@ void FloatFocusedSpace()
         DestroyNodeTree(Space->RootNode, Space->Mode);
         Space->RootNode = NULL;
         Space->Mode = SpaceModeFloating;
-        ClearFocusedWindow();
+        ClearBorder(FocusedBorder);
     }
 }
 

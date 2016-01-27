@@ -5,7 +5,8 @@
 
 std::string ConvertHexToRGBAString(int WindowID, int Color, int Width);
 kwm_time_point PerformUpdateBorderTimer(kwm_time_point Time);
-void UpdateBorder(std::string Border);
-void ClearFocusedBorder();
+void CloseBorder(kwm_border &Border);
+void UpdateBorder(std::string BorderType);
+void ClearBorder(kwm_border &Border);
 
 #endif

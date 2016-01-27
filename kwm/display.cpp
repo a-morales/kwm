@@ -1,13 +1,15 @@
+#include "border.h"
 #include "display.h"
 #include "space.h"
-#include "window.h"
 #include "tree.h"
+#include "window.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_tiling KWMTiling;
 extern kwm_thread KWMThread;
 extern kwm_toggles KWMToggles;
+extern kwm_border FocusedBorder;
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
@@ -418,7 +420,7 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                 {
                     DEBUG("Space is floating")
                     ActivateScreen(Screen, Mouse);
-                    ClearFocusedWindow();
+                    ClearBorder(FocusedBorder);
                     return;
                 }
 
