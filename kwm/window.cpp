@@ -1008,7 +1008,7 @@ void SwapFocusedWindowDirected(int Degrees)
     if(FocusedWindowNode)
     {
         window_info SwapWindow = {};
-        if(FindClosestWindow(Degrees, &SwapWindow))
+        if(FindClosestWindow(Degrees, &SwapWindow, false))
         {
             tree_node *NewFocusNode = GetNodeFromWindowID(Space->RootNode, SwapWindow.WID, Space->Mode);
             if(NewFocusNode)
@@ -1024,32 +1024,28 @@ void SwapFocusedWindowDirected(int Degrees)
     }
 }
 
-bool WindowIsInDirection(window_info *A, window_info *B, int Degrees)
+bool WindowIsInDirection(window_info *A, window_info *B, int Degrees, bool Wrap)
 {
-    bool Result = false;
-
-    if(Degrees == 0)
+    if(Wrap)
     {
-        if(B->Y + B->Height < A->Y)
-            Result = true;
+        if(Degrees == 0 || Degrees == 180)
+            return A->Y != B->Y && fmax(A->X, B->X) < fmin(B->X + B->Width, A->X + A->Width);
+        else if(Degrees == 90 || Degrees == 270)
+            return A->X != B->X && fmax(A->Y, B->Y) < fmin(B->Y + B->Height, A->Y + A->Height);
     }
-    else if(Degrees == 90)
+    else
     {
-        if(B->X > A->X + A->Width)
-            Result = true;
-    }
-    else if(Degrees == 180)
-    {
-        if(B->Y > A->Y + A->Height)
-            Result = true;
-    }
-    else if(Degrees == 270)
-    {
-        if(B->X + B->Width < A->X)
-            Result = true;
+        if(Degrees == 0)
+            return B->Y + B->Height < A->Y;
+        else if(Degrees == 90)
+            return B->X > A->X + A->Width;
+        else if(Degrees == 180)
+            return B->Y > A->Y + A->Height;
+        else if(Degrees == 270)
+            return B->X + B->Width < A->X;
     }
 
-    return Result;
+    return false;
 }
 
 void GetCenterOfWindow(window_info *Window, int *X, int *Y)
@@ -1077,20 +1073,42 @@ double GetWindowDistance(window_info *A, window_info *B)
     return Dist;
 }
 
-bool FindClosestWindow(int Degrees, window_info *Target)
+bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
 {
-    bool Result = true;
     *Target = KWMFocus.Cache;
     window_info *Match = KWMFocus.Window;
     std::vector<window_info> Windows = KWMTiling.WindowLst;
+
+    int MatchX, MatchY;
+    GetCenterOfWindow(Match, &MatchX, &MatchY);
 
     double MinDist = INT_MAX;
     for(int Index = 0; Index < Windows.size(); ++Index)
     {
         if(!WindowsAreEqual(Match, &Windows[Index]) &&
-            WindowIsInDirection(Match, &Windows[Index], Degrees))
+           WindowIsInDirection(Match, &Windows[Index], Degrees, Wrap))
         {
-            double Dist = GetWindowDistance(Match, &Windows[Index]);
+            window_info FocusWindow = Windows[Index];
+
+            if(Wrap)
+            {
+                int WindowX, WindowY;
+                GetCenterOfWindow(&Windows[Index], &WindowX, &WindowY);
+
+                window_info WrappedWindow = Windows[Index];
+                if(Degrees == 0 && MatchY < WindowY)
+                    WrappedWindow.Y -= KWMScreen.Current->Height;
+                else if(Degrees == 180 && MatchY > WindowY)
+                    WrappedWindow.Y += KWMScreen.Current->Height;
+                else if(Degrees == 90 && MatchX > WindowX)
+                    WrappedWindow.X += KWMScreen.Current->Width;
+                else if(Degrees == 270 && MatchX < WindowX)
+                    WrappedWindow.X -= KWMScreen.Current->Width;
+
+                FocusWindow = WrappedWindow;
+            }
+
+            double Dist = GetWindowDistance(Match, &FocusWindow);
             if(Dist < MinDist)
             {
                 MinDist = Dist;
@@ -1099,50 +1117,7 @@ bool FindClosestWindow(int Degrees, window_info *Target)
         }
     }
 
-    if(MinDist == INT_MAX &&
-       KWMMode.Cycle == CycleModeScreen)
-    {
-        tree_node *FocusNode = NULL;
-        if(Degrees == 90)
-            FocusNode = GetFirstLeafNode(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode);
-        else if(Degrees == 270)
-            FocusNode = GetLastLeafNode(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode);
-
-        if(FocusNode)
-        {
-            window_info *FocusWindow = GetWindowByID(FocusNode->WindowID);
-            if(FocusWindow)
-                *Target = *FocusWindow;
-        }
-    }
-    else if(MinDist == INT_MAX &&
-            KWMMode.Cycle == CycleModeAll &&
-            Degrees == 90)
-    {
-        int ScreenIndex = GetIndexOfNextScreen();
-        screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-        tree_node *FocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
-        if(FocusNode)
-        {
-            GiveFocusToScreen(ScreenIndex, FocusNode, false);
-            return false;
-        }
-    }
-    else if(MinDist == INT_MAX &&
-            KWMMode.Cycle == CycleModeAll &&
-            Degrees == 270)
-    {
-        int ScreenIndex = GetIndexOfPrevScreen();
-        screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-        tree_node *FocusNode = GetLastLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
-        if(FocusNode)
-        {
-            GiveFocusToScreen(ScreenIndex, FocusNode, false);
-            return false;
-        }
-    }
-
-    return Result;
+    return MinDist != INT_MAX;
 }
 
 void ShiftWindowFocusDirected(int Degrees)
@@ -1154,10 +1129,33 @@ void ShiftWindowFocusDirected(int Degrees)
     if(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeBSP)
     {
         window_info NewFocusWindow = {};
-        if(FindClosestWindow(Degrees, &NewFocusWindow))
+        if((KWMMode.Cycle == CycleModeDisabled &&
+           FindClosestWindow(Degrees, &NewFocusWindow, false)) ||
+           (KWMMode.Cycle == CycleModeScreen &&
+            FindClosestWindow(Degrees, &NewFocusWindow, true)))
         {
             SetWindowFocus(&NewFocusWindow);
             MoveCursorToCenterOfFocusedWindow();
+        }
+        else if(KWMMode.Cycle == CycleModeAll)
+        {
+           if(FindClosestWindow(Degrees, &NewFocusWindow, false))
+           {
+                SetWindowFocus(&NewFocusWindow);
+                MoveCursorToCenterOfFocusedWindow();
+           }
+           else
+           {
+               if(Degrees != 90 && Degrees != 270)
+                   return;
+
+                int ScreenIndex = Degrees == 90 ? GetIndexOfNextScreen() : GetIndexOfPrevScreen();
+                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
+                tree_node *RootNode = Screen->Space[Screen->ActiveSpace].RootNode;
+                tree_node *FocusNode = Degrees == 90 ? GetFirstLeafNode(RootNode) : GetLastLeafNode(RootNode);
+                if(FocusNode)
+                    GiveFocusToScreen(ScreenIndex, FocusNode, false);
+           }
         }
     }
     else if(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeMonocle)

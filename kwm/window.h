@@ -53,10 +53,10 @@ void MoveCursorToCenterOfWindow(window_info *Window);
 void MoveCursorToCenterOfFocusedWindow();
 void ShiftWindowFocus(int Shift);
 void ShiftWindowFocusDirected(int Degrees);
-bool FindClosestWindow(int Degrees, window_info *Target);
+bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap);
 double GetWindowDistance(window_info *A, window_info *B);
 void GetCenterOfWindow(window_info *Window, int *X, int *Y);
-bool WindowIsInDirection(window_info *A, window_info *B, int Degrees);
+bool WindowIsInDirection(window_info *A, window_info *B, int Degrees, bool Wrap);
 
 void ClearMarkedWindow();
 void MarkWindowContainer();
