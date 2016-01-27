@@ -1141,13 +1141,13 @@ void ShiftWindowFocusDirected(int Degrees)
         {
             if(FindClosestWindow(Degrees, &NewFocusWindow, true))
             {
-                int ScreenIndex = -1;
+                int ScreenIndex = KWMScreen.Current->ID;
                 if(Degrees == 90 && WindowIsInDirection(KWMFocus.Window, &NewFocusWindow, 270, false))
                     ScreenIndex = GetIndexOfNextScreen();
                 else if(Degrees == 270 && WindowIsInDirection(KWMFocus.Window, &NewFocusWindow, 90, false))
                     ScreenIndex = GetIndexOfPrevScreen();
 
-                if(ScreenIndex == -1)
+                if(ScreenIndex == KWMScreen.Current->ID)
                 {
                     SetWindowFocus(&NewFocusWindow);
                     MoveCursorToCenterOfFocusedWindow();
