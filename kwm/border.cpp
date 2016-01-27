@@ -24,13 +24,13 @@ std::string ConvertHexToRGBAString(int WindowID, int Color, int Width)
     return std::to_string(WindowID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(Width);
 }
 
-void ClearBorder(kwm_border &Border)
+void ClearBorder(kwm_border *Border)
 {
-    if(Border.Handle)
+    if(Border->Handle)
     {
         std::string Command = "clear";
-        fwrite(Command.c_str(), Command.size(), 1, Border.Handle);
-        fflush(Border.Handle);
+        fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
+        fflush(Border->Handle);
     }
 }
 
@@ -47,15 +47,15 @@ kwm_time_point PerformUpdateBorderTimer(kwm_time_point Time)
     return NewBorderTime;
 }
 
-void CloseBorder(kwm_border &Border)
+void CloseBorder(kwm_border *Border)
 {
-    if(Border.Handle)
+    if(Border->Handle)
     {
         std::string Terminate = "quit";
-        fwrite(Terminate.c_str(), Terminate.size(), 1, Border.Handle);
-        fflush(Border.Handle);
-        pclose(Border.Handle);
-        Border.Handle = NULL;
+        fwrite(Terminate.c_str(), Terminate.size(), 1, Border->Handle);
+        fflush(Border->Handle);
+        pclose(Border->Handle);
+        Border->Handle = NULL;
     }
 }
 
@@ -99,7 +99,7 @@ void UpdateBorder(std::string BorderType)
         fflush(Border->Handle);
     }
     else if(WindowID == -1)
-        ClearBorder(*Border);
+        ClearBorder(Border);
     else
-        CloseBorder(*Border);
+        CloseBorder(Border);
 }

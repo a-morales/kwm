@@ -129,8 +129,8 @@ bool IsSpaceTransitionInProgress()
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
         KWMScreen.Transitioning = true;
         KWMScreen.UpdateSpace = true;
-        ClearBorder(FocusedBorder);
-        ClearBorder(MarkedBorder);
+        ClearFocusedWindow();
+        ClearMarkedWindow();
     }
 
     return Result;
@@ -163,7 +163,7 @@ void FloatFocusedSpace()
         DestroyNodeTree(Space->RootNode, Space->Mode);
         Space->RootNode = NULL;
         Space->Mode = SpaceModeFloating;
-        ClearBorder(FocusedBorder);
+        ClearFocusedWindow();
     }
 }
 

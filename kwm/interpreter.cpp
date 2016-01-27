@@ -428,7 +428,7 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             return;
 
         ToggleWindowFloating(Marked);
-        ClearBorder(MarkedBorder);
+        ClearBorder(&MarkedBorder);
         ToggleWindowFloating(Marked);
         MoveCursorToCenterOfFocusedWindow();
     }

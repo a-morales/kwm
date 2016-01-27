@@ -107,9 +107,9 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
 void KwmQuit()
 {
-    CloseBorder(FocusedBorder);
-    CloseBorder(MarkedBorder);
-    CloseBorder(PrefixBorder);
+    CloseBorder(&FocusedBorder);
+    CloseBorder(&MarkedBorder);
+    CloseBorder(&PrefixBorder);
 
     exit(0);
 }
@@ -343,10 +343,9 @@ bool CheckArguments(int argc, char **argv)
 
 void SignalHandler(int Signum)
 {
-    std::string Terminate = "quit";
-    CloseBorder(FocusedBorder);
-    CloseBorder(MarkedBorder);
-    CloseBorder(PrefixBorder);
+    CloseBorder(&FocusedBorder);
+    CloseBorder(&MarkedBorder);
+    CloseBorder(&PrefixBorder);
 
     signal(Signum, SIG_DFL);
     kill(getpid(), Signum);

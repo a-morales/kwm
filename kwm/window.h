@@ -16,6 +16,7 @@ bool IsWindowBelowCursor(window_info *Window);
 bool IsWindowOnActiveSpace(int WindowID);
 bool WindowsAreEqual(window_info *Window, window_info *Match);
 
+void ClearFocusedWindow();
 bool ShouldWindowGainFocus(window_info *Window);
 bool GetWindowFocusedByOSX(int *WindowWID);
 int GetFocusedWindowID();
@@ -58,6 +59,7 @@ double GetWindowDistance(window_info *A, window_info *B);
 void GetCenterOfWindow(window_info *Window, int *X, int *Y);
 bool WindowIsInDirection(window_info *A, window_info *B, int Degrees, bool Wrap);
 
+void ClearMarkedWindow();
 void MarkWindowContainer();
 
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window);

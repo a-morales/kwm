@@ -420,7 +420,7 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                 {
                     DEBUG("Space is floating")
                     ActivateScreen(Screen, Mouse);
-                    ClearBorder(FocusedBorder);
+                    ClearFocusedWindow();
                     return;
                 }
 
