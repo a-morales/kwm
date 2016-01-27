@@ -86,7 +86,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             MarkedBorder.Color = ConvertHexStringToInt(Tokens[3]);
         }
     }
-    else if(Tokens[1] == "hotkey-border")
+    else if(Tokens[1] == "prefix-border")
     {
         if(Tokens[2] == "enable")
         {

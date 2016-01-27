@@ -33,10 +33,10 @@
             kwmc config marked-border size number
             kwmc config marked-border color aarrggbb (hex value)
 
-        Customize border when hotkey-prefix is active
-            kwmc config hotkey-border enable|disable
-            kwmc config hotkey-border size number
-            kwmc config hotkey-border color aarrggbb (hex value)
+        Customize border when prefix-key is active
+            kwmc config prefix-border enable|disable
+            kwmc config prefix-border size number
+            kwmc config prefix-border color aarrggbb (hex value)
 
         The container position to be occupied by the new window
             kwmc config spawn left|right
