@@ -4,6 +4,7 @@ extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_path KWMPath;
 extern kwm_border KWMBorder;
+extern kwm_hotkeys KWMHotkeys;
 
 std::string ConvertHexToRGBAString(int WindowID, int Color, int Width)
 {
@@ -64,7 +65,14 @@ void UpdateBorder(std::string Border)
 
                 DEBUG("UpdateFocusedBorder()")
                 KWMBorder.FTime = PerformUpdateBorderTimer(KWMBorder.FTime);
-                std::string Border = ConvertHexToRGBAString(KWMFocus.Window->WID, KWMBorder.FColor, KWMBorder.FWidth);
+                int BorderWidth = KWMBorder.FWidth;
+                unsigned int BorderColor = KWMBorder.FColor;
+                if(KWMBorder.HEnabled && KWMHotkeys.Prefix.Active)
+                {
+                    BorderWidth = KWMBorder.HWidth;
+                    BorderColor = KWMBorder.HColor;
+                }
+                std::string Border = ConvertHexToRGBAString(KWMFocus.Window->WID, BorderColor, BorderWidth);
                 fwrite(Border.c_str(), Border.size(), 1, KWMBorder.FHandle);
                 fflush(KWMBorder.FHandle);
             }

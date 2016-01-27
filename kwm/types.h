@@ -68,11 +68,11 @@ extern "C" void NSApplicationLoad(void);
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);
 
 enum focus_option
-{ 
-    FocusModeAutofocus, 
-    FocusModeAutoraise, 
+{
+    FocusModeAutofocus,
+    FocusModeAutoraise,
     FocusModeStandby,
-    FocusModeDisabled 
+    FocusModeDisabled
 };
 
 enum cycle_focus_option
@@ -126,7 +126,7 @@ struct container_offset
 };
 
 struct node_container
-{    
+{
     double X, Y;
     double Width, Height;
     int Type;
@@ -196,6 +196,7 @@ struct kwm_border
     FILE *MHandle;
     bool FEnabled;
     bool MEnabled;
+    bool HEnabled;
 
     int FWidth;
     unsigned int FColor;
@@ -204,6 +205,10 @@ struct kwm_border
     int MWidth;
     unsigned int MColor;
     kwm_time_point MTime;
+
+    int HWidth;
+    unsigned int HColor;
+    kwm_time_point HTime;
 };
 
 struct kwm_prefix

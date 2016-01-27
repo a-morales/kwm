@@ -33,6 +33,11 @@
             kwmc config marked-border size number
             kwmc config marked-border color aarrggbb (hex value)
 
+        Customize border when hotkey-prefix is active
+            kwmc config hotkey-border enable|disable
+            kwmc config hotkey-border size number
+            kwmc config hotkey-border color aarrggbb (hex value)
+
         The container position to be occupied by the new window
             kwmc config spawn left|right
 
@@ -88,7 +93,7 @@
             kwmc unbind mod+mod+mod-key
 
         Add custom role for which windows Kwm should tile.
-        To find the role of a window that Kwm doesn't tile, 
+        To find the role of a window that Kwm doesn't tile,
         Use the OSX Accessibility Inspector utility.
             kwmc config add-role role application
 
