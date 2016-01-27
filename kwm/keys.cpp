@@ -37,8 +37,11 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event)
     {
         KWMHotkeys.Prefix.Active = true;
         KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
-        ClearBorder(&FocusedBorder);
-        UpdateBorder("focused");
+        if(PrefixBorder.Enabled)
+        {
+            ClearBorder(&FocusedBorder);
+            UpdateBorder("focused");
+        }
         return true;
     }
 
