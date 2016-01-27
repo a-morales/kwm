@@ -227,9 +227,9 @@ int GetFocusedWindowID()
 
 void ClearFocusedWindow()
 {
-  ClearBorder(&FocusedBorder);
-  KWMFocus.Window = NULL;
-  KWMFocus.Cache = KWMFocus.NULLWindowInfo;
+    ClearBorder(&FocusedBorder);
+    KWMFocus.Window = NULL;
+    KWMFocus.Cache = KWMFocus.NULLWindowInfo;
 }
 
 bool FocusWindowOfOSX()

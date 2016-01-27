@@ -1,4 +1,3 @@
-#include "border.h"
 #include "display.h"
 #include "space.h"
 #include "tree.h"
@@ -9,7 +8,6 @@ extern kwm_focus KWMFocus;
 extern kwm_tiling KWMTiling;
 extern kwm_thread KWMThread;
 extern kwm_toggles KWMToggles;
-extern kwm_border FocusedBorder;
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
