@@ -1130,7 +1130,7 @@ void ShiftWindowFocusDirected(int Degrees)
     {
         window_info NewFocusWindow = {};
         if((KWMMode.Cycle == CycleModeDisabled &&
-           FindClosestWindow(Degrees, &NewFocusWindow, false)) ||
+            FindClosestWindow(Degrees, &NewFocusWindow, false)) ||
            (KWMMode.Cycle == CycleModeScreen &&
             FindClosestWindow(Degrees, &NewFocusWindow, true)))
         {
@@ -1139,23 +1139,28 @@ void ShiftWindowFocusDirected(int Degrees)
         }
         else if(KWMMode.Cycle == CycleModeAll)
         {
-           if(FindClosestWindow(Degrees, &NewFocusWindow, false))
-           {
-                SetWindowFocus(&NewFocusWindow);
-                MoveCursorToCenterOfFocusedWindow();
-           }
-           else
-           {
-               if(Degrees != 90 && Degrees != 270)
-                   return;
+            if(FindClosestWindow(Degrees, &NewFocusWindow, true))
+            {
+                int ScreenIndex = -1;
+                if(Degrees == 90 && WindowIsInDirection(KWMFocus.Window, &NewFocusWindow, 270, false))
+                    ScreenIndex = GetIndexOfNextScreen();
+                else if(Degrees == 270 && WindowIsInDirection(KWMFocus.Window, &NewFocusWindow, 90, false))
+                    ScreenIndex = GetIndexOfPrevScreen();
 
-                int ScreenIndex = Degrees == 90 ? GetIndexOfNextScreen() : GetIndexOfPrevScreen();
-                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-                tree_node *RootNode = Screen->Space[Screen->ActiveSpace].RootNode;
-                tree_node *FocusNode = Degrees == 90 ? GetFirstLeafNode(RootNode) : GetLastLeafNode(RootNode);
-                if(FocusNode)
-                    GiveFocusToScreen(ScreenIndex, FocusNode, false);
-           }
+                if(ScreenIndex == -1)
+                {
+                    SetWindowFocus(&NewFocusWindow);
+                    MoveCursorToCenterOfFocusedWindow();
+                }
+                else
+                {
+                    screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
+                    tree_node *RootNode = Screen->Space[Screen->ActiveSpace].RootNode;
+                    tree_node *FocusNode = Degrees == 90 ? GetFirstLeafNode(RootNode) : GetLastLeafNode(RootNode);
+                    if(FocusNode)
+                        GiveFocusToScreen(ScreenIndex, FocusNode, false);
+                }
+            }
         }
     }
     else if(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeMonocle)
