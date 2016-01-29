@@ -1300,8 +1300,10 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     }
 
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name << " " << KWMFocus.Window->X << "," << KWMFocus.Window->Y)
-    if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
-        KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
+    if(KWMMode.Focus != FocusModeDisabled &&
+       KWMMode.Focus != FocusModeAutofocus &&
+       KWMToggles.StandbyOnFloat)
+           KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
 }
 
 void SetWindowFocus(window_info *Window)
@@ -1493,12 +1495,14 @@ std::string GetWindowTitle(AXUIElementRef WindowRef)
     std::string WindowTitle;
     AXUIElementCopyAttributeValue(WindowRef, kAXTitleAttribute, (CFTypeRef*)&Temp);
 
-    WindowTitle = GetUTF8String(Temp);
-    if(WindowTitle.empty())
-        WindowTitle = CFStringGetCStringPtr(Temp, kCFStringEncodingMacRoman);
+    if(Temp)
+    {
+        WindowTitle = GetUTF8String(Temp);
+        if(WindowTitle.empty())
+            WindowTitle = CFStringGetCStringPtr(Temp, kCFStringEncodingMacRoman);
 
-    if(Temp != NULL)
         CFRelease(Temp);
+    }
 
     return WindowTitle;
 }
@@ -1695,16 +1699,16 @@ bool GetWindowFocusedByOSX(int *WindowWID)
 
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
 {
+
     CFStringRef K = (CFStringRef)Key;
     std::string KeyStr = CFStringGetCStringPtr(K, kCFStringEncodingMacRoman);
-
     CFTypeID ID = CFGetTypeID(Value);
     if(ID == CFStringGetTypeID())
     {
         CFStringRef V = (CFStringRef)Value;
         std::string ValueStr = GetUTF8String(V);
         if(ValueStr.empty() && CFStringGetCStringPtr(V, kCFStringEncodingMacRoman))
-                ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
+            ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
 
         if(KeyStr == "kCGWindowName")
             KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Name = ValueStr;
