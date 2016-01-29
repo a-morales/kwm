@@ -39,7 +39,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyDown:
         {
-            CheckPrefixTimeout();
             if(KWMToggles.UseBuiltinHotkeys && KwmMainHotkeyTrigger(&Event))
             {
                     pthread_mutex_unlock(&KWMThread.Lock);
@@ -57,7 +56,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyUp:
         {
-            CheckPrefixTimeout();
             if(KWMMode.Focus == FocusModeAutofocus &&
                !IsActiveSpaceFloating())
             {
@@ -119,6 +117,7 @@ void * KwmWindowMonitor(void*)
     while(1)
     {
         pthread_mutex_lock(&KWMThread.Lock);
+        CheckPrefixTimeout();
         UpdateWindowTree();
         pthread_mutex_unlock(&KWMThread.Lock);
         usleep(200000);
