@@ -345,12 +345,12 @@ void UpdateWindowTree()
                 CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
             }
             else if(It != KWMScreen.Current->Space.end() && !WindowsOnDisplay.empty() &&
-                    KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode == NULL)
+                    !KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode)
             {
                 CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
             }
             else if(It != KWMScreen.Current->Space.end() && !WindowsOnDisplay.empty() &&
-                    KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode != NULL)
+                    KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode)
             {
                 ShouldWindowNodeTreeUpdate(KWMScreen.Current);
             }
@@ -501,7 +501,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
         DEBUG("ShouldBSPTreeUpdate() Add Window")
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
-            if(GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode) == NULL)
+            if(!GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode))
             {
                 if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]) &&
                    !IsWindowFloating(KWMTiling.WindowLst[WindowIndex].WID, NULL))
@@ -552,7 +552,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
                 RemoveWindowFromBSPTree(Screen, WindowIDsInTree[IDIndex], false, true);
         }
 
-        if(KWMFocus.Window == NULL)
+        if(!KWMFocus.Window)
         {
             if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
                 FocusWindowBelowCursor();
@@ -700,7 +700,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
         DEBUG("ShouldMonocleTreeUpdate() Add Window")
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
-            if(GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode) == NULL)
+            if(!GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode))
             {
                 if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]))
                 {
@@ -1470,7 +1470,7 @@ std::string GetUTF8String(CFStringRef Temp)
 {
     std::string Result;
 
-    if(CFStringGetCStringPtr(Temp, kCFStringEncodingUTF8) == NULL)
+    if(!CFStringGetCStringPtr(Temp, kCFStringEncodingUTF8))
     {
         CFIndex Length = CFStringGetLength(Temp);
         CFIndex Bytes = 4 * Length + 1;
