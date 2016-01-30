@@ -409,11 +409,11 @@ void UpdateActiveWindowList(screen_info *Screen)
     }
     else if(KWMScreen.UpdateSpace)
     {
+        KWMScreen.Transitioning = false;
         Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
         if(KWMScreen.PrevSpace != Screen->ActiveSpace)
         {
             DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
-            KWMScreen.Transitioning = false;
             KWMScreen.UpdateSpace = false;
 
             if(Screen->Space[Screen->ActiveSpace].Mode != SpaceModeFloating)
