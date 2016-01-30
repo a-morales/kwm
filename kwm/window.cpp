@@ -1479,7 +1479,7 @@ std::string GetUTF8String(CFStringRef Temp)
         char *TempUTF8StringPtr = (char*) malloc(Bytes);
 
         CFStringGetCString(Temp, TempUTF8StringPtr, Bytes, kCFStringEncodingUTF8);
-        if (TempUTF8StringPtr != NULL)
+        if (TempUTF8StringPtr)
         {
             Result = TempUTF8StringPtr;
             free(TempUTF8StringPtr);
@@ -1513,10 +1513,11 @@ CGSize GetWindowSize(AXUIElementRef WindowRef)
     CGSize WindowSize;
 
     AXUIElementCopyAttributeValue(WindowRef, kAXSizeAttribute, (CFTypeRef*)&Temp);
-    AXValueGetValue(Temp, kAXValueCGSizeType, &WindowSize);
-
-    if(Temp != NULL)
+    if(Temp)
+    {
+        AXValueGetValue(Temp, kAXValueCGSizeType, &WindowSize);
         CFRelease(Temp);
+    }
 
     return WindowSize;
 }
@@ -1527,10 +1528,11 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef)
     CGPoint WindowPos;
 
     AXUIElementCopyAttributeValue(WindowRef, kAXPositionAttribute, (CFTypeRef*)&Temp);
-    AXValueGetValue(Temp, kAXValueCGPointType, &WindowPos);
-
-    if(Temp != NULL)
+    if(Temp)
+    {
+        AXValueGetValue(Temp, kAXValueCGPointType, &WindowPos);
         CFRelease(Temp);
+    }
 
     return WindowPos;
 }
@@ -1599,7 +1601,7 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
     for(CFIndex WindowIndex = 0; WindowIndex < AppWindowCount; ++WindowIndex)
     {
         AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
-        if(AppWindowRef != NULL)
+        if(AppWindowRef)
         {
             KWMCache.WindowRefs[Window->PID].push_back(AppWindowRef);
             if(!Found)
