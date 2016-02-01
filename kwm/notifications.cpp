@@ -36,11 +36,6 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
                 KWMMode.Focus = FocusModeStandby;
             }
         }
-        else if(CFEqual(Notification, kAXWindowMovedNotification) ||
-                CFEqual(Notification, kAXWindowResizedNotification))
-        {
-            ResizeWindowToContainerSize(Window);
-        }
     }
     else
     {
