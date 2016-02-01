@@ -1370,6 +1370,37 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
     }
 
+    CGPoint WindowOrigin = GetWindowPos(WindowRef);
+    CGSize WindowOGSize = GetWindowSize(WindowRef);
+
+    int XDiff = (X + Width) - (WindowOrigin.x + WindowOGSize.width);
+    int YDiff = (Y + Height) - (WindowOrigin.y + WindowOGSize.height);
+
+    if(XDiff != 0 || YDiff != 0)
+    {
+        double XOff = XDiff / 2.0f;
+        X += XOff;
+        Width -= XOff;
+
+        double YOff = YDiff / 2.0f;
+        Y += YOff;
+        Height -= YOff;
+
+        WindowPos = CGPointMake(X, Y);
+        CFTypeRef CWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
+
+        WindowSize = CGSizeMake(Width, Height);
+        CFTypeRef CWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
+
+        PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, CWindowPos);
+        SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, CWindowSize);
+
+        if(CWindowPos != NULL)
+            CFRelease(CWindowPos);
+        if(CWindowSize != NULL)
+            CFRelease(CWindowSize);
+    }
+
     if(UpdateWindowInfo)
     {
         Window->X = X;
