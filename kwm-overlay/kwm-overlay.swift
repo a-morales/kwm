@@ -8,7 +8,7 @@ func trim(str: String) -> String {
 
 }
 
-func parseFrame(args: Array<String>, strokeWidth: Int) -> NSRect
+func parseFrame(args: Array<String>) -> NSRect
 {
     var frameHash = [String: Int]()
     frameHash["w"] = 0
@@ -71,10 +71,10 @@ func parseFrame(args: Array<String>, strokeWidth: Int) -> NSRect
         }
     }
 
-    return NSRect(x: frameHash["x"]! - (strokeWidth / 2),
-                  y: frameHash["y"]! - (strokeWidth / 2),
-                  width: frameHash["w"]! + strokeWidth,
-                  height: frameHash["h"]! + strokeWidth)
+    return NSRect(x: frameHash["x"]! - 1,
+                  y: frameHash["y"]! - 1,
+                  width: frameHash["w"]! + 2,
+                  height: frameHash["h"]! + 2)
 }
 
 func parseColor(args: Array<String>) -> NSColor
@@ -184,7 +184,7 @@ class OverlayController: NSObject, NSApplicationDelegate
     {
         let overlayColor = parseColor(args)
         let overlayWidth = parseWidth(args)
-        let overlayFrame = parseFrame(args, strokeWidth: Int(overlayWidth))
+        let overlayFrame = parseFrame(args)
         let overlayView = OverlayView(frame: overlayFrame, color: overlayColor, width: overlayWidth)
 
         window.contentView = overlayView
