@@ -70,6 +70,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
 void CenterWindow(screen_info *Screen, window_info *Window);
 void ModifyContainerSplitRatio(double Offset);
 void ResizeWindowToContainerSize(tree_node *Node);
+void ResizeWindowToContainerSize(window_info *Window);
 void ResizeWindowToContainerSize();
 
 CGPoint GetCursorPos();

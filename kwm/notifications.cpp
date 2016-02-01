@@ -10,30 +10,46 @@ extern kwm_mode KWMMode;
 
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
-    if(!KWMFocus.Window)
+    int WindowID = -1;
+    _AXUIElementGetWindow(Element, &WindowID);
+    window_info *Window = GetWindowByID(WindowID);
+    if(!Window)
     {
         DestroyApplicationNotifications();
         return;
     }
 
-    if(KWMToggles.EnableDragAndDrop &&
-       KWMToggles.DragInProgress &&
-       CFEqual(Notification, kAXWindowMovedNotification) &&
-       !IsWindowFloating(KWMFocus.Window->WID, NULL))
+    if(!IsWindowFloating(WindowID, NULL))
     {
-        KWMToggles.DragInProgress = false;
-        KWMTiling.FloatingWindowLst.push_back(KWMFocus.Window->WID);
-        RemoveWindowFromBSPTree(KWMScreen.Current, KWMFocus.Window->WID, false, false);
+        if(KWMToggles.EnableDragAndDrop &&
+           KWMToggles.DragInProgress &&
+           CFEqual(Notification, kAXWindowMovedNotification))
+        {
+            KWMToggles.DragInProgress = false;
+            KWMTiling.FloatingWindowLst.push_back(WindowID);
+            RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, false, false);
 
-        if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
-            KWMMode.Focus = FocusModeStandby;
+            if(KWMMode.Focus != FocusModeDisabled &&
+                    KWMMode.Focus != FocusModeAutofocus &&
+                    KWMToggles.StandbyOnFloat)
+            {
+                KWMMode.Focus = FocusModeStandby;
+            }
+        }
+        else if((CFEqual(Notification, kAXWindowMovedNotification) ||
+                CFEqual(Notification, kAXWindowResizedNotification)) &&
+                !IsWindowFloating(WindowID, NULL))
+        {
+            ResizeWindowToContainerSize(Window);
+        }
+    }
+    else
+    {
+        UpdateBorder("focused");
     }
 
-    if(CFEqual(Notification, kAXTitleChangedNotification) && KWMFocus.Window)
-        KWMFocus.Window->Name = GetWindowTitle(Element);
-
-    if(IsFocusedWindowFloating())
-        UpdateBorder("focused");
+    if(CFEqual(Notification, kAXTitleChangedNotification))
+        Window->Name = GetWindowTitle(Element);
 }
 
 void DestroyApplicationNotifications()

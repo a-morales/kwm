@@ -1445,18 +1445,23 @@ void ResizeWindowToContainerSize(tree_node *Node)
     }
 }
 
-void ResizeWindowToContainerSize()
+void ResizeWindowToContainerSize(window_info *Window)
 {
-    if(KWMFocus.Window)
+    if(Window)
     {
         if(KWMScreen.Current && DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         {
             space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
-            tree_node *Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+            tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, Space->Mode);
             if(Node)
                 ResizeWindowToContainerSize(Node);
         }
     }
+}
+
+void ResizeWindowToContainerSize()
+{
+    ResizeWindowToContainerSize(KWMFocus.Window);
 }
 
 CGPoint GetCursorPos()
