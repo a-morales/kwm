@@ -37,7 +37,7 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             }
         }
         else if(CFEqual(Notification, kAXWindowMovedNotification) ||
-                CFEqual(Notification, kAXWindowResizedNotification)
+                CFEqual(Notification, kAXWindowResizedNotification))
         {
             ResizeWindowToContainerSize(Window);
         }
