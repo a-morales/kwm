@@ -956,6 +956,36 @@ void ToggleFocusedWindowFullscreen()
     }
 }
 
+void DetachAndReinsertWindow(int WindowID, int Degrees)
+{
+    if(WindowID == KWMScreen.MarkedWindow)
+    {
+        int Marked = KWMScreen.MarkedWindow;
+        if(Marked == -1 || (KWMFocus.Window && Marked == KWMFocus.Window->WID))
+            return;
+
+        ToggleWindowFloating(Marked);
+        ClearMarkedWindow();
+        ToggleWindowFloating(Marked);
+        MoveCursorToCenterOfFocusedWindow();
+    }
+    else
+    {
+        if(WindowID == KWMScreen.MarkedWindow ||
+           WindowID == -1)
+            return;
+
+        window_info InsertWindow = {};
+        if(FindClosestWindow(Degrees, &InsertWindow, false))
+        {
+            ToggleWindowFloating(WindowID);
+            KWMScreen.MarkedWindow = InsertWindow.WID;
+            ToggleWindowFloating(WindowID);
+            MoveCursorToCenterOfFocusedWindow();
+        }
+    }
+}
+
 void SwapFocusedWindowWithMarked()
 {
     if(!KWMFocus.Window || KWMScreen.MarkedWindow == KWMFocus.Window->WID || KWMScreen.MarkedWindow == -1)

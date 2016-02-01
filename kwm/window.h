@@ -47,6 +47,7 @@ void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowParentContainer();
 void ToggleFocusedWindowFullscreen();
 
+void DetachAndReinsertWindow(int WindowID, int Degrees);
 void SwapFocusedWindowWithMarked();
 void SwapFocusedWindowDirected(int Degrees);
 void SwapFocusedWindowWithNearest(int Shift);

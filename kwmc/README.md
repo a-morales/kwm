@@ -126,8 +126,8 @@
         Swap window position
             kwmc window -s north|east|south|west|prev|next|mark
 
-        Move marked window to new leaf
-            kwmc window -x
+        Detach window and reinsert at the given position
+            kwmc window -x north|east|south|west|mark
 
         Rotate window-tree
             kwmc tree -r 90|180|270

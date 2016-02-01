@@ -83,8 +83,8 @@ void ShowHelp(std::string Command)
             "   -c split                                               Toggle between vertical and horizontal split for an existing container\n"
             "   -c reduce|expand amount                                Change split-ratio of the focused container (0 < amount < 1)\n"
             "   -f north|east|south|west|prev|next|curr|first|last     Change window focus\n"
-            "   -s north|east|south|west|prev|next|mark                                      Swap window position\n"
-            "   -x                                                     Moved marked window to new leaf\n"
+            "   -s north|east|south|west|prev|next|mark                Swap window position\n"
+            "   -x north|east|south|west|mark                          Detach window and reinsert at the given position\n"
         ;
     }
     else if (Command == "tree")

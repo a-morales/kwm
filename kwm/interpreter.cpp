@@ -423,14 +423,19 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "-x")
     {
-        int Marked = KWMScreen.MarkedWindow;
-        if(Marked == -1 || (KWMFocus.Window && Marked == KWMFocus.Window->WID))
+        if(!KWMFocus.Window)
             return;
 
-        ToggleWindowFloating(Marked);
-        ClearMarkedWindow();
-        ToggleWindowFloating(Marked);
-        MoveCursorToCenterOfFocusedWindow();
+        if(Tokens[2] == "north")
+            DetachAndReinsertWindow(KWMFocus.Window->WID, 0);
+        else if(Tokens[2] == "east")
+            DetachAndReinsertWindow(KWMFocus.Window->WID, 90);
+        else if(Tokens[2] == "south")
+            DetachAndReinsertWindow(KWMFocus.Window->WID, 180);
+        else if(Tokens[2] == "west")
+            DetachAndReinsertWindow(KWMFocus.Window->WID, 270);
+        else if(Tokens[2] == "mark")
+            DetachAndReinsertWindow(KWMScreen.MarkedWindow, 0);
     }
 }
 
