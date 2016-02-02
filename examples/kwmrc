@@ -1,6 +1,6 @@
 # This is a sample config for Kwm
 # The commands listed here can be of
-# two types. 
+# two types.
 #
 # Commands prefixed with 'kwmc' will call
 # local functions corresponding to the
@@ -152,8 +152,14 @@ kwmc bind ctrl+alt-l window -s east
 # Swap With Marked Window
 kwmc bind ctrl+alt-m window -s mark
 
-# Move Marked Window To New Leaf At Focused Window
-kwmc bind ctrl+alt-x window -x
+# Detach Focused Window And Reinsert In Direction
+kwmc bind ctrl+shift-k window -x north
+kwmc bind ctrl+shift-l window -x east
+kwmc bind ctrl+shift-j window -x south
+kwmc bind ctrl+shift-h window -x west
+
+# Detach Marked Window And Reinsert At Focused Window
+kwmc bind ctrl+shift-x window -x mark
 
 # Move Focused Window To Screen
 kwmc bind ctrl+alt-1 screen -m 0

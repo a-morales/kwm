@@ -20,23 +20,29 @@
         - x: increase horizontal gap
         - y: increase vertical gap
 
-        - larrow: increase screen padding-left 
-        - rarrow: increase screen padding-right 
-        - uarrow: increase screen padding-top 
-        - darrow: increase screen padding-bottom 
+        - larrow: increase screen padding-left
+        - rarrow: increase screen padding-right
+        - uarrow: increase screen padding-top
+        - darrow: increase screen padding-bottom
 
     - prefix+shift:
         - x: decrease horizontal gap
         - y: decrease vertical gap
 
-        - larrow: decrease screen padding-left 
-        - rarrow: decrease screen padding-right 
-        - uarrow: decrease screen padding-top 
-        - darrow: decrease screen padding-bottom 
+        - larrow: decrease screen padding-left
+        - rarrow: decrease screen padding-right
+        - uarrow: decrease screen padding-top
+        - darrow: decrease screen padding-bottom
+
+    - ctrl+shift:
+        - x: detach marked window and insert at focused container
+        - h: detach focused window and insert at west container
+        - j: detach focused window and insert at south container
+        - k: detach focused window and insert at north container
+        - l: detach focused window and insert at east container
 
     - ctrl+alt:
         - m: swap with the marked window
-        - x: detach marked window and insert at focused container
 
         - h: swap with west window
         - j: swap with south window
