@@ -1406,15 +1406,15 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     int XDiff = (X + Width) - (WindowOrigin.x + WindowOGSize.width);
     int YDiff = (Y + Height) - (WindowOrigin.y + WindowOGSize.height);
 
-    if(XDiff != 0 || YDiff != 0)
+    if(XDiff > 0 || YDiff > 0)
     {
         double XOff = XDiff / 2.0f;
-        X += XOff;
-        Width -= XOff;
+        X += XOff > 0 ? XOff : 0;
+        Width -= XOff > 0 ? XOff : 0;
 
         double YOff = YDiff / 2.0f;
-        Y += YOff;
-        Height -= YOff;
+        Y += YOff > 0 ? YOff : 0;
+        Height -= YOff > 0 ? YOff : 0;
 
         WindowPos = CGPointMake(X, Y);
         CFTypeRef CWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
