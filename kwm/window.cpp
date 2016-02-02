@@ -1047,7 +1047,7 @@ void SwapFocusedWindowDirected(int Degrees)
     if(FocusedWindowNode)
     {
         window_info SwapWindow = {};
-        if(FindClosestWindow(Degrees, &SwapWindow, false))
+        if(FindClosestWindow(Degrees, &SwapWindow, KWMMode.Cycle == CycleModeScreen))
         {
             tree_node *NewFocusNode = GetNodeFromWindowID(Space->RootNode, SwapWindow.WID, Space->Mode);
             if(NewFocusNode)
