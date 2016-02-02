@@ -303,14 +303,11 @@ void FocusWindowBelowCursor()
 
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
     {
+        if(KWMTiling.FocusLst[WindowIndex].Owner == "kwm-overlay")
+            continue;
+
         if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]) && ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
         {
-            if(KWMTiling.FocusLst[WindowIndex].Owner == "kwm-overlay")
-                continue;
-
-            if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock")
-                continue;
-
             if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
                 KWMFocus.Cache = KWMTiling.FocusLst[WindowIndex];
             else
