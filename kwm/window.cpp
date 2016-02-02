@@ -861,7 +861,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
     }
 }
 
-void ToggleWindowFloating(int WindowID)
+void ToggleWindowFloating(int WindowID, bool Center)
 {
     if(IsWindowOnActiveSpace(WindowID) &&
        KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeBSP)
@@ -878,7 +878,7 @@ void ToggleWindowFloating(int WindowID)
         else
         {
             KWMTiling.FloatingWindowLst.push_back(WindowID);
-            RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, true, true);
+            RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, Center, Center);
 
             if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
                 KWMMode.Focus = FocusModeStandby;
@@ -889,7 +889,7 @@ void ToggleWindowFloating(int WindowID)
 void ToggleFocusedWindowFloating()
 {
     if(KWMFocus.Window)
-        ToggleWindowFloating(KWMFocus.Window->WID);
+        ToggleWindowFloating(KWMFocus.Window->WID, true);
 }
 
 void ToggleFocusedWindowParentContainer()
@@ -964,9 +964,9 @@ void DetachAndReinsertWindow(int WindowID, int Degrees)
         if(Marked == -1 || (KWMFocus.Window && Marked == KWMFocus.Window->WID))
             return;
 
-        ToggleWindowFloating(Marked);
+        ToggleWindowFloating(Marked, false);
         ClearMarkedWindow();
-        ToggleWindowFloating(Marked);
+        ToggleWindowFloating(Marked, false);
         MoveCursorToCenterOfFocusedWindow();
     }
     else
@@ -978,9 +978,9 @@ void DetachAndReinsertWindow(int WindowID, int Degrees)
         window_info InsertWindow = {};
         if(FindClosestWindow(Degrees, &InsertWindow, false))
         {
-            ToggleWindowFloating(WindowID);
+            ToggleWindowFloating(WindowID, false);
             KWMScreen.MarkedWindow = InsertWindow.WID;
-            ToggleWindowFloating(WindowID);
+            ToggleWindowFloating(WindowID, false);
             MoveCursorToCenterOfFocusedWindow();
         }
     }

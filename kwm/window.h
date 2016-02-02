@@ -42,7 +42,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space);
 void AddWindowToMonocleTree(screen_info *Screen, int WindowID);
 void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center);
 
-void ToggleWindowFloating(int WindowID);
+void ToggleWindowFloating(int WindowID, bool Center);
 void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowParentContainer();
 void ToggleFocusedWindowFullscreen();
