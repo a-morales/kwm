@@ -269,6 +269,11 @@ void FocusWindowBelowCursor()
         if(KWMTiling.FocusLst[WindowIndex].Owner == "kwm-overlay")
             continue;
 
+        if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock" &&
+           KWMTiling.FocusLst[WindowIndex].X == 0 &&
+           KWMTiling.FocusLst[WindowIndex].Y == 0)
+            continue;
+
         if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]) && ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
         {
             if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
