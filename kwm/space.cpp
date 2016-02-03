@@ -11,7 +11,6 @@ extern kwm_mode KWMMode;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
 
-
 void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
 {
     tree_node *Node = Space->RootNode;
