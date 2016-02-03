@@ -42,6 +42,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event)
             ClearBorder(&FocusedBorder);
             UpdateBorder("focused");
         }
+
         return true;
     }
 
@@ -72,6 +73,30 @@ void CheckPrefixTimeout()
     }
 }
 
+bool IsHotkeyStateReqFulfilled(hotkey *Hotkey)
+{
+    if(Hotkey->State == HotkeyStateInclude && KWMFocus.Window)
+    {
+        for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
+        {
+            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
+                return true;
+        }
+    }
+    else if(Hotkey->State == HotkeyStateExclude && KWMFocus.Window)
+    {
+        for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
+        {
+            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
+                return false;
+        }
+
+        return true;
+    }
+    else if(Hotkey->State == HotkeyStateNone)
+        return true;
+}
+
 bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
 {
     hotkey Hotkey = {};
@@ -89,35 +114,7 @@ bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
                     KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
         }
 
-        bool ShouldExecute = false;
-        if(Hotkey.State == HotkeyStateInclude && KWMFocus.Window)
-        {
-            for(std::size_t AppIndex = 0; AppIndex < Hotkey.List.size(); ++AppIndex)
-            {
-                if(KWMFocus.Window->Owner == Hotkey.List[AppIndex])
-                {
-                    ShouldExecute = true;
-                    break;
-                }
-            }
-        }
-        else if(Hotkey.State == HotkeyStateExclude && KWMFocus.Window)
-        {
-            bool IsValid = true;
-            for(std::size_t AppIndex = 0; AppIndex < Hotkey.List.size(); ++AppIndex)
-            {
-                if(KWMFocus.Window->Owner == Hotkey.List[AppIndex])
-                {
-                    IsValid = false;
-                    break;
-                }
-            }
-            ShouldExecute = IsValid;
-        }
-        else if(Hotkey.State == HotkeyStateNone)
-            ShouldExecute = true;
-
-        if(ShouldExecute)
+        if(IsHotkeyStateReqFulfilled(&Hotkey))
         {
             if(Hotkey.Command.empty())
                 return true;
@@ -158,26 +155,31 @@ void DetermineHotkeyState(hotkey *Hotkey, std::string &Command)
 {
     std::size_t StartOfList = Command.find("{");
     std::size_t EndOfList = Command.find("}");
-    if(Command.empty() ||
-       StartOfList == std::string::npos ||
-       EndOfList == std::string::npos)
+
+    bool Valid = Command.empty() &&
+                 StartOfList == std::string::npos &&
+                 EndOfList == std::string::npos;
+
+    if(Valid)
     {
+        std::string Applications = Command.substr(StartOfList + 1, EndOfList - (StartOfList + 1));
+        Hotkey->List = SplitString(Applications, ',');
+
+        if(Command[Command.size()-2] == '-')
+        {
+            if(Command[Command.size()-1] == 'e')
+                Hotkey->State = HotkeyStateExclude;
+            else if(Command[Command.size()-1] == 'i')
+                Hotkey->State = HotkeyStateInclude;
+            else
+                Hotkey->State = HotkeyStateNone;
+
+            Command = Command.substr(0, StartOfList - 1);
+        }
+    }
+
+    if(!Valid)
         Hotkey->State = HotkeyStateNone;
-        return;
-    }
-
-    std::string Applications = Command.substr(StartOfList + 1, EndOfList - (StartOfList + 1));
-    Hotkey->List = SplitString(Applications, ',');
-
-    if(Command[Command.size()-2] == '-')
-    {
-        if(Command[Command.size()-1] == 'e')
-            Hotkey->State = HotkeyStateExclude;
-        else if(Command[Command.size()-1] == 'i')
-            Hotkey->State = HotkeyStateInclude;
-
-        Command = Command.substr(0, StartOfList - 1);
-    }
 }
 
 bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)

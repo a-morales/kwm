@@ -7,6 +7,7 @@ bool HotkeysAreEqual(hotkey *A, hotkey *B);
 bool KwmIsPrefixKey(hotkey *PrefixKey, modifiers *Mod, CGKeyCode Keycode);
 bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey);
 void DetermineHotkeyState(hotkey *Hotkey, std::string &Command);
+bool IsHotkeyStateReqFulfilled(hotkey *Hotkey);
 
 bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey);
 void KwmAddHotkey(std::string KeySym, std::string Command);
