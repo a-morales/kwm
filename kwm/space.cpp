@@ -134,11 +134,7 @@ bool IsSpaceSystemOrFullscreen()
     bool Result = false;
 
     if(IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        bool Result = CGSSpaceGetType(CGSDefaultConnection, KWMScreen.Current->ActiveSpace) != CGSSpaceTypeUser;
-        if(Result)
-            DEBUG("IsSpaceSystemOrFullscreen() Space is not user created")
-    }
+        Result = CGSSpaceGetType(CGSDefaultConnection, KWMScreen.Current->ActiveSpace) != CGSSpaceTypeUser;
 
     return Result;
 }
