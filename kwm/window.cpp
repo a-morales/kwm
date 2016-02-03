@@ -1597,6 +1597,9 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole)
 
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
 {
+    if(Window->Owner == "Dock")
+        return false;
+
     if(GetWindowRefFromCache(Window, WindowRef))
         return true;
 
