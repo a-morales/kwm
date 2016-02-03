@@ -3,7 +3,8 @@
 
 #include "types.h"
 
-bool GetTagForCurrentSpace(std::string &Tag);
+void GetTagForMonocleSpace(space_info *Space, std::string &Tag);
+void GetTagForCurrentSpace(std::string &Tag);
 bool IsSpaceInitializedForScreen(screen_info *Screen);
 bool DoesSpaceExistInMapOfScreen(screen_info *Screen);
 

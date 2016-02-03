@@ -11,58 +11,56 @@ extern kwm_mode KWMMode;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
 
-bool GetTagForCurrentSpace(std::string &Tag)
+
+void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
+{
+    tree_node *Node = Space->RootNode;
+    bool FoundFocusedWindow = false;
+    int FocusedIndex = 0;
+    int NumberOfWindows = 0;
+
+    if(Node && KWMFocus.Window)
+    {
+        FocusedIndex = 1;
+        NumberOfWindows = 1;
+
+        if(Node->WindowID == KWMFocus.Window->WID)
+            FoundFocusedWindow = true;
+
+        while(Node->RightChild)
+        {
+            if(Node->WindowID == KWMFocus.Window->WID)
+                FoundFocusedWindow = true;
+
+            if(!FoundFocusedWindow)
+                ++FocusedIndex;
+
+            ++NumberOfWindows;
+
+            Node = Node->RightChild;
+        }
+
+        if(Node->WindowID == KWMFocus.Window->WID)
+            FoundFocusedWindow = true;
+    }
+
+    if(FoundFocusedWindow)
+        Tag = "[" + std::to_string(FocusedIndex) + "/" + std::to_string(NumberOfWindows) + "]";
+    else
+        Tag = "[" + std::to_string(NumberOfWindows) + "]";
+}
+
+void GetTagForCurrentSpace(std::string &Tag)
 {
     if(KWMScreen.Current && IsSpaceInitializedForScreen(KWMScreen.Current))
     {
         space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
         if(Space->Mode == SpaceModeBSP)
-        {
             Tag = "[bsp]";
-            return true;
-        }
         else if(Space->Mode == SpaceModeFloating)
-        {
             Tag = "[float]";
-            return true;
-        }
-
-        tree_node *Node = Space->RootNode;
-        bool FoundFocusedWindow = false;
-        int FocusedIndex = 0;
-        int NumberOfWindows = 0;
-
-        if(Node && KWMFocus.Window)
-        {
-            FocusedIndex = 1;
-            NumberOfWindows = 1;
-
-            if(Node->WindowID == KWMFocus.Window->WID)
-                FoundFocusedWindow = true;
-
-            while(Node->RightChild)
-            {
-                if(Node->WindowID == KWMFocus.Window->WID)
-                    FoundFocusedWindow = true;
-
-                if(!FoundFocusedWindow)
-                    ++FocusedIndex;
-
-                ++NumberOfWindows;
-
-                Node = Node->RightChild;
-            }
-
-            if(Node->WindowID == KWMFocus.Window->WID)
-                FoundFocusedWindow = true;
-        }
-
-        if(FoundFocusedWindow)
-            Tag = "[" + std::to_string(FocusedIndex) + "/" + std::to_string(NumberOfWindows) + "]";
-        else
-            Tag = "[" + std::to_string(NumberOfWindows) + "]";
-
-        return true;
+        else if(Space->Mode == SpaceModeMonocle)
+            GetTagForMonocleSpace(Space, Tag);
     }
     else
     {
@@ -72,11 +70,7 @@ bool GetTagForCurrentSpace(std::string &Tag)
             Tag = "[float]";
         else if(KWMMode.Space == SpaceModeMonocle)
             Tag = "[monocle]";
-
-        return true;
     }
-
-    return false;
 }
 
 bool IsActiveSpaceFloating()
