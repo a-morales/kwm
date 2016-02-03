@@ -162,15 +162,14 @@ bool IsAnyWindowBelowCursor()
 
 bool IsWindowBelowCursor(window_info *Window)
 {
-    if(Window)
-    {
-        CGPoint Cursor = GetCursorPos();
-        if(Cursor.x >= Window->X &&
-           Cursor.x <= Window->X + Window->Width &&
-           Cursor.y >= Window->Y &&
-           Cursor.y <= Window->Y + Window->Height)
-            return true;
-    }
+    Assert(Window, "IsWindowBelowCursor()")
+
+    CGPoint Cursor = GetCursorPos();
+    if(Cursor.x >= Window->X &&
+       Cursor.x <= Window->X + Window->Width &&
+       Cursor.y >= Window->Y &&
+       Cursor.y <= Window->Y + Window->Height)
+        return true;
 
     return false;
 }
@@ -1229,14 +1228,13 @@ void ShiftWindowFocus(int Shift)
 
 void MoveCursorToCenterOfWindow(window_info *Window)
 {
-    if(Window)
-        CGWarpMouseCursorPosition(CGPointMake(Window->X + Window->Width / 2,
-                                              Window->Y + Window->Height / 2));
+    Assert(Window, "MoveCursorToCenterOfWindow()")
+    CGWarpMouseCursorPosition(CGPointMake(Window->X + Window->Width / 2, Window->Y + Window->Height / 2));
 }
 
 void MoveCursorToCenterOfFocusedWindow()
 {
-    if(KWMToggles.UseMouseFollowsFocus)
+    if(KWMToggles.UseMouseFollowsFocus && KWMFocus.Window)
         MoveCursorToCenterOfWindow(KWMFocus.Window);
 }
 
@@ -1465,21 +1463,20 @@ void ResizeWindowToContainerSize(tree_node *Node)
 
 void ResizeWindowToContainerSize(window_info *Window)
 {
-    if(Window)
+    Assert(Window, "ResizeWindowToContainerSize()")
+    if(KWMScreen.Current && DoesSpaceExistInMapOfScreen(KWMScreen.Current))
     {
-        if(KWMScreen.Current && DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-        {
-            space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
-            tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, Space->Mode);
-            if(Node)
-                ResizeWindowToContainerSize(Node);
-        }
+        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
+        tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, Space->Mode);
+        if(Node)
+            ResizeWindowToContainerSize(Node);
     }
 }
 
 void ResizeWindowToContainerSize()
 {
-    ResizeWindowToContainerSize(KWMFocus.Window);
+    if(KWMFocus.Window)
+        ResizeWindowToContainerSize(KWMFocus.Window);
 }
 
 CGPoint GetCursorPos()
@@ -1502,7 +1499,7 @@ std::string GetUTF8String(CFStringRef Temp)
         char *TempUTF8StringPtr = (char*) malloc(Bytes);
 
         CFStringGetCString(Temp, TempUTF8StringPtr, Bytes, kCFStringEncodingUTF8);
-        if (TempUTF8StringPtr)
+        if(TempUTF8StringPtr)
         {
             Result = TempUTF8StringPtr;
             free(TempUTF8StringPtr);

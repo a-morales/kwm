@@ -11,6 +11,8 @@ extern kwm_hotkeys KWMHotkeys;
 
 std::string ConvertHexToRGBAString(int WindowID, int Color, int Width)
 {
+    Assert(WindowID != -1, "ConvertHexToRGBAString()")
+
     short r = (Color >> 16) & 0xff;
     short g = (Color >> 8) & 0xff;
     short b = (Color >> 0) & 0xff;
@@ -61,6 +63,8 @@ void CloseBorder(kwm_border *Border)
 
 void UpdateBorder(std::string BorderType)
 {
+    Assert(BorderType == "focused" || BorderType == "marked", "UpdateBorder()")
+
     kwm_border *Border = NULL;
     int WindowID;
 
