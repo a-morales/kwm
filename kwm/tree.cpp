@@ -18,7 +18,7 @@ node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
     LeftContainer.Y = Node->Container.Y;
     LeftContainer.Width = (Node->Container.Width * Node->SplitRatio) - (Space->Offset.VerticalGap / 2);
     LeftContainer.Height = Node->Container.Height;
-    
+
     return LeftContainer;
 }
 
@@ -367,9 +367,7 @@ tree_node *GetNearestLeafNeighbour(tree_node *Node, space_tiling_option Mode)
         if(Mode == SpaceModeBSP)
             return IsLeftChild(Node) ? GetNearestNodeToTheRight(Node, Mode) : GetNearestNodeToTheLeft(Node, Mode);
         else if(Mode == SpaceModeMonocle)
-        {
             return Node->LeftChild ? Node->LeftChild : Node->RightChild;
-        }
     }
 
     return NULL;
@@ -417,6 +415,9 @@ tree_node *GetNearestNodeToTheLeft(tree_node *Node, space_tiling_option Mode)
 {
     if(Node)
     {
+        if(Mode == SpaceModeMonocle)
+            return Node->LeftChild;
+
         if(Mode == SpaceModeBSP)
         {
             if(Node->Parent)
@@ -435,10 +436,6 @@ tree_node *GetNearestNodeToTheLeft(tree_node *Node, space_tiling_option Mode)
                 return Root->RightChild;
             }
         }
-        else if(Mode == SpaceModeMonocle)
-        {
-            return Node->LeftChild;
-        }
     }
 
     return NULL;
@@ -448,6 +445,9 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node, space_tiling_option Mode)
 {
     if(Node)
     {
+        if(Mode == SpaceModeMonocle)
+            return Node->RightChild;
+
         if(Mode == SpaceModeBSP)
         {
             if(Node->Parent)
@@ -465,10 +465,6 @@ tree_node *GetNearestNodeToTheRight(tree_node *Node, space_tiling_option Mode)
 
                 return Root->LeftChild;
             }
-        }
-        else if(Mode == SpaceModeMonocle)
-        {
-            return Node->RightChild;
         }
     }
 
