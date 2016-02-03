@@ -156,9 +156,9 @@ void DetermineHotkeyState(hotkey *Hotkey, std::string &Command)
     std::size_t StartOfList = Command.find("{");
     std::size_t EndOfList = Command.find("}");
 
-    bool Valid = Command.empty() &&
-                 StartOfList == std::string::npos &&
-                 EndOfList == std::string::npos;
+    bool Valid = !Command.empty() &&
+                 StartOfList != std::string::npos &&
+                 EndOfList != std::string::npos;
 
     if(Valid)
     {
