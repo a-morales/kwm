@@ -61,8 +61,9 @@ void CloseBorder(kwm_border *Border)
 
 void UpdateBorder(std::string BorderType)
 {
-    kwm_border *Border;
+    kwm_border *Border = NULL;
     int WindowID;
+
     if(BorderType == "focused")
     {
         WindowID = GetFocusedWindowID();

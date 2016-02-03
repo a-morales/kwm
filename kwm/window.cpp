@@ -21,19 +21,15 @@ extern kwm_border FocusedBorder;
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
-    bool Result = false;
-
     if(!KWMScreen.ForceRefreshFocus && Window && Match)
     {
         if(Window->PID == Match->PID &&
            Window->WID == Match->WID &&
            Window->Layer == Match->Layer)
-        {
-            Result = true;
-        }
+            return true;
     }
 
-    return Result;
+    return false;
 }
 
 void AllowRoleForApplication(std::string Application, std::string Role)
@@ -64,20 +60,17 @@ bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubR
 
 bool FilterWindowList(screen_info *Screen)
 {
-    bool Result = true;
     std::vector<window_info> FilteredWindowLst;
-
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
         // Mission-Control mode is on and so we do not try to tile windows
         if(KWMTiling.WindowLst[WindowIndex].Owner == "Dock" &&
            KWMTiling.WindowLst[WindowIndex].Name == "")
         {
-                Result = false;
                 KWMScreen.UpdateSpace = true;
                 ClearFocusedWindow();
                 ClearMarkedWindow();
-                return Result;
+                return false;
         }
 
         CaptureApplication(&KWMTiling.WindowLst[WindowIndex]);
@@ -95,18 +88,12 @@ bool FilterWindowList(screen_info *Screen)
     }
 
     KWMTiling.WindowLst = FilteredWindowLst;
-    return Result;
+    return true;
 }
 
 bool IsApplicationCapturedByScreen(window_info *Window)
 {
-    bool Result = false;
-
-    std::map<std::string, int>::iterator It = KWMTiling.CapturedAppLst.find(Window->Owner);
-    if(It != KWMTiling.CapturedAppLst.end())
-        Result = true;
-
-    return Result;
+    return KWMTiling.CapturedAppLst.find(Window->Owner) != KWMTiling.CapturedAppLst.end();
 }
 
 void CaptureApplication(window_info *Window)
@@ -126,18 +113,13 @@ void CaptureApplication(window_info *Window)
 
 bool IsApplicationFloating(window_info *Window)
 {
-    bool Result = false;
-
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FloatingAppLst.size(); ++WindowIndex)
     {
         if(Window->Owner == KWMTiling.FloatingAppLst[WindowIndex])
-        {
-            Result = true;
-            break;
-        }
+            return true;
     }
 
-    return Result;
+    return false;
 }
 
 bool IsFocusedWindowFloating()
@@ -147,23 +129,19 @@ bool IsFocusedWindowFloating()
 
 bool IsWindowFloating(int WindowID, int *Index)
 {
-    bool Result = false;
-
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FloatingWindowLst.size(); ++WindowIndex)
     {
         if(WindowID == KWMTiling.FloatingWindowLst[WindowIndex])
         {
             DEBUG("IsWindowFloating(): floating " << WindowID)
-            Result = true;
-
             if(Index)
                 *Index = WindowIndex;
 
-            break;
+            return true;
         }
     }
 
-    return Result;
+    return false;
 }
 
 bool IsAnyWindowBelowCursor()
@@ -176,9 +154,7 @@ bool IsAnyWindowBelowCursor()
            Cursor.x <= Window->X + Window->Width &&
            Cursor.y >= Window->Y &&
            Cursor.y <= Window->Y + Window->Height)
-        {
             return true;
-        }
     }
 
     return false;
@@ -186,8 +162,6 @@ bool IsAnyWindowBelowCursor()
 
 bool IsWindowBelowCursor(window_info *Window)
 {
-    bool Result = false;
-
     if(Window)
     {
         CGPoint Cursor = GetCursorPos();
@@ -195,12 +169,10 @@ bool IsWindowBelowCursor(window_info *Window)
            Cursor.x <= Window->X + Window->Width &&
            Cursor.y >= Window->Y &&
            Cursor.y <= Window->Y + Window->Height)
-        {
-            Result = true;
-        }
+            return true;
     }
 
-    return Result;
+    return false;
 }
 
 bool IsWindowOnActiveSpace(int WindowID)
@@ -220,9 +192,7 @@ bool IsWindowOnActiveSpace(int WindowID)
 
 int GetFocusedWindowID()
 {
-    if(KWMFocus.Window && KWMFocus.Window->Layer == 0)
-      return KWMFocus.Window->WID;
-    return -1;
+    return (KWMFocus.Window && KWMFocus.Window->Layer == 0) ? KWMFocus.Window->WID : -1;
 }
 
 void ClearFocusedWindow()
@@ -257,22 +227,17 @@ bool FocusWindowOfOSX()
 
 bool ShouldWindowGainFocus(window_info *Window)
 {
-    if(Window->Layer == CGWindowLevelForKey(kCGNormalWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGFloatingWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGDockWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGMainMenuWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGMaximumWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGModalPanelWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGUtilityWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGOverlayWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGHelpWindowLevelKey) ||
-       Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey))
-    {
-        return true;
-    }
-
-    return false;
+    return Window->Layer == CGWindowLevelForKey(kCGNormalWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGFloatingWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGDockWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGMainMenuWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGMaximumWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGModalPanelWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGUtilityWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGOverlayWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGHelpWindowLevelKey) ||
+           Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey);
 }
 
 void FocusFirstLeafNode()
@@ -296,7 +261,6 @@ void FocusLastLeafNode()
 void FocusWindowBelowCursor()
 {
     if(IsSpaceTransitionInProgress() ||
-       KWMScreen.Transitioning ||
        IsSpaceSystemOrFullscreen() ||
        !IsSpaceInitializedForScreen(KWMScreen.Current))
            return;
@@ -1496,10 +1460,6 @@ void ResizeWindowToContainerSize(tree_node *Node)
             if(WindowsAreEqual(Window, KWMFocus.Window))
                 KWMFocus.Cache = *Window;
         }
-        else
-        {
-            DEBUG("GetWindowRef() Failed for window " << Window->Name)
-        }
     }
 }
 
@@ -1700,7 +1660,6 @@ bool IsApplicationInCache(int PID, std::vector<AXUIElementRef> *Elements)
 
 bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
 {
-    bool Result = false;
     std::vector<AXUIElementRef> Elements;
     bool IsCached = IsApplicationInCache(Window->PID, &Elements);
 
@@ -1713,8 +1672,7 @@ bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
             if(AppWindowRefWID == Window->WID)
             {
                 *WindowRef = Elements[ElementIndex];
-                Result = true;
-                break;
+                return true;
             }
         }
     }
@@ -1722,7 +1680,7 @@ bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
     if(!IsCached)
         KWMCache.WindowRefs[Window->PID] = std::vector<AXUIElementRef>();
 
-    return Result;
+    return false;
 }
 
 void FreeWindowRefCache(int PID)

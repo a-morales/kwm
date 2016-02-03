@@ -82,6 +82,8 @@ bool IsHotkeyStateReqFulfilled(hotkey *Hotkey)
             if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
                 return true;
         }
+
+        return false;
     }
     else if(Hotkey->State == HotkeyStateExclude && KWMFocus.Window)
     {
@@ -90,11 +92,9 @@ bool IsHotkeyStateReqFulfilled(hotkey *Hotkey)
             if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
                 return false;
         }
-
-        return true;
     }
-    else if(Hotkey->State == HotkeyStateNone)
-        return true;
+
+    return true;
 }
 
 bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
