@@ -14,36 +14,30 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
     _AXUIElementGetWindow(Element, &WindowID);
     window_info *Window = GetWindowByID(WindowID);
     if(!Window)
-    {
-        DestroyApplicationNotifications();
         return;
-    }
-
-    if(!IsWindowFloating(WindowID, NULL))
-    {
-        if(KWMToggles.EnableDragAndDrop &&
-           KWMToggles.DragInProgress &&
-           CFEqual(Notification, kAXWindowMovedNotification))
-        {
-            KWMToggles.DragInProgress = false;
-            KWMTiling.FloatingWindowLst.push_back(WindowID);
-            RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, false, false);
-
-            if(KWMMode.Focus != FocusModeDisabled &&
-                    KWMMode.Focus != FocusModeAutofocus &&
-                    KWMToggles.StandbyOnFloat)
-            {
-                KWMMode.Focus = FocusModeStandby;
-            }
-        }
-    }
-    else
-    {
-        UpdateBorder("focused");
-    }
 
     if(CFEqual(Notification, kAXTitleChangedNotification))
         Window->Name = GetWindowTitle(Element);
+
+    if(IsWindowFloating(WindowID, NULL))
+        UpdateBorder("focused");
+
+    if(!IsWindowFloating(WindowID, NULL) &&
+        KWMToggles.EnableDragAndDrop &&
+        KWMToggles.DragInProgress &&
+        CFEqual(Notification, kAXWindowMovedNotification))
+    {
+        KWMToggles.DragInProgress = false;
+        KWMTiling.FloatingWindowLst.push_back(WindowID);
+        RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, false, false);
+
+        if(KWMMode.Focus != FocusModeDisabled &&
+           KWMMode.Focus != FocusModeAutofocus &&
+           KWMToggles.StandbyOnFloat)
+        {
+            KWMMode.Focus = FocusModeStandby;
+        }
+    }
 }
 
 void DestroyApplicationNotifications()
