@@ -49,8 +49,14 @@ struct kwm_thread;
 
 #ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
+    #define Assert(Expression, Function) if(!(Expression)) \
+                                         {\
+                                            std::cout << "Assertion failed: " << Function << std::endl;\
+                                            *(volatile int*)0 = 0;\
+                                         }
 #else
-    #define DEBUG(x) do {} while (0);
+    #define DEBUG(x)
+    #define Assert(Expression, Function)
 #endif
 
 typedef std::chrono::time_point<std::chrono::steady_clock> kwm_time_point;
