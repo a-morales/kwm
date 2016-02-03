@@ -55,7 +55,6 @@ unsigned int ConvertHexStringToInt(std::string HexString)
     return HexResult;
 }
 
-
 double ConvertStringToDouble(std::string Double)
 {
     double DoubleResult;
