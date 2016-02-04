@@ -1330,6 +1330,10 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     CGSize WindowSize = CGSizeMake(Width, Height);
     CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
 
+    if(!NewWindowPos || !NewWindowSize)
+        return;
+
+    DEBUG("SetWindowDimensions()")
     AXError PosError = kAXErrorFailure;
     AXError SizeError = kAXErrorFailure;
 
@@ -1386,13 +1390,17 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         WindowSize = CGSizeMake(Width, Height);
         CFTypeRef CWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
 
-        PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, CWindowPos);
-        SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, CWindowSize);
-
-        if(CWindowPos != NULL)
+        if(CWindowPos)
+        {
+            PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, CWindowPos);
             CFRelease(CWindowPos);
-        if(CWindowSize != NULL)
+        }
+
+        if(CWindowSize)
+        {
+            SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, CWindowSize);
             CFRelease(CWindowSize);
+        }
     }
 
     if(UpdateWindowInfo)
@@ -1404,11 +1412,8 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         UpdateBorder("focused");
     }
 
-    DEBUG("SetWindowDimensions()")
-    if(NewWindowPos != NULL)
-        CFRelease(NewWindowPos);
-    if(NewWindowSize != NULL)
-        CFRelease(NewWindowSize);
+    CFRelease(NewWindowPos);
+    CFRelease(NewWindowSize);
 }
 
 void CenterWindow(screen_info *Screen, window_info *Window)
@@ -1439,7 +1444,11 @@ void MoveFloatingWindow(int X, int Y)
         WindowPos.y += Y;
 
         CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
-        AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+        if(NewWindowPos)
+        {
+            AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+            CFRelease(NewWindowPos);
+        }
     }
 }
 
