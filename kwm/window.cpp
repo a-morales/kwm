@@ -1433,7 +1433,7 @@ void MoveFloatingWindow(int X, int Y)
 {
     if(!KWMFocus.Window ||
        (!IsWindowFloating(KWMFocus.Window->WID, NULL) &&
-       !IsApplicationFloating(KWMFocus.Window))
+       !IsApplicationFloating(KWMFocus.Window)))
         return;
 
     AXUIElementRef WindowRef;
