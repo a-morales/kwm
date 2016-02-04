@@ -154,7 +154,8 @@ screen_info *GetDisplayOfWindow(window_info *Window)
         for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
         {
             screen_info *Screen = &It->second;
-            if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
+            if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width &&
+               Window->Y >= Screen->Y && Window->Y <= Screen->Y + Screen->Height)
                 return Screen;
         }
     }
@@ -171,7 +172,8 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
         window_info *Window = &KWMTiling.WindowLst[WindowIndex];
         if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]))
         {
-            if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
+            if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width &&
+               Window->Y >= Screen->Y && Window->Y <= Screen->Y + Screen->Height)
                 ScreenWindowLst.push_back(Window);
         }
     }
