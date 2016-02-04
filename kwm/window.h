@@ -69,6 +69,7 @@ void SetWindowFocusByNode(tree_node *Node);
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
 void CenterWindow(screen_info *Screen, window_info *Window);
+void MoveFloatingWindow(int X, int Y);
 void ModifyContainerSplitRatio(double Offset);
 void ResizeWindowToContainerSize(tree_node *Node);
 void ResizeWindowToContainerSize(window_info *Window);

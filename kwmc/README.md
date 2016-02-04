@@ -129,6 +129,9 @@
         Detach window and reinsert at the given position
             kwmc window -x north|east|south|west|mark
 
+        Change position of a floating window
+            kwmc window -m xoff yoff
+
         Rotate window-tree
             kwmc tree -r 90|180|270
 

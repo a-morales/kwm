@@ -359,6 +359,12 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "mark")
             MarkWindowContainer();
     }
+    else if(Tokens[1] == "-m")
+    {
+        int XOff = ConvertStringToInt(Tokens[2]);
+        int YOff = ConvertStringToInt(Tokens[3]);
+        MoveFloatingWindow(XOff, YOff);
+    }
     else if(Tokens[1] == "-c")
     {
         if(Tokens[2] == "split")

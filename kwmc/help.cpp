@@ -85,6 +85,7 @@ void ShowHelp(std::string Command)
             "   -f north|east|south|west|prev|next|curr|first|last     Change window focus\n"
             "   -s north|east|south|west|prev|next|mark                Swap window position\n"
             "   -x north|east|south|west|mark                          Detach window and reinsert at the given position\n"
+            "   -m xoff yoff                                           Change position of a floating window\n"
         ;
     }
     else if (Command == "tree")

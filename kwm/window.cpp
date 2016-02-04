@@ -1424,6 +1424,25 @@ void CenterWindow(screen_info *Screen, window_info *Window)
     }
 }
 
+void MoveFloatingWindow(int X, int Y)
+{
+    if(!KWMFocus.Window ||
+       (!IsWindowFloating(KWMFocus.Window->WID, NULL) &&
+       !IsApplicationFloating(KWMFocus.Window))
+        return;
+
+    AXUIElementRef WindowRef;
+    if(GetWindowRef(KWMFocus.Window, &WindowRef))
+    {
+        CGPoint WindowPos = GetWindowPos(WindowRef);
+        WindowPos.x += X;
+        WindowPos.y += Y;
+
+        CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
+        AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+    }
+}
+
 void ModifyContainerSplitRatio(double Offset)
 {
     if(KWMScreen.Current && DoesSpaceExistInMapOfScreen(KWMScreen.Current))
