@@ -19,7 +19,8 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
     if(CFEqual(Notification, kAXTitleChangedNotification))
         Window->Name = GetWindowTitle(Element);
 
-    if(IsWindowFloating(Window->WID, NULL))
+    if(IsWindowFloating(Window->WID, NULL) ||
+       IsApplicationFloating(Window))
         UpdateBorder("focused");
 
     if(!IsWindowFloating(Window->WID, NULL) &&
