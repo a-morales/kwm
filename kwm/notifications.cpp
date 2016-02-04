@@ -10,26 +10,26 @@ extern kwm_mode KWMMode;
 
 void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, CFStringRef Notification, void *ContextData)
 {
-    int WindowID = -1;
-    _AXUIElementGetWindow(Element, &WindowID);
-    window_info *Window = GetWindowByID(WindowID);
+    Assert(Element, "AXOBserverCallback() Element was null")
+
+    window_info *Window = KWMFocus.Window;
     if(!Window)
         return;
 
     if(CFEqual(Notification, kAXTitleChangedNotification))
         Window->Name = GetWindowTitle(Element);
 
-    if(IsWindowFloating(WindowID, NULL))
+    if(IsWindowFloating(Window->WID, NULL))
         UpdateBorder("focused");
 
-    if(!IsWindowFloating(WindowID, NULL) &&
+    if(!IsWindowFloating(Window->WID, NULL) &&
         KWMToggles.EnableDragAndDrop &&
         KWMToggles.DragInProgress &&
         CFEqual(Notification, kAXWindowMovedNotification))
     {
         KWMToggles.DragInProgress = false;
-        KWMTiling.FloatingWindowLst.push_back(WindowID);
-        RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, false, false);
+        KWMTiling.FloatingWindowLst.push_back(Window->WID);
+        RemoveWindowFromBSPTree(KWMScreen.Current, Window->WID, false, false);
 
         if(KWMMode.Focus != FocusModeDisabled &&
            KWMMode.Focus != FocusModeAutofocus &&
