@@ -10,6 +10,14 @@
 # 'sys' and then the requested command
 # e.g 'sys mvim' would open macvim
 
+# Read file and execute commands as
+# if they were written inside kwmrc.
+#
+# include filename
+#
+# e.g: bind-commands in a separate file called 'binds'
+# include binds
+
 # Set default values for screen padding
 kwmc config padding top 40
 kwmc config padding bottom 20
