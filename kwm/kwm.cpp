@@ -158,16 +158,21 @@ void KwmExecuteConfig()
 
     KWMPath.EnvHome = HomeP;
     KWMPath.ConfigFolder = ".kwm";
-    std::ifstream ConfigFD(KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + KWMPath.ConfigFile);
-    if(ConfigFD.fail())
+    KwmExecuteFile(KWMPath.ConfigFile);
+}
+
+void KwmExecuteFile(std::string File)
+{
+    std::ifstream FileHandle(KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + File);
+    if(FileHandle.fail())
     {
-        DEBUG("Could not open " << KWMPath.EnvHome << "/" << KWMPath.ConfigFolder << "/" << KWMPath.ConfigFile
+        DEBUG("Could not open " << KWMPath.EnvHome << "/" << KWMPath.ConfigFolder << "/" << File
               << ", make sure the file exists." << std::endl)
         return;
     }
 
     std::string Line;
-    while(std::getline(ConfigFD, Line))
+    while(std::getline(FileHandle, Line))
     {
         if(!Line.empty() && Line[0] != '#')
         {
@@ -175,10 +180,12 @@ void KwmExecuteConfig()
                 KwmInterpretCommand(Line, 0);
             else if(IsPrefixOfString(Line, "sys"))
                 system(Line.c_str());
+            else if(IsPrefixOfString(Line, "include"))
+                KwmExecuteFile(Line);
         }
     }
 
-    ConfigFD.close();
+    FileHandle.close();
 }
 
 bool IsKwmAlreadyAddedToLaunchd()

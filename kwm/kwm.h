@@ -7,6 +7,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 void * KwmWindowMonitor(void*);
 
 void KwmExecuteConfig();
+void KwmExecuteFile(std::string File);
 void KwmReloadConfig();
 void KwmClearSettings();
 
