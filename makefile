@@ -45,4 +45,4 @@ $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 
 $(CONFIG_DIR)/kwmrc: $(SAMPLE_CONFIG)
 	mkdir -p $(CONFIG_DIR)
-	if test ! -e $@; then cp -n $^ $@; else yes ; fi
+	if test ! -e $@; then cp -n $^ $@; fi
