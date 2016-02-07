@@ -51,7 +51,7 @@ void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
 
 void GetTagForCurrentSpace(std::string &Tag)
 {
-    if(KWMScreen.Current && IsSpaceInitializedForScreen(KWMScreen.Current))
+    if(IsSpaceInitializedForScreen(KWMScreen.Current))
     {
         space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
         if(Space->Mode == SpaceModeBSP)
@@ -74,7 +74,7 @@ void GetTagForCurrentSpace(std::string &Tag)
 
 bool IsActiveSpaceFloating()
 {
-    return KWMScreen.Current && IsSpaceFloating(KWMScreen.Current->ActiveSpace);
+    return IsSpaceFloating(KWMScreen.Current->ActiveSpace);
 }
 
 bool IsSpaceFloating(int SpaceID)
@@ -93,6 +93,9 @@ bool IsSpaceFloating(int SpaceID)
 
 bool IsSpaceInitializedForScreen(screen_info *Screen)
 {
+    if(!Screen)
+        return false;
+
     std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
     if(It == Screen->Space.end())
         return false;
@@ -102,6 +105,9 @@ bool IsSpaceInitializedForScreen(screen_info *Screen)
 
 bool DoesSpaceExistInMapOfScreen(screen_info *Screen)
 {
+    if(!Screen)
+        return false;
+
     std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
     if(It == Screen->Space.end())
         return false;
@@ -141,8 +147,7 @@ bool IsSpaceSystemOrFullscreen()
 
 void FloatFocusedSpace()
 {
-    if(KWMScreen.Current &&
-       IsSpaceInitializedForScreen(KWMScreen.Current) &&
+    if(IsSpaceInitializedForScreen(KWMScreen.Current) &&
        KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
@@ -158,8 +163,7 @@ void FloatFocusedSpace()
 
 void TileFocusedSpace(space_tiling_option Mode)
 {
-    if(KWMScreen.Current &&
-       IsSpaceInitializedForScreen(KWMScreen.Current) &&
+    if(IsSpaceInitializedForScreen(KWMScreen.Current) &&
        KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        !IsSpaceSystemOrFullscreen() &&
@@ -180,7 +184,7 @@ void TileFocusedSpace(space_tiling_option Mode)
 
 void ToggleFocusedSpaceFloating()
 {
-    if(KWMScreen.Current && IsSpaceInitializedForScreen(KWMScreen.Current))
+    if(IsSpaceInitializedForScreen(KWMScreen.Current))
     {
         if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
             FloatFocusedSpace();
