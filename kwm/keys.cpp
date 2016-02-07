@@ -67,8 +67,11 @@ void CheckPrefixTimeout()
         if(Diff.count() > KWMHotkeys.Prefix.Timeout)
         {
             KWMHotkeys.Prefix.Active = false;
-            ClearBorder(&PrefixBorder);
-            UpdateBorder("focused");
+            if(PrefixBorder.Enabled)
+            {
+                ClearBorder(&PrefixBorder);
+                UpdateBorder("focused");
+            }
         }
     }
 }
@@ -223,8 +226,8 @@ void KwmSetPrefix(std::string KeySym)
     {
         KWMHotkeys.Prefix.Key = Hotkey;
         KWMHotkeys.Prefix.Active = false;
-        ClearBorder(&PrefixBorder);
         KWMHotkeys.Prefix.Enabled = true;
+        ClearBorder(&PrefixBorder);
     }
 }
 
@@ -276,13 +279,13 @@ bool GetLayoutIndependentKeycode(std::string Key, CGKeyCode *Keycode)
         *Keycode = 0x33;
     else if(Key == "escape")
         *Keycode =  0x35;
-    else if(Key == "leftarrow")
+    else if(Key == "left")
         *Keycode =  0x7B;
-    else if(Key == "rightarrow")
+    else if(Key == "right")
         *Keycode =  0x7C;
-    else if(Key == "uparrow")
+    else if(Key == "up")
         *Keycode = 0x7E;
-    else if(Key == "downarrow")
+    else if(Key == "down")
         *Keycode =  0x7D;
     else
         Result = false;
