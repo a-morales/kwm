@@ -170,8 +170,23 @@
         Get tag for current space
             kwmc read tag
 
+        Get id of focused window (-1 == none)
+            kwmc read current
+
         Get id of marked window (-1 == none)
             kwmc read marked
+
+        Get child position of window from parent (left or right child)
+            kwmc read child windowid
+
+        Get id of the window in direction of focused window
+            kwmc read dir south|north|east|west wrap|nowrap
+
+        Check if the focused window and a window have the same parent node
+            kwmc read parent windowid
+
+        Get state of 'kwmc config spawn'
+            kwmc read spawn
 
         Get state of the prefix-key
             kwmc read prefix
@@ -188,8 +203,14 @@
         Get state of mouse-follows-focus
             kwmc read mouse-follows
 
+        Get the split-mode for the given window
+            kwmc read split-mode windowid
+
         Get the current mode used for binary splits
-            kwmc read split-mode
+            kwmc read split-mode global
 
         Get the current ratio used for binary splits
             kwmc read split-ratio
+
+        Get the state of border->enable
+            kwmc read border focused|marked|prefix

@@ -130,14 +130,21 @@ void ShowHelp(std::string Command)
             "Options:\n"
             "   focused                                                Get owner and title of focused window\n"
             "   tag                                                    Get tag for current space\n"
+            "   current                                                Get id of focused window (-1 == not marked)\n"
             "   marked                                                 Get id of marked window (-1 == not marked)\n"
+            "   parent windowid                                        Check if the focused window and a window have the same parent\n"
+            "   dir south|north|east|west wrap|nowrap                  Get id of the window in direction of focused window\n"
+            "   child windowid                                         Get child position of window from parent (left or right child)\n"
             "   prefix                                                 Get state of the prefix-key\n"
             "   space                                                  Get tiling mode for current space\n"
             "   cycle-focus                                            Get active cycle-focus mode\n"
             "   focus                                                  Get state of focus-follows-mouse\n"
             "   mouse-follows                                          Get state of mouse-follows-focus\n"
-            "   split-mode                                             Get the current mode used for binary splits\n"
+            "   spawn                                                  Get state of 'kwmc config spawn'\n"
+            "   split-mode global                                      Get the current mode used for binary splits\n"
+            "   split-mode windowid                                    Get the split-mode used for the given window\n"
             "   split-ratio                                            Get the current ratio used for binary splits\n"
+            "   border focused|marked|prefix                           Get the state of border->enable\n"
         ;
     }
     else
