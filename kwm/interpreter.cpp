@@ -51,6 +51,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         if(Tokens[2] == "enable")
         {
             FocusedBorder.Enabled = true;
+            UpdateBorder("focused");
         }
         else if(Tokens[2] == "disable")
         {
