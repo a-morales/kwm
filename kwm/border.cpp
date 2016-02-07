@@ -26,16 +26,6 @@ std::string ConvertHexToRGBAString(int WindowID, int Color, int Width)
     return std::to_string(WindowID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(Width);
 }
 
-void ClearBorder(kwm_border *Border)
-{
-    if(Border->Handle)
-    {
-        std::string Command = "clear";
-        fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
-        fflush(Border->Handle);
-    }
-}
-
 kwm_time_point PerformUpdateBorderTimer(kwm_time_point Time)
 {
     kwm_time_point NewBorderTime = std::chrono::steady_clock::now();
@@ -47,6 +37,35 @@ kwm_time_point PerformUpdateBorderTimer(kwm_time_point Time)
     }
 
     return NewBorderTime;
+}
+
+void ClearBorder(kwm_border *Border)
+{
+    if(Border->Handle)
+    {
+        std::string Command = "clear";
+        fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
+        fflush(Border->Handle);
+    }
+}
+
+void OpenBorder(kwm_border *Border)
+{
+    if(Border->Enabled && !Border->Handle)
+    {
+        std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
+        Border->Handle = popen(OverlayBin.c_str(), "w");
+        if(!Border->Handle)
+            Border->Enabled = false;
+    }
+}
+
+void RefreshBorder(kwm_border *Border, int WindowID)
+{
+    Border->Time = PerformUpdateBorderTimer(Border->Time);
+    std::string Command = ConvertHexToRGBAString(WindowID, Border->Color, Border->Width);
+    fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
+    fflush(Border->Handle);
 }
 
 void CloseBorder(kwm_border *Border)
@@ -63,18 +82,17 @@ void CloseBorder(kwm_border *Border)
 
 void UpdateBorder(std::string BorderType)
 {
-    Assert(BorderType == "focused" || BorderType == "marked", "UpdateBorder()")
+    Assert(BorderType == "focused" ||
+           BorderType == "marked", "UpdateBorder()")
 
-    kwm_border *Border = NULL;
-    int WindowID;
+    kwm_border *Border = &FocusedBorder;
+    int WindowID = GetFocusedWindowID();
 
-    if(BorderType == "focused")
+    if(BorderType == "focused" &&
+       PrefixBorder.Enabled &&
+       KWMHotkeys.Prefix.Active)
     {
-        WindowID = GetFocusedWindowID();
-        if(PrefixBorder.Enabled && KWMHotkeys.Prefix.Active)
-            Border = &PrefixBorder;
-        else
-            Border = &FocusedBorder;
+        Border = &PrefixBorder;
     }
     else if(BorderType == "marked")
     {
@@ -82,27 +100,15 @@ void UpdateBorder(std::string BorderType)
         Border = &MarkedBorder;
     }
 
-    if(Border->Enabled && WindowID != -1)
-    {
-        if(!Border->Handle)
-        {
-            std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
-            Border->Handle = popen(OverlayBin.c_str(), "w");
-            if(Border->Handle == NULL)
-            {
-                Border->Enabled = false;
-                return;
-            }
-        }
-
-        DEBUG("UpdateBorder()")
-        Border->Time = PerformUpdateBorderTimer(Border->Time);
-        std::string Command = ConvertHexToRGBAString(WindowID, Border->Color, Border->Width);
-        fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
-        fflush(Border->Handle);
-    }
-    else if(WindowID == -1)
-        ClearBorder(Border);
-    else
+    OpenBorder(Border);
+    if(!Border->Enabled)
         CloseBorder(Border);
+
+    if(Border->Enabled)
+    {
+        if(WindowID == -1)
+            ClearBorder(Border);
+        else
+            RefreshBorder(Border, WindowID);
+    }
 }
