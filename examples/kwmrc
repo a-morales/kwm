@@ -138,7 +138,7 @@ kwmc bind prefix-p window -t parent
 kwmc bind prefix-w window -t float
 
 # Mark Window
-kwmc bind cmd+alt-m window -t mark
+kwmc bind cmd+alt-m mark -w focused
 
 # Give Focus To Window
 kwmc bind cmd+alt-h window -f west
