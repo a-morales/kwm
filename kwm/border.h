@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-std::string ConvertHexToRGBAString(int WindowID, int Color, int Width);
+std::string ConvertHexToRGBAString(int WindowID, int Color, int Width, double Radius);
 
 void OpenBorder(kwm_border *Border);
 void RefreshBorder(kwm_border *Border, int WindowID);

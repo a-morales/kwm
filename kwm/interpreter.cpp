@@ -66,6 +66,10 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         {
             FocusedBorder.Color = ConvertHexStringToInt(Tokens[3]);
         }
+        else if(Tokens[2] == "radius")
+        {
+            FocusedBorder.Radius = ConvertStringToDouble(Tokens[3]);
+        }
     }
     else if(Tokens[1] == "marked-border")
     {
@@ -86,6 +90,10 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         {
             MarkedBorder.Color = ConvertHexStringToInt(Tokens[3]);
         }
+        else if(Tokens[2] == "radius")
+        {
+            MarkedBorder.Radius = ConvertStringToDouble(Tokens[3]);
+        }
     }
     else if(Tokens[1] == "prefix-border")
     {
@@ -105,6 +113,10 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "color")
         {
             PrefixBorder.Color = ConvertHexStringToInt(Tokens[3]);
+        }
+        else if(Tokens[2] == "radius")
+        {
+            PrefixBorder.Radius = ConvertStringToDouble(Tokens[3]);
         }
     }
 

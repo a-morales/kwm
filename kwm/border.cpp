@@ -9,7 +9,7 @@ extern kwm_border MarkedBorder;
 extern kwm_border PrefixBorder;
 extern kwm_hotkeys KWMHotkeys;
 
-std::string ConvertHexToRGBAString(int WindowID, int Color, int Width)
+std::string ConvertHexToRGBAString(int WindowID, int Color, int Width, double Radius)
 {
     Assert(WindowID != -1, "ConvertHexToRGBAString()")
 
@@ -22,8 +22,11 @@ std::string ConvertHexToRGBAString(int WindowID, int Color, int Width)
     std::string gs = std::to_string((double)g/255);
     std::string bs = std::to_string((double)b/255);
     std::string as = std::to_string((double)a/255);
+    std::string wid = std::to_string(WindowID);
+    std::string size = std::to_string(Width);
+    std::string rad = std::to_string(Radius);
 
-    return std::to_string(WindowID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(Width);
+    return wid + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + size + " rad:" + rad;
 }
 
 void ClearBorder(kwm_border *Border)
@@ -49,7 +52,7 @@ void OpenBorder(kwm_border *Border)
 
 void RefreshBorder(kwm_border *Border, int WindowID)
 {
-    std::string Command = ConvertHexToRGBAString(WindowID, Border->Color, Border->Width);
+    std::string Command = ConvertHexToRGBAString(WindowID, Border->Color, Border->Width, Border->Radius);
     fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
     fflush(Border->Handle);
 }

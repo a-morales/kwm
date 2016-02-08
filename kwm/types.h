@@ -200,8 +200,10 @@ struct kwm_border
 {
     bool Enabled;
     FILE *Handle;
-    int Width;
+
     unsigned int Color;
+    double Radius;
+    int Width;
 };
 
 struct kwm_prefix
