@@ -202,7 +202,6 @@ struct kwm_border
     FILE *Handle;
     int Width;
     unsigned int Color;
-    kwm_time_point Time;
 };
 
 struct kwm_prefix

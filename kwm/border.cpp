@@ -26,19 +26,6 @@ std::string ConvertHexToRGBAString(int WindowID, int Color, int Width)
     return std::to_string(WindowID) + " r:" + rs + " g:" + gs + " b:" + bs + " a:" + as + " s:" + std::to_string(Width);
 }
 
-kwm_time_point PerformUpdateBorderTimer(kwm_time_point Time)
-{
-    kwm_time_point NewBorderTime = std::chrono::steady_clock::now();
-    std::chrono::duration<double> Diff = NewBorderTime - Time;
-    while(Diff.count() < 0.10)
-    {
-        NewBorderTime = std::chrono::steady_clock::now();
-        Diff = NewBorderTime - Time;
-    }
-
-    return NewBorderTime;
-}
-
 void ClearBorder(kwm_border *Border)
 {
     if(Border->Handle)
@@ -62,7 +49,6 @@ void OpenBorder(kwm_border *Border)
 
 void RefreshBorder(kwm_border *Border, int WindowID)
 {
-    Border->Time = PerformUpdateBorderTimer(Border->Time);
     std::string Command = ConvertHexToRGBAString(WindowID, Border->Color, Border->Width);
     fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
     fflush(Border->Handle);
