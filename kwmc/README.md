@@ -126,6 +126,9 @@
         Change window focus
             kwmc window -f north|east|south|west|prev|next|curr|first|last
 
+        Change window focus by id
+            kwmc window -f id windowid
+
         Swap window position
             kwmc window -s north|east|south|west|prev|next|mark
 
@@ -220,3 +223,6 @@
 
         Get the state of border->enable
             kwmc read border focused|marked|prefix
+
+        Get list of visible windows on active space
+            kwmc read windows

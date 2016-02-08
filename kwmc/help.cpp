@@ -87,6 +87,7 @@ void ShowHelp(std::string Command)
             "   -c split                                               Toggle between vertical and horizontal split for an existing container\n"
             "   -c reduce|expand amount                                Change split-ratio of the focused container (0 < amount < 1)\n"
             "   -f north|east|south|west|prev|next|curr|first|last     Change window focus\n"
+            "   -f id windowid                                         Change window focus by id\n"
             "   -s north|east|south|west|prev|next|mark                Swap window position\n"
             "   -x north|east|south|west|mark                          Detach window and reinsert at the given position\n"
             "   -m xoff yoff                                           Change position of a floating window\n"
@@ -158,6 +159,7 @@ void ShowHelp(std::string Command)
             "   split-mode windowid                                    Get the split-mode used for the given window\n"
             "   split-ratio                                            Get the current ratio used for binary splits\n"
             "   border focused|marked|prefix                           Get the state of border->enable\n"
+            "   windows                                                Get list of visible windows on active space\n"
         ;
     }
     else
