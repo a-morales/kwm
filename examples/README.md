@@ -8,6 +8,12 @@
         - t: toggle focus-mode (autofocus -> autoraise -> disabled)
         - q: quit kwm
 
+        - m: mark the focused container
+        - h: mark the west container
+        - j: mark the south container
+        - k: mark the north container
+        - l: mark the east container
+
     - prefix:
         - s: toggle split-type of existing container
         - h: decrease split-ratio of focused container
@@ -54,8 +60,6 @@
         - 3: send window to screen id 2
 
     - cmd+alt
-        - m: mark the focused container
-
         - h: focus window west
         - j: focus window south
         - k: focus window north
