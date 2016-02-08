@@ -1249,22 +1249,27 @@ void ClearMarkedWindow()
     ClearBorder(&MarkedBorder);
 }
 
-void MarkWindowContainer()
+void MarkWindowContainer(window_info *Window)
 {
-    if(KWMFocus.Window)
+    if(Window)
     {
-        if(KWMScreen.MarkedWindow == KWMFocus.Window->WID)
+        if(KWMScreen.MarkedWindow == Window->WID)
         {
-            DEBUG("MarkWindowContainer() Unmarked " << KWMFocus.Window->Name)
+            DEBUG("MarkWindowContainer() Unmarked " << Window->Name)
             ClearMarkedWindow();
         }
         else
         {
-            DEBUG("MarkWindowContainer() Marked " << KWMFocus.Window->Name)
-            KWMScreen.MarkedWindow = KWMFocus.Window->WID;
+            DEBUG("MarkWindowContainer() Marked " << Window->Name)
+            KWMScreen.MarkedWindow = Window->WID;
             UpdateBorder("marked");
         }
     }
+}
+
+void MarkFocusedWindowContainer()
+{
+    MarkWindowContainer(KWMFocus.Window);
 }
 
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)

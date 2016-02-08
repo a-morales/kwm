@@ -462,8 +462,6 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             ToggleFocusedWindowParentContainer();
         else if(Tokens[2] == "float")
             ToggleFocusedWindowFloating();
-        else if(Tokens[2] == "mark")
-            MarkWindowContainer();
     }
     else if(Tokens[1] == "-m")
     {
@@ -548,6 +546,35 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             DetachAndReinsertWindow(KWMFocus.Window->WID, 270);
         else if(Tokens[2] == "mark")
             DetachAndReinsertWindow(KWMScreen.MarkedWindow, 0);
+    }
+}
+
+void KwmMarkCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-w")
+    {
+        if(Tokens[2] == "focused")
+        {
+            MarkFocusedWindowContainer();
+            return;
+        }
+
+        window_info Window = {};
+        std::string Output = "-1";
+        int Degrees = 0;
+
+        if(Tokens[2] == "north")
+            Degrees = 0;
+        else if(Tokens[2] == "east")
+            Degrees = 90;
+        else if(Tokens[2] == "south")
+            Degrees = 180;
+        else if(Tokens[2] == "west")
+            Degrees = 270;
+
+        bool Wrap = Tokens[3] == "wrap" ? true : false;
+        if(FindClosestWindow(Degrees, &Window, Wrap))
+            MarkWindowContainer(&Window);
     }
 }
 
@@ -699,6 +726,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmReadCommand(Tokens, ClientSockFD);
     else if(Tokens[0] == "window")
         KwmWindowCommand(Tokens);
+    else if(Tokens[0] == "mark")
+        KwmMarkCommand(Tokens);
     else if(Tokens[0] == "screen")
         KwmScreenCommand(Tokens);
     else if(Tokens[0] == "space")

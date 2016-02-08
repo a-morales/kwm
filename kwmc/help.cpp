@@ -12,6 +12,7 @@ void ShowUsage()
         "   help                                                      Display this screen\n"
         "   config                                                    Set configuration for Kwm\n"
         "   window                                                    Manipulate current window\n"
+        "   mark                                                      Manage marked window\n"
         "   tree                                                      Manipulate current window-tree\n"
         "   space                                                     Manipulate current space\n"
         "   screen                                                    Manipulate current screen\n"
@@ -89,6 +90,15 @@ void ShowHelp(std::string Command)
             "   -s north|east|south|west|prev|next|mark                Swap window position\n"
             "   -x north|east|south|west|mark                          Detach window and reinsert at the given position\n"
             "   -m xoff yoff                                           Change position of a floating window\n"
+        ;
+    }
+    else if (Command == "mark")
+    {
+        std::cout <<
+            "Usage: kwmc mark <options>\n"
+            "\n"
+            "Options:\n"
+            "   -w focused|north|east|south|west wrap|nowrap           Mark a window relative to the focused window\n"
         ;
     }
     else if (Command == "tree")

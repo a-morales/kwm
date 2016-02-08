@@ -61,7 +61,8 @@ void GetCenterOfWindow(window_info *Window, int *X, int *Y);
 bool WindowIsInDirection(window_info *A, window_info *B, int Degrees, bool Wrap);
 
 void ClearMarkedWindow();
-void MarkWindowContainer();
+void MarkWindowContainer(window_info *Window);
+void MarkFocusedWindowContainer();
 
 void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window);
 void SetWindowFocus(window_info *Window);

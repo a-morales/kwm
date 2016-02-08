@@ -112,7 +112,7 @@
             kwmc write sentence
 
         Set window-tiling mode
-            kwmc window -t fullscreen|parent|float|mark
+            kwmc window -t fullscreen|parent|float
 
         Resize window to container
             kwmc window -c refresh
@@ -134,6 +134,9 @@
 
         Change position of a floating window
             kwmc window -m xoff yoff
+
+        Mark a window relative to the focused window
+            kwmc mark -w focused|north|east|south|west wrap|nowrap
 
         Rotate window-tree
             kwmc tree -r 90|180|270
