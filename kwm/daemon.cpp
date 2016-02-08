@@ -41,6 +41,7 @@ void KwmDaemonHandleConnection()
     {
         std::string Message = KwmReadFromSocket(ClientSockFD);
         KwmInterpretCommand(Message, ClientSockFD);
+        shutdown(ClientSockFD, SHUT_RDWR);
         close(ClientSockFD);
     }
 }
