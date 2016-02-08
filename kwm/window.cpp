@@ -1324,6 +1324,9 @@ void SetWindowFocusByNode(tree_node *Node)
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)
 {
+    if(IsSpaceSystemOrFullscreen())
+        return;
+
     CGPoint WindowPos = CGPointMake(X, Y);
     CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
 
