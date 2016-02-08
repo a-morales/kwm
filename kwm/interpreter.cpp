@@ -450,6 +450,19 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 
         KwmWriteToSocket(ClientSockFD, Output);
     }
+    else if(Tokens[1] == "windows")
+    {
+        std::string Output;
+        std::vector<window_info> &Windows = KWMTiling.WindowLst;
+        for(int Index = 0; Index < Windows.size(); ++Index)
+        {
+            Output += std::to_string(Windows[Index].WID) + ", " + Windows[Index].Owner + ", " + Windows[Index].Name;
+            if(Index < Windows.size() - 1)
+                Output += "\n";
+        }
+
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
 }
 
 void KwmWindowCommand(std::vector<std::string> &Tokens)
@@ -513,6 +526,8 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             FocusFirstLeafNode();
         else if(Tokens[2] == "last")
             FocusLastLeafNode();
+        else if(Tokens[2] == "id")
+            FocusWindowByID(ConvertStringToInt(Tokens[3]));
     }
     else if(Tokens[1] == "-s")
     {

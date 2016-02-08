@@ -53,6 +53,7 @@ void SwapFocusedWindowDirected(int Degrees);
 void SwapFocusedWindowWithNearest(int Shift);
 void MoveCursorToCenterOfWindow(window_info *Window);
 void MoveCursorToCenterOfFocusedWindow();
+void FocusWindowByID(int WindowID);
 void ShiftWindowFocus(int Shift);
 void ShiftWindowFocusDirected(int Degrees);
 bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap);

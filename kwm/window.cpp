@@ -1231,6 +1231,18 @@ void ShiftWindowFocus(int Shift)
     }
 }
 
+void FocusWindowByID(int WindowID)
+{
+    for(int WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
+    {
+        if(KWMTiling.WindowLst[WindowIndex].WID == WindowID)
+        {
+            SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
+            return;
+        }
+    }
+}
+
 void MoveCursorToCenterOfWindow(window_info *Window)
 {
     Assert(Window, "MoveCursorToCenterOfWindow()")
