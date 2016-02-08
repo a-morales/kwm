@@ -8,7 +8,7 @@ func trim(str: String) -> String {
 
 }
 
-func parseFrame(args: Array<String>) -> NSRect
+func parseFrame(args: Array<String>, strokeWidth: Int) -> NSRect
 {
     var frameHash = [String: Int]()
     frameHash["w"] = 0
@@ -71,10 +71,12 @@ func parseFrame(args: Array<String>) -> NSRect
         }
     }
 
-    return NSRect(x: frameHash["x"]! - 1,
-                  y: frameHash["y"]! - 1,
-                  width: frameHash["w"]! + 2,
-                  height: frameHash["h"]! + 2)
+    let strokeOffset = strokeWidth / 2
+
+    return NSRect(x: frameHash["x"]! - strokeOffset,
+                  y: frameHash["y"]! - strokeOffset,
+                  width: frameHash["w"]! + strokeWidth,
+                  height: frameHash["h"]! + strokeWidth)
 }
 
 func parseColor(args: Array<String>) -> NSColor
@@ -166,8 +168,8 @@ class OverlayView: NSView
     override func drawRect(rect: NSRect)
     {
         colorclear.setFill()
-
-        let bpath:NSBezierPath = NSBezierPath(roundedRect: rect, xRadius:lineWidth, yRadius:lineWidth)
+        let borderRadius = CGFloat(lineWidth + 4)
+        let bpath:NSBezierPath = NSBezierPath(roundedRect: rect, xRadius:borderRadius, yRadius:borderRadius)
 
         borderColor.set()
         bpath.lineWidth = lineWidth
@@ -184,7 +186,7 @@ class OverlayController: NSObject, NSApplicationDelegate
     {
         let overlayColor = parseColor(args)
         let overlayWidth = parseWidth(args)
-        let overlayFrame = parseFrame(args)
+        let overlayFrame = parseFrame(args, strokeWidth: Int(overlayWidth))
         let overlayView = OverlayView(frame: overlayFrame, color: overlayColor, width: overlayWidth)
 
         window.contentView = overlayView
