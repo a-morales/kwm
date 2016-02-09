@@ -26,6 +26,7 @@ void FocusFirstLeafNode();
 void FocusLastLeafNode();
 
 void UpdateWindowTree();
+std::vector<window_info> FilterWindowListAllDisplays();
 bool FilterWindowList(screen_info *Screen);
 void UpdateActiveWindowList(screen_info *Screen);
 void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows);

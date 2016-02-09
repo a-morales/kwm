@@ -58,6 +58,18 @@ bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubR
     return false;
 }
 
+std::vector<window_info> FilterWindowListAllDisplays()
+{
+    std::vector<window_info> FilteredWindowLst;
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
+    {
+        if(KWMTiling.FocusLst[WindowIndex].Layer == 0)
+            FilteredWindowLst.push_back(KWMTiling.FocusLst[WindowIndex]);
+    }
+
+    return FilteredWindowLst;
+}
+
 bool FilterWindowList(screen_info *Screen)
 {
     std::vector<window_info> FilteredWindowLst;
