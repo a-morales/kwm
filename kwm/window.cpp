@@ -1235,7 +1235,19 @@ void FocusWindowByID(int WindowID)
 {
     window_info *Window = GetWindowByID(WindowID);
     if(Window)
-        SetWindowFocus(Window);
+    {
+        screen_info *Screen = GetDisplayOfWindow(Window);
+        if(Screen == KWMScreen.Current)
+            SetWindowFocus(Window);
+
+        if(Screen != KWMScreen.Current && IsSpaceInitializedForScreen(Screen))
+        {
+            tree_node *Root = Screen->Space[Screen->ActiveSpace].RootNode;
+            tree_node *Node = GetNodeFromWindowID(Root, WindowID, Screen->Space[Screen->ActiveSpace].Mode);
+            if(Node)
+                GiveFocusToScreen(Screen->ID, Node, false);
+        }
+    }
 }
 
 void MoveCursorToCenterOfWindow(window_info *Window)
@@ -1610,10 +1622,10 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef)
 
 window_info *GetWindowByID(int WindowID)
 {
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
     {
-        if(KWMTiling.WindowLst[WindowIndex].WID == WindowID)
-            return &KWMTiling.WindowLst[WindowIndex];
+        if(KWMTiling.FocusLst[WindowIndex].WID == WindowID)
+            return &KWMTiling.FocusLst[WindowIndex];
     }
 
     return NULL;

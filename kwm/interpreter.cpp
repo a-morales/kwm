@@ -430,7 +430,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     else if(Tokens[1] == "windows")
     {
         std::string Output;
-        std::vector<window_info> &Windows = KWMTiling.WindowLst;
+        std::vector<window_info> &Windows = KWMTiling.FocusLst;
         for(int Index = 0; Index < Windows.size(); ++Index)
         {
             Output += std::to_string(Windows[Index].WID) + ", " + Windows[Index].Owner + ", " + Windows[Index].Name;
