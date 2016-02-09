@@ -8,6 +8,9 @@
         Let launchd manage Kwm (automatically start on login)
             kwmc config launchd enable|disable
 
+        Set modifier used by OSX space-hotkeys (System Preferences->Keyboard->Shortcuts)
+            kwmc config spaces-key mod+mod+mod
+
         Set a prefix for Kwms hotkeys (optional)
             kwmc config prefix mod+mod+mod-key
 
@@ -152,6 +155,9 @@
 
         Restore current bsp-tree from file ($HOME/.kwm/name)
             kwmc tree restore name
+
+        Change space of current display (System Preferences->Keyboard->Shortcuts for spaces must be enabled!)
+            kwmc space -s id num
 
         Set tiling mode of current space (every space uses bsp tiling by default)
             kwmc space -t toggle|bsp|monocle|float

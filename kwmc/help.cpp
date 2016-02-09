@@ -38,6 +38,7 @@ void ShowHelp(std::string Command)
             "Options:\n"
             "   reload                                                 Reload config ($HOME/.kwm/kwmrc)\n"
             "   launchd enable|disable                                 Let launchd manage Kwm (automatically start on login)\n"
+            "   spaces-key mod+mod+mod                                 Set modifier used by OSX space-hotkeys (System Preferences->Keyboard->Shortcuts)\n"
             "   prefix mod+mod+mod-key                                 Set prefix for Kwms hotkeys\n"
             "   prefix-global enable|disable                           Make prefix global (apply to all binds)\n"
             "   prefix-timeout seconds                                 Set prefix timeout in seconds (default: 0.75)\n"
@@ -123,6 +124,7 @@ void ShowHelp(std::string Command)
             "   -t toggle|bsp|monocle|float                             Set tiling mode of current space (every space uses bsp tiling by default)\n"
             "   -p increase|decrease left|right|top|bottom              Change space padding\n"
             "   -g increase|decrease vertical|horizontal                Change space container gaps\n"
+            "   -s id num                                               Change space of current display (System Preferences->Keyboard->Shortcuts for spaces must be enabled!)\n"
         ;
     }
     else if (Command ==  "screen")
