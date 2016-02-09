@@ -685,7 +685,7 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "-s")
     {
         if(Tokens[2] == "id")
-            KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[3][0]);
+            KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[3]);
     }
 }
 

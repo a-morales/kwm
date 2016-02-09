@@ -15,7 +15,7 @@ void KwmRemoveHotkey(std::string KeySym);
 bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode);
 bool KwmMainHotkeyTrigger(CGEventRef *Event);
 void KwmEmitKeystrokes(std::string Text);
-void KwmEmitKeystroke(modifiers Mod, char Key);
+void KwmEmitKeystroke(modifiers Mod, std::string Key);
 void KwmEmitKeystroke(std::string KeySym);
 
 void KwmSetSpacesKey(std::string KeySym);

@@ -421,10 +421,10 @@ void KwmEmitKeystroke(std::string KeySym)
             Mod.ShiftKey = true;
     }
 
-    KwmEmitKeystroke(Mod, KeyTokens[1][0]);
+    KwmEmitKeystroke(Mod, KeyTokens[1]);
 }
 
-void KwmEmitKeystroke(modifiers Mod, char Key)
+void KwmEmitKeystroke(modifiers Mod, std::string Key)
 {
     CGEventFlags Flags = 0;
     if(Mod.CmdKey)
@@ -437,7 +437,11 @@ void KwmEmitKeystroke(modifiers Mod, char Key)
         Flags |= kCGEventFlagMaskShift;
 
     CGKeyCode Keycode;
-    if(KeycodeForChar(Key, &Keycode))
+    bool Result = GetLayoutIndependentKeycode(Key, &Keycode);
+    if(!Result)
+        Result = KeycodeForChar(Key[0], &Keycode);
+
+    if(Result)
     {
         CGEventRef EventKeyDown = CGEventCreateKeyboardEvent(NULL, Keycode, true);
         CGEventRef EventKeyUp = CGEventCreateKeyboardEvent(NULL, Keycode, false);
