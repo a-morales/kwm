@@ -5,7 +5,6 @@
 
 extern kwm_focus KWMFocus;
 extern kwm_hotkeys KWMHotkeys;
-extern kwm_border FocusedBorder;
 extern kwm_border PrefixBorder;
 
 bool HotkeysAreEqual(hotkey *A, hotkey *B)
@@ -38,10 +37,7 @@ bool KwmMainHotkeyTrigger(CGEventRef *Event)
         KWMHotkeys.Prefix.Active = true;
         KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
         if(PrefixBorder.Enabled)
-        {
-            ClearBorder(&FocusedBorder);
             UpdateBorder("focused");
-        }
 
         return true;
     }
@@ -68,10 +64,7 @@ void CheckPrefixTimeout()
         {
             KWMHotkeys.Prefix.Active = false;
             if(PrefixBorder.Enabled)
-            {
-                ClearBorder(&PrefixBorder);
                 UpdateBorder("focused");
-            }
         }
     }
 }
@@ -227,7 +220,6 @@ void KwmSetPrefix(std::string KeySym)
         KWMHotkeys.Prefix.Key = Hotkey;
         KWMHotkeys.Prefix.Active = false;
         KWMHotkeys.Prefix.Enabled = true;
-        ClearBorder(&PrefixBorder);
     }
 }
 

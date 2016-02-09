@@ -82,6 +82,7 @@ void UpdateBorder(std::string BorderType)
        KWMHotkeys.Prefix.Active)
     {
         Border = &PrefixBorder;
+        Border->Handle = FocusedBorder.Handle;
     }
     else if(BorderType == "marked")
     {
