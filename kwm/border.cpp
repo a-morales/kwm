@@ -78,6 +78,7 @@ void UpdateBorder(std::string BorderType)
     int WindowID = GetFocusedWindowID();
 
     if(BorderType == "focused" &&
+       FocusedBorder.Enabled &&
        PrefixBorder.Enabled &&
        KWMHotkeys.Prefix.Active)
     {
