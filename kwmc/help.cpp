@@ -18,6 +18,7 @@ void ShowUsage()
         "   screen                                                    Manipulate current screen\n"
         "   read                                                      Retrieve current Kwm settings\n"
         "   write sentence                                            Automatically emit keystrokes to the focused window\n"
+        "   press mod+mod+mod-key                                     Send a key press with the specified modifiers\n"
         "   bind prefix+mod+mod+mod-key command                       Create a global hotkey (use `sys` prefix for non kwmc command)\n"
         "   bind prefix+mod+mod+mod-key command {app,app,app} -e      Hotkey is not enabled while the listed applications have focus\n"
         "   bind prefix+mod+mod+mod-key command {app,app,app} -i      Hotkey is only enabled while the listed applications have focus\n"

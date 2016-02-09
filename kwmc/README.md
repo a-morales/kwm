@@ -114,6 +114,9 @@
         Automatically emit keystrokes to the focused window
             kwmc write sentence
 
+        Send a key press with the specified modifiers
+            kwmc press mod+mod+mod-key
+
         Set window-tiling mode
             kwmc window -t fullscreen|parent|float
 

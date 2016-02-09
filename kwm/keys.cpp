@@ -401,6 +401,29 @@ void KwmEmitKeystrokes(std::string Text)
     CFRelease(TextRef);
 }
 
+void KwmEmitKeystroke(std::string KeySym)
+{
+    std::vector<std::string> KeyTokens = SplitString(KeySym, '-');
+    if(KeyTokens.size() != 2)
+        return;
+
+    modifiers Mod = {};
+    std::vector<std::string> Modifiers = SplitString(KeyTokens[0], '+');
+    for(std::size_t ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
+    {
+        if(Modifiers[ModIndex] == "cmd")
+            Mod.CmdKey = true;
+        else if(Modifiers[ModIndex] == "alt")
+            Mod.AltKey = true;
+        else if(Modifiers[ModIndex] == "ctrl")
+            Mod.CtrlKey = true;
+        else if(Modifiers[ModIndex] == "shift")
+            Mod.ShiftKey = true;
+    }
+
+    KwmEmitKeystroke(Mod, KeyTokens[1][0]);
+}
+
 void KwmEmitKeystroke(modifiers Mod, char Key)
 {
     CGEventFlags Flags = 0;

@@ -720,6 +720,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmTreeCommand(Tokens);
     else if(Tokens[0] == "write")
         KwmEmitKeystrokes(CreateStringFromTokens(Tokens, 1));
+    else if(Tokens[0] == "press")
+        KwmEmitKeystroke(Tokens[1]);
     else if(Tokens[0] == "bind")
         KwmBindCommand(Tokens);
     else if(Tokens[0] == "unbind")
