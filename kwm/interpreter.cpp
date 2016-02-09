@@ -28,6 +28,10 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         KwmReloadConfig();
     }
+    else if(Tokens[1] == "spaces-key")
+    {
+        KwmSetSpacesKey(Tokens[2]);
+    }
     else if(Tokens[1] == "prefix")
     {
         KwmSetPrefix(Tokens[2]);
@@ -677,6 +681,11 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
 
             ChangeGapOfDisplay(Tokens[3], Value);
         }
+    }
+    else if(Tokens[1] == "-s")
+    {
+        if(Tokens[2] == "id")
+            KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[3][0]);
     }
 }
 

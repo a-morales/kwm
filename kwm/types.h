@@ -222,6 +222,7 @@ struct kwm_hotkeys
 {
     std::vector<hotkey> List;
     kwm_prefix Prefix;
+    modifiers SpacesKey;
 };
 
 struct kwm_toggles

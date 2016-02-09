@@ -212,6 +212,24 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
     return Result;
 }
 
+void KwmSetSpacesKey(std::string KeySym)
+{
+    modifiers Mod = {};
+    std::vector<std::string> Modifiers = SplitString(KeySym, '+');
+    for(std::size_t ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
+    {
+        if(Modifiers[ModIndex] == "cmd")
+            Mod.CmdKey = true;
+        else if(Modifiers[ModIndex] == "alt")
+            Mod.AltKey = true;
+        else if(Modifiers[ModIndex] == "ctrl")
+            Mod.CtrlKey = true;
+        else if(Modifiers[ModIndex] == "shift")
+            Mod.ShiftKey = true;
+    }
+    KWMHotkeys.SpacesKey = Mod;
+}
+
 void KwmSetPrefix(std::string KeySym)
 {
     hotkey Hotkey = {};
@@ -381,4 +399,32 @@ void KwmEmitKeystrokes(std::string Text)
     CFRelease(EventKeyUp);
     CFRelease(EventKeyDown);
     CFRelease(TextRef);
+}
+
+void KwmEmitKeystroke(modifiers Mod, char Key)
+{
+    CGEventFlags Flags = 0;
+    if(Mod.CmdKey)
+        Flags |= kCGEventFlagMaskCommand;
+    if(Mod.CtrlKey)
+        Flags |= kCGEventFlagMaskControl;
+    if(Mod.AltKey)
+        Flags |= kCGEventFlagMaskAlternate;
+    if(Mod.ShiftKey)
+        Flags |= kCGEventFlagMaskShift;
+
+    CGKeyCode Keycode;
+    if(KeycodeForChar(Key, &Keycode))
+    {
+        CGEventRef EventKeyDown = CGEventCreateKeyboardEvent(NULL, Keycode, true);
+        CGEventRef EventKeyUp = CGEventCreateKeyboardEvent(NULL, Keycode, false);
+        CGEventSetFlags(EventKeyDown, Flags);
+        CGEventSetFlags(EventKeyUp, Flags);
+
+        CGEventPost(kCGHIDEventTap, EventKeyDown);
+        CGEventPost(kCGHIDEventTap, EventKeyUp);
+
+        CFRelease(EventKeyDown);
+        CFRelease(EventKeyUp);
+    }
 }

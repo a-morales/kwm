@@ -15,7 +15,9 @@ void KwmRemoveHotkey(std::string KeySym);
 bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode);
 bool KwmMainHotkeyTrigger(CGEventRef *Event);
 void KwmEmitKeystrokes(std::string Text);
+void KwmEmitKeystroke(modifiers Mod, char Key);
 
+void KwmSetSpacesKey(std::string KeySym);
 void KwmSetPrefix(std::string KeySym);
 void KwmSetPrefixGlobal(bool Global);
 void KwmSetPrefixTimeout(double Timeout);
