@@ -41,10 +41,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "prefix-timeout")
     {
-        double Value = 0;
-        std::stringstream Stream(Tokens[2]);
-        Stream >> Value;
-        KwmSetPrefixTimeout(Value);
+        KwmSetPrefixTimeout(ConvertStringToDouble(Tokens[2]));
     }
     else if(Tokens[1] == "focused-border")
     {
@@ -150,10 +147,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "capture")
     {
-        int Index = 0;
-        std::stringstream Stream(Tokens[2]);
-        Stream >> Index;
-        CaptureApplicationToScreen(Index, CreateStringFromTokens(Tokens, 3));
+        CaptureApplicationToScreen(ConvertStringToInt(Tokens[2]), CreateStringFromTokens(Tokens, 3));
     }
     else if(Tokens[1] == "space")
     {
@@ -230,37 +224,21 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "padding")
     {
         if(Tokens[2] == "left" || Tokens[2] == "right" ||
-                Tokens[2] == "top" || Tokens[2] == "bottom")
-        {
-            int Value = 0;
-            std::stringstream Stream(Tokens[3]);
-            Stream >> Value;
-            SetDefaultPaddingOfDisplay(Tokens[2], Value);
-        }
+           Tokens[2] == "top" || Tokens[2] == "bottom")
+            SetDefaultPaddingOfDisplay(Tokens[2], ConvertStringToInt(Tokens[3]));
     }
     else if(Tokens[1] == "gap")
     {
         if(Tokens[2] == "vertical" || Tokens[2] == "horizontal")
-        {
-            int Value = 0;
-            std::stringstream Stream(Tokens[3]);
-            Stream >> Value;
-            SetDefaultGapOfDisplay(Tokens[2], Value);
-        }
+            SetDefaultGapOfDisplay(Tokens[2], ConvertStringToInt(Tokens[3]));
     }
     else if(Tokens[1] == "split-ratio")
     {
-        double Value = 0;
-        std::stringstream Stream(Tokens[2]);
-        Stream >> Value;
-        ChangeSplitRatio(Value);
+        ChangeSplitRatio(ConvertStringToDouble(Tokens[2]));
     }
     else if(Tokens[1] == "screen")
     {
-        int ScreenIndex = 0;
-        std::stringstream Stream(Tokens[2]);
-        Stream >> ScreenIndex;
-        SetSpaceModeOfDisplay(ScreenIndex, Tokens[3]);
+        SetSpaceModeOfDisplay(ConvertStringToInt(Tokens[2]), Tokens[3]);
     }
 }
 
@@ -299,7 +277,6 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     }
     else if(Tokens[1] == "prefix")
     {
-        CheckPrefixTimeout();
         std::string Output = KWMHotkeys.Prefix.Active ? "active" : "inactive";
         KwmWriteToSocket(ClientSockFD, Output);
     }
@@ -492,10 +469,7 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
         }
         else if(Tokens[2] == "reduce" || Tokens[2] == "expand")
         {
-            double Ratio = 0.1;
-            std::stringstream Stream(Tokens[3]);
-            Stream >> Ratio;
-
+            double Ratio = ConvertStringToDouble(Tokens[3]);
             if(Tokens[2] == "reduce")
                 ModifyContainerSplitRatio(-Ratio);
             else if(Tokens[2] == "expand")
@@ -599,14 +573,10 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "90" || Tokens[2] == "270" || Tokens[2] == "180")
         {
-            int Deg = 0;
-            std::stringstream Stream(Tokens[2]);
-            Stream >> Deg;
-
             space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
             if(Space->Mode == SpaceModeBSP)
             {
-                RotateTree(Space->RootNode, Deg);
+                RotateTree(Space->RootNode, ConvertStringToInt(Tokens[2]));
                 CreateNodeContainers(KWMScreen.Current, Space->RootNode, false);
                 ApplyNodeContainer(Space->RootNode, Space->Mode);
             }
@@ -639,12 +609,7 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "next")
             GiveFocusToScreen(GetIndexOfNextScreen(), NULL, false);
         else
-        {
-            int Index = 0;
-            std::stringstream Stream(Tokens[2]);
-            Stream >> Index;
-            GiveFocusToScreen(Index, NULL, false);
-        }
+            GiveFocusToScreen(ConvertStringToInt(Tokens[2]), NULL, false);
     }
     else if(Tokens[1] == "-s")
     {
@@ -665,12 +630,7 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "next")
             MoveWindowToDisplay(KWMFocus.Window, 1, true);
         else
-        {
-            int Index = 0;
-            std::stringstream Stream(Tokens[2]);
-            Stream >> Index;
-            MoveWindowToDisplay(KWMFocus.Window, Index, false);
-        }
+            MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[2]), false);
     }
 }
 
@@ -693,7 +653,7 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "-p")
     {
         if(Tokens[3] == "left" || Tokens[3] == "right" ||
-                Tokens[3] == "top" || Tokens[3] == "bottom")
+           Tokens[3] == "top" || Tokens[3] == "bottom")
         {
             int Value = 0;
             if(Tokens[2] == "increase")
