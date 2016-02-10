@@ -5,7 +5,10 @@
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon);
 void * KwmWindowMonitor(void*);
+void * KwmStartThreadedSystemCommand(void *Args);
+void KwmExecuteThreadedSystemCommand(std::string Command);
 
+void KwmExecuteSystemCommand(std::string Command);
 void KwmExecuteConfig();
 void KwmExecuteFile(std::string File);
 void KwmReloadConfig();

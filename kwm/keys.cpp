@@ -1,10 +1,12 @@
 #include "keys.h"
+#include "kwm.h"
 #include "helpers.h"
 #include "interpreter.h"
 #include "border.h"
 
 extern kwm_focus KWMFocus;
 extern kwm_hotkeys KWMHotkeys;
+extern kwm_thread KWMThread;
 extern kwm_border PrefixBorder;
 
 bool HotkeysAreEqual(hotkey *A, hotkey *B)
@@ -116,7 +118,7 @@ bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
                 return true;
 
             if(Hotkey.IsSystemCommand)
-                system(Hotkey.Command.c_str());
+                KwmExecuteThreadedSystemCommand(Hotkey.Command);
             else
                 KwmInterpretCommand(Hotkey.Command, 0);
 
@@ -389,11 +391,11 @@ void KwmEmitKeystrokes(std::string Text)
 
         CGEventSetFlags(EventKeyDown, 0);
         CGEventKeyboardSetUnicodeString(EventKeyDown, 1, &OutputBuffer);
-        CGEventPostToPSN(&KWMFocus.PSN, EventKeyDown);
+        CGEventPost(kCGHIDEventTap, EventKeyDown);
 
         CGEventSetFlags(EventKeyUp, 0);
         CGEventKeyboardSetUnicodeString(EventKeyUp, 1, &OutputBuffer);
-        CGEventPostToPSN(&KWMFocus.PSN, EventKeyUp);
+        CGEventPost(kCGHIDEventTap, EventKeyUp);
     }
 
     CFRelease(EventKeyUp);

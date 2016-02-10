@@ -179,13 +179,33 @@ void KwmExecuteFile(std::string File)
             if(IsPrefixOfString(Line, "kwmc"))
                 KwmInterpretCommand(Line, 0);
             else if(IsPrefixOfString(Line, "sys"))
-                system(Line.c_str());
+                KwmExecuteThreadedSystemCommand(Line);
             else if(IsPrefixOfString(Line, "include"))
                 KwmExecuteFile(Line);
         }
     }
 
     FileHandle.close();
+}
+
+void KwmExecuteSystemCommand(std::string Command)
+{
+    system(Command.c_str());
+}
+
+void KwmExecuteThreadedSystemCommand(std::string Command)
+{
+    std::string *HCommand = new std::string(Command);
+    pthread_create(&KWMThread.SystemCommand, NULL, &KwmStartThreadedSystemCommand, HCommand);
+}
+
+void * KwmStartThreadedSystemCommand(void *Args)
+{
+    std::string Command = *((std::string*)Args);
+    std::cout << Command << std::endl;
+    KwmExecuteSystemCommand(Command);
+    delete (std::string*)Args;
+    return NULL;
 }
 
 bool IsKwmAlreadyAddedToLaunchd()
