@@ -150,8 +150,6 @@ screen_info *GetDisplayOfWindow(window_info *Window)
 {
     if(Window)
     {
-        screen_info *MinScreen, *MaxScreen;
-        int MinX = INT_MAX, MaxX = 0, MinY = INT_MAX, MaxY = 0;
         std::map<unsigned int, screen_info>::iterator It;
         for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
         {
@@ -159,35 +157,9 @@ screen_info *GetDisplayOfWindow(window_info *Window)
             if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width &&
                Window->Y >= Screen->Y && Window->Y <= Screen->Y + Screen->Height)
                 return Screen;
-
-            if(Screen->X < MinX)
-            {
-                MinX = Screen->X;
-                MinScreen = Screen;
-            }
-            if(Screen->X > MaxX)
-            {
-                MaxX = Screen->X + Screen->Width;
-                MaxScreen = Screen;
-            }
-
-            if(Screen->Y < MinY)
-            {
-                MinY = Screen->Y;
-                MinScreen = Screen;
-            }
-            if(Screen->Y > MaxY)
-            {
-                MaxY = Screen->Y + Screen->Height;
-                MaxScreen = Screen;
-            }
         }
 
-        if(Window->X <= MinX || Window->Y <= MinY)
-            return MinScreen;
-
-        if(Window->X + Window->Width >= MaxX || Window->Y + Window->Height >= MaxY)
-            return MaxScreen;
+        return GetDisplayOfMousePointer();
     }
 
     return NULL;
