@@ -7,8 +7,6 @@
 
 #include <cmath>
 
-static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements;
-
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
@@ -344,6 +342,9 @@ void UpdateWindowTree()
 
 void UpdateActiveWindowList(screen_info *Screen)
 {
+    static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly |
+                                                    kCGWindowListExcludeDesktopElements;
+
     Screen->OldWindowListCount = KWMTiling.WindowLst.size();
     KWMTiling.WindowLst.clear();
 
@@ -1358,6 +1359,73 @@ void SetWindowFocusByNode(tree_node *Node)
     }
 }
 
+bool IsWindowNonResizable(AXUIElementRef WindowRef, window_info *Window, CFTypeRef NewWindowPos, CFTypeRef NewWindowSize)
+{
+    AXError PosError = kAXErrorFailure;
+    AXError SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+    if(SizeError == kAXErrorSuccess)
+    {
+        PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+        SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+    }
+
+    if(PosError != kAXErrorSuccess || SizeError != kAXErrorSuccess)
+    {
+        KWMTiling.FloatingWindowLst.push_back(Window->WID);
+        screen_info *Screen = GetDisplayOfWindow(Window);
+        if(DoesSpaceExistInMapOfScreen(Screen))
+        {
+            if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
+                RemoveWindowFromBSPTree(Screen, Window->WID, false, true);
+            else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeMonocle)
+                RemoveWindowFromMonocleTree(Screen, Window->WID, false);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Yptr, int *Wptr, int *Hptr)
+{
+    CGPoint WindowOrigin = GetWindowPos(WindowRef);
+    CGSize WindowOGSize = GetWindowSize(WindowRef);
+
+    int &X = *Xptr, &Y = *Yptr, &Width = *Wptr, &Height = *Hptr;
+    int XDiff = (X + Width) - (WindowOrigin.x + WindowOGSize.width);
+    int YDiff = (Y + Height) - (WindowOrigin.y + WindowOGSize.height);
+
+    if(XDiff > 0 || YDiff > 0)
+    {
+        double XOff = XDiff / 2.0f;
+        X += XOff > 0 ? XOff : 0;
+        Width -= XOff > 0 ? XOff : 0;
+
+        double YOff = YDiff / 2.0f;
+        Y += YOff > 0 ? YOff : 0;
+        Height -= YOff > 0 ? YOff : 0;
+
+        CGPoint WindowPos = CGPointMake(X, Y);
+        CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
+
+        CGSize WindowSize = CGSizeMake(Width, Height);
+        CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
+
+        if(NewWindowPos)
+        {
+            AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+            CFRelease(NewWindowPos);
+        }
+
+        if(NewWindowSize)
+        {
+            AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+            CFRelease(NewWindowSize);
+        }
+    }
+}
+
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)
 {
     if(IsSpaceSystemOrFullscreen())
@@ -1376,75 +1444,19 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     Assert(Window, "SetWindowDimensions() Window")
 
     DEBUG("SetWindowDimensions()")
-    AXError PosError = kAXErrorFailure;
-    AXError SizeError = kAXErrorFailure;
-
     bool UpdateWindowInfo = true;
     if(KWMTiling.FloatNonResizable)
     {
-        SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-        if(SizeError == kAXErrorSuccess)
-        {
-            PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-            SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-        }
-
-        if(PosError != kAXErrorSuccess || SizeError != kAXErrorSuccess)
-        {
-            KWMTiling.FloatingWindowLst.push_back(Window->WID);
-            screen_info *Screen = GetDisplayOfWindow(Window);
-            if(DoesSpaceExistInMapOfScreen(Screen))
-            {
-                if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
-                    RemoveWindowFromBSPTree(Screen, Window->WID, false, true);
-                else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeMonocle)
-                    RemoveWindowFromMonocleTree(Screen, Window->WID, false);
-            }
-
+        if(IsWindowNonResizable(WindowRef, Window, NewWindowPos, NewWindowSize))
             UpdateWindowInfo = false;
-        }
     }
     else
     {
-        PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-        SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+        AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+        AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
     }
 
-    CGPoint WindowOrigin = GetWindowPos(WindowRef);
-    CGSize WindowOGSize = GetWindowSize(WindowRef);
-
-    int XDiff = (X + Width) - (WindowOrigin.x + WindowOGSize.width);
-    int YDiff = (Y + Height) - (WindowOrigin.y + WindowOGSize.height);
-
-    if(XDiff > 0 || YDiff > 0)
-    {
-        double XOff = XDiff / 2.0f;
-        X += XOff > 0 ? XOff : 0;
-        Width -= XOff > 0 ? XOff : 0;
-
-        double YOff = YDiff / 2.0f;
-        Y += YOff > 0 ? YOff : 0;
-        Height -= YOff > 0 ? YOff : 0;
-
-        WindowPos = CGPointMake(X, Y);
-        CFTypeRef CWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
-
-        WindowSize = CGSizeMake(Width, Height);
-        CFTypeRef CWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
-
-        if(CWindowPos)
-        {
-            PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, CWindowPos);
-            CFRelease(CWindowPos);
-        }
-
-        if(CWindowSize)
-        {
-            SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, CWindowSize);
-            CFRelease(CWindowSize);
-        }
-    }
-
+    CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
     if(UpdateWindowInfo)
     {
         Window->X = X;
@@ -1797,7 +1809,6 @@ bool GetWindowFocusedByOSX(int *WindowWID)
 
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
 {
-
     CFStringRef K = (CFStringRef)Key;
     std::string KeyStr = CFStringGetCStringPtr(K, kCFStringEncodingMacRoman);
     CFTypeID ID = CFGetTypeID(Value);
