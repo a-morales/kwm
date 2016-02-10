@@ -10,5 +10,7 @@ bool IsPrefixOfString(std::string &Line, std::string Prefix);
 int ConvertStringToInt(std::string Integer);
 double ConvertStringToDouble(std::string Double);
 unsigned int ConvertHexStringToInt(std::string Hex);
+color ConvertHexRGBAToColor(unsigned int Color);
+void CreateColorFormat(color *Color);
 
 #endif

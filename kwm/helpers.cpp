@@ -62,3 +62,24 @@ double ConvertStringToDouble(std::string Double)
     Stream >> DoubleResult;
     return DoubleResult;
 }
+
+void CreateColorFormat(color *Color)
+{
+    Color->Format = "r:" + std::to_string(Color->Red) + \
+                    " g:" + std::to_string(Color->Green) + \
+                    " b:" + std::to_string(Color->Blue) + \
+                    " a:" + std::to_string(Color->Alpha);
+}
+
+color ConvertHexRGBAToColor(unsigned int Color)
+{
+    color Result = {};
+
+    Result.Red = ((Color >> 16) & 0xff) / 255.0;
+    Result.Green = ((Color >> 8) & 0xff) / 255.0;
+    Result.Blue = ((Color >> 0) & 0xff) / 255.0;
+    Result.Alpha = ((Color >> 24) & 0xff) / 255.0;
+
+    return Result;
+}
+

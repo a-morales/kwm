@@ -26,6 +26,7 @@
 struct hotkey;
 struct modifiers;
 struct container_offset;
+struct color;
 
 struct window_info;
 struct window_role;
@@ -131,6 +132,16 @@ struct container_offset
     double VerticalGap, HorizontalGap;
 };
 
+struct color
+{
+    double Red;
+    double Green;
+    double Blue;
+    double Alpha;
+
+    std::string Format;
+};
+
 struct node_container
 {
     double X, Y;
@@ -201,7 +212,7 @@ struct kwm_border
     bool Enabled;
     FILE *Handle;
 
-    unsigned int Color;
+    color Color;
     double Radius;
     int Width;
 };
