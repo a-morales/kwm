@@ -1148,7 +1148,8 @@ void ShiftWindowFocusDirected(int Degrees)
     if(!KWMFocus.Window || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         return;
 
-    if(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeBSP)
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    if(Space->Mode == SpaceModeBSP)
     {
         window_info NewFocusWindow = {};
         if((KWMMode.Cycle == CycleModeDisabled &&
@@ -1177,7 +1178,8 @@ void ShiftWindowFocusDirected(int Degrees)
                 else
                 {
                     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-                    tree_node *RootNode = Screen->Space[Screen->ActiveSpace].RootNode;
+                    space_info *Space = GetActiveSpaceOfScreen(Screen);
+                    tree_node *RootNode = Space->RootNode;
                     tree_node *FocusNode = Degrees == 90 ? GetFirstLeafNode(RootNode) : GetLastLeafNode(RootNode);
                     if(FocusNode)
                         GiveFocusToScreen(ScreenIndex, FocusNode, false);
@@ -1185,7 +1187,7 @@ void ShiftWindowFocusDirected(int Degrees)
             }
         }
     }
-    else if(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeMonocle)
+    else if(Space->Mode == SpaceModeMonocle)
     {
         if(Degrees == 90)
             ShiftWindowFocus(1);
@@ -1216,7 +1218,8 @@ void ShiftWindowFocus(int Shift)
             {
                 int ScreenIndex = GetIndexOfNextScreen();
                 screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-                FocusNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+                space_info *Space = GetActiveSpaceOfScreen(Screen);
+                FocusNode = GetFirstLeafNode(Space->RootNode);
                 if(FocusNode)
                 {
                     GiveFocusToScreen(ScreenIndex, FocusNode, false);
@@ -1235,7 +1238,8 @@ void ShiftWindowFocus(int Shift)
             {
                 int ScreenIndex = GetIndexOfPrevScreen();
                 screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-                FocusNode = GetLastLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+                space_info *Space = GetActiveSpaceOfScreen(Screen);
+                FocusNode = GetLastLeafNode(Space->RootNode);
                 if(FocusNode)
                 {
                     GiveFocusToScreen(ScreenIndex, FocusNode, false);
@@ -1260,8 +1264,9 @@ void FocusWindowByID(int WindowID)
 
         if(Screen != KWMScreen.Current && IsSpaceInitializedForScreen(Screen))
         {
-            tree_node *Root = Screen->Space[Screen->ActiveSpace].RootNode;
-            tree_node *Node = GetNodeFromWindowID(Root, WindowID, Screen->Space[Screen->ActiveSpace].Mode);
+            space_info *Space = GetActiveSpaceOfScreen(Screen);
+            tree_node *Root = Space->RootNode;
+            tree_node *Node = GetNodeFromWindowID(Root, WindowID, Space->Mode);
             if(Node)
                 GiveFocusToScreen(Screen->ID, Node, false);
         }
@@ -1366,6 +1371,9 @@ void SetWindowFocusByNode(tree_node *Node)
 
 bool IsWindowNonResizable(AXUIElementRef WindowRef, window_info *Window, CFTypeRef NewWindowPos, CFTypeRef NewWindowSize)
 {
+    Assert(WindowRef, "IsWindowNonResizable() WindowRef")
+    Assert(Window, "IsWindowNonResizable() Window")
+
     AXError PosError = kAXErrorFailure;
     AXError SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
     if(SizeError == kAXErrorSuccess)
@@ -1380,9 +1388,10 @@ bool IsWindowNonResizable(AXUIElementRef WindowRef, window_info *Window, CFTypeR
         screen_info *Screen = GetDisplayOfWindow(Window);
         if(DoesSpaceExistInMapOfScreen(Screen))
         {
-            if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeBSP)
-                RemoveWindowFromBSPTree(Screen, Window->WID, false, true);
-            else if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeMonocle)
+            space_info *Space = GetActiveSpaceOfScreen(Screen);
+            if(Space->Mode == SpaceModeBSP)
+                RemoveWindowFromBSPTree(Screen, Window->WID, false, false);
+            else if(Space->Mode == SpaceModeMonocle)
                 RemoveWindowFromMonocleTree(Screen, Window->WID, false);
         }
 
@@ -1459,9 +1468,9 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     {
         AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
         AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+        CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
     }
 
-    CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
     if(UpdateWindowInfo)
     {
         Window->X = X;
