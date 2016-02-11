@@ -516,9 +516,6 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
             CurrentNode = GetNearestNodeToTheRight(CurrentNode, SpaceModeBSP);
         }
 
-        if(!CurrentNode)
-            return;
-
         for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
         {
             bool Found = false;
