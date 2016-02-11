@@ -8,7 +8,7 @@
 #include "interpreter.h"
 #include "border.h"
 
-const std::string KwmCurrentVersion = "Kwm Version 1.1.0";
+const std::string KwmCurrentVersion = "Kwm Version 1.1.1";
 const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
 kwm_mach KWMMach = {};
