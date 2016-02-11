@@ -143,7 +143,6 @@ bool IsWindowFloating(int WindowID, int *Index)
     {
         if(WindowID == KWMTiling.FloatingWindowLst[WindowIndex])
         {
-            DEBUG("IsWindowFloating(): floating " << WindowID)
             if(Index)
                 *Index = WindowIndex;
 

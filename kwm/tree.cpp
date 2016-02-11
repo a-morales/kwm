@@ -290,42 +290,25 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
     if(Windows.size() >= 2)
     {
         tree_node *Root = RootNode;
-        std::size_t FirstIndex;
-        bool FoundValidWindow = false;
-        for(FirstIndex = 0; FirstIndex < Windows.size(); ++FirstIndex)
+        Root->WindowID = Windows[0]->WID;
+        for(std::size_t WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
         {
-            if(!IsWindowFloating(Windows[FirstIndex]->WID, NULL))
+            while(!IsLeafNode(Root))
             {
-                Root->WindowID = Windows[FirstIndex]->WID;
-                FoundValidWindow = true;
-                break;
+                if(!IsLeafNode(Root->LeftChild) && IsLeafNode(Root->RightChild))
+                    Root = Root->RightChild;
+                else
+                    Root = Root->LeftChild;
             }
-        }
 
-        if(!FoundValidWindow)
-            return false;
-
-        for(std::size_t WindowIndex = FirstIndex + 1; WindowIndex < Windows.size(); ++WindowIndex)
-        {
-            if(!IsWindowFloating(Windows[WindowIndex]->WID, NULL))
-            {
-                while(!IsLeafNode(Root))
-                {
-                    if(!IsLeafNode(Root->LeftChild) && IsLeafNode(Root->RightChild))
-                        Root = Root->RightChild;
-                    else
-                        Root = Root->LeftChild;
-                }
-
-                DEBUG("CreateBSPTree() Create pair of leafs")
-                CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, GetOptimalSplitMode(Root));
-                Root = RootNode;
-            }
+            DEBUG("CreateBSPTree() Create pair of leafs")
+            CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, GetOptimalSplitMode(Root));
+            Root = RootNode;
         }
 
         Result = true;
     }
-    else if(Windows.size() == 1 && !IsWindowFloating(Windows[0]->WID, NULL))
+    else if(Windows.size() == 1)
     {
         RootNode->WindowID = Windows[0]->WID;
         Result = true;
