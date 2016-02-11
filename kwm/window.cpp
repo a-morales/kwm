@@ -1463,6 +1463,9 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     {
         if(IsWindowNonResizable(WindowRef, Window, NewWindowPos, NewWindowSize))
             UpdateWindowInfo = false;
+        else
+            CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
+
     }
     else
     {
