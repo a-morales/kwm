@@ -11,7 +11,8 @@ extern kwm_tiling KWMTiling;
 
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    Assert(Node, "LeftVerticalContainerSplit()")
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container LeftContainer;
 
     LeftContainer.X = Node->Container.X;
@@ -24,7 +25,8 @@ node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 
 node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    Assert(Node, "RightVerticalContainerSplit()")
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container RightContainer;
 
     RightContainer.X = Node->Container.X + (Node->Container.Width * Node->SplitRatio) + (Space->Offset.VerticalGap / 2);
@@ -37,7 +39,8 @@ node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 
 node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    Assert(Node, "UpperHorizontalContainerSplit()")
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container UpperContainer;
 
     UpperContainer.X = Node->Container.X;
@@ -50,7 +53,8 @@ node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 
 node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    Assert(Node, "LowerHorizontalContainerSplit()")
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container LowerContainer;
 
     LowerContainer.X = Node->Container.X;
@@ -63,6 +67,8 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 
 void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType)
 {
+    Assert(Node, "CreateNodeContainer()")
+
     if(Node->SplitRatio == 0)
         Node->SplitRatio = KWMScreen.SplitRatio;
 
@@ -92,6 +98,9 @@ void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType
 
 void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, int SplitMode)
 {
+    Assert(LeftNode, "CreateNodeContainerPair() Left Node")
+    Assert(RightNode, "CreateNodeContainerPair() Right Node")
+
     if(SplitMode == 1)
     {
         CreateNodeContainer(Screen, LeftNode, 1);
@@ -106,7 +115,12 @@ void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node
 
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType)
 {
+    Assert(Parent, "CreateLeafNode()")
+
+    tree_node Clear = {0};
     tree_node *Leaf = (tree_node*) malloc(sizeof(tree_node));
+    *Leaf = Clear;
+
     Leaf->Parent = Parent;
     Leaf->WindowID = WindowID;
 
@@ -120,8 +134,9 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
 
 tree_node *CreateRootNode()
 {
+    tree_node Clear = {0};
     tree_node *RootNode = (tree_node*) malloc(sizeof(tree_node));
-    std::memset(RootNode, '\0', sizeof(tree_node));
+    *RootNode = Clear;
 
     RootNode->WindowID = -1;
     RootNode->Parent = NULL;
@@ -135,7 +150,9 @@ tree_node *CreateRootNode()
 
 void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
 {
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    Assert(Node, "SetRootNodeContainer()")
+
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
 
     Node->Container.X = Screen->X + Space->Offset.PaddingLeft;
     Node->Container.Y = Screen->Y + Space->Offset.PaddingTop;
@@ -148,6 +165,8 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
 
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, int SplitMode)
 {
+    Assert(Parent, "CreateLeafNodePair()")
+
     Parent->WindowID = -1;
     Parent->SplitMode = SplitMode;
     Parent->SplitRatio = KWMScreen.SplitRatio;
@@ -160,10 +179,17 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowI
         Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 1);
         Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 2);
     }
-    else
+    else if(SplitMode == 2)
     {
         Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 3);
         Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 4);
+    }
+    else
+    {
+        Parent->Parent = NULL;
+        Parent->LeftChild = NULL;
+        Parent->RightChild = NULL;
+        Parent = NULL;
     }
 }
 
@@ -238,7 +264,7 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
     SetRootNodeContainer(Screen, RootNode);
 
     bool Result = false;
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
 
     if(Space->Mode == SpaceModeBSP)
         Result = CreateBSPTree(RootNode, Screen, WindowsPtr);
@@ -256,6 +282,8 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
 
 bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
+    Assert(RootNode, "CreateBSPTree()")
+
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
 
@@ -308,6 +336,8 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
 
 bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
+    Assert(RootNode, "CreateMonocleTree()")
+
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
 
@@ -519,6 +549,7 @@ void DestroyNodeTree(tree_node *Node, space_tiling_option Mode)
             DestroyNodeTree(Node->RightChild, Mode);
 
         free(Node);
+        Node = NULL;
     }
 }
 
@@ -712,7 +743,7 @@ void SaveBSPTreeToFile(screen_info *Screen, std::string Name)
 {
     if(IsSpaceInitializedForScreen(Screen))
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        space_info *Space = GetActiveSpaceOfScreen(Screen);
         if(Space->Mode != SpaceModeBSP || IsLeafNode(Space->RootNode))
             return;
 
@@ -736,7 +767,7 @@ void LoadBSPTreeFromFile(screen_info *Screen, std::string Name)
 {
     if(IsSpaceInitializedForScreen(Screen))
     {
-        space_info *Space = &Screen->Space[Screen->ActiveSpace];
+        space_info *Space = GetActiveSpaceOfScreen(Screen);
         if(Space->Mode != SpaceModeBSP)
             return;
 

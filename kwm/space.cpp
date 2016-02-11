@@ -53,7 +53,7 @@ void GetTagForCurrentSpace(std::string &Tag)
 {
     if(IsSpaceInitializedForScreen(KWMScreen.Current))
     {
-        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         if(Space->Mode == SpaceModeBSP)
             Tag = "[bsp]";
         else if(Space->Mode == SpaceModeFloating)
@@ -89,6 +89,25 @@ bool IsSpaceFloating(int SpaceID)
     }
 
     return Result;
+}
+
+space_info *GetActiveSpaceOfScreen(screen_info *Screen)
+{
+    space_info *Space = NULL;
+    std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
+
+    if(It == Screen->Space.end())
+    {
+        space_info Clear = {{0}};
+        Screen->Space[Screen->ActiveSpace] = Clear;
+        Space = &Screen->Space[Screen->ActiveSpace];
+    }
+    else
+    {
+        Space = &It->second;
+    }
+
+    return Space;
 }
 
 bool IsSpaceInitializedForScreen(screen_info *Screen)
@@ -153,7 +172,7 @@ void FloatFocusedSpace()
        !IsSpaceSystemOrFullscreen() &&
        FilterWindowList(KWMScreen.Current))
     {
-        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         DestroyNodeTree(Space->RootNode, Space->Mode);
         Space->RootNode = NULL;
         Space->Mode = SpaceModeFloating;
@@ -169,7 +188,7 @@ void TileFocusedSpace(space_tiling_option Mode)
        !IsSpaceSystemOrFullscreen() &&
        FilterWindowList(KWMScreen.Current))
     {
-        space_info *Space = &KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace];
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         if(Space->Mode == Mode)
             return;
 

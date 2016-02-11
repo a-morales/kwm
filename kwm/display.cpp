@@ -222,7 +222,7 @@ void SetDefaultGapOfDisplay(const std::string &Side, int Offset)
 void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 {
     screen_info *Screen = GetDisplayOfMousePointer();
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
 
     if(Side == "left")
     {
@@ -269,7 +269,7 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 void ChangeGapOfDisplay(const std::string &Side, int Offset)
 {
     screen_info *Screen = GetDisplayOfMousePointer();
-    space_info *Space = &Screen->Space[Screen->ActiveSpace];
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
 
     if(Side == "vertical")
     {
@@ -413,6 +413,12 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
                Screen->Space[Screen->ActiveSpace].RootNode == NULL)
             {
+                if(!Initialized)
+                {
+                    space_info Clear = {{0}};
+                    Screen->Space[Screen->ActiveSpace] = Clear;
+                }
+
                 Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
                 if(KWMScreen.PrevSpace != Screen->ActiveSpace)
                     DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
