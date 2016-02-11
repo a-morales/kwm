@@ -393,8 +393,9 @@ void UpdateActiveWindowList(screen_info *Screen)
         {
             DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
             KWMScreen.UpdateSpace = false;
+            space_info *Space = GetActiveSpaceOfScreen(Screen);
 
-            if(Screen->Space[Screen->ActiveSpace].Mode != SpaceModeFloating)
+            if(Space->Mode != SpaceModeFloating)
             {
                 if(WindowBelowCursor && KWMMode.Focus != FocusModeDisabled)
                     FocusWindowBelowCursor();

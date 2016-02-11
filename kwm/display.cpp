@@ -350,8 +350,10 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         DEBUG("GiveFocusToScreen() " << ScreenIndex)
         tree_node *FocusFirstNode = NULL;
         bool Initialized = IsSpaceInitializedForScreen(Screen);
+        space_info *Space = GetActiveSpaceOfScreen(Screen);
+
         if(Initialized)
-            FocusFirstNode = GetFirstLeafNode(Screen->Space[Screen->ActiveSpace].RootNode);
+            FocusFirstNode = GetFirstLeafNode(Space->RootNode);
 
         if(Initialized && Focus)
         {
@@ -410,20 +412,14 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         else
         {
             if(!Initialized ||
-               Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating ||
-               Screen->Space[Screen->ActiveSpace].RootNode == NULL)
+               Space->Mode == SpaceModeFloating ||
+               Space->RootNode == NULL)
             {
-                if(!Initialized)
-                {
-                    space_info Clear = {{0}};
-                    Screen->Space[Screen->ActiveSpace] = Clear;
-                }
-
                 Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
                 if(KWMScreen.PrevSpace != Screen->ActiveSpace)
                     DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
 
-                if(Screen->Space[Screen->ActiveSpace].Mode == SpaceModeFloating)
+                if(Space->Mode == SpaceModeFloating)
                 {
                     DEBUG("Space is floating")
                     ActivateScreen(Screen, Mouse);
