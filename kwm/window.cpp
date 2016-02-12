@@ -74,11 +74,11 @@ bool FilterWindowList(screen_info *Screen)
     std::vector<window_info> FilteredWindowLst;
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
-        // Mission-Control mode is on and so we do not try to tile windows
+        /* Note(koekeishiya):
+         * Mission-Control mode is on and so we do not try to tile windows */
         if(KWMTiling.WindowLst[WindowIndex].Owner == "Dock" &&
            KWMTiling.WindowLst[WindowIndex].Name == "")
         {
-                KWMScreen.UpdateSpace = true;
                 ClearFocusedWindow();
                 ClearMarkedWindow();
                 return false;
