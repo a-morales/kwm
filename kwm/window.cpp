@@ -354,22 +354,6 @@ void UpdateActiveWindowList(screen_info *Screen)
     }
     CFRelease(OsxWindowLst);
     KWMTiling.FocusLst = KWMTiling.WindowLst;
-
-    /* Note(koekeishiya):
-     * Properly restore space-transition state and focus
-     * upon switching to a non-existant space */
-    if(KWMScreen.UpdateSpace)
-    {
-        KWMScreen.Transitioning = false;
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        if(Space->Mode != SpaceModeFloating)
-        {
-            if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
-                FocusWindowBelowCursor();
-            else if(FocusWindowOfOSX())
-                MoveCursorToCenterOfFocusedWindow();
-        }
-    }
 }
 
 void UpdateActiveScreen()
@@ -410,7 +394,6 @@ void UpdateActiveSpace()
     {
         DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
 
-        KWMScreen.UpdateSpace = false;
         KWMScreen.ForceRefreshFocus = true;
         UpdateActiveWindowList(KWMScreen.Current);
 

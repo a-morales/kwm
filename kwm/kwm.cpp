@@ -311,7 +311,6 @@ void KwmInit()
     KWMScreen.DefaultOffset = CreateDefaultScreenOffset();
     KWMScreen.MaxCount = 5;
     KWMScreen.ActiveCount = 0;
-    KWMScreen.UpdateSpace = false;
 
     KWMToggles.EnableTilingMode = true;
     KWMToggles.UseBuiltinHotkeys = true;

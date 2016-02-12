@@ -146,7 +146,6 @@ bool IsSpaceTransitionInProgress()
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
         KWMScreen.Transitioning = true;
-        KWMScreen.UpdateSpace = true;
         ClearFocusedWindow();
         ClearMarkedWindow();
     }
