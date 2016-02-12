@@ -299,8 +299,6 @@ void FocusWindowBelowCursor()
 void UpdateWindowTree()
 {
     UpdateActiveWindowList(KWMScreen.Current);
-    if(KWMScreen.Transitioning || KWMScreen.UpdateSpace)
-        return;
 
     if(KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
@@ -1286,7 +1284,10 @@ void FocusWindowByID(int WindowID)
     {
         screen_info *Screen = GetDisplayOfWindow(Window);
         if(Screen == KWMScreen.Current)
+        {
             SetWindowFocus(Window);
+            MoveCursorToCenterOfFocusedWindow();
+        }
 
         if(Screen != KWMScreen.Current && IsSpaceInitializedForScreen(Screen))
         {
@@ -1302,7 +1303,13 @@ void FocusWindowByID(int WindowID)
 void MoveCursorToCenterOfWindow(window_info *Window)
 {
     Assert(Window, "MoveCursorToCenterOfWindow()")
-    CGWarpMouseCursorPosition(CGPointMake(Window->X + Window->Width / 2, Window->Y + Window->Height / 2));
+    AXUIElementRef WindowRef;
+    if(GetWindowRef(Window, &WindowRef))
+    {
+        CGPoint WindowPos = GetWindowPos(WindowRef);
+        CGSize WindowSize = GetWindowSize(WindowRef);
+        CGWarpMouseCursorPosition(CGPointMake(WindowPos.x + WindowSize.width / 2, WindowPos.y + WindowSize.height / 2));
+    }
 }
 
 void MoveCursorToCenterOfFocusedWindow()
