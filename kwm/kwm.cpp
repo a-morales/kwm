@@ -120,9 +120,12 @@ void * KwmWindowMonitor(void*)
     {
         pthread_mutex_lock(&KWMThread.Lock);
         CheckPrefixTimeout();
-        UpdateWindowTree();
+
+        if(!IsSpaceTransitionInProgress())
+            UpdateWindowTree();
+
         pthread_mutex_unlock(&KWMThread.Lock);
-        usleep(200000);
+        usleep(100000);
     }
 }
 
