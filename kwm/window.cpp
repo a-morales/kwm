@@ -407,7 +407,7 @@ void UpdateActiveSpace()
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     KWMScreen.Current->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
 
-    if(KWMScreen.PrevSpace != -KWMScreen.Current->ActiveSpace)
+    if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
     {
         DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
 
