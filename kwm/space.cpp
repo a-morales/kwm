@@ -139,8 +139,8 @@ bool IsSpaceTransitionInProgress()
     if(KWMScreen.Transitioning)
         return true;
 
-    int CurrentSpace = CGSGetActiveSpace(CGSDefaultConnection);
-    CFStringRef Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, CurrentSpace);
+    Assert(KWMScreen.Current, "IsSpaceTransitionInProgress()")
+    CFStringRef Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, KWMScreen.Current->ActiveSpace);
     bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, (CFStringRef)Identifier);
     if(Result)
     {

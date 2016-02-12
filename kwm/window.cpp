@@ -254,7 +254,8 @@ void FocusFirstLeafNode()
     if(!DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         return;
 
-    SetWindowFocusByNode(GetFirstLeafNode(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode));
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    SetWindowFocusByNode(GetFirstLeafNode(Space->RootNode));
     MoveCursorToCenterOfFocusedWindow();
 }
 
@@ -263,7 +264,8 @@ void FocusLastLeafNode()
     if(!DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         return;
 
-    SetWindowFocusByNode(GetLastLeafNode(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode));
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    SetWindowFocusByNode(GetLastLeafNode(Space->RootNode));
     MoveCursorToCenterOfFocusedWindow();
 }
 
@@ -305,30 +307,27 @@ void UpdateWindowTree()
        !IsSpaceSystemOrFullscreen() &&
        FilterWindowList(KWMScreen.Current))
     {
-        std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(KWMScreen.Current->ActiveSpace);
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
 
         if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
         {
-            if(It == KWMScreen.Current->Space.end() && !WindowsOnDisplay.empty())
-            {
+            if(!Space->Initialized &&
+               !WindowsOnDisplay.empty())
                 CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
-            }
-            else if(It != KWMScreen.Current->Space.end() && !WindowsOnDisplay.empty() &&
-                    !KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode)
-            {
+            else if(Space->Initialized &&
+                    !WindowsOnDisplay.empty() &&
+                    !Space->RootNode)
                 CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
-            }
-            else if(It != KWMScreen.Current->Space.end() && !WindowsOnDisplay.empty() &&
-                    KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode)
-            {
+            else if(Space->Initialized &&
+                    !WindowsOnDisplay.empty() &&
+                    Space->RootNode)
                 ShouldWindowNodeTreeUpdate(KWMScreen.Current);
-            }
-            else if(It != KWMScreen.Current->Space.end() && WindowsOnDisplay.empty())
+            else if(Space->Initialized && WindowsOnDisplay.empty())
             {
-                DestroyNodeTree(KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode,
-                                KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode);
-                KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].RootNode = NULL;
+                DestroyNodeTree(Space->RootNode, Space->Mode);
+                Space->RootNode = NULL;
+                Space->Initialized = false;
                 ClearFocusedWindow();
             }
         }
@@ -439,13 +438,10 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
             return;
     }
 
-    space_info *Space = NULL;
-    DEBUG("CreateWindowNodeTree() Create Tree")
-    if(!IsSpaceInitializedForScreen(Screen))
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    if(!Space->Initialized)
     {
-        Space = GetActiveSpaceOfScreen(Screen);
         Assert(Space, "CreateWindowNodeTree()")
-
         DEBUG("CreateWindowNodeTree() Create Space " << Screen->ActiveSpace)
 
         Space->Mode = GetSpaceModeOfDisplay(Screen->ID);
@@ -455,34 +451,12 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Space->Initialized = true;
         Space->Offset = Screen->Offset;
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
-    }
-    else
-    {
-        Space = GetActiveSpaceOfScreen(Screen);
-        Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
+
         if(Space->RootNode)
         {
-            if(Space->Mode == SpaceModeBSP)
-            {
-                SetRootNodeContainer(Screen, Space->RootNode);
-                CreateNodeContainers(Screen, Space->RootNode, true);
-            }
-            else if(Space->Mode == SpaceModeMonocle)
-            {
-                tree_node *CurrentNode = Space->RootNode;
-                while(CurrentNode)
-                {
-                    SetRootNodeContainer(Screen, CurrentNode);
-                    CurrentNode = CurrentNode->RightChild;
-                }
-            }
+            ApplyNodeContainer(Space->RootNode, Space->Mode);
+            FocusWindowBelowCursor();
         }
-    }
-
-    if(Space->RootNode)
-    {
-        ApplyNodeContainer(Space->RootNode, Space->Mode);
-        FocusWindowBelowCursor();
     }
 }
 
@@ -529,7 +503,6 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
     }
     else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
     {
-        DEBUG("ShouldBSPTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
 
         tree_node *CurrentNode = GetFirstLeafNode(Space->RootNode);
@@ -552,7 +525,10 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
             }
 
             if(!Found)
+            {
+                DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowIDsInTree[IDIndex])
                 RemoveWindowFromBSPTree(Screen, WindowIDsInTree[IDIndex], false, true);
+            }
         }
 
         if(!KWMFocus.Window)
