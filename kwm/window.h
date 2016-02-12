@@ -25,6 +25,8 @@ void FocusWindowBelowCursor();
 void FocusFirstLeafNode();
 void FocusLastLeafNode();
 
+void UpdateActiveScreen();
+void UpdateActiveSpace();
 void UpdateWindowTree();
 std::vector<window_info> FilterWindowListAllDisplays();
 bool FilterWindowList(screen_info *Screen);

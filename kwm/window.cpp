@@ -14,6 +14,7 @@ extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
 extern kwm_path KWMPath;
+extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
@@ -297,12 +298,9 @@ void FocusWindowBelowCursor()
 
 void UpdateWindowTree()
 {
-    KWMScreen.OldScreenID = KWMScreen.Current->ID;
-    KWMScreen.Current = GetDisplayOfMousePointer();
-    if(!KWMScreen.Current)
-        return;
-
     UpdateActiveWindowList(KWMScreen.Current);
+    if(KWMScreen.Transitioning || KWMScreen.UpdateSpace)
+        return;
 
     if(KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
@@ -361,22 +359,39 @@ void UpdateActiveWindowList(screen_info *Screen)
     CFRelease(OsxWindowLst);
     KWMTiling.FocusLst = KWMTiling.WindowLst;
 
-    bool WindowBelowCursor = IsAnyWindowBelowCursor();
-    KWMScreen.ForceRefreshFocus = true;
-    KWMScreen.PrevSpace = Screen->ActiveSpace;
-
-    if(Screen->ForceContainerUpdate)
+    /* Note(koekeishiya):
+     * Properly restore space-transition state and focus
+     * upon switching to a non-existant space */
+    if(KWMScreen.UpdateSpace)
     {
-        space_info *Space = GetActiveSpaceOfScreen(Screen);
-        ApplyNodeContainer(Space->RootNode, Space->Mode);
-        Screen->ForceContainerUpdate = false;
+        KWMScreen.Transitioning = false;
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        if(Space->Mode != SpaceModeFloating)
+        {
+            if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
+                FocusWindowBelowCursor();
+            else if(FocusWindowOfOSX())
+                MoveCursorToCenterOfFocusedWindow();
+        }
     }
+}
 
-    if(KWMScreen.OldScreenID != Screen->ID)
+void UpdateActiveScreen()
+{
+    screen_info *Screen = GetDisplayOfMousePointer();
+    if(KWMScreen.Current != Screen)
     {
-        DEBUG("UpdateActiveWindowList() Active Display Changed")
-        GiveFocusToScreen(Screen->ID, NULL, true);
+        DEBUG("UpdateActiveScreen() Active Display Changed")
+
         ClearMarkedWindow();
+        GiveFocusToScreen(Screen->ID, NULL, true);
+
+        if(Screen->ForceContainerUpdate)
+        {
+            space_info *Space = GetActiveSpaceOfScreen(Screen);
+            ApplyNodeContainer(Space->RootNode, Space->Mode);
+            Screen->ForceContainerUpdate = false;
+        }
 
         if(Screen->ForceSpaceUpdate)
         {
@@ -384,27 +399,38 @@ void UpdateActiveWindowList(screen_info *Screen)
             Screen->ForceSpaceUpdate = false;
         }
     }
-    else if(KWMScreen.UpdateSpace)
-    {
-        KWMScreen.Transitioning = false;
-        Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
-        if(KWMScreen.PrevSpace != Screen->ActiveSpace)
-        {
-            DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
-            KWMScreen.UpdateSpace = false;
-            space_info *Space = GetActiveSpaceOfScreen(Screen);
+}
 
-            if(Space->Mode != SpaceModeFloating)
-            {
-                if(WindowBelowCursor && KWMMode.Focus != FocusModeDisabled)
-                    FocusWindowBelowCursor();
-                else if(FocusWindowOfOSX())
-                    MoveCursorToCenterOfFocusedWindow();
-            }
+void UpdateActiveSpace()
+{
+    pthread_mutex_lock(&KWMThread.Lock);
+    Assert(KWMScreen.Current, "UpdateActiveSpace()")
+
+    KWMScreen.Transitioning = false;
+    KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
+    KWMScreen.Current->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
+
+    if(KWMScreen.PrevSpace != -KWMScreen.Current->ActiveSpace)
+    {
+        DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
+
+        KWMScreen.UpdateSpace = false;
+        KWMScreen.ForceRefreshFocus = true;
+        UpdateActiveWindowList(KWMScreen.Current);
+
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        if(Space->Mode != SpaceModeFloating)
+        {
+            if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
+                FocusWindowBelowCursor();
+            else if(FocusWindowOfOSX())
+                MoveCursorToCenterOfFocusedWindow();
         }
+
+        KWMScreen.ForceRefreshFocus = false;
     }
 
-    KWMScreen.ForceRefreshFocus = false;
+    pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)

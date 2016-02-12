@@ -202,6 +202,7 @@ struct screen_info
 
 struct kwm_mach
 {
+    void *WorkspaceWatcher;
     CFRunLoopSourceRef RunLoopSource;
     CFMachPortRef EventTap;
     CGEventMask EventMask;
@@ -273,7 +274,6 @@ struct kwm_screen
     bool Transitioning;
     double SplitRatio;
 
-    unsigned int OldScreenID;
     bool UpdateSpace;
     int MarkedWindow;
     int SplitMode;

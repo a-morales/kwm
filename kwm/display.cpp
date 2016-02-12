@@ -90,6 +90,8 @@ void GetActiveDisplays()
     }
 
     KWMScreen.Current = GetDisplayOfMousePointer();
+    KWMScreen.Current->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
+    KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
 }
 
@@ -346,7 +348,7 @@ void ActivateScreen(screen_info *Screen, bool Mouse)
 void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-    if(Screen)
+    if(Screen && Screen != KWMScreen.Current)
     {
         DEBUG("GiveFocusToScreen() " << ScreenIndex)
         tree_node *FocusFirstNode = NULL;
@@ -363,7 +365,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                 DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
 
             KWMScreen.PrevSpace = Screen->ActiveSpace;
-            KWMScreen.OldScreenID = Screen->ID;
             KWMScreen.Current = Screen;
 
             CGWarpMouseCursorPosition(CGPointMake(Focus->Container.X + Focus->Container.Width / 2,
@@ -382,18 +383,20 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                 DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
 
             KWMScreen.PrevSpace = Screen->ActiveSpace;
-            KWMScreen.OldScreenID = Screen->ID;
             KWMScreen.Current = Screen;
 
+            KWMScreen.ForceRefreshFocus = true;
             bool WindowBelowCursor = IsAnyWindowBelowCursor();
             if(Mouse && !WindowBelowCursor)
             {
                 ActivateScreen(Screen, Mouse);
                 UpdateActiveWindowList(Screen);
                 FilterWindowList(Screen);
+                ClearFocusedWindow();
             }
             else if(Mouse && WindowBelowCursor)
             {
+                ClearFocusedWindow();
                 UpdateActiveWindowList(Screen);
                 FilterWindowList(Screen);
                 FocusWindowBelowCursor();
@@ -406,7 +409,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                 FilterWindowList(Screen);
             }
 
-            KWMScreen.ForceRefreshFocus = true;
             FocusWindowBelowCursor();
             KWMScreen.ForceRefreshFocus = false;
         }
@@ -430,9 +432,7 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
 
                 DEBUG("Empty Screen")
                 KWMScreen.PrevSpace = Screen->ActiveSpace;
-                KWMScreen.OldScreenID = Screen->ID;
                 KWMScreen.Current = Screen;
-                KWMScreen.UpdateSpace = true;
                 ActivateScreen(Screen, Mouse);
 
                 if(Mouse && KWMFocus.Window)

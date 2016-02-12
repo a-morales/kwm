@@ -67,6 +67,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
+            UpdateActiveScreen();
+
             if(KWMMode.Focus != FocusModeDisabled &&
                KWMMode.Focus != FocusModeStandby &&
                !IsActiveSpaceFloating())
@@ -302,12 +304,11 @@ void KwmInit()
     KWMScreen.SplitRatio = 0.5;
     KWMScreen.SplitMode = -1;
     KWMScreen.MarkedWindow = -1;
-    KWMScreen.OldScreenID = -1;
     KWMScreen.PrevSpace = -1;
     KWMScreen.DefaultOffset = CreateDefaultScreenOffset();
     KWMScreen.MaxCount = 5;
     KWMScreen.ActiveCount = 0;
-    KWMScreen.UpdateSpace = true;
+    KWMScreen.UpdateSpace = false;
 
     KWMToggles.EnableTilingMode = true;
     KWMToggles.UseBuiltinHotkeys = true;
@@ -404,6 +405,8 @@ int main(int argc, char **argv)
                        kCFRunLoopCommonModes);
 
     CGEventTapEnable(KWMMach.EventTap, true);
+    CreateWorkspaceWatcher(KWMMach.WorkspaceWatcher);
+
     NSApplicationLoad();
     CFRunLoopRun();
     return 0;

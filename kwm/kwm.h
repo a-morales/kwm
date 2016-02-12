@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+extern void CreateWorkspaceWatcher(void *Watcher);
+
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon);
 void * KwmWindowMonitor(void*);
 void * KwmStartThreadedSystemCommand(void *Args);
