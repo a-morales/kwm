@@ -125,7 +125,7 @@ void * KwmWindowMonitor(void*)
             UpdateWindowTree();
 
         pthread_mutex_unlock(&KWMThread.Lock);
-        usleep(50000);
+        usleep(5000);
     }
 }
 
