@@ -327,7 +327,6 @@ void UpdateWindowTree()
             {
                 DestroyNodeTree(Space->RootNode, Space->Mode);
                 Space->RootNode = NULL;
-                Space->Initialized = false;
                 ClearFocusedWindow();
             }
         }
@@ -451,12 +450,33 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Space->Initialized = true;
         Space->Offset = Screen->Offset;
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
-
+    }
+    else if(Space->Initialized)
+    {
+        Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
         if(Space->RootNode)
         {
-            ApplyNodeContainer(Space->RootNode, Space->Mode);
-            FocusWindowBelowCursor();
+            if(Space->Mode == SpaceModeBSP)
+            {
+                SetRootNodeContainer(Screen, Space->RootNode);
+                CreateNodeContainers(Screen, Space->RootNode, true);
+            }
+            else if(Space->Mode == SpaceModeMonocle)
+            {
+                tree_node *CurrentNode = Space->RootNode;
+                while(CurrentNode)
+                {
+                    SetRootNodeContainer(Screen, CurrentNode);
+                    CurrentNode = CurrentNode->RightChild;
+                }
+            }
         }
+    }
+
+    if(Space->RootNode)
+    {
+        ApplyNodeContainer(Space->RootNode, Space->Mode);
+        FocusWindowBelowCursor();
     }
 }
 
