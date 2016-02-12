@@ -529,7 +529,6 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
     }
     else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
     {
-        ClearFocusedWindow();
         DEBUG("ShouldBSPTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
 
@@ -558,6 +557,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
 
         if(!KWMFocus.Window)
         {
+            ClearFocusedWindow();
             if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
                 FocusWindowBelowCursor();
             else if(FocusWindowOfOSX())
