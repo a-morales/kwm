@@ -302,10 +302,8 @@ void UpdateWindowTree()
 {
     UpdateActiveWindowList(KWMScreen.Current);
 
-    if(KWMToggles.EnableTilingMode &&
-       !IsSpaceTransitionInProgress() &&
-       !IsSpaceSystemOrFullscreen() &&
-       FilterWindowList(KWMScreen.Current))
+   if(KWMToggles.EnableTilingMode &&
+      FilterWindowList(KWMScreen.Current))
     {
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);

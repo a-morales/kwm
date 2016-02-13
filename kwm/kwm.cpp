@@ -121,7 +121,8 @@ void * KwmWindowMonitor(void*)
         pthread_mutex_lock(&KWMThread.Lock);
         CheckPrefixTimeout();
 
-        if(!IsSpaceTransitionInProgress())
+        if(!IsSpaceTransitionInProgress() &&
+           !IsSpaceSystemOrFullscreen())
             UpdateWindowTree();
 
         pthread_mutex_unlock(&KWMThread.Lock);
