@@ -119,9 +119,10 @@ func parseColor(args: Array<String>) -> NSColor
     return NSColor(red: colorHash["r"]!, green: colorHash["g"]!, blue: colorHash["b"]!, alpha: colorHash["a"]!)
 }
 
-func parseWidth(args: Array<String>) -> CGFloat
+func parseStroke(args: Array<String>) -> [String: CGFloat]
 {
-    var widthVal: CGFloat = 4
+    var strokeHash = [String: CGFloat]()
+    strokeHash["size"] = CGFloat(4)
 
     for arg in args {
         if ((arg.characters.indexOf(":")) != nil) {
@@ -135,7 +136,10 @@ func parseWidth(args: Array<String>) -> CGFloat
 
             switch key {
             case "s", "stroke":
-                widthVal = CGFloat(floatVal!)
+                strokeHash["size"] = CGFloat(floatVal!)
+                break
+            case "rad":
+                strokeHash["rad"] = CGFloat(floatVal!)
                 break
             default:
                 break
@@ -143,7 +147,11 @@ func parseWidth(args: Array<String>) -> CGFloat
         }
     }
 
-    return widthVal
+    if (strokeHash["rad"] == nil) {
+        strokeHash["rad"] = strokeHash["size"]! + 4
+    }
+
+    return strokeHash
 }
 
 
@@ -151,10 +159,12 @@ class OverlayView: NSView
 {
     let borderColor: NSColor
     let lineWidth: CGFloat
-    init(frame: NSRect, color: NSColor, width: CGFloat)
+    let lineRadius: CGFloat
+    init(frame: NSRect, color: NSColor, width: CGFloat, radius: CGFloat)
     {
         borderColor = color
         lineWidth = width
+        lineRadius = radius
         super.init(frame: frame)
     }
 
@@ -168,8 +178,7 @@ class OverlayView: NSView
     override func drawRect(rect: NSRect)
     {
         colorclear.setFill()
-        let borderRadius = CGFloat(lineWidth + 4)
-        let bpath:NSBezierPath = NSBezierPath(roundedRect: rect, xRadius:borderRadius, yRadius:borderRadius)
+        let bpath:NSBezierPath = NSBezierPath(roundedRect: rect, xRadius:lineRadius, yRadius:lineRadius)
 
         borderColor.set()
         bpath.lineWidth = lineWidth
@@ -185,9 +194,9 @@ class OverlayController: NSObject, NSApplicationDelegate
     func showOverlayView(args: Array<String>)
     {
         let overlayColor = parseColor(args)
-        let overlayWidth = parseWidth(args)
-        let overlayFrame = parseFrame(args, strokeWidth: Int(overlayWidth))
-        let overlayView = OverlayView(frame: overlayFrame, color: overlayColor, width: overlayWidth)
+        let overlayStroke = parseStroke(args)
+        let overlayFrame = parseFrame(args, strokeWidth: Int(overlayStroke["size"]!))
+        let overlayView = OverlayView(frame: overlayFrame, color: overlayColor, width: overlayStroke["size"]!, radius: overlayStroke["rad"]!)
 
         window.contentView = overlayView
         window.setFrame(NSRectToCGRect(overlayFrame), display: true)
