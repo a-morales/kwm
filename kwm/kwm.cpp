@@ -207,7 +207,6 @@ void KwmExecuteThreadedSystemCommand(std::string Command)
 void * KwmStartThreadedSystemCommand(void *Args)
 {
     std::string Command = *((std::string*)Args);
-    std::cout << Command << std::endl;
     KwmExecuteSystemCommand(Command);
     delete (std::string*)Args;
     return NULL;
