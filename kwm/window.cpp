@@ -300,10 +300,13 @@ void FocusWindowBelowCursor()
 
 void UpdateWindowTree()
 {
-    UpdateActiveWindowList(KWMScreen.Current);
+    if(IsSpaceTransitionInProgress() ||
+       !IsActiveSpaceManaged())
+        return;
 
-   if(KWMToggles.EnableTilingMode &&
-      FilterWindowList(KWMScreen.Current))
+    UpdateActiveWindowList(KWMScreen.Current);
+    if(KWMToggles.EnableTilingMode &&
+       FilterWindowList(KWMScreen.Current))
     {
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
