@@ -189,7 +189,9 @@ struct space_info
 
 struct screen_info
 {
+    CFStringRef Identifier;
     unsigned int ID;
+
     int X, Y;
     double Width, Height;
     container_offset Offset;
@@ -197,7 +199,6 @@ struct screen_info
     int ActiveSpace;
     int OldWindowListCount;
     bool ForceContainerUpdate;
-    bool ForceSpaceUpdate;
     std::map<int, space_info> Space;
 };
 

@@ -33,6 +33,9 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
             for(It = KWMTiling.DisplayMap[Display].Space.begin(); It != KWMTiling.DisplayMap[Display].Space.end(); ++It)
                 DestroyNodeTree(It->second.RootNode, It->second.Mode);
 
+            if(KWMTiling.DisplayMap[Display].Identifier)
+                CFRelease(KWMTiling.DisplayMap[Display].Identifier);
+
             KWMTiling.DisplayMap.erase(Display);
         }
 
@@ -49,7 +52,6 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
 
     Screen.ID = ScreenIndex;
     Screen.ForceContainerUpdate = false;
-    Screen.ForceSpaceUpdate = false;
     Screen.ActiveSpace = -1;
     Screen.OldWindowListCount = -1;
 
@@ -74,7 +76,6 @@ void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenI
 
     Screen->Offset = KWMScreen.DefaultOffset;
     Screen->ForceContainerUpdate = true;
-    Screen->ForceSpaceUpdate = true;
 }
 
 void GetActiveDisplays()
@@ -90,7 +91,7 @@ void GetActiveDisplays()
     }
 
     KWMScreen.Current = GetDisplayOfMousePointer();
-    KWMScreen.Current->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
+    KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
     CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
 }
 
@@ -320,30 +321,6 @@ int GetIndexOfPrevScreen()
     return KWMScreen.Current->ID == 0 ? KWMScreen.ActiveCount - 1 : KWMScreen.Current->ID - 1;
 }
 
-void ActivateScreen(screen_info *Screen, bool Mouse)
-{
-    CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2), Screen->Y + (Screen->Height / 2));
-    CGPoint ClickPos = CursorPos;
-
-    if(Mouse)
-        CursorPos = GetCursorPos();
-
-    CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
-    CGEventSetFlags(MoveEvent, 0);
-    CGEventPost(kCGHIDEventTap, MoveEvent);
-    CFRelease(MoveEvent);
-
-    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
-    CGEventSetFlags(MoveEvent, 0);
-    CGEventPost(kCGHIDEventTap, MoveEvent);
-    CFRelease(MoveEvent);
-
-    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
-    CGEventSetFlags(MoveEvent, 0);
-    CGEventPost(kCGHIDEventTap, MoveEvent);
-    CFRelease(MoveEvent);
-}
-
 void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
@@ -361,7 +338,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         if(Space->Initialized)
             FocusFirstNode = GetFirstLeafNode(Space->RootNode);
 
-        ActivateScreen(Screen, Mouse);
         if(Space->Initialized && Focus)
         {
             DEBUG("Populated Screen 'Window -f Focus'")

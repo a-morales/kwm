@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+extern int GetActiveSpaceOfDisplay(screen_info *Screen);
+
 void AllowRoleForApplication(std::string Application, std::string Role);
 bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubRole);
 bool IsApplicationCapturedByScreen(window_info *Window);

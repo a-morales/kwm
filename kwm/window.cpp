@@ -370,12 +370,6 @@ void UpdateActiveScreen()
             ApplyNodeContainer(Space->RootNode, Space->Mode);
             Screen->ForceContainerUpdate = false;
         }
-
-        if(Screen->ForceSpaceUpdate)
-        {
-            Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
-            Screen->ForceSpaceUpdate = false;
-        }
     }
 }
 
@@ -386,7 +380,7 @@ void UpdateActiveSpace()
 
     KWMScreen.Transitioning = false;
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-    KWMScreen.Current->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
+    KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
 
     if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
     {
