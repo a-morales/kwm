@@ -91,7 +91,6 @@ void GetActiveDisplays()
 
     KWMScreen.Current = GetDisplayOfMousePointer();
     KWMScreen.Current->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
-    KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
 }
 
@@ -321,27 +320,51 @@ int GetIndexOfPrevScreen()
     return KWMScreen.Current->ID == 0 ? KWMScreen.ActiveCount - 1 : KWMScreen.Current->ID - 1;
 }
 
+void ActivateScreen(screen_info *Screen, bool Mouse)
+{
+    CGPoint CursorPos = CGPointMake(Screen->X + (Screen->Width / 2), Screen->Y + (Screen->Height / 2));
+    CGPoint ClickPos = CursorPos;
+
+    if(Mouse)
+        CursorPos = GetCursorPos();
+
+    CGEventRef MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
+    CGEventSetFlags(MoveEvent, 0);
+    CGEventPost(kCGHIDEventTap, MoveEvent);
+    CFRelease(MoveEvent);
+
+    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
+    CGEventSetFlags(MoveEvent, 0);
+    CGEventPost(kCGHIDEventTap, MoveEvent);
+    CFRelease(MoveEvent);
+
+    MoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CursorPos, kCGMouseButtonLeft);
+    CGEventSetFlags(MoveEvent, 0);
+    CGEventPost(kCGHIDEventTap, MoveEvent);
+    CFRelease(MoveEvent);
+}
+
 void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     if(Screen && Screen != KWMScreen.Current)
     {
+        KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
         Screen->ActiveSpace = GetActiveSpaceOfDisplay(Screen);
         space_info *Space = GetActiveSpaceOfScreen(Screen);
         tree_node *FocusFirstNode = NULL;
 
-        if(KWMScreen.PrevSpace != Screen->ActiveSpace)
-            DEBUG("GiveFocusToScreen() " << ScreenIndex << \
-                  ": Space transition ended " << KWMScreen.PrevSpace << \
-                  " -> " << Screen->ActiveSpace)
+        DEBUG("GiveFocusToScreen() " << ScreenIndex << \
+              ": Space transition ended " << KWMScreen.PrevSpace << \
+              " -> " << Screen->ActiveSpace)
 
         if(Space->Initialized)
             FocusFirstNode = GetFirstLeafNode(Space->RootNode);
 
+        ActivateScreen(Screen, Mouse);
         if(Space->Initialized && Focus)
         {
             DEBUG("Populated Screen 'Window -f Focus'")
-            KWMScreen.PrevSpace = Screen->ActiveSpace;
             KWMScreen.Current = Screen;
 
             UpdateActiveWindowList(Screen);
@@ -352,7 +375,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         else if(Space->Initialized && FocusFirstNode)
         {
             DEBUG("Populated Screen Key/Mouse Focus")
-            KWMScreen.PrevSpace = Screen->ActiveSpace;
             KWMScreen.Current = Screen;
 
             UpdateActiveWindowList(Screen);
@@ -378,7 +400,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
             {
                 DEBUG("Uninitialized Screen")
                 ClearFocusedWindow();
-                KWMScreen.PrevSpace = Screen->ActiveSpace;
                 KWMScreen.Current = Screen;
 
                 if(Space->Mode != SpaceModeFloating && Mouse && KWMFocus.Window)
