@@ -67,11 +67,12 @@ extern "C" int CGSGetActiveSpace(int cid);
 extern "C" int CGSSpaceGetType(int cid, int sid);
 extern "C" bool CGSManagedDisplayIsAnimating(const int cid, CFStringRef display);
 extern "C" CFStringRef CGSCopyManagedDisplayForSpace(const int cid, int space);
+extern "C" CFStringRef CGSCopyBestManagedDisplayForRect(const int cid, CGRect rect);
+extern "C" CFArrayRef CGSCopyManagedDisplaySpaces(const int cid);
 
 #define CGSDefaultConnection _CGSDefaultConnection()
 extern "C" int _CGSDefaultConnection(void);
 
-extern "C" void NSApplicationLoad(void);
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);
 
 enum focus_option
