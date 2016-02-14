@@ -141,7 +141,7 @@ bool IsSpaceTransitionInProgress()
 
     Assert(KWMScreen.Current, "IsSpaceTransitionInProgress()")
     if(!KWMScreen.Current->Identifier)
-        KWMScreen.Current->Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, KWMScreen.Current->ActiveSpace);
+        KWMScreen.Current->Identifier = GetDisplayIdentifier(KWMScreen.Current);
 
     bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, KWMScreen.Current->Identifier);
     if(Result)
@@ -155,14 +155,16 @@ bool IsSpaceTransitionInProgress()
     return Result;
 }
 
-bool IsSpaceSystemOrFullscreen()
+bool IsActiveSpaceManaged()
 {
-    bool Result = false;
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    return Space->Managed;
+}
 
-    if(IsSpaceInitializedForScreen(KWMScreen.Current))
-        Result = CGSSpaceGetType(CGSDefaultConnection, KWMScreen.Current->ActiveSpace) != CGSSpaceTypeUser;
-
-    return Result;
+void ShouldActiveSpaceBeManaged()
+{
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    Space->Managed = CGSSpaceGetType(CGSDefaultConnection, KWMScreen.Current->ActiveSpace) == CGSSpaceTypeUser;
 }
 
 void FloatFocusedSpace()
@@ -170,7 +172,7 @@ void FloatFocusedSpace()
     if(IsSpaceInitializedForScreen(KWMScreen.Current) &&
        KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
-       !IsSpaceSystemOrFullscreen() &&
+       IsActiveSpaceManaged() &&
        FilterWindowList(KWMScreen.Current))
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
@@ -186,7 +188,7 @@ void TileFocusedSpace(space_tiling_option Mode)
     if(IsSpaceInitializedForScreen(KWMScreen.Current) &&
        KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
-       !IsSpaceSystemOrFullscreen() &&
+       IsActiveSpaceManaged() &&
        FilterWindowList(KWMScreen.Current))
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);

@@ -34,20 +34,20 @@ void CreateWorkspaceWatcher(void *Watcher)
     Watcher = (void*)MDWatcher;
 }
 
-NSString *GetDisplayIdentifier(screen_info *Screen)
+CFStringRef GetDisplayIdentifier(screen_info *Screen)
 {
     if(Screen->Identifier)
-        return (__bridge NSString *)Screen->Identifier;
+        return Screen->Identifier;
 
     CGRect Frame = CGRectMake(Screen->X, Screen->Y, Screen->Width, Screen->Height);
     Screen->Identifier = CGSCopyBestManagedDisplayForRect(CGSDefaultConnection, Frame);
-    return (__bridge NSString *)Screen->Identifier;
+    return Screen->Identifier;
 }
 
 int GetActiveSpaceOfDisplay(screen_info *Screen)
 {
     int CurrentSpace = -1;
-    NSString *CurrentIdentifier = GetDisplayIdentifier(Screen);
+    NSString *CurrentIdentifier = (__bridge NSString *)GetDisplayIdentifier(Screen);
 
     CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
     for (NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)

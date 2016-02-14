@@ -217,7 +217,7 @@ bool FocusWindowOfOSX()
     if(GetWindowFocusedByOSX(&WindowID))
     {
         if(IsSpaceTransitionInProgress() ||
-           IsSpaceSystemOrFullscreen() ||
+           !IsActiveSpaceManaged() ||
            !IsSpaceInitializedForScreen(KWMScreen.Current))
                 return false;
 
@@ -272,7 +272,7 @@ void FocusLastLeafNode()
 void FocusWindowBelowCursor()
 {
     if(IsSpaceTransitionInProgress() ||
-       IsSpaceSystemOrFullscreen() ||
+       !IsActiveSpaceManaged() ||
        !IsSpaceInitializedForScreen(KWMScreen.Current))
            return;
 
@@ -381,6 +381,7 @@ void UpdateActiveSpace()
     KWMScreen.Transitioning = false;
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
+    ShouldActiveSpaceBeManaged();
 
     if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
     {
@@ -1446,9 +1447,6 @@ void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Y
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)
 {
-    if(IsSpaceSystemOrFullscreen())
-        return;
-
     CGPoint WindowPos = CGPointMake(X, Y);
     CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
 

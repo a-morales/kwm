@@ -92,6 +92,8 @@ void GetActiveDisplays()
 
     KWMScreen.Current = GetDisplayOfMousePointer();
     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
+    ShouldActiveSpaceBeManaged();
+
     CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
 }
 
@@ -327,7 +329,11 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
     if(Screen && Screen != KWMScreen.Current)
     {
         KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
+        KWMScreen.Current = Screen;
+
         Screen->ActiveSpace = GetActiveSpaceOfDisplay(Screen);
+        ShouldActiveSpaceBeManaged();
+
         space_info *Space = GetActiveSpaceOfScreen(Screen);
         tree_node *FocusFirstNode = NULL;
 
@@ -341,7 +347,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         if(Space->Initialized && Focus)
         {
             DEBUG("Populated Screen 'Window -f Focus'")
-            KWMScreen.Current = Screen;
 
             UpdateActiveWindowList(Screen);
             FilterWindowList(Screen);
@@ -351,7 +356,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         else if(Space->Initialized && FocusFirstNode)
         {
             DEBUG("Populated Screen Key/Mouse Focus")
-            KWMScreen.Current = Screen;
 
             UpdateActiveWindowList(Screen);
             FilterWindowList(Screen);
@@ -376,7 +380,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
             {
                 DEBUG("Uninitialized Screen")
                 ClearFocusedWindow();
-                KWMScreen.Current = Screen;
 
                 if(Space->Mode != SpaceModeFloating && Mouse && KWMFocus.Window)
                 {

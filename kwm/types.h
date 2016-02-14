@@ -182,6 +182,7 @@ struct space_info
 {
     container_offset Offset;
     bool Initialized;
+    bool Managed;
 
     space_tiling_option Mode;
     tree_node *RootNode;
