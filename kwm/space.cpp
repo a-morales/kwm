@@ -140,8 +140,14 @@ bool IsSpaceTransitionInProgress()
         return true;
 
     Assert(KWMScreen.Current, "IsSpaceTransitionInProgress()")
-    Assert(KWMScreen.Current->Identifier, "IsSpaceTransitionInProgress()")
-    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, KWMScreen.Current->Identifier);
+
+    CFStringRef Identifier;
+    if(KWMScreen.Current->Identifier)
+        Identifier = KWMScreen.Current->Identifier;
+    else
+        Identifier = CGSCopyManagedDisplayForSpace(CGSDefaultConnection, KWMScreen.Current->ActiveSpace);
+
+    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, Identifier);
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
