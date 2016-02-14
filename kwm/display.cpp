@@ -3,8 +3,6 @@
 #include "tree.h"
 #include "window.h"
 
-extern int GetActiveSpaceOfDisplay(screen_info *Screen);
-
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_tiling KWMTiling;
