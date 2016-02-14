@@ -363,7 +363,7 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         {
             DEBUG("Populated Screen 'Window -f Focus'")
             if(KWMScreen.PrevSpace != Screen->ActiveSpace)
-                DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
+                DEBUG("GiveFocusToScreen() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
 
             KWMScreen.PrevSpace = Screen->ActiveSpace;
             KWMScreen.Current = Screen;
@@ -381,7 +381,7 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
         {
             DEBUG("Populated Screen Key/Mouse Focus")
             if(KWMScreen.PrevSpace != Screen->ActiveSpace)
-                DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
+                DEBUG("GiveFocusToScreen() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
 
             KWMScreen.PrevSpace = Screen->ActiveSpace;
             KWMScreen.Current = Screen;
@@ -420,7 +420,7 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                Space->RootNode == NULL)
             {
                 if(KWMScreen.PrevSpace != Screen->ActiveSpace)
-                    DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
+                    DEBUG("GiveFocusToScreen() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
 
                 if(Space->Mode == SpaceModeFloating)
                 {
