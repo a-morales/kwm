@@ -1,4 +1,5 @@
 #import "Cocoa/Cocoa.h"
+#import "types.h"
 
 extern void UpdateActiveSpace();
 
@@ -31,4 +32,31 @@ void CreateWorkspaceWatcher(void *Watcher)
 {
     MDWorkspaceWatcher *MDWatcher = [[MDWorkspaceWatcher alloc] init];
     Watcher = (void*)MDWatcher;
+}
+
+NSString *GetDisplayIdentifier(screen_info *Screen)
+{
+    CGRect Frame = CGRectMake(Screen->X, Screen->Y, Screen->Width, Screen->Height);
+    CFStringRef Display = CGSCopyBestManagedDisplayForRect(CGSDefaultConnection, Frame);
+    return (NSString *)CFBridgingRelease(Display);
+}
+
+int GetActiveSpaceOfDisplay(screen_info *Screen)
+{
+    int CurrentSpace = -1;
+    NSString *CurrentIdentifier = GetDisplayIdentifier(Screen);
+
+    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
+    for (NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
+    {
+        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
+        if ([ScreenIdentifier isEqualToString:CurrentIdentifier])
+        {
+            CurrentSpace = [ScreenDictionary[@"Current Space"][@"id64"] intValue];
+            break;
+        }
+    }
+
+    CFRelease(ScreenDictionaries);
+    return CurrentSpace;
 }

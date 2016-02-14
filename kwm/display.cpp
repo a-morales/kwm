@@ -3,6 +3,8 @@
 #include "tree.h"
 #include "window.h"
 
+extern int GetActiveSpaceOfDisplay(screen_info *Screen);
+
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_tiling KWMTiling;
@@ -352,6 +354,7 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
     {
         DEBUG("GiveFocusToScreen() " << ScreenIndex)
         tree_node *FocusFirstNode = NULL;
+        Screen->ActiveSpace = GetActiveSpaceOfDisplay(Screen);
         bool Initialized = IsSpaceInitializedForScreen(Screen);
         space_info *Space = GetActiveSpaceOfScreen(Screen);
 
@@ -418,7 +421,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
                Space->Mode == SpaceModeFloating ||
                Space->RootNode == NULL)
             {
-                Screen->ActiveSpace = CGSGetActiveSpace(CGSDefaultConnection);
                 if(KWMScreen.PrevSpace != Screen->ActiveSpace)
                     DEBUG("UpdateActiveWindowList() Space transition ended " << KWMScreen.PrevSpace << " -> " << Screen->ActiveSpace)
 
