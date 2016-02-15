@@ -50,6 +50,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
     CGRect DisplayRect = CGDisplayBounds(DisplayIndex);
     screen_info Screen;
 
+    Screen.Identifier = NULL;
     Screen.ID = ScreenIndex;
     Screen.ForceContainerUpdate = false;
     Screen.ActiveSpace = -1;
