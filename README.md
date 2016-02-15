@@ -61,11 +61,13 @@ Build with debug information
 
       make
 
-To make *Kwm* start automatically on login, run the following command the first time *Kwm* starts
+To make *Kwm* start automatically on login through launchd, if compiled from source
 
-      kwmc config launchd enable
+      edit /path/to/kwm on line 9 of examples/com.koekeishiya.kwm.plist
+      cp examples/com.koekeishiya.kwm.plist ~/Library/LaunchAgents/
 
-I would recommend for *Kwm* to be managed by launchd, but it can also be started directly from a terminal.
+I would recommend for *Kwm* to be managed by launchd, as it otherwise requires
+the terminal application to have Accessibility Permissions (Not Recommended).
 
 ## Configuration:
 
