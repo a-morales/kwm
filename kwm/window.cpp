@@ -394,7 +394,12 @@ void UpdateActiveSpace()
         UpdateActiveWindowList(KWMScreen.Current);
 
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        if(Space->Mode != SpaceModeFloating)
+        if(Space->FocusedNode)
+        {
+            SetWindowFocusByNode(Space->FocusedNode);
+            MoveCursorToCenterOfFocusedWindow();
+        }
+        else if(Space->Mode != SpaceModeFloating)
         {
             if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
                 FocusWindowBelowCursor();
