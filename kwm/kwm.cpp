@@ -9,7 +9,6 @@
 #include "border.h"
 
 const std::string KwmCurrentVersion = "Kwm Version 1.1.1";
-const std::string PlistFile = "com.koekeishiya.kwm.plist";
 
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
@@ -211,63 +210,6 @@ void * KwmStartThreadedSystemCommand(void *Args)
     KwmExecuteSystemCommand(Command);
     delete (std::string*)Args;
     return NULL;
-}
-
-bool IsKwmAlreadyAddedToLaunchd()
-{
-    std::string SymlinkFullPath = KWMPath.EnvHome + "/Library/LaunchAgents/" + PlistFile;
-
-    struct stat attr;
-    int Result = stat(SymlinkFullPath.c_str(), &attr);
-    if(Result == -1)
-        return false;
-
-    return true;
-}
-
-void AddKwmToLaunchd()
-{
-    if(IsKwmAlreadyAddedToLaunchd())
-        return;
-
-    std::string SymlinkFullPath = KWMPath.EnvHome + "/Library/LaunchAgents/" + PlistFile;
-
-    std::ifstream TemplateFD(KWMPath.FilePath + "/kwm_template.plist");
-    if(TemplateFD.fail())
-        return;
-
-    std::ofstream OutFD(SymlinkFullPath);
-    if(OutFD.fail())
-        return;
-
-    std::string Line;
-    std::vector<std::string> PlistContents;
-    while(std::getline(TemplateFD, Line))
-        PlistContents.push_back(Line);
-
-    DEBUG("AddKwmToLaunchd() Creating file: " << SymlinkFullPath)
-    for(std::size_t LineNumber = 0; LineNumber < PlistContents.size(); ++LineNumber)
-    {
-        if(LineNumber == 8)
-            OutFD << "    <string>" + KWMPath.FilePath + "/kwm</string>" << std::endl;
-        else
-            OutFD << PlistContents[LineNumber] << std::endl;
-    }
-
-    TemplateFD.close();
-    OutFD.close();
-}
-
-void RemoveKwmFromLaunchd()
-{
-    if(!IsKwmAlreadyAddedToLaunchd())
-        return;
-
-    std::string SymlinkFullPath = KWMPath.EnvHome + "/Library/LaunchAgents/" + PlistFile;
-    std::string RemoveSymlink = "rm " + SymlinkFullPath;
-
-    system(RemoveSymlink.c_str());
-    DEBUG("RemoveKwmFromLaunchd() Removing file: " << SymlinkFullPath)
 }
 
 bool GetKwmFilePath()

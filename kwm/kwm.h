@@ -17,10 +17,6 @@ void KwmExecuteFile(std::string File);
 void KwmReloadConfig();
 void KwmClearSettings();
 
-bool IsKwmAlreadyAddedToLaunchd();
-void AddKwmToLaunchd();
-void RemoveKwmFromLaunchd();
-
 void KwmInit();
 void KwmQuit();
 bool GetKwmFilePath();

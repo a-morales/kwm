@@ -5,9 +5,6 @@
         Reload config ($HOME/.kwm/kwmrc)
             kwmc config reload
 
-        Let launchd manage Kwm (automatically start on login)
-            kwmc config launchd enable|disable
-
         Set modifier used by OSX space-hotkeys (System Preferences->Keyboard->Shortcuts)
             kwmc config spaces-key mod+mod+mod
 

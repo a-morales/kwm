@@ -123,14 +123,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             PrefixBorder.Radius = ConvertStringToDouble(Tokens[3]);
         }
     }
-
-    else  if(Tokens[1] == "launchd")
-    {
-        if(Tokens[2] == "disable")
-            RemoveKwmFromLaunchd();
-        else if(Tokens[2] == "enable")
-            AddKwmToLaunchd();
-    }
     else if(Tokens[1] == "float-non-resizable")
     {
         if(Tokens[2] == "disable")

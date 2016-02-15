@@ -38,7 +38,6 @@ void ShowHelp(std::string Command)
             "\n"
             "Options:\n"
             "   reload                                                 Reload config ($HOME/.kwm/kwmrc)\n"
-            "   launchd enable|disable                                 Let launchd manage Kwm (automatically start on login)\n"
             "   spaces-key mod+mod+mod                                 Set modifier used by OSX space-hotkeys (System Preferences->Keyboard->Shortcuts)\n"
             "   prefix mod+mod+mod-key                                 Set prefix for Kwms hotkeys\n"
             "   prefix-global enable|disable                           Make prefix global (apply to all binds)\n"
