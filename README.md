@@ -14,7 +14,7 @@ For a list of various commands that can be issued, check the readme located with
 The *Kwmc* tool also has a built-in help system that can be accessed from the terminal using `kwmc help`.
 
 *Kwm* requires access to the OSX accessibility API.
-Tested on El Capitan (10.11.1 / 10.11.2).
+Tested on El Capitan (10.11.1 - 10.11.3).
 
 ![img](https://cloud.githubusercontent.com/assets/6175959/12651784/55c7debe-c5e8-11e5-836f-97f99f2b4529.png)
 For more screenshots, [click here.](https://github.com/koekeishiya/kwm/issues/2)
@@ -47,21 +47,25 @@ Using hotkeys to change window focus will work even if focus-follows-mouse has b
 Kwm supports external monitors and have commands that allow for focusing screens,  moving windows, and capturing applications.
 For more information, see `kwmc help screen` and `kwmc config capture`.
 
-## Build:
+## Install:
 
-Because there is no app bundle, *Kwm* has to be started from a terminal.
-To compile and start *Kwm*, simply run
+A codesigned binary release is available through Homebrew
 
-      make
-      ./bin/kwm
+      brew install homebrew/binary/kwm
 
-By default, debug prints are enabled, and these can be turned off by running
+To compile from source
 
       make install
+
+Build with debug information
+
+      make
 
 To make *Kwm* start automatically on login, run the following command the first time *Kwm* starts
 
       kwmc config launchd enable
+
+I would recommend for *Kwm* to be managed by launchd, but it can also be started directly from a terminal.
 
 ## Configuration:
 
