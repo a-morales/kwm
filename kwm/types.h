@@ -185,6 +185,7 @@ struct space_info
     bool Managed;
 
     space_tiling_option Mode;
+    tree_node *FocusedNode;
     tree_node *RootNode;
 };
 

@@ -334,16 +334,11 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
 
         Screen->ActiveSpace = GetActiveSpaceOfDisplay(Screen);
         ShouldActiveSpaceBeManaged();
-
         space_info *Space = GetActiveSpaceOfScreen(Screen);
-        tree_node *FocusFirstNode = NULL;
 
         DEBUG("GiveFocusToScreen() " << ScreenIndex << \
               ": Space transition ended " << KWMScreen.PrevSpace << \
               " -> " << Screen->ActiveSpace)
-
-        if(Space->Initialized)
-            FocusFirstNode = GetFirstLeafNode(Space->RootNode);
 
         if(Space->Initialized && Focus)
         {
@@ -354,7 +349,7 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
             SetWindowFocusByNode(Focus);
             MoveCursorToCenterOfFocusedWindow();
         }
-        else if(Space->Initialized && FocusFirstNode)
+        else if(Space->Initialized && Space->FocusedNode)
         {
             DEBUG("Populated Screen Key/Mouse Focus")
 
@@ -369,7 +364,7 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse)
 
             if(!Mouse)
             {
-                SetWindowFocusByNode(FocusFirstNode);
+                SetWindowFocusByNode(Space->FocusedNode);
                 MoveCursorToCenterOfFocusedWindow();
             }
         }
