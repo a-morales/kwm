@@ -4,12 +4,11 @@ SDK_ROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/De
 KWM_SRCS=kwm/kwm.cpp kwm/tree.cpp kwm/window.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp kwm/space.cpp kwm/border.cpp kwm/notifications.cpp kwm/helpers.cpp kwm/workspace.mm
 KWMC_SRCS=kwmc/kwmc.cpp kwmc/help.cpp
 KWMO_SRCS=kwm-overlay/kwm-overlay.swift
-KWM_PLIST=kwm.plist
 SAMPLE_CONFIG=examples/kwmrc
 CONFIG_DIR=$(HOME)/.kwm
 BUILD_PATH=./bin
 BUILD_FLAGS=-O3 -Wall
-BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(BUILD_PATH)/kwm_template.plist $(CONFIG_DIR)/kwmrc
+BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(CONFIG_DIR)/kwmrc
 
 all: $(BINS)
 
