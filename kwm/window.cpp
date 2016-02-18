@@ -217,9 +217,8 @@ bool FocusWindowOfOSX()
     if(GetWindowFocusedByOSX(&WindowID))
     {
         if(IsSpaceTransitionInProgress() ||
-           !IsActiveSpaceManaged() ||
-           !IsSpaceInitializedForScreen(KWMScreen.Current))
-                return false;
+           !IsActiveSpaceManaged())
+            return false;
 
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
