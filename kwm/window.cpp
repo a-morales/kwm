@@ -272,8 +272,7 @@ void FocusLastLeafNode()
 void FocusWindowBelowCursor()
 {
     if(IsSpaceTransitionInProgress() ||
-       !IsActiveSpaceManaged() ||
-       !IsSpaceInitializedForScreen(KWMScreen.Current))
+       !IsActiveSpaceManaged())
            return;
 
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
@@ -1353,8 +1352,11 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
         UpdateBorder("focused");
     }
 
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    Space->FocusedNode = GetNodeFromWindowID(Space->RootNode, Window->WID, Space->Mode);
+    if(KWMToggles.EnableTilingMode)
+    {
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        Space->FocusedNode = GetNodeFromWindowID(Space->RootNode, Window->WID, Space->Mode);
+    }
 
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name << " " << KWMFocus.Window->X << "," << KWMFocus.Window->Y)
     if(KWMMode.Focus != FocusModeDisabled &&
