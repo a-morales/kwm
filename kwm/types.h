@@ -60,6 +60,10 @@ struct kwm_thread;
     #define Assert(Expression, Function)
 #endif
 
+#define BSP_WINDOW_EVENT_CALLBACK(name) void name(window_info *Window, int OpenWindows)
+typedef BSP_WINDOW_EVENT_CALLBACK(OnBSPWindowCreate);
+typedef BSP_WINDOW_EVENT_CALLBACK(OnBSPWindowDestroy);
+
 typedef std::chrono::time_point<std::chrono::steady_clock> kwm_time_point;
 
 #define CGSSpaceTypeUser 0
@@ -323,6 +327,12 @@ struct kwm_thread
     pthread_t SystemCommand;
     pthread_t Daemon;
     pthread_mutex_t Lock;
+};
+
+struct kwm_callback
+{
+    OnBSPWindowCreate *WindowCreate;
+    OnBSPWindowDestroy *WindowDestroy;
 };
 
 #endif
