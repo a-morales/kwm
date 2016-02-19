@@ -104,7 +104,7 @@ space_info *GetActiveSpaceOfScreen(screen_info *Screen)
     }
     else
     {
-        Space = &It->second;
+        Space = &Screen->Space[Screen->ActiveSpace];
     }
 
     return Space;
@@ -171,13 +171,17 @@ void FloatFocusedSpace()
 {
     if(KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
-       IsActiveSpaceManaged() &&
-       FilterWindowList(KWMScreen.Current))
+       IsActiveSpaceManaged())
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        if(Space->Mode == SpaceModeFloating)
+            return;
+
         DestroyNodeTree(Space->RootNode, Space->Mode);
         Space->RootNode = NULL;
+
         Space->Mode = SpaceModeFloating;
+        Space->Initialized = true;
         ClearFocusedWindow();
     }
 }
