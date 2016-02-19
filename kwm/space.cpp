@@ -169,8 +169,7 @@ void ShouldActiveSpaceBeManaged()
 
 void FloatFocusedSpace()
 {
-    if(IsSpaceInitializedForScreen(KWMScreen.Current) &&
-       KWMToggles.EnableTilingMode &&
+    if(KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        IsActiveSpaceManaged() &&
        FilterWindowList(KWMScreen.Current))
@@ -185,8 +184,7 @@ void FloatFocusedSpace()
 
 void TileFocusedSpace(space_tiling_option Mode)
 {
-    if(IsSpaceInitializedForScreen(KWMScreen.Current) &&
-       KWMToggles.EnableTilingMode &&
+    if(KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        IsActiveSpaceManaged() &&
        FilterWindowList(KWMScreen.Current))
@@ -206,11 +204,8 @@ void TileFocusedSpace(space_tiling_option Mode)
 
 void ToggleFocusedSpaceFloating()
 {
-    if(IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
-            FloatFocusedSpace();
-        else
-            TileFocusedSpace(SpaceModeBSP);
-    }
+    if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
+        FloatFocusedSpace();
+    else
+        TileFocusedSpace(SpaceModeBSP);
 }
