@@ -311,8 +311,7 @@ void UpdateWindowTree()
 
         if(!IsActiveSpaceFloating())
         {
-            if(!Space->Initialized &&
-               !WindowsOnDisplay.empty())
+            if(!Space->Initialized)
                 CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
             else if(Space->Initialized &&
                     !WindowsOnDisplay.empty() &&
