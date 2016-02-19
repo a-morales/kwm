@@ -104,7 +104,7 @@ space_info *GetActiveSpaceOfScreen(screen_info *Screen)
     }
     else
     {
-        Space = &It->second;
+        Space = &Screen->Space[Screen->ActiveSpace];
     }
 
     return Space;
@@ -169,24 +169,26 @@ void ShouldActiveSpaceBeManaged()
 
 void FloatFocusedSpace()
 {
-    if(IsSpaceInitializedForScreen(KWMScreen.Current) &&
-       KWMToggles.EnableTilingMode &&
+    if(KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
-       IsActiveSpaceManaged() &&
-       FilterWindowList(KWMScreen.Current))
+       IsActiveSpaceManaged())
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        if(Space->Mode == SpaceModeFloating)
+            return;
+
         DestroyNodeTree(Space->RootNode, Space->Mode);
         Space->RootNode = NULL;
+
         Space->Mode = SpaceModeFloating;
+        Space->Initialized = true;
         ClearFocusedWindow();
     }
 }
 
 void TileFocusedSpace(space_tiling_option Mode)
 {
-    if(IsSpaceInitializedForScreen(KWMScreen.Current) &&
-       KWMToggles.EnableTilingMode &&
+    if(KWMToggles.EnableTilingMode &&
        !IsSpaceTransitionInProgress() &&
        IsActiveSpaceManaged() &&
        FilterWindowList(KWMScreen.Current))
@@ -206,11 +208,8 @@ void TileFocusedSpace(space_tiling_option Mode)
 
 void ToggleFocusedSpaceFloating()
 {
-    if(IsSpaceInitializedForScreen(KWMScreen.Current))
-    {
-        if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
-            FloatFocusedSpace();
-        else
-            TileFocusedSpace(SpaceModeBSP);
-    }
+    if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
+        FloatFocusedSpace();
+    else
+        TileFocusedSpace(SpaceModeBSP);
 }

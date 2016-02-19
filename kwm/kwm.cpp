@@ -23,6 +23,7 @@ kwm_hotkeys KWMHotkeys = {};
 kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
 kwm_border PrefixBorder = {};
+kwm_callback KWMCallback =  {};
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
@@ -162,8 +163,18 @@ void KwmExecuteConfig()
     }
 
     KWMPath.EnvHome = HomeP;
+    KWMPath.ConfigFile = "kwmrc";
     KWMPath.ConfigFolder = ".kwm";
     KwmExecuteFile(KWMPath.ConfigFile);
+}
+
+void KwmExecuteInitScript()
+{
+    std::string InitFile = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/init";
+
+    struct stat Buffer;
+    if(stat(InitFile.c_str(), &Buffer) == 0)
+        KwmExecuteThreadedSystemCommand(InitFile);
 }
 
 void KwmExecuteFile(std::string File)
@@ -272,11 +283,10 @@ void KwmInit()
     MarkedBorder.Radius = -1;
     PrefixBorder.Radius = -1;
 
-    KWMPath.ConfigFile = "kwmrc";
     GetKwmFilePath();
-
     KwmExecuteConfig();
     GetActiveDisplays();
+    KwmExecuteInitScript();
 
     pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
 }

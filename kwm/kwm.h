@@ -13,6 +13,7 @@ void KwmExecuteThreadedSystemCommand(std::string Command);
 
 void KwmExecuteSystemCommand(std::string Command);
 void KwmExecuteConfig();
+void KwmExecuteInitScript();
 void KwmExecuteFile(std::string File);
 void KwmReloadConfig();
 void KwmClearSettings();

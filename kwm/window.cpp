@@ -217,9 +217,8 @@ bool FocusWindowOfOSX()
     if(GetWindowFocusedByOSX(&WindowID))
     {
         if(IsSpaceTransitionInProgress() ||
-           !IsActiveSpaceManaged() ||
-           !IsSpaceInitializedForScreen(KWMScreen.Current))
-                return false;
+           !IsActiveSpaceManaged())
+            return false;
 
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
@@ -310,7 +309,7 @@ void UpdateWindowTree()
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
 
-        if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
+        if(!IsActiveSpaceFloating())
         {
             if(!Space->Initialized &&
                !WindowsOnDisplay.empty())
