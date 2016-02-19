@@ -1030,19 +1030,29 @@ void SwapFocusedWindowDirected(int Degrees)
     tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
     if(FocusedWindowNode)
     {
-        window_info SwapWindow = {};
-        if(FindClosestWindow(Degrees, &SwapWindow, KWMMode.Cycle == CycleModeScreen))
+        tree_node *NewFocusNode = NULL;
+        if(Space->Mode == SpaceModeBSP)
         {
-            tree_node *NewFocusNode = GetNodeFromWindowID(Space->RootNode, SwapWindow.WID, Space->Mode);
-            if(NewFocusNode)
-            {
-                SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
-                MoveCursorToCenterOfFocusedWindow();
+            window_info SwapWindow = {};
+            if(FindClosestWindow(Degrees, &SwapWindow, KWMMode.Cycle == CycleModeScreen))
+                NewFocusNode = GetNodeFromWindowID(Space->RootNode, SwapWindow.WID, Space->Mode);
+        }
+        else if(Space->Mode == SpaceModeMonocle)
+        {
+            if(Degrees == 90)
+                NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
+            else if(Degrees == 270)
+                NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
+        }
 
-                if(FocusedWindowNode->WindowID == KWMScreen.MarkedWindow ||
-                   NewFocusNode->WindowID == KWMScreen.MarkedWindow)
-                       UpdateBorder("marked");
-            }
+        if(NewFocusNode)
+        {
+            SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
+            MoveCursorToCenterOfFocusedWindow();
+
+            if(FocusedWindowNode->WindowID == KWMScreen.MarkedWindow ||
+               NewFocusNode->WindowID == KWMScreen.MarkedWindow)
+                UpdateBorder("marked");
         }
     }
 }
