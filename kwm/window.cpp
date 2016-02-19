@@ -309,7 +309,7 @@ void UpdateWindowTree()
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
 
-        if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
+        if(!IsActiveSpaceFloating())
         {
             if(!Space->Initialized &&
                !WindowsOnDisplay.empty())
