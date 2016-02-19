@@ -78,7 +78,10 @@ a variety of settings, as well as run any command not restricted to *Kwmc*.
 *Kwm* can apply all of these settings during runtime, and so live testing of options is possible
 before writing them into the config file.
 
-A sample config can be found within the [examples](examples) directory.
+In addition to the above, the file `$HOME/.kwm/init` is a shell script that will be ran after
+*Kwm* has finished setting up the internal configuration.
+
+A sample config and init file can be found within the [examples](examples) directory.
 
 ## Usage:
 
