@@ -63,7 +63,15 @@ std::vector<window_info> FilterWindowListAllDisplays()
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
     {
         if(KWMTiling.FocusLst[WindowIndex].Layer == 0)
-            FilteredWindowLst.push_back(KWMTiling.FocusLst[WindowIndex]);
+        {
+            CFTypeRef Role, SubRole;
+            if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
+            {
+                if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
+                   IsAppSpecificWindowRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
+                        FilteredWindowLst.push_back(KWMTiling.FocusLst[WindowIndex]);
+            }
+        }
     }
 
     return FilteredWindowLst;
