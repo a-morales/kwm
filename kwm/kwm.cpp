@@ -256,6 +256,8 @@ void KwmInit()
         Fatal("Kwm: Could not start daemon..");
 
     signal(SIGSEGV, SignalHandler);
+    signal(SIGABRT, SignalHandler);
+    signal(SIGTRAP, SignalHandler);
 
     KWMScreen.SplitRatio = 0.5;
     KWMScreen.SplitMode = -1;
