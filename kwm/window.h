@@ -68,7 +68,7 @@ void ClearMarkedWindow();
 void MarkWindowContainer(window_info *Window);
 void MarkFocusedWindowContainer();
 
-void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window);
+void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window, bool Notification);
 void SetWindowFocus(window_info *Window);
 void SetWindowFocusByNode(tree_node *Node);
 
