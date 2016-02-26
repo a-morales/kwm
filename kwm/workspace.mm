@@ -8,6 +8,7 @@ extern bool FocusWindowOfOSX();
 extern bool IsSpaceTransitionInProgress();
 
 extern kwm_focus KWMFocus;
+extern kwm_thread KWMThread;
 
 @interface MDWorkspaceWatcher : NSObject {
 }
@@ -46,18 +47,23 @@ extern kwm_focus KWMFocus;
 
 - (void)didActivateApplication:(NSNotification *)notification
 {
+    pthread_mutex_lock(&KWMThread.Lock);
+
     if(!IsSpaceTransitionInProgress())
     {
         pid_t ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
         if(ProcessID != -1)
         {
-            if(KWMFocus.Window && KWMFocus.Window->PID == ProcessID)
-                return;
-
-            if(FocusWindowOfOSX())
-                MoveCursorToCenterOfFocusedWindow();
+            if((KWMFocus.Window && KWMFocus.Window->PID != ProcessID) ||
+               !KWMFocus.Window)
+            {
+                if(FocusWindowOfOSX())
+                    MoveCursorToCenterOfFocusedWindow();
+            }
         }
     }
+
+    pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 @end
