@@ -13,6 +13,9 @@ and different types of hotkeys.
 For a list of various commands that can be issued, check the readme located within the *kwmc* folder.
 The *Kwmc* tool also has a built-in help system that can be accessed from the terminal using `kwmc help`.
 
+For in depth information, sample configurations, and useful scripts to implement new features by combining
+kwmc commands, check out the [wiki](https://github.com/koekeishiya/kwm/wiki)
+
 *Kwm* requires access to the OSX accessibility API.
 Tested on El Capitan (10.11.1 - 10.11.3).
 
