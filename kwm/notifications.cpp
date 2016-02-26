@@ -25,8 +25,11 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
         if(Window->WID != ElementWID)
         {
             window_info *ElementWindow = GetWindowByID(ElementWID);
-            SetWindowRefFocus(Element, ElementWindow);
-            MoveCursorToCenterOfFocusedWindow();
+            if(ElementWindow)
+            {
+                SetWindowRefFocus(Element, ElementWindow);
+                MoveCursorToCenterOfFocusedWindow();
+            }
         }
     }
 
