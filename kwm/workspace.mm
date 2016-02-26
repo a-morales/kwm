@@ -1,7 +1,11 @@
 #import "Cocoa/Cocoa.h"
 #import "types.h"
 
+extern void MoveCursorToCenterOfFocusedWindow();
 extern void UpdateActiveSpace();
+extern bool FocusWindowOfOSX();
+
+extern kwm_focus KWMFocus;
 
 @interface MDWorkspaceWatcher : NSObject {
 }
@@ -9,22 +13,46 @@ extern void UpdateActiveSpace();
 @end
 
 @implementation MDWorkspaceWatcher
-- (id)init {
-    if ((self = [super init])) {
+- (id)init
+{
+    if ((self = [super init]))
+    {
        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(activeSpaceDidChange:)
                 name:NSWorkspaceActiveSpaceDidChangeNotification
                 object:nil];
+
+       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                selector:@selector(didActivateApplication:)
+                name:NSWorkspaceDidActivateApplicationNotification
+                object:nil];
     }
+
     return self;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
     [super dealloc];
 }
-- (void)activeSpaceDidChange:(NSNotification *)notification {
+
+- (void)activeSpaceDidChange:(NSNotification *)notification
+{
     UpdateActiveSpace();
+}
+
+- (void)didActivateApplication:(NSNotification *)notification
+{
+    pid_t ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
+    if(ProcessID != -1)
+    {
+        if(KWMFocus.Window && KWMFocus.Window->PID == ProcessID)
+            return;
+
+        if(FocusWindowOfOSX())
+            MoveCursorToCenterOfFocusedWindow();
+    }
 }
 @end
 

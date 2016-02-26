@@ -18,10 +18,17 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
 
     if(CFEqual(Notification, kAXTitleChangedNotification))
         Window->Name = GetWindowTitle(Element);
-
-    if(IsWindowFloating(Window->WID, NULL) ||
-       IsApplicationFloating(Window))
-        UpdateBorder("focused");
+    else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
+    {
+        int ElementWID = -1;
+        _AXUIElementGetWindow(Element, &ElementWID);
+        if(Window->WID != ElementWID)
+        {
+            window_info *ElementWindow = GetWindowByID(ElementWID);
+            SetWindowRefFocus(Element, ElementWindow);
+            MoveCursorToCenterOfFocusedWindow();
+        }
+    }
 
     if(!IsWindowFloating(Window->WID, NULL) &&
         KWMToggles.EnableDragAndDrop &&
@@ -39,6 +46,10 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             KWMMode.Focus = FocusModeStandby;
         }
     }
+
+    if(IsWindowFloating(Window->WID, NULL) ||
+       IsApplicationFloating(Window))
+        UpdateBorder("focused");
 }
 
 void DestroyApplicationNotifications()
@@ -50,6 +61,7 @@ void DestroyApplicationNotifications()
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification);
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification);
     AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXTitleChangedNotification);
+    AXObserverRemoveNotification(KWMFocus.Observer, KWMFocus.Application, kAXFocusedWindowChangedNotification);
     CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
 
     CFRelease(KWMFocus.Observer);
@@ -67,6 +79,7 @@ void CreateApplicationNotifications()
         AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification, NULL);
         AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification, NULL);
         AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXTitleChangedNotification, NULL);
+        AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXFocusedWindowChangedNotification, NULL);
         CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(KWMFocus.Observer), kCFRunLoopDefaultMode);
     }
 }
