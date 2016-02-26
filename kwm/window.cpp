@@ -14,7 +14,6 @@ extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
 extern kwm_path KWMPath;
-extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
@@ -1286,8 +1285,10 @@ void MarkFocusedWindowContainer()
     MarkWindowContainer(KWMFocus.Window);
 }
 
-void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
+void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window, bool Notification)
 {
+    int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
+
     ProcessSerialNumber NewPSN;
     GetProcessForPID(Window->PID, &NewPSN);
 
@@ -1302,14 +1303,16 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
-    if(KWMScreen.Current &&
-       !IsActiveSpaceFloating() &&
-       Window->Layer == 0)
+    if(!Notification &&
+       KWMScreen.Current &&
+       !IsActiveSpaceFloating())
     {
-        DestroyApplicationNotifications();
-        KWMFocus.Application = AXUIElementCreateApplication(Window->PID);
-        CreateApplicationNotifications();
-        UpdateBorder("focused");
+       if(OldProcessPID != KWMFocus.Window->PID ||
+          !KWMFocus.Observer)
+            CreateApplicationNotifications();
+
+        if(Window->Layer == 0)
+            UpdateBorder("focused");
     }
 
     if(KWMToggles.EnableTilingMode)
@@ -1322,14 +1325,14 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
     if(KWMMode.Focus != FocusModeDisabled &&
        KWMMode.Focus != FocusModeAutofocus &&
        KWMToggles.StandbyOnFloat)
-           KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
+        KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
 }
 
 void SetWindowFocus(window_info *Window)
 {
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
-        SetWindowRefFocus(WindowRef, Window);
+        SetWindowRefFocus(WindowRef, Window, false);
 }
 
 void SetWindowFocusByNode(tree_node *Node)

@@ -1,5 +1,6 @@
 #import "Cocoa/Cocoa.h"
 #import "types.h"
+#include "notifications.h"
 
 extern void MoveCursorToCenterOfFocusedWindow();
 extern void UpdateActiveSpace();
@@ -54,6 +55,7 @@ extern kwm_focus KWMFocus;
             MoveCursorToCenterOfFocusedWindow();
     }
 }
+
 @end
 
 void CreateWorkspaceWatcher(void *Watcher)

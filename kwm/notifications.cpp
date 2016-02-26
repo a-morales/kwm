@@ -18,6 +18,9 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
 
     if(CFEqual(Notification, kAXTitleChangedNotification))
         Window->Name = GetWindowTitle(Element);
+    else if(CFEqual(Notification, kAXWindowResizedNotification) ||
+            CFEqual(Notification, kAXWindowMovedNotification))
+        UpdateBorder("focused");
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
     {
         int ElementWID = -1;
@@ -27,32 +30,12 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             window_info *ElementWindow = GetWindowByID(ElementWID);
             if(ElementWindow)
             {
-                SetWindowRefFocus(Element, ElementWindow);
+                SetWindowRefFocus(Element, ElementWindow, true);
                 MoveCursorToCenterOfFocusedWindow();
+                UpdateBorder("focused");
             }
         }
     }
-
-    if(!IsWindowFloating(Window->WID, NULL) &&
-        KWMToggles.EnableDragAndDrop &&
-        KWMToggles.DragInProgress &&
-        CFEqual(Notification, kAXWindowMovedNotification))
-    {
-        KWMToggles.DragInProgress = false;
-        KWMTiling.FloatingWindowLst.push_back(Window->WID);
-        RemoveWindowFromBSPTree(KWMScreen.Current, Window->WID, false, false);
-
-        if(KWMMode.Focus != FocusModeDisabled &&
-           KWMMode.Focus != FocusModeAutofocus &&
-           KWMToggles.StandbyOnFloat)
-        {
-            KWMMode.Focus = FocusModeStandby;
-        }
-    }
-
-    if(IsWindowFloating(Window->WID, NULL) ||
-       IsApplicationFloating(Window))
-        UpdateBorder("focused");
 }
 
 void DestroyApplicationNotifications()
@@ -75,8 +58,15 @@ void DestroyApplicationNotifications()
 
 void CreateApplicationNotifications()
 {
+    DestroyApplicationNotifications();
+
     if(KWMFocus.Window)
     {
+        KWMFocus.Application = AXUIElementCreateApplication(KWMFocus.Window->PID);
+        if(!KWMFocus.Application)
+            return;
+
+        DEBUG("CREATE NOTIFICATIONS")
         AXObserverCreate(KWMFocus.Window->PID, FocusedAXObserverCallback, &KWMFocus.Observer);
         AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification, NULL);
         AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification, NULL);

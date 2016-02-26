@@ -250,9 +250,7 @@ struct kwm_toggles
     bool UseMouseFollowsFocus;
     bool EnableTilingMode;
     bool UseBuiltinHotkeys;
-    bool EnableDragAndDrop;
     bool StandbyOnFloat;
-    bool DragInProgress;
 };
 
 struct kwm_path
