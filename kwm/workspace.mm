@@ -5,6 +5,7 @@
 extern void MoveCursorToCenterOfFocusedWindow();
 extern void UpdateActiveSpace();
 extern bool FocusWindowOfOSX();
+extern bool IsSpaceTransitionInProgress();
 
 extern kwm_focus KWMFocus;
 
@@ -45,14 +46,17 @@ extern kwm_focus KWMFocus;
 
 - (void)didActivateApplication:(NSNotification *)notification
 {
-    pid_t ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
-    if(ProcessID != -1)
+    if(!IsSpaceTransitionInProgress())
     {
-        if(KWMFocus.Window && KWMFocus.Window->PID == ProcessID)
-            return;
+        pid_t ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
+        if(ProcessID != -1)
+        {
+            if(KWMFocus.Window && KWMFocus.Window->PID == ProcessID)
+                return;
 
-        if(FocusWindowOfOSX())
-            MoveCursorToCenterOfFocusedWindow();
+            if(FocusWindowOfOSX())
+                MoveCursorToCenterOfFocusedWindow();
+        }
     }
 }
 
