@@ -5,7 +5,7 @@
         Reload config ($HOME/.kwm/kwmrc)
             kwmc config reload
 
-        Set modifier used by OSX space-hotkeys (System Preferences->Keyboard->Shortcuts)
+        Set modifier used by OSX space-hotkeys (Sys Preferences->Keyboard->Shortcuts)
             kwmc config spaces-key mod+mod+mod
 
         Set a prefix for Kwms hotkeys (optional)
@@ -23,23 +23,11 @@
         Set default container gaps
             kwmc config gap vertical|horizontal value
 
-        Customize focused-window border
-            kwmc config focused-border enable|disable
-            kwmc config focused-border size number
-            kwmc config focused-border color aarrggbb (hex value)
-            kwmc config focused-border radius number
-
-        Customize marked-window border
-            kwmc config marked-border enable|disable
-            kwmc config marked-border size number
-            kwmc config marked-border color aarrggbb (hex value)
-            kwmc config marked-border radius number
-
-        Customize border when prefix-key is active
-            kwmc config prefix-border enable|disable
-            kwmc config prefix-border size number
-            kwmc config prefix-border color aarrggbb (hex value)
-            kwmc config prefix-border radius number
+        Customize focused|marked|prefix border
+            kwmc config focused|marked|prefix-border enable|disable
+            kwmc config focused|marked|prefix-border size number
+            kwmc config focused|marked|prefix-border color aarrggbb
+            kwmc config focused|marked|prefix-border radius number
 
         The container position to be occupied by the new window
             kwmc config spawn left|right
@@ -150,16 +138,13 @@
         Resize all windows to container
             kwmc tree -c refresh
 
-        Save current bsp-tree to file ($HOME/.kwm/name)
-            kwmc tree save name
+        Save/Restore current bsp-tree from file ($HOME/.kwm/layouts/name)
+            kwmc tree save|restore name
 
-        Restore current bsp-tree from file ($HOME/.kwm/layouts/name)
-            kwmc tree restore name
-
-        Change space of current display (System Preferences->Keyboard->Shortcuts for spaces must be enabled!)
+        Change space of current display (OSX shortcuts for spaces must be enabled!)
             kwmc space -s id num
 
-        Set tiling mode of current space (every space uses bsp tiling by default)
+        Set tiling mode of current space
             kwmc space -t toggle|bsp|monocle|float
 
         Change space padding
