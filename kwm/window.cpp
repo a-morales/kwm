@@ -227,11 +227,11 @@ bool FocusWindowOfOSX()
            !IsActiveSpaceManaged())
             return false;
 
-        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
+        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
         {
-            if(KWMTiling.WindowLst[WindowIndex].WID == WindowID)
+            if(KWMTiling.FocusLst[WindowIndex].WID == WindowID)
             {
-                SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
+                SetWindowFocus(&KWMTiling.FocusLst[WindowIndex]);
                 return true;
             }
         }
