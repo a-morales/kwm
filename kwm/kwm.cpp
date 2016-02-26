@@ -74,31 +74,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                !IsActiveSpaceFloating())
                 FocusWindowBelowCursor();
         } break;
-        case kCGEventLeftMouseDown:
-        {
-            DEBUG("Left mouse button was pressed")
-            if(!IsActiveSpaceFloating())
-            {
-                FocusWindowBelowCursor();
-                if(KWMToggles.EnableDragAndDrop)
-                    KWMToggles.DragInProgress = true;
-            }
-        } break;
-        case kCGEventLeftMouseUp:
-        {
-            DEBUG("Left mouse button was released")
-            if(!IsActiveSpaceFloating())
-            {
-                if(KWMToggles.EnableDragAndDrop && KWMToggles.DragInProgress)
-                    KWMToggles.DragInProgress = false;
-
-                if(KWMFocus.Window && FocusedBorder.Enabled)
-                {
-                    if(IsWindowFloating(KWMFocus.Window->WID, NULL))
-                        UpdateBorder("focused");
-                }
-            }
-        } break;
     }
 
     pthread_mutex_unlock(&KWMThread.Lock);
@@ -266,7 +241,6 @@ void KwmInit()
 
     KWMToggles.EnableTilingMode = true;
     KWMToggles.UseBuiltinHotkeys = true;
-    KWMToggles.EnableDragAndDrop = true;
     KWMToggles.UseMouseFollowsFocus = true;
 
     KWMMode.Space = SpaceModeBSP;
@@ -353,9 +327,7 @@ int main(int argc, char **argv)
     KwmInit();
     KWMMach.EventMask = ((1 << kCGEventKeyDown) |
                          (1 << kCGEventKeyUp) |
-                         (1 << kCGEventMouseMoved) |
-                         (1 << kCGEventLeftMouseDown) |
-                         (1 << kCGEventLeftMouseUp));
+                         (1 << kCGEventMouseMoved));
 
     KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, KWMMach.EventMask, CGEventCallback, NULL);
     if(!KWMMach.EventTap || !CGEventTapIsEnabled(KWMMach.EventTap))

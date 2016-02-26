@@ -205,13 +205,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "enable")
             KWMToggles.UseBuiltinHotkeys = true;
     }
-    else if(Tokens[1] == "dragndrop")
-    {
-        if(Tokens[2] == "disable")
-            KWMToggles.EnableDragAndDrop = false;
-        else if(Tokens[2] == "enable")
-            KWMToggles.EnableDragAndDrop = true;
-    }
     else if(Tokens[1] == "float")
     {
         KWMTiling.FloatingAppLst.push_back(CreateStringFromTokens(Tokens, 2));
