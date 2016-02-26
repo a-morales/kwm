@@ -394,10 +394,7 @@ tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID, space_tiling_optio
         while(CurrentNode)
         {
             if(CurrentNode->WindowID == WindowID)
-            {
-                DEBUG("GetNodeFromWindowID() " << WindowID)
                 return CurrentNode;
-            }
 
             CurrentNode = GetNearestNodeToTheRight(CurrentNode, Mode);
         }

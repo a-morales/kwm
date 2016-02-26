@@ -428,7 +428,6 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
 {
     if(KWMTiling.WindowLst.size() > Screen->OldWindowListCount)
     {
-        DEBUG("ShouldBSPTreeUpdate() Add Window")
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
             if(!GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode))
@@ -436,6 +435,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
                 if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]) &&
                    !IsWindowFloating(KWMTiling.WindowLst[WindowIndex].WID, NULL))
                 {
+                    DEBUG("ShouldBSPTreeUpdate() Add Window")
                     tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
                     if(Insert)
                     {
