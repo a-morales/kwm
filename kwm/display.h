@@ -24,6 +24,7 @@ void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative);
 void SetSpaceModeOfDisplay(unsigned int ScreenIndex, std::string Mode);
 space_tiling_option GetSpaceModeOfDisplay(unsigned int ScreenIndex);
 void GiveFocusToScreen(int ScreenIndex, tree_node *Focus, bool Mouse);
+void UpdateActiveScreen();
 
 container_offset CreateDefaultScreenOffset();
 screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex);

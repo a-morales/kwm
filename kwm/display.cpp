@@ -442,3 +442,22 @@ container_offset CreateDefaultScreenOffset()
     container_offset Offset = { 40, 20, 20, 20, 10, 10 };
     return Offset;
 }
+
+void UpdateActiveScreen()
+{
+    screen_info *Screen = GetDisplayOfMousePointer();
+    if(KWMScreen.Current != Screen)
+    {
+        DEBUG("UpdateActiveScreen() Active Display Changed")
+
+        ClearMarkedWindow();
+        GiveFocusToScreen(Screen->ID, NULL, true);
+
+        if(Screen->ForceContainerUpdate)
+        {
+            space_info *Space = GetActiveSpaceOfScreen(Screen);
+            ApplyNodeContainer(Space->RootNode, Space->Mode);
+            Screen->ForceContainerUpdate = false;
+        }
+    }
+}

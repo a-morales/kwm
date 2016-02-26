@@ -362,62 +362,6 @@ void UpdateActiveWindowList(screen_info *Screen)
     KWMTiling.FocusLst = KWMTiling.WindowLst;
 }
 
-void UpdateActiveScreen()
-{
-    screen_info *Screen = GetDisplayOfMousePointer();
-    if(KWMScreen.Current != Screen)
-    {
-        DEBUG("UpdateActiveScreen() Active Display Changed")
-
-        ClearMarkedWindow();
-        GiveFocusToScreen(Screen->ID, NULL, true);
-
-        if(Screen->ForceContainerUpdate)
-        {
-            space_info *Space = GetActiveSpaceOfScreen(Screen);
-            ApplyNodeContainer(Space->RootNode, Space->Mode);
-            Screen->ForceContainerUpdate = false;
-        }
-    }
-}
-
-void UpdateActiveSpace()
-{
-    pthread_mutex_lock(&KWMThread.Lock);
-    Assert(KWMScreen.Current, "UpdateActiveSpace()")
-
-    KWMScreen.Transitioning = false;
-    KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-    KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
-    ShouldActiveSpaceBeManaged();
-
-    if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
-    {
-        DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
-
-        KWMScreen.ForceRefreshFocus = true;
-        UpdateActiveWindowList(KWMScreen.Current);
-
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        if(Space->FocusedNode)
-        {
-            SetWindowFocusByNode(Space->FocusedNode);
-            MoveCursorToCenterOfFocusedWindow();
-        }
-        else if(Space->Mode != SpaceModeFloating)
-        {
-            if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
-                FocusWindowBelowCursor();
-            else if(FocusWindowOfOSX())
-                MoveCursorToCenterOfFocusedWindow();
-        }
-
-        KWMScreen.ForceRefreshFocus = false;
-    }
-
-    pthread_mutex_unlock(&KWMThread.Lock);
-}
-
 void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)
 {
     for(std::size_t WindowIndex = 0; WindowIndex < Windows->size(); ++WindowIndex)

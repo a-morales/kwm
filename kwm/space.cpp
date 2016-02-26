@@ -8,6 +8,7 @@ extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
 extern kwm_mode KWMMode;
+extern kwm_thread KWMThread;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
 
@@ -212,4 +213,41 @@ void ToggleFocusedSpaceFloating()
         FloatFocusedSpace();
     else
         TileFocusedSpace(SpaceModeBSP);
+}
+
+void UpdateActiveSpace()
+{
+    pthread_mutex_lock(&KWMThread.Lock);
+    Assert(KWMScreen.Current, "UpdateActiveSpace()")
+
+    KWMScreen.Transitioning = false;
+    KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
+    KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
+    ShouldActiveSpaceBeManaged();
+
+    if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
+    {
+        DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
+
+        KWMScreen.ForceRefreshFocus = true;
+        UpdateActiveWindowList(KWMScreen.Current);
+
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        if(Space->FocusedNode)
+        {
+            SetWindowFocusByNode(Space->FocusedNode);
+            MoveCursorToCenterOfFocusedWindow();
+        }
+        else if(Space->Mode != SpaceModeFloating)
+        {
+            if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
+                FocusWindowBelowCursor();
+            else if(FocusWindowOfOSX())
+                MoveCursorToCenterOfFocusedWindow();
+        }
+
+        KWMScreen.ForceRefreshFocus = false;
+    }
+
+    pthread_mutex_unlock(&KWMThread.Lock);
 }
