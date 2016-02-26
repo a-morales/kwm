@@ -261,7 +261,7 @@ struct kwm_path
     std::string FilePath;
     std::string ConfigFolder;
     std::string ConfigFile;
-    std::string HotkeySOFullPath;
+    std::string BSPLayouts;
 };
 
 struct kwm_focus

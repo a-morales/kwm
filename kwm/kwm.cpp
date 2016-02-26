@@ -163,8 +163,6 @@ void KwmExecuteConfig()
     }
 
     KWMPath.EnvHome = HomeP;
-    KWMPath.ConfigFile = "kwmrc";
-    KWMPath.ConfigFolder = ".kwm";
     KwmExecuteFile(KWMPath.ConfigFile);
 }
 
@@ -235,7 +233,6 @@ bool GetKwmFilePath()
 
         std::size_t Split = KWMPath.FilePath.find_last_of("/\\");
         KWMPath.FilePath = KWMPath.FilePath.substr(0, Split);
-        KWMPath.HotkeySOFullPath = KWMPath.FilePath + "/hotkeys.so";
         Result = true;
     }
 
@@ -284,6 +281,10 @@ void KwmInit()
     FocusedBorder.Radius = -1;
     MarkedBorder.Radius = -1;
     PrefixBorder.Radius = -1;
+
+    KWMPath.ConfigFile = "kwmrc";
+    KWMPath.ConfigFolder = ".kwm";
+    KWMPath.BSPLayouts = "layouts";
 
     GetKwmFilePath();
     KwmExecuteConfig();

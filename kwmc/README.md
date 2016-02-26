@@ -153,7 +153,7 @@
         Save current bsp-tree to file ($HOME/.kwm/name)
             kwmc tree save name
 
-        Restore current bsp-tree from file ($HOME/.kwm/name)
+        Restore current bsp-tree from file ($HOME/.kwm/layouts/name)
             kwmc tree restore name
 
         Change space of current display (System Preferences->Keyboard->Shortcuts for spaces must be enabled!)

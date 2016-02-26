@@ -730,7 +730,11 @@ void SaveBSPTreeToFile(screen_info *Screen, std::string Name)
         if(Space->Mode != SpaceModeBSP || IsLeafNode(Space->RootNode))
             return;
 
-        std::string TempPath = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder;
+        struct stat Buffer;
+        std::string TempPath = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + KWMPath.BSPLayouts;
+        if (stat(TempPath.c_str(), &Buffer) == -1)
+            mkdir(TempPath.c_str(), 0700);
+
         std::ofstream OutFD(TempPath + "/" + Name);
         if(OutFD.fail())
             return;
@@ -754,7 +758,7 @@ void LoadBSPTreeFromFile(screen_info *Screen, std::string Name)
         if(Space->Mode != SpaceModeBSP)
             return;
 
-        std::string TempPath = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder;
+        std::string TempPath = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + KWMPath.BSPLayouts;
         std::ifstream InFD(TempPath + "/" + Name);
         if(InFD.fail())
             return;
