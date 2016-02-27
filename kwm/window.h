@@ -68,7 +68,7 @@ void ClearMarkedWindow();
 void MarkWindowContainer(window_info *Window);
 void MarkFocusedWindowContainer();
 
-void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window);
+void SetWindowRefFocus(AXUIElementRef WindowRef);
 void SetWindowFocus(window_info *Window);
 void SetWindowFocusByNode(tree_node *Node);
 
@@ -84,6 +84,7 @@ void ResizeWindowToContainerSize(window_info *Window);
 void ResizeWindowToContainerSize();
 
 CGPoint GetCursorPos();
+window_info GetWindowByRef(AXUIElementRef WindowRef);
 window_info *GetWindowByID(int WindowID);
 std::string GetUTF8String(CFStringRef Temp);
 std::string GetWindowTitle(AXUIElementRef WindowRef);

@@ -1281,16 +1281,16 @@ void MarkFocusedWindowContainer()
     MarkWindowContainer(KWMFocus.Window);
 }
 
-void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
+void SetWindowRefFocus(AXUIElementRef WindowRef)
 {
     int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
 
-    ProcessSerialNumber NewPSN;
-    GetProcessForPID(Window->PID, &NewPSN);
-
-    KWMFocus.PSN = NewPSN;
-    KWMFocus.Cache = *Window;
+    KWMFocus.Cache = GetWindowByRef(WindowRef);
     KWMFocus.Window = &KWMFocus.Cache;
+
+    ProcessSerialNumber NewPSN;
+    GetProcessForPID(KWMFocus.Window->PID, &NewPSN);
+    KWMFocus.PSN = NewPSN;
 
     AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
@@ -1305,14 +1305,14 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
            !KWMFocus.Observer)
             CreateApplicationNotifications();
 
-        if(Window->Layer == 0)
+        if(KWMFocus.Window->Layer == 0)
             UpdateBorder("focused");
     }
 
     if(KWMToggles.EnableTilingMode)
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        Space->FocusedNode = GetNodeFromWindowID(Space->RootNode, Window->WID, Space->Mode);
+        Space->FocusedNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
     }
 
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name << " " << KWMFocus.Window->X << "," << KWMFocus.Window->Y)
@@ -1326,7 +1326,7 @@ void SetWindowFocus(window_info *Window)
 {
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
-        SetWindowRefFocus(WindowRef, Window);
+        SetWindowRefFocus(WindowRef);
 }
 
 void SetWindowFocusByNode(tree_node *Node)
@@ -1631,6 +1631,15 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef)
     }
 
     return WindowPos;
+}
+
+window_info GetWindowByRef(AXUIElementRef WindowRef)
+{
+    Assert(WindowRef, "GetWindowByRef()")
+    int WindowRefWID = -1;
+    _AXUIElementGetWindow(WindowRef, &WindowRefWID);
+    window_info *Window = GetWindowByID(WindowRefWID);
+    return Window ? *Window : KWMFocus.NULLWindowInfo;
 }
 
 window_info *GetWindowByID(int WindowID)
