@@ -595,10 +595,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
                 NewFocusNode = Parent;
 
             if(Refresh)
-            {
                 SetWindowFocusByNode(NewFocusNode);
-                MoveCursorToCenterOfFocusedWindow();
-            }
         }
 
         free(AccessChild);
