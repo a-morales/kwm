@@ -1641,10 +1641,15 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef)
 window_info GetWindowByRef(AXUIElementRef WindowRef)
 {
     Assert(WindowRef, "GetWindowByRef()")
+    window_info *Window = GetWindowByID(GetWindowIDFromRef(WindowRef));
+    return Window ? *Window : KWMFocus.NULLWindowInfo;
+}
+
+inline int GetWindowIDFromRef(AXUIElementRef WindowRef)
+{
     int WindowRefWID = -1;
     _AXUIElementGetWindow(WindowRef, &WindowRefWID);
-    window_info *Window = GetWindowByID(WindowRefWID);
-    return Window ? *Window : KWMFocus.NULLWindowInfo;
+    return WindowRefWID;
 }
 
 window_info *GetWindowByID(int WindowID)
@@ -1719,9 +1724,7 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
             KWMCache.WindowRefs[Window->PID].push_back(AppWindowRef);
             if(!Found)
             {
-                int AppWindowRefWID = -1;
-                _AXUIElementGetWindow(AppWindowRef, &AppWindowRefWID);
-                if(AppWindowRefWID == Window->WID)
+                if(GetWindowIDFromRef(AppWindowRef) == Window->WID)
                 {
                     *WindowRef = AppWindowRef;
                     Found = true;
@@ -1757,9 +1760,7 @@ bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
     {
         for(std::size_t ElementIndex = 0; ElementIndex < Elements.size(); ++ElementIndex)
         {
-            int AppWindowRefWID = -1;
-            _AXUIElementGetWindow(Elements[ElementIndex], &AppWindowRefWID);
-            if(AppWindowRefWID == Window->WID)
+            if(GetWindowIDFromRef(Elements[ElementIndex]) == Window->WID)
             {
                 *WindowRef = Elements[ElementIndex];
                 return true;

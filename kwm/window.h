@@ -83,6 +83,7 @@ void ResizeWindowToContainerSize(window_info *Window);
 void ResizeWindowToContainerSize();
 
 CGPoint GetCursorPos();
+inline int GetWindowIDFromRef(AXUIElementRef WindowRef);
 window_info GetWindowByRef(AXUIElementRef WindowRef);
 window_info *GetWindowByID(int WindowID);
 std::string GetUTF8String(CFStringRef Temp);
