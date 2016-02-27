@@ -440,6 +440,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
 {
     if(KWMTiling.WindowLst.size() > Screen->OldWindowListCount)
     {
+        window_info *FocusWindow = NULL;
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
             if(!GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode))
@@ -449,20 +450,20 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
                 {
                     DEBUG("ShouldBSPTreeUpdate() Add Window")
                     tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
-                    if(Insert)
-                    {
-                        Insert->WindowID = KWMTiling.WindowLst[WindowIndex].WID;
+                    if(Insert && (Insert->WindowID = KWMTiling.WindowLst[WindowIndex].WID))
                         ApplyNodeContainer(Insert, SpaceModeBSP);
-                    }
                     else
-                    {
                         AddWindowToBSPTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
-                    }
 
-                    SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
-                    MoveCursorToCenterOfFocusedWindow();
+                    FocusWindow = &KWMTiling.WindowLst[WindowIndex];
                 }
             }
+        }
+
+        if(FocusWindow)
+        {
+            SetWindowFocus(FocusWindow);
+            MoveCursorToCenterOfFocusedWindow();
         }
     }
     else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
