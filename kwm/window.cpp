@@ -220,20 +220,25 @@ void ClearFocusedWindow()
 
 bool FocusWindowOfOSX()
 {
-    int WindowID;
-    if(GetWindowFocusedByOSX(&WindowID))
-    {
-        if(IsSpaceTransitionInProgress() ||
-           !IsActiveSpaceManaged())
-            return false;
+    if(IsSpaceTransitionInProgress() ||
+       !IsActiveSpaceManaged())
+        return false;
 
-        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
+    static AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
+
+    AXUIElementRef App;
+    AXUIElementCopyAttributeValue(SystemWideElement, kAXFocusedApplicationAttribute, (CFTypeRef*)&App);
+    if(App)
+    {
+        AXUIElementRef WindowRef;
+        AXError Error = AXUIElementCopyAttributeValue(App, kAXFocusedWindowAttribute, (CFTypeRef*)&WindowRef);
+        CFRelease(App);
+
+        if (Error == kAXErrorSuccess)
         {
-            if(KWMTiling.FocusLst[WindowIndex].WID == WindowID)
-            {
-                SetWindowFocus(&KWMTiling.FocusLst[WindowIndex]);
-                return true;
-            }
+            SetWindowRefFocus(WindowRef);
+            CFRelease(WindowRef);
+            return true;
         }
     }
 
@@ -1780,29 +1785,6 @@ void FreeWindowRefCache(int PID)
 
         KWMCache.WindowRefs[PID].clear();
     }
-}
-
-bool GetWindowFocusedByOSX(int *WindowWID)
-{
-    static AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
-
-    AXUIElementRef App;
-    AXUIElementCopyAttributeValue(SystemWideElement, kAXFocusedApplicationAttribute, (CFTypeRef*)&App);
-    if(App)
-    {
-        AXUIElementRef WindowRef;
-        AXError Error = AXUIElementCopyAttributeValue(App, kAXFocusedWindowAttribute, (CFTypeRef*)&WindowRef);
-        CFRelease(App);
-
-        if (Error == kAXErrorSuccess)
-        {
-            _AXUIElementGetWindow(WindowRef, WindowWID);
-            CFRelease(WindowRef);
-            return true;
-        }
-    }
-
-    return false;
 }
 
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
