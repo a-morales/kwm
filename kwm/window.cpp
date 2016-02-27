@@ -750,18 +750,18 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center)
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 {
-    if(!Screen || !Window || Screen == GetDisplayOfWindow(Window))
+    screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
+    if(!Screen || !Window || Screen == ScreenOfWindow)
         return;
+
+    space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
+    if(SpaceOfWindow->Mode == SpaceModeBSP)
+        RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
+    else if(SpaceOfWindow->Mode == SpaceModeMonocle)
+        RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
 
     if(Window->WID == KWMScreen.MarkedWindow)
         ClearMarkedWindow();
-
-    if(!IsSpaceInitializedForScreen(Screen))
-    {
-        CenterWindow(Screen, Window);
-        Screen->ForceContainerUpdate = true;
-        return;
-    }
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     if(Space->RootNode)
@@ -782,7 +782,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 
             int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
             CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
-            ResizeWindowToContainerSize(KWMTiling.SpawnAsLeftChild ? CurrentNode->LeftChild : CurrentNode->RightChild);
+            ApplyNodeContainer(CurrentNode, Space->Mode);
             Screen->ForceContainerUpdate = true;
         }
         else if(Space->Mode == SpaceModeMonocle)
