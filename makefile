@@ -1,5 +1,6 @@
 DEBUG_BUILD=-DDEBUG_BUILD -g
 FRAMEWORKS=-framework ApplicationServices -framework Carbon -framework Cocoa
+XTRA_RPATH=/Library/Developer/CommandLineTools/usr/lib/swift/macosx/
 SDK_ROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
 KWM_SRCS=kwm/kwm.cpp kwm/tree.cpp kwm/window.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp kwm/space.cpp kwm/border.cpp kwm/notifications.cpp kwm/helpers.cpp kwm/workspace.mm
 KWMC_SRCS=kwmc/kwmc.cpp kwmc/help.cpp
@@ -37,7 +38,7 @@ $(BUILD_PATH)/kwmc: $(KWMC_SRCS)
 	g++ $^ $(BUILD_FLAGS) -o $@
 
 $(BUILD_PATH)/kwm-overlay: $(KWMO_SRCS)
-	swiftc -sdk $(SDK_ROOT) $^ -o $@
+	swiftc -sdk $(SDK_ROOT) -Xlinker -rpath -Xlinker $(XTRA_RPATH) -o $@ $^
 
 $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@
