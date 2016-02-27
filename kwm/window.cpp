@@ -532,7 +532,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
         ClearMarkedWindow();
     }
 
-    if(CurrentNode && CurrentNode->WindowID != -1)
+    if(CurrentNode)
     {
         int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
         CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
@@ -1106,7 +1106,6 @@ bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
 
 void ShiftWindowFocusDirected(int Degrees)
 {
-    /* North = 0, East = 90, South = 180, West = 270 */
     if(!KWMFocus.Window || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
         return;
 
@@ -1252,7 +1251,7 @@ void MoveCursorToCenterOfWindow(window_info *Window)
 
 void MoveCursorToCenterOfFocusedWindow()
 {
-    if(KWMToggles.UseMouseFollowsFocus && KWMFocus.Window)
+    if(KWMToggles.UseMouseFollowsFocus && KWMFocus.Window && !IsActiveSpaceFloating())
         MoveCursorToCenterOfWindow(KWMFocus.Window);
 }
 
@@ -1285,7 +1284,7 @@ void MarkFocusedWindowContainer()
     MarkWindowContainer(KWMFocus.Window);
 }
 
-void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window, bool Notification)
+void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window)
 {
     int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
 
@@ -1303,12 +1302,10 @@ void SetWindowRefFocus(AXUIElementRef WindowRef, window_info *Window, bool Notif
     if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
-    if(!Notification &&
-       KWMScreen.Current &&
-       !IsActiveSpaceFloating())
+    if(!IsActiveSpaceFloating())
     {
-       if(OldProcessPID != KWMFocus.Window->PID ||
-          !KWMFocus.Observer)
+        if(OldProcessPID != KWMFocus.Window->PID ||
+           !KWMFocus.Observer)
             CreateApplicationNotifications();
 
         if(Window->Layer == 0)
@@ -1332,7 +1329,7 @@ void SetWindowFocus(window_info *Window)
 {
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
-        SetWindowRefFocus(WindowRef, Window, false);
+        SetWindowRefFocus(WindowRef, Window);
 }
 
 void SetWindowFocusByNode(tree_node *Node)
