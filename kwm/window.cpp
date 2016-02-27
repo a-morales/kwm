@@ -92,9 +92,16 @@ bool FilterWindowList(screen_info *Screen)
         }
 
         CaptureApplication(&KWMTiling.WindowLst[WindowIndex]);
-        if(KWMTiling.WindowLst[WindowIndex].Layer == 0 &&
-           Screen == GetDisplayOfWindow(&KWMTiling.WindowLst[WindowIndex]))
+        if(KWMTiling.WindowLst[WindowIndex].Layer == 0)
         {
+            screen_info *ScreenOfWindow = GetDisplayOfWindow(&KWMTiling.WindowLst[WindowIndex]);
+            if(Screen != ScreenOfWindow)
+            {
+                space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
+                if(GetNodeFromWindowID(SpaceOfWindow->RootNode, KWMTiling.WindowLst[WindowIndex].WID, SpaceOfWindow->Mode))
+                    continue;
+            }
+
             CFTypeRef Role, SubRole;
             if(GetWindowRole(&KWMTiling.WindowLst[WindowIndex], &Role, &SubRole))
             {
