@@ -22,9 +22,7 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             CFEqual(Notification, kAXWindowMovedNotification))
         UpdateBorder("focused");
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
-    {
         SetWindowRefFocus(Element);
-    }
 }
 
 void DestroyApplicationNotifications()

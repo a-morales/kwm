@@ -56,10 +56,7 @@ extern kwm_thread KWMThread;
         {
             if((KWMFocus.Window && KWMFocus.Window->PID != ProcessID) ||
                !KWMFocus.Window)
-            {
-                if(FocusWindowOfOSX())
-                    MoveCursorToCenterOfFocusedWindow();
-            }
+                FocusWindowOfOSX();
         }
     }
 
