@@ -49,15 +49,12 @@ extern kwm_thread KWMThread;
 {
     pthread_mutex_lock(&KWMThread.Lock);
 
-    if(!IsSpaceTransitionInProgress())
+    pid_t ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
+    if(ProcessID != -1)
     {
-        pid_t ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
-        if(ProcessID != -1)
-        {
-            if((KWMFocus.Window && KWMFocus.Window->PID != ProcessID) ||
-               !KWMFocus.Window)
-                FocusWindowOfOSX();
-        }
+        if((KWMFocus.Window && KWMFocus.Window->PID != ProcessID) ||
+           !KWMFocus.Window)
+            FocusWindowOfOSX();
     }
 
     pthread_mutex_unlock(&KWMThread.Lock);
