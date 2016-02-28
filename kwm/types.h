@@ -276,7 +276,6 @@ struct kwm_focus
 struct kwm_screen
 {
     screen_info *Current;
-    bool ForceRefreshFocus;
     bool Transitioning;
     double SplitRatio;
 

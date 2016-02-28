@@ -229,9 +229,7 @@ void UpdateActiveSpace()
     {
         DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
 
-        KWMScreen.ForceRefreshFocus = true;
         UpdateActiveWindowList(KWMScreen.Current);
-
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         if(Space->FocusedNode)
         {
@@ -245,8 +243,6 @@ void UpdateActiveSpace()
             else if(FocusWindowOfOSX())
                 MoveCursorToCenterOfFocusedWindow();
         }
-
-        KWMScreen.ForceRefreshFocus = false;
     }
 
     pthread_mutex_unlock(&KWMThread.Lock);

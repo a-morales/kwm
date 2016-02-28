@@ -19,7 +19,7 @@ extern kwm_border FocusedBorder;
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
-    if(!KWMScreen.ForceRefreshFocus && Window && Match)
+    if(Window && Match)
     {
         if(Window->PID == Match->PID &&
            Window->WID == Match->WID &&
@@ -1344,9 +1344,7 @@ void SetWindowFocusByNode(tree_node *Node)
         if(Window)
         {
             DEBUG("SetWindowFocusByNode()")
-            KWMScreen.ForceRefreshFocus = true;
             SetWindowFocus(Window);
-            KWMScreen.ForceRefreshFocus = false;
         }
     }
 }
