@@ -497,13 +497,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
         }
 
         if(!KWMFocus.Window)
-        {
-            ClearFocusedWindow();
-            if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
-                FocusWindowBelowCursor();
-            else if(FocusWindowOfOSX())
-                MoveCursorToCenterOfFocusedWindow();
-        }
+            FocusWindowOfOSX();
     }
 }
 
