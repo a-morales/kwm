@@ -426,9 +426,6 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
 
 void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 {
-    if(Screen->ActiveSpace == -1 || Screen->OldWindowListCount == -1)
-        return;
-
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     if(Space->Mode == SpaceModeBSP)
         ShouldBSPTreeUpdate(Screen, Space);
