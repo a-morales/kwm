@@ -382,11 +382,13 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *FocusNode, bool Mouse)
 
                 if(Space->Mode != SpaceModeFloating)
                 {
-                    if(!Mouse && !Space->RootNode)
-                    {
-                        CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2), Screen->Y + (Screen->Height / 2)));
-                        CGPoint ClickPos = GetCursorPos();
+                    if(!Mouse)
+                        CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2),
+                                                              Screen->Y + (Screen->Height / 2)));
 
+                    if(!Space->RootNode)
+                    {
+                        CGPoint ClickPos = GetCursorPos();
                         CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
                         CGEventSetFlags(ClickEvent, 0);
                         CGEventPost(kCGHIDEventTap, ClickEvent);
