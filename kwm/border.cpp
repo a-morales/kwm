@@ -13,7 +13,7 @@ void ClearBorder(kwm_border *Border)
 {
     if(Border->Handle)
     {
-        std::string Command = "clear";
+        static std::string Command = "clear";
         fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
         fflush(Border->Handle);
     }
@@ -23,7 +23,7 @@ void OpenBorder(kwm_border *Border)
 {
     if(Border->Enabled && !Border->Handle)
     {
-        std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
+        static std::string OverlayBin = KWMPath.FilePath + "/kwm-overlay";
         Border->Handle = popen(OverlayBin.c_str(), "w");
         if(!Border->Handle)
             Border->Enabled = false;
@@ -46,7 +46,7 @@ void CloseBorder(kwm_border *Border)
 {
     if(Border->Handle)
     {
-        std::string Terminate = "quit";
+        static std::string Terminate = "quit";
         fwrite(Terminate.c_str(), Terminate.size(), 1, Border->Handle);
         fflush(Border->Handle);
         pclose(Border->Handle);
