@@ -52,7 +52,7 @@ kwmc/%.o: kwmc/%.cpp
 	g++ -c $< $(BUILD_FLAGS) -o $@
 
 $(BUILD_PATH)/kwm-overlay: $(KWMO_SRCS)
-	swiftc -sdk $(SDK_ROOT) -Xlinker -rpath -Xlinker $(XTRA_RPATH) -o $@ $^
+	swiftc $(DEBUG_BUILD) -sdk $(SDK_ROOT) -Xlinker -rpath -Xlinker $(XTRA_RPATH) -o $@ $^
 
 $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@

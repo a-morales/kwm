@@ -10,7 +10,7 @@ func trim(str: String) -> String {
 
 func parseFrame(args: Array<String>, strokeWidth: CGFloat) -> NSRect
 {
-    var frameHash = [String: Int]()
+    var frameHash = [String: CGFloat]()
     frameHash["w"] = 0
     frameHash["h"] = 0
     frameHash["x"] = 0
@@ -25,17 +25,35 @@ func parseFrame(args: Array<String>, strokeWidth: CGFloat) -> NSRect
         let windowInfoList = windowInfoListRef as NSArray? as? [[String: AnyObject]]
         let scrns: Array<NSScreen> = NSScreen.screens()!
         let scrn: NSScreen = scrns[0]
-        let scrnHeight: Int = Int(scrn.frame.size.height)
+        let scrnHeight: CGFloat = scrn.frame.size.height
 
         for windowInfo in windowInfoList! {
             let windowNumber = windowInfo["kCGWindowNumber"]! as! Int
             if (windowNumber == windowId) {
+                let windowAppPID = windowInfo["kCGWindowOwnerPID"] as? Int
+                let appRef : AXUIElement = AXUIElementCreateApplication(pid_t(windowAppPID!)).takeRetainedValue()
+
+                var windowList : AnyObject? = nil
+                AXUIElementCopyAttributeValue(appRef, kAXFocusedWindowAttribute, &windowList)
+                let windowRef = windowList as! AXUIElementRef
+
+                var winPosition : AnyObject? = nil
+                AXUIElementCopyAttributeValue(windowRef, kAXPositionAttribute, &winPosition)
+                let winPositionValue = winPosition as! AXValue
+                var winTopLeft = CGPoint()
+                AXValueGetValue(winPositionValue, AXValueType( rawValue:kAXValueCGPointType)!, &winTopLeft)
+
+                var winSize : AnyObject? = nil
+                AXUIElementCopyAttributeValue(windowRef, kAXSizeAttribute, &winSize)
+                let winSizeValue = winSize as! AXValue
+                var winCGSize = CGSize()
+                AXValueGetValue(winSizeValue, AXValueType( rawValue:kAXValueCGSizeType)!, &winCGSize)
+
                 if (windowInfo["kCGWindowBounds"] != nil) {
-                    let windowBounds = windowInfo["kCGWindowBounds"]! as! [String : Int]
-                    frameHash["w"] = windowBounds["Width"]
-                    frameHash["h"] = windowBounds["Height"]!
-                    frameHash["x"] = windowBounds["X"]
-                    frameHash["y"] = scrnHeight - (windowBounds["Y"]! + windowBounds["Height"]!)
+                    frameHash["w"] = winCGSize.width
+                    frameHash["h"] = winCGSize.height
+                    frameHash["x"] = winTopLeft.x
+                    frameHash["y"] = scrnHeight - (winTopLeft.y + winCGSize.height)
                 }
                 break
             }
@@ -47,23 +65,23 @@ func parseFrame(args: Array<String>, strokeWidth: CGFloat) -> NSRect
             let pair: Array = arg.componentsSeparatedByString(":")
             let key: String = pair[0]
             let val: String = trim(pair[1])
-            let intVal = Int(val)
+            let intVal = Float(val)
             if (intVal == nil) {
                 continue
             }
 
             switch key {
             case "x":
-                frameHash["x"] = intVal
+                frameHash["x"] = CGFloat(intVal!)
                 break
             case "y":
-                frameHash["y"] = intVal
+                frameHash["y"] = CGFloat(intVal!)
                 break
             case "w", "width":
-                frameHash["w"] = intVal
+                frameHash["w"] = CGFloat(intVal!)
                 break
             case "h", "height":
-                frameHash["h"] = intVal
+                frameHash["h"] = CGFloat(intVal!)
                 break
             default:
                 break
