@@ -333,7 +333,7 @@ int main(int argc, char **argv)
     if(!KWMMach.EventTap || !CGEventTapIsEnabled(KWMMach.EventTap))
         Fatal("ERROR: Could not create event-tap!");
 
-    CFRunLoopAddSource(CFRunLoopGetCurrent(),
+    CFRunLoopAddSource(CFRunLoopGetMain(),
                        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, KWMMach.EventTap, 0),
                        kCFRunLoopCommonModes);
 
