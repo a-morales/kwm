@@ -118,11 +118,41 @@ void CreatePseudoNode()
     screen_info *Screen = KWMScreen.Current;
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     window_info *Window = KWMFocus.Window;
+    if(!Screen || !Space || !Window)
+        return;
 
     tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, SpaceModeBSP);
-    int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(Node) : KWMScreen.SplitMode;
-    CreateLeafNodePair(Screen, Node, Node->WindowID, -1, SplitMode);
-    ApplyNodeContainer(Node, SpaceModeBSP);
+    if(Node)
+    {
+        int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(Node) : KWMScreen.SplitMode;
+        CreateLeafNodePair(Screen, Node, Node->WindowID, -1, SplitMode);
+        ApplyNodeContainer(Node, SpaceModeBSP);
+    }
+}
+
+void RemovePseudoNode()
+{
+    screen_info *Screen = KWMScreen.Current;
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    window_info *Window = KWMFocus.Window;
+    if(!Screen || !Space || !Window)
+        return;
+
+    tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, SpaceModeBSP);
+    if(Node && Node->Parent)
+    {
+        tree_node *Parent = Node->Parent;
+        tree_node *PseudoNode = IsLeftChild(Node) ? Parent->RightChild : Parent->LeftChild;
+        if(!PseudoNode || !IsLeafNode(PseudoNode) || PseudoNode->WindowID != -1)
+            return;
+
+        Parent->WindowID = Node->WindowID;
+        Parent->LeftChild = NULL;
+        Parent->RightChild = NULL;
+        free(Node);
+        free(PseudoNode);
+        ApplyNodeContainer(Parent, SpaceModeBSP);
+    }
 }
 
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType)

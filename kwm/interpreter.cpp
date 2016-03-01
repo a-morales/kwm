@@ -583,7 +583,10 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
         }
         else if(Tokens[2] == "pseudo")
         {
-            CreatePseudoNode();
+            if(Tokens[3] == "create")
+                CreatePseudoNode();
+            else if(Tokens[3] == "remove")
+                RemovePseudoNode();
         }
     }
     else if(Tokens[1] == "save")

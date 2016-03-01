@@ -19,6 +19,7 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, int SplitMode);
 tree_node *CreateRootNode();
 void CreatePseudoNode();
+void RemovePseudoNode();
 
 bool IsLeafNode(tree_node *Node);
 bool IsLeftChild(tree_node *Node);
