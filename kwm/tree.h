@@ -18,6 +18,7 @@ void ApplyNodeContainer(tree_node *Node, space_tiling_option Mode);
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType);
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, int SplitMode);
 tree_node *CreateRootNode();
+void CreatePseudoNode();
 
 bool IsLeafNode(tree_node *Node);
 bool IsLeftChild(tree_node *Node);

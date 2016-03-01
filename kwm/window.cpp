@@ -470,7 +470,9 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
         tree_node *CurrentNode = GetFirstLeafNode(Space->RootNode);
         while(CurrentNode)
         {
-            WindowIDsInTree.push_back(CurrentNode->WindowID);
+            if(CurrentNode->WindowID != -1)
+                WindowIDsInTree.push_back(CurrentNode->WindowID);
+
             CurrentNode = GetNearestNodeToTheRight(CurrentNode, SpaceModeBSP);
         }
 

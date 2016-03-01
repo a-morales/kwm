@@ -113,6 +113,18 @@ void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node
     }
 }
 
+void CreatePseudoNode()
+{
+    screen_info *Screen = KWMScreen.Current;
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    window_info *Window = KWMFocus.Window;
+
+    tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, SpaceModeBSP);
+    int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(Node) : KWMScreen.SplitMode;
+    CreateLeafNodePair(Screen, Node, Node->WindowID, -1, SplitMode);
+    ApplyNodeContainer(Node, SpaceModeBSP);
+}
+
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType)
 {
     Assert(Parent, "CreateLeafNode()")

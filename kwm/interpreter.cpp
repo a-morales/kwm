@@ -581,6 +581,10 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
             space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
             ApplyNodeContainer(Space->RootNode, Space->Mode);
         }
+        else if(Tokens[2] == "pseudo")
+        {
+            CreatePseudoNode();
+        }
     }
     else if(Tokens[1] == "save")
     {
