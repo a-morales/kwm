@@ -132,8 +132,8 @@
         Rotate window-tree
             kwmc tree -r 90|180|270
 
-        Create pseudo-container to be filled by next window creation
-            kwmc tree -c pseudo
+        Create or remove pseudo-container, filled by next window creation
+            kwmc tree -c pseudo create|remove
 
         Resize all windows to container
             kwmc tree -c refresh
