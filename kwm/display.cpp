@@ -188,23 +188,6 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
     return ScreenWindowLst;
 }
 
-std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex)
-{
-    screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-    std::vector<int> ScreenWindowIDLst;
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-    {
-        window_info *Window = &KWMTiling.WindowLst[WindowIndex];
-        if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]))
-        {
-            if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width)
-                ScreenWindowIDLst.push_back(Window->WID);
-        }
-    }
-
-    return ScreenWindowIDLst;
-}
-
 void SetDefaultPaddingOfDisplay(const std::string &Side, int Offset)
 {
     if(Side == "left")

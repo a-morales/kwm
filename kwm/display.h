@@ -17,7 +17,6 @@ screen_info *GetDisplayOfMousePointer();
 screen_info *GetDisplayOfWindow(window_info *Window);
 
 std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex);
-std::vector<int> GetAllWindowIDsOnDisplay(int ScreenIndex);
 void CaptureApplicationToScreen(int ScreenID, std::string Application);
 void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative);
 
