@@ -303,7 +303,8 @@ void FocusWindowBelowCursor()
            KWMTiling.FocusLst[WindowIndex].Y == 0)
             continue;
 
-        if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]) && ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
+        if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]) &&
+           ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
         {
             if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
                 KWMFocus.Cache = KWMTiling.FocusLst[WindowIndex];
@@ -340,7 +341,9 @@ void UpdateWindowTree()
                     !WindowsOnDisplay.empty() &&
                     Space->RootNode)
                 ShouldWindowNodeTreeUpdate(KWMScreen.Current);
-            else if(Space->Initialized && WindowsOnDisplay.empty())
+            else if(Space->Initialized &&
+                    WindowsOnDisplay.empty() &&
+                    Space->RootNode)
             {
                 DestroyNodeTree(Space->RootNode, Space->Mode);
                 Space->RootNode = NULL;
@@ -801,8 +804,11 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 
 void ToggleWindowFloating(int WindowID, bool Center)
 {
+    Assert(KWMScreen.Current, "ToggleWindowFloating()")
+
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
     if(IsWindowOnActiveSpace(WindowID) &&
-       KWMScreen.Current->Space[KWMScreen.Current->ActiveSpace].Mode == SpaceModeBSP)
+       Space->Mode == SpaceModeBSP)
     {
         int WindowIndex;
         if(IsWindowFloating(WindowID, &WindowIndex))
