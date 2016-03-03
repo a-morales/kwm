@@ -236,13 +236,6 @@ void UpdateActiveSpace()
             SetWindowFocusByNode(Space->FocusedNode);
             MoveCursorToCenterOfFocusedWindow();
         }
-        else if(Space->Mode != SpaceModeFloating)
-        {
-            if(IsAnyWindowBelowCursor() && KWMMode.Focus != FocusModeDisabled)
-                FocusWindowBelowCursor();
-            else if(FocusWindowOfOSX())
-                MoveCursorToCenterOfFocusedWindow();
-        }
     }
 
     pthread_mutex_unlock(&KWMThread.Lock);
