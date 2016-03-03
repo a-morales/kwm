@@ -61,7 +61,7 @@ std::vector<window_info> FilterWindowListAllDisplays()
     std::vector<window_info> FilteredWindowLst;
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
     {
-        if(KWMTiling.FocusLst[WindowIndex].Layer == 0)
+        if(ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
         {
             CFTypeRef Role, SubRole;
             if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
@@ -1317,7 +1317,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
            !KWMFocus.Observer)
             CreateApplicationNotifications();
 
-        if(KWMFocus.Window->Layer == 0)
+        if(ShouldWindowGainFocus(KWMFocus.Window))
             UpdateBorder("focused");
     }
 
