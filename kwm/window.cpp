@@ -264,7 +264,8 @@ bool ShouldWindowGainFocus(window_info *Window)
            Window->Layer == CGWindowLevelForKey(kCGUtilityWindowLevelKey) ||
            Window->Layer == CGWindowLevelForKey(kCGOverlayWindowLevelKey) ||
            Window->Layer == CGWindowLevelForKey(kCGHelpWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey);
+           Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey) ||
+           Window->Layer == 1490; // Note(koekeishiya): Unknown WindowLevelKey constant
 }
 
 void FocusFirstLeafNode()
