@@ -21,6 +21,7 @@ tree_node *CreateRootNode();
 void CreatePseudoNode();
 void RemovePseudoNode();
 
+bool IsPseudoNode(tree_node *Node);
 bool IsLeafNode(tree_node *Node);
 bool IsLeftChild(tree_node *Node);
 bool IsRightChild(tree_node *Node);

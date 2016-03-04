@@ -1181,6 +1181,9 @@ void ShiftWindowFocus(int Shift)
         if(Shift == 1)
         {
             FocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
+            while(IsPseudoNode(FocusNode))
+                FocusNode = GetNearestNodeToTheRight(FocusNode, Space->Mode);
+
             if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
             {
                 FocusNode = GetFirstLeafNode(Space->RootNode);
@@ -1201,6 +1204,9 @@ void ShiftWindowFocus(int Shift)
         else if(Shift == -1)
         {
             FocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
+            while(IsPseudoNode(FocusNode))
+                FocusNode = GetNearestNodeToTheLeft(FocusNode, Space->Mode);
+
             if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
             {
                 FocusNode = GetLastLeafNode(Space->RootNode);
