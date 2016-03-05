@@ -38,9 +38,9 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "prefix-global")
     {
-        if(Tokens[2] == "disable")
+        if(Tokens[2] == "off")
             KwmSetPrefixGlobal(false);
-        else if(Tokens[2] == "enable")
+        else if(Tokens[2] == "on")
             KwmSetPrefixGlobal(true);
     }
     else if(Tokens[1] == "prefix-timeout")
@@ -49,12 +49,12 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "focused-border")
     {
-        if(Tokens[2] == "enable")
+        if(Tokens[2] == "on")
         {
             FocusedBorder.Enabled = true;
             UpdateBorder("focused");
         }
-        else if(Tokens[2] == "disable")
+        else if(Tokens[2] == "off")
         {
             FocusedBorder.Enabled = false;
             UpdateBorder("focused");
@@ -75,11 +75,11 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "marked-border")
     {
-        if(Tokens[2] == "enable")
+        if(Tokens[2] == "on")
         {
             MarkedBorder.Enabled = true;
         }
-        else if(Tokens[2] == "disable")
+        else if(Tokens[2] == "off")
         {
             MarkedBorder.Enabled = false;
             UpdateBorder("marked");
@@ -100,11 +100,11 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "prefix-border")
     {
-        if(Tokens[2] == "enable")
+        if(Tokens[2] == "on")
         {
             PrefixBorder.Enabled = true;
         }
-        else if(Tokens[2] == "disable")
+        else if(Tokens[2] == "off")
         {
             PrefixBorder.Enabled = false;
             UpdateBorder("focused");
@@ -125,9 +125,9 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "float-non-resizable")
     {
-        if(Tokens[2] == "disable")
+        if(Tokens[2] == "off")
             KWMTiling.FloatNonResizable = false;
-        else if(Tokens[2] == "enable")
+        else if(Tokens[2] == "on")
             KWMTiling.FloatNonResizable = true;
     }
     else if(Tokens[1] == "spawn")
@@ -139,9 +139,9 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "tiling")
     {
-        if(Tokens[2] == "disable")
+        if(Tokens[2] == "off")
             KWMToggles.EnableTilingMode = false;
-        else if(Tokens[2] == "enable")
+        else if(Tokens[2] == "on")
             KWMToggles.EnableTilingMode = true;
     }
     else if(Tokens[1] == "capture")
@@ -161,16 +161,16 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "mouse-follows")
         {
-            if(Tokens[3] == "disable")
+            if(Tokens[3] == "off")
                 KWMToggles.UseMouseFollowsFocus = false;
-            else if(Tokens[3] == "enable")
+            else if(Tokens[3] == "on")
                 KWMToggles.UseMouseFollowsFocus = true;
         }
         else if(Tokens[2] == "standby-on-float")
         {
-            if(Tokens[3] == "disable")
+            if(Tokens[3] == "off")
                 KWMToggles.StandbyOnFloat = false;
-            else if(Tokens[3] == "enable")
+            else if(Tokens[3] == "on")
                 KWMToggles.StandbyOnFloat = true;
         }
         else if(Tokens[2] == "toggle")
@@ -186,7 +186,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             KWMMode.Focus = FocusModeAutofocus;
         else if(Tokens[2] == "autoraise")
             KWMMode.Focus = FocusModeAutoraise;
-        else if(Tokens[2] == "disabled")
+        else if(Tokens[2] == "off")
             KWMMode.Focus = FocusModeDisabled;
     }
     else if(Tokens[1] == "cycle-focus")
@@ -195,14 +195,14 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             KWMMode.Cycle = CycleModeScreen;
         else if(Tokens[2] == "all")
             KWMMode.Cycle = CycleModeAll;
-        else if(Tokens[2] == "disabled")
+        else if(Tokens[2] == "off")
             KWMMode.Cycle = CycleModeDisabled;;
     }
     else if(Tokens[1] == "hotkeys")
     {
-        if(Tokens[2] == "disable")
+        if(Tokens[2] == "off")
             KWMToggles.UseBuiltinHotkeys = false;
-        else if(Tokens[2] == "enable")
+        else if(Tokens[2] == "on")
             KWMToggles.UseBuiltinHotkeys = true;
     }
     else if(Tokens[1] == "float")
@@ -317,7 +317,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         else if(KWMMode.Focus == FocusModeAutoraise)
             Output = "autoraise";
         else if(KWMMode.Focus == FocusModeDisabled)
-            Output = "disabled";
+            Output = "off";
 
         KwmWriteToSocket(ClientSockFD, Output);
     }
@@ -325,9 +325,9 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     {
         std::string Output;
         if(KWMToggles.UseMouseFollowsFocus)
-            Output = "enabled";
+            Output = "on";
         else
-            Output = "disabled";
+            Output = "off";
 
         KwmWriteToSocket(ClientSockFD, Output);
     }
@@ -351,7 +351,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         else if(KWMMode.Cycle == CycleModeAll)
             Output = "all";
         else
-            Output = "disabled";
+            Output = "off";
 
         KwmWriteToSocket(ClientSockFD, Output);
     }

@@ -29,39 +29,39 @@ kwmc config gap vertical 15
 kwmc config gap horizontal 15
 
 # Allow Kwm to tile windows
-kwmc config tiling enable
+kwmc config tiling on
 
 # Let Kwm listen for hotkeys
-kwmc config hotkeys enable
+kwmc config hotkeys on
 
 # Set prefix for Kwms hotkeys
 kwmc config prefix ctrl-x
 
 # Prefix is not applied globally
-kwmc config prefix-global disable
+kwmc config prefix-global off
 
 # Time in seconds, before prefix must be re-activated
 kwmc config prefix-timeout 0.75
 
 # Automatically float windows that fail to resize
-kwmc config float-non-resizable enable
+kwmc config float-non-resizable on
 
 # Float a window if moved using the mouse
-kwmc config dragndrop disable
+kwmc config dragndrop off
 
 # Set focus-follows-mouse-mode to autoraise
 kwmc config focus autoraise
 
 # Focus-follows-mouse is temporarily disabled when
 # a floating window has focus
-kwmc config focus standby-on-float enable
+kwmc config focus standby-on-float on
 
 # The mouse will automatically move to the center
 # of the focused window
-kwmc config focus mouse-follows enable
+kwmc config focus mouse-follows on
 
 # Allow window focus to wrap-around
-kwmc config cycle-focus screen # all | disabled
+kwmc config cycle-focus screen # all | off
 
 # Default tiling mode for new spaces
 kwmc config space bsp
@@ -95,12 +95,12 @@ kwmc config float Photoshop
 # kwmc config capture 1 iTunes
 
 # Enable border for focused window
-kwmc config focused-border enable
+kwmc config focused-border on
 kwmc config focused-border size 5
 kwmc config focused-border color FFBDD322
 
 # Enable border for marked window
-kwmc config marked-border enable
+kwmc config marked-border on
 kwmc config marked-border size 5
 kwmc config marked-border color FFCC5577
 

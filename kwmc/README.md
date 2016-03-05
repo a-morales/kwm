@@ -12,7 +12,7 @@
             kwmc config prefix mod+mod+mod-key
 
         Make prefix global (apply for all binds)
-            kwmc config prefix-global enable|disable
+            kwmc config prefix-global on|off
 
         Set prefix timeout in seconds (default: 0.75)
             kwmc config prefix-timeout seconds
@@ -24,7 +24,7 @@
             kwmc config gap vertical|horizontal value
 
         Customize focused|marked|prefix border
-            kwmc config focused|marked|prefix-border enable|disable
+            kwmc config focused|marked|prefix-border on|off
             kwmc config focused|marked|prefix-border size number
             kwmc config focused|marked|prefix-border color aarrggbb
             kwmc config focused|marked|prefix-border radius number
@@ -33,7 +33,7 @@
             kwmc config spawn left|right
 
         Automatically float non-resizable windows
-            kwmc config float-non-resizable enable|disable
+            kwmc config float-non-resizable on|off
 
         Always float application
             kwmc config float application
@@ -42,19 +42,19 @@
             kwmc config capture id application
 
         Set focus-mode
-            kwmc config focus toggle|autofocus|autoraise|disabled
+            kwmc config focus toggle|autofocus|autoraise|off
 
         Disable focus-follows-mouse when a floating window gains focus
-            kwmc config focus standby-on-float enable|disable
+            kwmc config focus standby-on-float on|off
 
         Set focus-wrap-around for 'window -f prev|next'
-            kwmc config cycle-focus screen|all|disabled
+            kwmc config cycle-focus screen|all|off
 
         Set state of mouse-follows-focus
-            kwmc config focus mouse-follows enable|disable
+            kwmc config focus mouse-follows on|off
 
         Should Kwm perform tiling
-            kwmc config tiling enable|disable
+            kwmc config tiling on|off
 
         Set default tiling mode
             kwmc config space bsp|monocle|float
@@ -63,7 +63,7 @@
             kwmc config screen id bsp|monocle|float
 
         Set state of Kwm's hotkeys
-            kwmc config hotkeys enable|disable
+            kwmc config hotkeys on|off
 
         Set split-ratio to use for containers (0 < value < 1, default: 0.5)
             kwmc config split-ratio value
