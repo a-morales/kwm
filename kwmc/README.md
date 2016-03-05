@@ -191,7 +191,7 @@
         Get state of the prefix-key
             kwmc read prefix
 
-        Get tilling mode for current space
+        Get tilling mode to use for new spaces
             kwmc read space
 
         Get active cycle-focus mode
