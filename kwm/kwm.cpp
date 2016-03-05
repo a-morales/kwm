@@ -39,10 +39,11 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyDown:
         {
-            if(KWMToggles.UseBuiltinHotkeys && KwmMainHotkeyTrigger(&Event))
+            if(KWMToggles.UseBuiltinHotkeys &&
+               KwmMainHotkeyTrigger(&Event))
             {
-                    pthread_mutex_unlock(&KWMThread.Lock);
-                    return NULL;
+                pthread_mutex_unlock(&KWMThread.Lock);
+                return NULL;
             }
 
             if(KWMMode.Focus == FocusModeAutofocus &&
@@ -276,9 +277,9 @@ bool CheckPrivileges()
 
     CFDictionaryRef Options;
     Options = CFDictionaryCreate(kCFAllocatorDefault,
-            Keys, Values, sizeof(Keys) / sizeof(*Keys),
-            &kCFCopyStringDictionaryKeyCallBacks,
-            &kCFTypeDictionaryValueCallBacks);
+                                 Keys, Values, sizeof(Keys) / sizeof(*Keys),
+                                 &kCFCopyStringDictionaryKeyCallBacks,
+                                 &kCFTypeDictionaryValueCallBacks);
 
     Result = AXIsProcessTrustedWithOptions(Options);
     CFRelease(Options);
