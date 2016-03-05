@@ -86,6 +86,9 @@ In addition to the above, the file `$HOME/.kwm/init` is a shell script that will
 
 A sample config and init file can be found within the [examples](examples) directory.
 
+Note: The sample configuration and information is updated to follow Kwm @ master. If you are running a release
+version of Kwm, be aware that the documentation in this github repository may not always apply.
+
 ## Usage:
 
 When *Kwm* starts, it will automatically tile the windows of the current space using the tiling mode set in the config file.
