@@ -115,7 +115,7 @@ void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node
 
 bool IsPseudoNode(tree_node *Node)
 {
-    return Node && Node->WindowID == -1 && IsLeafNode(Node) && Node->WindowID;
+    return Node && Node->WindowID == -1 && IsLeafNode(Node);
 }
 
 void CreatePseudoNode()
