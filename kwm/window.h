@@ -89,6 +89,7 @@ window_info *GetWindowByID(int WindowID);
 std::string GetUTF8String(CFStringRef Temp);
 std::string GetWindowTitle(AXUIElementRef WindowRef);
 CGSize GetWindowSize(AXUIElementRef WindowRef);
+CGPoint GetWindowPos(window_info *Window);
 CGPoint GetWindowPos(AXUIElementRef WindowRef);
 void GetWindowInfo(const void *Key, const void *Value, void *Context);
 bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole);

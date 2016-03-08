@@ -1639,6 +1639,16 @@ CGSize GetWindowSize(AXUIElementRef WindowRef)
     return WindowSize;
 }
 
+CGPoint GetWindowPos(window_info *Window)
+{
+    CGPoint Result = {};
+    AXUIElementRef WindowRef;
+    if(GetWindowRef(Window, &WindowRef))
+        Result = GetWindowPos(WindowRef);
+
+    return Result;
+}
+
 CGPoint GetWindowPos(AXUIElementRef WindowRef)
 {
     AXValueRef Temp;
