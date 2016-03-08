@@ -680,7 +680,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
                 }
 
                 if(!Found)
-                    RemoveWindowFromMonocleTree(Screen, WindowIDsInTree[IDIndex], false);
+                    RemoveWindowFromMonocleTree(Screen, WindowIDsInTree[IDIndex], true);
             }
         }
         else
@@ -712,7 +712,7 @@ void AddWindowToMonocleTree(screen_info *Screen, int WindowID)
     ApplyNodeContainer(NewNode, SpaceModeMonocle);
 }
 
-void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center)
+void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool UpdateFocus)
 {
     if(!DoesSpaceExistInMapOfScreen(Screen))
         return;
@@ -722,15 +722,12 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center)
     if(!WindowNode)
         return;
 
-    tree_node *NewFocusNode = NULL;
     tree_node *Prev = WindowNode->LeftChild;
     tree_node *Next = WindowNode->RightChild;
+    tree_node *NewFocusNode = Prev;
 
     if(Prev)
-    {
         Prev->RightChild = Next;
-        NewFocusNode = Prev;
-    }
 
     if(Next)
         Next->LeftChild = Prev;
@@ -741,9 +738,13 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center)
         NewFocusNode = Next;
     }
 
+    if(UpdateFocus)
+    {
+        SetWindowFocusByNode(NewFocusNode);
+        MoveCursorToCenterOfFocusedWindow();
+    }
+
     free(WindowNode);
-    SetWindowFocusByNode(NewFocusNode);
-    MoveCursorToCenterOfFocusedWindow();
 }
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
