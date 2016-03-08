@@ -126,6 +126,10 @@
         Change position of a floating window
             kwmc window -m xoff yoff
 
+        Move window to different space on same screen
+        (Requires spaces-key and OSX spaces shortcuts!)
+            kwmc window -s space id|left|right
+
         Mark a window relative to the focused window
             kwmc mark -w focused|north|east|south|west wrap|nowrap
 

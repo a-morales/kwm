@@ -3,7 +3,9 @@
 #include "window.h"
 #include "tree.h"
 #include "border.h"
+#include "keys.h"
 
+extern kwm_mach KWMMach;
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
@@ -71,6 +73,63 @@ void GetTagForCurrentSpace(std::string &Tag)
         else if(KWMMode.Space == SpaceModeMonocle)
             Tag = "[monocle]";
     }
+}
+
+void MoveWindowToSpace(std::string SpaceID)
+{
+    if(!KWMFocus.Window)
+        return;
+
+    CGEventTapEnable(KWMMach.EventTap, false);
+
+    window_info *Window = KWMFocus.Window;
+    bool WasWindowFloating = IsFocusedWindowFloating();
+    if(!WasWindowFloating)
+    {
+        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
+        space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
+        if(SpaceOfWindow->Mode == SpaceModeBSP)
+            RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
+        else if(SpaceOfWindow->Mode == SpaceModeMonocle)
+            RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
+    }
+
+    CGPoint CursorPos = GetCursorPos();
+    CGPoint WindowPos = GetWindowPos(Window);
+    CGPoint ClickPos = CGPointMake(WindowPos.x + 75, WindowPos.y + 7);
+
+    CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
+    CGEventSetFlags(ClickEvent, 0);
+    CGEventPost(kCGHIDEventTap, ClickEvent);
+    CFRelease(ClickEvent);
+    usleep(150000);
+
+    KwmEmitKeystroke(KWMHotkeys.SpacesKey, SpaceID);
+    usleep(300000);
+
+    KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
+    KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
+    ShouldActiveSpaceBeManaged();
+    UpdateActiveWindowList(KWMScreen.Current);
+
+    ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
+    CGEventSetFlags(ClickEvent, 0);
+    CGEventPost(kCGHIDEventTap, ClickEvent);
+    CFRelease(ClickEvent);
+    usleep(150000);
+
+    if(!WasWindowFloating)
+    {
+        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
+        space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
+        if(SpaceOfWindow->Mode == SpaceModeBSP)
+            AddWindowToBSPTree(ScreenOfWindow, Window->WID);
+        else if(SpaceOfWindow->Mode == SpaceModeMonocle)
+            AddWindowToMonocleTree(ScreenOfWindow, Window->WID);
+    }
+
+    CGWarpMouseCursorPosition(CursorPos);
+    CGEventTapEnable(KWMMach.EventTap, true);
 }
 
 bool IsActiveSpaceFloating()

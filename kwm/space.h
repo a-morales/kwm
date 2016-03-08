@@ -23,4 +23,6 @@ void FloatFocusedSpace();
 void ToggleFocusedSpaceFloating();
 void UpdateActiveSpace();
 
+void MoveWindowToSpace(std::string SpaceID);
+
 #endif

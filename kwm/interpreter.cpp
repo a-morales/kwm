@@ -511,6 +511,8 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             SwapFocusedWindowWithNearest(1);
         else if(Tokens[2] == "mark")
             SwapFocusedWindowWithMarked();
+        else if(Tokens[2] == "space")
+            MoveWindowToSpace(Tokens[3]);
     }
     else if(Tokens[1] == "-x")
     {

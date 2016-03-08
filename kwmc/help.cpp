@@ -89,6 +89,7 @@ void ShowHelp(std::string Command)
             "   -f north|east|south|west|prev|next|curr|first|last     Change window focus\n"
             "   -f id windowid                                         Change window focus by id\n"
             "   -s north|east|south|west|prev|next|mark                Swap window position\n"
+            "   -s space id|left|right                                 Move window to different space on same screen (Requires spaces-key and OSX spaces shortcuts!)
             "   -x north|east|south|west|mark                          Detach window and reinsert at the given position\n"
             "   -m xoff yoff                                           Change position of a floating window\n"
         ;
