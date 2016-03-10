@@ -379,11 +379,13 @@ void UpdateActiveWindowList(screen_info *Screen)
 
 void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)
 {
+    /*
     for(std::size_t WindowIndex = 0; WindowIndex < Windows->size(); ++WindowIndex)
     {
         if(Screen != GetDisplayOfWindow((*Windows)[WindowIndex]))
             return;
     }
+    */
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     if(!Space->Initialized)
@@ -527,14 +529,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     }
     else if(DoNotUseMarkedContainer || (KWMScreen.MarkedWindow == -1 && !UseFocusedContainer))
     {
-        CurrentNode = RootNode;
-        while(!IsLeafNode(CurrentNode))
-        {
-            if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
-                CurrentNode = CurrentNode->RightChild;
-            else
-                CurrentNode = CurrentNode->LeftChild;
-        }
+        CurrentNode = GetFirstLeafNode(RootNode);
     }
     else
     {
@@ -768,21 +763,11 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
         if(Space->Mode == SpaceModeBSP)
         {
             DEBUG("AddWindowToTreeOfUnfocusedMonitor() BSP Space")
-            tree_node *RootNode = Space->RootNode;
-            tree_node *CurrentNode = RootNode;
-
-            while(!IsLeafNode(CurrentNode))
-            {
-                if(!IsLeafNode(CurrentNode->LeftChild) && IsLeafNode(CurrentNode->RightChild))
-                    CurrentNode = CurrentNode->RightChild;
-                else
-                    CurrentNode = CurrentNode->LeftChild;
-            }
-
+            tree_node *CurrentNode = GetFirstLeafNode(Space->RootNode);
             int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+
             CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
             ApplyNodeContainer(CurrentNode, Space->Mode);
-            Screen->ForceContainerUpdate = true;
         }
         else if(Space->Mode == SpaceModeMonocle)
         {
@@ -799,8 +784,9 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
     }
     else
     {
-        CenterWindow(Screen, Window);
-        Screen->ForceContainerUpdate = true;
+        std::vector<window_info*> Windows;
+        Windows.push_back(Window);
+        CreateWindowNodeTree(Screen, &Windows);
     }
 }
 
