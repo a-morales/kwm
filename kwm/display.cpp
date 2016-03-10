@@ -52,7 +52,6 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
 
     Screen.Identifier = NULL;
     Screen.ID = ScreenIndex;
-    Screen.ForceContainerUpdate = false;
     Screen.ActiveSpace = -1;
     Screen.OldWindowListCount = -1;
 
@@ -76,7 +75,6 @@ void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenI
     Screen->Height = DisplayRect.size.height;
 
     Screen->Offset = KWMScreen.DefaultOffset;
-    Screen->ForceContainerUpdate = true;
 }
 
 void GetActiveDisplays()
@@ -437,12 +435,5 @@ void UpdateActiveScreen()
 
         ClearMarkedWindow();
         GiveFocusToScreen(Screen->ID, NULL, true);
-
-        if(Screen->ForceContainerUpdate)
-        {
-            space_info *Space = GetActiveSpaceOfScreen(Screen);
-            ApplyNodeContainer(Space->RootNode, Space->Mode);
-            Screen->ForceContainerUpdate = false;
-        }
     }
 }
