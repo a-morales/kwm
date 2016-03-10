@@ -4,10 +4,14 @@
 
 extern void MoveCursorToCenterOfFocusedWindow();
 extern void UpdateActiveSpace();
+extern void UpdateActiveScreen();
 extern bool FocusWindowOfOSX();
 extern bool IsSpaceTransitionInProgress();
+extern screen_info *GetDisplayOfWindow(window_info *Window);
+extern void GiveFocusToScreen(int ScreenID, tree_node *Focus, bool Mouse);
 
 extern kwm_focus KWMFocus;
+extern kwm_screen KWMScreen;
 extern kwm_thread KWMThread;
 
 @interface MDWorkspaceWatcher : NSObject {
@@ -54,7 +58,13 @@ extern kwm_thread KWMThread;
     {
         if((KWMFocus.Window && KWMFocus.Window->PID != ProcessID) ||
            !KWMFocus.Window)
+        {
             FocusWindowOfOSX();
+
+            screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
+            if(KWMScreen.Current != Screen)
+                GiveFocusToScreen(Screen->ID, NULL, false);
+        }
     }
 
     pthread_mutex_unlock(&KWMThread.Lock);
