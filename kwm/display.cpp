@@ -380,12 +380,6 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *FocusNode, bool Mouse)
                         CGEventPost(kCGHIDEventTap, ClickEvent);
                         CFRelease(ClickEvent);
                     }
-
-                    if(Mouse && KWMFocus.Window)
-                    {
-                        if(IsWindowFloating(KWMFocus.Window->WID, NULL))
-                            ToggleFocusedWindowFloating();
-                    }
                 }
             }
         }
