@@ -159,6 +159,7 @@ space_info *GetActiveSpaceOfScreen(screen_info *Screen)
     if(It == Screen->Space.end())
     {
         space_info Clear = {{0}};
+        Screen->ActiveSpace = GetActiveSpaceOfDisplay(Screen);
         Screen->Space[Screen->ActiveSpace] = Clear;
         Space = &Screen->Space[Screen->ActiveSpace];
     }
