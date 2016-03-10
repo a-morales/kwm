@@ -627,11 +627,11 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
             return;
 
         if(Tokens[2] == "prev")
-            MoveWindowToDisplay(KWMFocus.Window, -1, true);
+            MoveWindowToDisplay(KWMFocus.Window, -1, true, true);
         else if(Tokens[2] == "next")
-            MoveWindowToDisplay(KWMFocus.Window, 1, true);
+            MoveWindowToDisplay(KWMFocus.Window, 1, true, true);
         else
-            MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[2]), false);
+            MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[2]), false, true);
     }
 }
 

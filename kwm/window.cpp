@@ -81,33 +81,44 @@ bool FilterWindowList(screen_info *Screen)
     std::vector<window_info> FilteredWindowLst;
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
+        window_info *Window = &KWMTiling.WindowLst[WindowIndex];
+
         /* Note(koekeishiya):
          * Mission-Control mode is on and so we do not try to tile windows */
-        if(KWMTiling.WindowLst[WindowIndex].Owner == "Dock" &&
-           KWMTiling.WindowLst[WindowIndex].Name == "")
+        if(Window->Owner == "Dock" && Window->Name == "")
         {
                 ClearFocusedWindow();
                 ClearMarkedWindow();
                 return false;
         }
 
-        CaptureApplication(&KWMTiling.WindowLst[WindowIndex]);
-        if(KWMTiling.WindowLst[WindowIndex].Layer == 0)
+        if(Window->Layer == 0)
         {
-            screen_info *ScreenOfWindow = GetDisplayOfWindow(&KWMTiling.WindowLst[WindowIndex]);
+            if(IsApplicationCapturedByScreen(Window))
+            {
+                int CapturedID = KWMTiling.CapturedAppLst[Window->Owner];
+                screen_info *Screen = GetDisplayFromScreenID(CapturedID);
+                if(Screen && Screen != GetDisplayOfWindow(Window))
+                {
+                    MoveWindowToDisplay(Window, CapturedID, false, true);
+                    return false;
+                }
+            }
+
+            screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
             if(Screen != ScreenOfWindow)
             {
                 space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-                if(GetNodeFromWindowID(SpaceOfWindow->RootNode, KWMTiling.WindowLst[WindowIndex].WID, SpaceOfWindow->Mode))
+                if(GetNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID, SpaceOfWindow->Mode))
                     continue;
             }
 
             CFTypeRef Role, SubRole;
-            if(GetWindowRole(&KWMTiling.WindowLst[WindowIndex], &Role, &SubRole))
+            if(GetWindowRole(Window, &Role, &SubRole))
             {
                 if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
-                   IsAppSpecificWindowRole(&KWMTiling.WindowLst[WindowIndex], Role, SubRole))
-                        FilteredWindowLst.push_back(KWMTiling.WindowLst[WindowIndex]);
+                   IsAppSpecificWindowRole(Window, Role, SubRole))
+                    FilteredWindowLst.push_back(KWMTiling.WindowLst[WindowIndex]);
             }
         }
     }
@@ -119,21 +130,6 @@ bool FilterWindowList(screen_info *Screen)
 bool IsApplicationCapturedByScreen(window_info *Window)
 {
     return KWMTiling.CapturedAppLst.find(Window->Owner) != KWMTiling.CapturedAppLst.end();
-}
-
-void CaptureApplication(window_info *Window)
-{
-    if(IsApplicationCapturedByScreen(Window))
-    {
-        int CapturedID = KWMTiling.CapturedAppLst[Window->Owner];
-        screen_info *Screen = GetDisplayFromScreenID(CapturedID);
-        if(Screen && Screen != GetDisplayOfWindow(Window))
-        {
-            MoveWindowToDisplay(Window, CapturedID, false);
-            SetWindowFocus(Window);
-            MoveCursorToCenterOfFocusedWindow();
-        }
-    }
 }
 
 bool IsApplicationFloating(window_info *Window)
@@ -379,14 +375,6 @@ void UpdateActiveWindowList(screen_info *Screen)
 
 void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)
 {
-    /*
-    for(std::size_t WindowIndex = 0; WindowIndex < Windows->size(); ++WindowIndex)
-    {
-        if(Screen != GetDisplayOfWindow((*Windows)[WindowIndex]))
-            return;
-    }
-    */
-
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     if(!Space->Initialized)
     {
@@ -553,7 +541,7 @@ void AddWindowToBSPTree()
     AddWindowToBSPTree(KWMScreen.Current, KWMFocus.Window->WID);
 }
 
-void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool Refresh)
+void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus)
 {
     if(!DoesSpaceExistInMapOfScreen(Screen))
         return;
@@ -599,7 +587,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
             if(!NewFocusNode)
                 NewFocusNode = Parent;
 
-            if(Refresh)
+            if(UpdateFocus)
                 SetWindowFocusByNode(NewFocusNode);
         }
 
@@ -742,7 +730,7 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool UpdateF
     free(WindowNode);
 }
 
-void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
+void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window, bool UpdateFocus)
 {
     screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
     if(!Screen || !Window || Screen == ScreenOfWindow)
@@ -787,6 +775,13 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
         std::vector<window_info*> Windows;
         Windows.push_back(Window);
         CreateWindowNodeTree(Screen, &Windows);
+    }
+
+    if(UpdateFocus)
+    {
+        SetWindowFocus(Window);
+        MoveCursorToCenterOfFocusedWindow();
+        UpdateActiveScreen();
     }
 }
 

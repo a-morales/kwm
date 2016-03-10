@@ -32,7 +32,7 @@ bool FilterWindowList(screen_info *Screen);
 void UpdateActiveWindowList(screen_info *Screen);
 void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows);
 void ShouldWindowNodeTreeUpdate(screen_info *Screen);
-void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window);
+void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window, bool UpdateFocus);
 
 void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space);
 void AddWindowToBSPTree(screen_info *Screen, int WindowID);

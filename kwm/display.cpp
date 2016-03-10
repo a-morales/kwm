@@ -406,7 +406,7 @@ void CaptureApplicationToScreen(int ScreenID, std::string Application)
     }
 }
 
-void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
+void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative, bool UpdateFocus)
 {
     int NewScreenIndex = -1;
 
@@ -417,7 +417,7 @@ void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
 
     screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
     if(NewScreen)
-        AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window);
+        AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window, UpdateFocus);
 }
 
 container_offset CreateDefaultScreenOffset()
