@@ -9,6 +9,7 @@ extern bool FocusWindowOfOSX();
 extern bool IsSpaceTransitionInProgress();
 extern screen_info *GetDisplayOfWindow(window_info *Window);
 extern void GiveFocusToScreen(int ScreenID, tree_node *Focus, bool Mouse);
+extern space_info *GetActiveSpaceOfScreen(screen_info *Screen);
 
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
@@ -59,11 +60,12 @@ extern kwm_thread KWMThread;
         if((KWMFocus.Window && KWMFocus.Window->PID != ProcessID) ||
            !KWMFocus.Window)
         {
-            FocusWindowOfOSX();
-
-            screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
-            if(KWMScreen.Current != Screen)
-                GiveFocusToScreen(Screen->ID, NULL, false);
+            if(FocusWindowOfOSX() && KWMFocus.Window)
+            {
+                screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
+                if(KWMScreen.Current != Screen)
+                    GiveFocusToScreen(Screen->ID, NULL, false);
+            }
         }
     }
 

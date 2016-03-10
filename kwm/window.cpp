@@ -245,6 +245,7 @@ bool FocusWindowOfOSX()
         }
     }
 
+    ClearFocusedWindow();
     return false;
 }
 
@@ -1291,8 +1292,14 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
     int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
 
     KWMFocus.Cache = GetWindowByRef(WindowRef);
-    KWMFocus.Window = &KWMFocus.Cache;
+    if(WindowsAreEqual(&KWMFocus.Cache, &KWMFocus.NULLWindowInfo))
+    {
+        KWMFocus.Window = NULL;
+        ClearBorder(&FocusedBorder);
+        return;
+    }
 
+    KWMFocus.Window = &KWMFocus.Cache;
     ProcessSerialNumber NewPSN;
     GetProcessForPID(KWMFocus.Window->PID, &NewPSN);
     KWMFocus.PSN = NewPSN;
