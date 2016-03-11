@@ -528,7 +528,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
 
     if(CurrentNode)
     {
-        int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+        split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
         CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
         ApplyNodeContainer(CurrentNode, Space->Mode);
     }
@@ -753,7 +753,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
         {
             DEBUG("AddWindowToTreeOfUnfocusedMonitor() BSP Space")
             tree_node *CurrentNode = GetFirstLeafNode(Space->RootNode);
-            int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+            split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
 
             CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
             ApplyNodeContainer(CurrentNode, Space->Mode);

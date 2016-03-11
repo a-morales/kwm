@@ -9,14 +9,14 @@ node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Node);
 
 void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType);
-void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, int SplitMode);
+void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode);
 void SetRootNodeContainer(screen_info *Screen, tree_node *Node);
 void ResizeNodeContainer(screen_info *Screen, tree_node *Node);
 void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSplit);
 void ApplyNodeContainer(tree_node *Node, space_tiling_option Mode);
 
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType);
-void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, int SplitMode);
+void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode);
 tree_node *CreateRootNode();
 void CreatePseudoNode();
 void RemovePseudoNode();
@@ -34,7 +34,7 @@ tree_node *GetNearestNodeToTheLeft(tree_node *Node, space_tiling_option Mode);
 tree_node *GetNearestNodeToTheRight(tree_node *Node, space_tiling_option Mode);
 tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID, space_tiling_option Mode);
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
-int GetOptimalSplitMode(tree_node *Node);
+split_type GetOptimalSplitMode(tree_node *Node);
 void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node);
 void ChangeSplitRatio(double Value);
 

@@ -102,6 +102,13 @@ enum space_tiling_option
     SpaceModeDefault
 };
 
+enum split_type
+{
+    SPLIT_OPTIMAL = -1,
+    SPLIT_VERTICAL = 1,
+    SPLIT_HORIZONTAL = 2
+};
+
 enum hotkey_state
 {
     HotkeyStateNone,
@@ -162,7 +169,7 @@ struct tree_node
     tree_node *LeftChild;
     tree_node *RightChild;
 
-    int SplitMode;
+    split_type SplitMode;
     double SplitRatio;
 };
 
@@ -279,7 +286,7 @@ struct kwm_screen
     double SplitRatio;
 
     int MarkedWindow;
-    int SplitMode;
+    split_type SplitMode;
     int PrevSpace;
 
     container_offset DefaultOffset;

@@ -96,12 +96,12 @@ void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType
     Node->Container.Type = ContainerType;
 }
 
-void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, int SplitMode)
+void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode)
 {
     Assert(LeftNode, "CreateNodeContainerPair() Left Node")
     Assert(RightNode, "CreateNodeContainerPair() Right Node")
 
-    if(SplitMode == 1)
+    if(SplitMode == SPLIT_VERTICAL)
     {
         CreateNodeContainer(Screen, LeftNode, 1);
         CreateNodeContainer(Screen, RightNode, 2);
@@ -129,7 +129,7 @@ void CreatePseudoNode()
     tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, SpaceModeBSP);
     if(Node)
     {
-        int SplitMode = KWMScreen.SplitMode == -1 ? GetOptimalSplitMode(Node) : KWMScreen.SplitMode;
+        split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(Node) : KWMScreen.SplitMode;
         CreateLeafNodePair(Screen, Node, Node->WindowID, -1, SplitMode);
         ApplyNodeContainer(Node, SpaceModeBSP);
     }
@@ -190,7 +190,7 @@ tree_node *CreateRootNode()
     RootNode->LeftChild = NULL;
     RootNode->RightChild = NULL;
     RootNode->SplitRatio = KWMScreen.SplitRatio;
-    RootNode->SplitMode = 0;
+    RootNode->SplitMode = SPLIT_OPTIMAL;
 
     return RootNode;
 }
@@ -210,7 +210,7 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
     Node->Container.Type = 0;
 }
 
-void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, int SplitMode)
+void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode)
 {
     Assert(Parent, "CreateLeafNodePair()")
 
@@ -221,12 +221,12 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowI
     int LeftWindowID = KWMTiling.SpawnAsLeftChild ? SecondWindowID : FirstWindowID;
     int RightWindowID = KWMTiling.SpawnAsLeftChild ? FirstWindowID : SecondWindowID;
 
-    if(SplitMode == 1)
+    if(SplitMode == SPLIT_VERTICAL)
     {
         Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 1);
         Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 2);
     }
-    else if(SplitMode == 2)
+    else if(SplitMode == SPLIT_HORIZONTAL)
     {
         Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 3);
         Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 4);
@@ -393,9 +393,9 @@ bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<win
     return Result;
 }
 
-int GetOptimalSplitMode(tree_node *Node)
+split_type GetOptimalSplitMode(tree_node *Node)
 {
-    return (Node->Container.Width / Node->Container.Height) >= KWMTiling.OptimalRatio ? 1 : 2;
+    return (Node->Container.Width / Node->Container.Height) >= KWMTiling.OptimalRatio ? SPLIT_VERTICAL : SPLIT_HORIZONTAL;
 }
 
 void ChangeSplitRatio(double Value)
@@ -545,7 +545,7 @@ void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node)
     if(!Node || IsLeafNode(Node))
         return;
 
-    Node->SplitMode = Node->SplitMode == 1 ? 2 : 1;
+    Node->SplitMode = Node->SplitMode == SPLIT_VERTICAL ? SPLIT_HORIZONTAL : SPLIT_VERTICAL;
     CreateNodeContainers(Screen, Node, false);
     ApplyNodeContainer(Node, SpaceModeBSP);
 }
@@ -587,8 +587,8 @@ void RotateTree(tree_node *Node, int Deg)
 
     DEBUG("RotateTree() " << Deg << " degrees")
 
-    if((Deg == 90 && Node->SplitMode == 1) ||
-       (Deg == 270 && Node->SplitMode == 2) ||
+    if((Deg == 90 && Node->SplitMode == SPLIT_VERTICAL) ||
+       (Deg == 270 && Node->SplitMode == SPLIT_HORIZONTAL) ||
        Deg == 180)
     {
         tree_node *Temp = Node->LeftChild;
@@ -598,7 +598,7 @@ void RotateTree(tree_node *Node, int Deg)
     }
 
     if(Deg != 180)
-        Node->SplitMode = Node->SplitMode == 2 ? 1 : 2;
+        Node->SplitMode = Node->SplitMode == SPLIT_HORIZONTAL ? SPLIT_VERTICAL : SPLIT_HORIZONTAL;
 
     RotateTree(Node->LeftChild, Deg);
     RotateTree(Node->RightChild, Deg);
@@ -609,7 +609,7 @@ void CreateDeserializedNodeContainer(tree_node *Node)
     int SplitMode = Node->Parent->SplitMode;
     int ContainerType = 0;
 
-    if(SplitMode == 1)
+    if(SplitMode == SPLIT_VERTICAL)
         ContainerType = IsLeftChild(Node) ? 1 : 2;
     else
         ContainerType = IsLeftChild(Node) ? 3 : 4;
@@ -691,7 +691,7 @@ unsigned int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &
 
         if(Tokens[2] == "split-mode")
         {
-            Parent->SplitMode = ConvertStringToInt(Tokens[3]);
+            Parent->SplitMode = (split_type)ConvertStringToInt(Tokens[3]);
             DEBUG("Root: SplitMode Found " + Tokens[3])
         }
         else if(Tokens[2] == "split-ratio")
