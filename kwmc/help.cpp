@@ -44,6 +44,7 @@ void ShowHelp(std::string Command)
             "   prefix-timeout seconds                                 Set prefix timeout in seconds (default: 0.75)\n"
             "   padding top|bottom|left|right value                    Set default padding\n"
             "   gap vertical|horizontal value                          Set default container gaps\n"
+            "   optimal-ratio num                                      Override the value used by optimal split-mode (default: golden ratio -> 1.618)\n"
             "   focused-border on|off                                  Enables a border around the focused window\n"
             "   focused-border size number                             Set the width of the border\n"
             "   focused-border color aarrggbb                          Set the color of the border\n"

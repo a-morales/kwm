@@ -395,7 +395,7 @@ bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<win
 
 int GetOptimalSplitMode(tree_node *Node)
 {
-    return (Node->Container.Width / Node->Container.Height) >= 1.618 ? 1 : 2;
+    return (Node->Container.Width / Node->Container.Height) >= KWMTiling.OptimalRatio ? 1 : 2;
 }
 
 void ChangeSplitRatio(double Value)

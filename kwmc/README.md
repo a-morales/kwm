@@ -23,6 +23,9 @@
         Set default container gaps
             kwmc config gap vertical|horizontal value
 
+        Override the value used by optimal split-mode (default: golden ratio -> 1.618)
+            kwmc config optimal-ratio num
+
         Customize focused|marked|prefix border
             kwmc config focused|marked|prefix-border on|off
             kwmc config focused|marked|prefix-border size number

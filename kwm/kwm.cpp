@@ -243,6 +243,7 @@ void KwmInit()
     KWMToggles.EnableTilingMode = true;
     KWMToggles.UseBuiltinHotkeys = true;
     KWMToggles.UseMouseFollowsFocus = true;
+    KWMTiling.OptimalRatio = 1.618;
 
     KWMMode.Space = SpaceModeBSP;
     KWMMode.Focus = FocusModeAutoraise;

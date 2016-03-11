@@ -292,6 +292,8 @@ struct kwm_tiling
 {
     bool SpawnAsLeftChild;
     bool FloatNonResizable;
+    double OptimalRatio;
+
     std::map<unsigned int, screen_info> DisplayMap;
     std::map<unsigned int, space_tiling_option> DisplayMode;
 

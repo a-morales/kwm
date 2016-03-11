@@ -32,6 +32,10 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         KwmSetSpacesKey(Tokens[2]);
     }
+    else if(Tokens[1] == "optimal-ratio")
+    {
+        KWMTiling.OptimalRatio = ConvertStringToDouble(Tokens[2]);
+    }
     else if(Tokens[1] == "prefix")
     {
         KwmSetPrefix(Tokens[2]);
