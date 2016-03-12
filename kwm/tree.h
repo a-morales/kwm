@@ -11,11 +11,11 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType);
 void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode);
 void SetRootNodeContainer(screen_info *Screen, tree_node *Node);
-void SetLinkNodeContainer(screen_info *Screen, link_node *Node);
+void SetLinkNodeContainer(screen_info *Screen, link_node *Link);
 void ResizeNodeContainer(screen_info *Screen, tree_node *Node);
 void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSplit);
 void ApplyTreeNodeContainer(tree_node *Node);
-void ApplyLinkNodeContainer(link_node *Node);
+void ApplyLinkNodeContainer(link_node *Link);
 
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType);
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode);

@@ -200,14 +200,14 @@ tree_node *CreateRootNode(tree_node_type Type)
 link_node *CreateLinkNode()
 {
     link_node Clear = {0};
-    link_node *Node = (link_node*) malloc(sizeof(link_node));
-    *Node= Clear;
+    link_node *Link = (link_node*) malloc(sizeof(link_node));
+    *Link = Clear;
 
-    Node->WindowID = -1;
-    Node->Prev = NULL;
-    Node->Next = NULL;
+    Link->WindowID = -1;
+    Link->Prev = NULL;
+    Link->Next = NULL;
 
-    return Node;
+    return Link;
 }
 
 void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
@@ -225,16 +225,16 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
     Node->Container.Type = 0;
 }
 
-void SetLinkNodeContainer(screen_info *Screen, link_node *Node)
+void SetLinkNodeContainer(screen_info *Screen, link_node *Link)
 {
-    Assert(Node, "SetRootNodeContainer()")
+    Assert(Link, "SetRootNodeContainer()")
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
 
-    Node->Container.X = Screen->X + Space->Offset.PaddingLeft;
-    Node->Container.Y = Screen->Y + Space->Offset.PaddingTop;
-    Node->Container.Width = Screen->Width - Space->Offset.PaddingLeft - Space->Offset.PaddingRight;
-    Node->Container.Height = Screen->Height - Space->Offset.PaddingTop - Space->Offset.PaddingBottom;
+    Link->Container.X = Screen->X + Space->Offset.PaddingLeft;
+    Link->Container.Y = Screen->Y + Space->Offset.PaddingTop;
+    Link->Container.Width = Screen->Width - Space->Offset.PaddingLeft - Space->Offset.PaddingRight;
+    Link->Container.Height = Screen->Height - Space->Offset.PaddingTop - Space->Offset.PaddingBottom;
 }
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode)
 {
