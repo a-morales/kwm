@@ -291,9 +291,9 @@ void UpdateActiveSpace()
 
         UpdateActiveWindowList(KWMScreen.Current);
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        if(Space->FocusedNode)
+        if(Space->FocusedWindowID != 0)
         {
-            SetWindowFocusByNode(Space->FocusedNode);
+            FocusWindowByID(Space->FocusedWindowID);
             MoveCursorToCenterOfFocusedWindow();
         }
     }

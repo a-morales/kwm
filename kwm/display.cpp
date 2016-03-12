@@ -345,10 +345,17 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *FocusNode, bool Mouse)
 
             if(!Mouse)
             {
-                if(!Space->FocusedNode)
-                    Space->FocusedNode = GetFirstLeafNode(Space->RootNode);
+                if(Space->FocusedWindowID == 0)
+                {
+                    void *FocusNode = NULL;
+                    GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
+                    if(Space->Mode == SpaceModeBSP)
+                        Space->FocusedWindowID = ((tree_node*)FocusNode)->WindowID;
+                    else if(Space->Mode == SpaceModeMonocle)
+                        Space->FocusedWindowID = ((link_node*)FocusNode)->WindowID;
+                }
 
-                SetWindowFocusByNode(Space->FocusedNode);
+                FocusWindowByID(Space->FocusedWindowID);
                 MoveCursorToCenterOfFocusedWindow();
             }
         }
