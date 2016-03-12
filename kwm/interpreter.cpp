@@ -197,8 +197,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "screen")
             KWMMode.Cycle = CycleModeScreen;
-        else if(Tokens[2] == "all")
-            KWMMode.Cycle = CycleModeAll;
         else if(Tokens[2] == "off")
             KWMMode.Cycle = CycleModeDisabled;;
     }
@@ -352,8 +350,6 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         std::string Output;
         if(KWMMode.Cycle == CycleModeScreen)
             Output = "screen";
-        else if(KWMMode.Cycle == CycleModeAll)
-            Output = "all";
         else
             Output = "off";
 
@@ -492,10 +488,6 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             ShiftWindowFocus(1);
         else if(Tokens[2] == "curr")
             FocusWindowBelowCursor();
-        else if(Tokens[2] == "first")
-            FocusFirstLeafNode();
-        else if(Tokens[2] == "last")
-            FocusLastLeafNode();
         else if(Tokens[2] == "id")
             FocusWindowByID(ConvertStringToInt(Tokens[3]));
     }
