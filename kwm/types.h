@@ -109,6 +109,12 @@ enum split_type
     SPLIT_HORIZONTAL = 2
 };
 
+enum sub_tree_type
+{
+    SubTreeBSP,
+    SubTreeMonocle
+};
+
 enum hotkey_state
 {
     HotkeyStateNone,
@@ -160,6 +166,12 @@ struct node_container
     double Width, Height;
     int Type;
 };
+
+struct sub_node
+{
+    sub_tree_type Type;
+    tree_node *Root;
+}
 
 struct tree_node
 {
