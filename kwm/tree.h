@@ -39,6 +39,7 @@ tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID);
 link_node *GetLinkNodeFromTree(tree_node *Root, int WindowID);
 tree_node *GetTreeNodeFromLink(tree_node *Root, link_node *Link);
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
+void SwapNodeWindowIDs(link_node *A, link_node *B);
 split_type GetOptimalSplitMode(tree_node *Node);
 void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node);
 void ChangeSplitRatio(double Value);

@@ -465,6 +465,19 @@ void SwapNodeWindowIDs(tree_node *A, tree_node *B)
     }
 }
 
+void SwapNodeWindowIDs(link_node *A, link_node *B)
+{
+    if(A && B)
+    {
+        DEBUG("SwapNodeWindowIDs() " << A->WindowID << " with " << B->WindowID)
+        int TempWindowID = A->WindowID;
+        A->WindowID = B->WindowID;
+        B->WindowID = TempWindowID;
+        ResizeWindowToContainerSize(A);
+        ResizeWindowToContainerSize(B);
+    }
+}
+
 tree_node *GetNearestLeafNodeNeighbour(tree_node *Node)
 {
     if(Node && IsLeafNode(Node))
