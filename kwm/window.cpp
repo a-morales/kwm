@@ -265,26 +265,6 @@ bool ShouldWindowGainFocus(window_info *Window)
            Window->Layer == 1490; // Note(koekeishiya): Unknown WindowLevelKey constant
 }
 
-void FocusFirstLeafNode()
-{
-    if(!DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-        return;
-
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    SetWindowFocusByNode(GetFirstLeafNode(Space->RootNode));
-    MoveCursorToCenterOfFocusedWindow();
-}
-
-void FocusLastLeafNode()
-{
-    if(!DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-        return;
-
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    SetWindowFocusByNode(GetLastLeafNode(Space->RootNode));
-    MoveCursorToCenterOfFocusedWindow();
-}
-
 void FocusWindowBelowCursor()
 {
     if(IsSpaceTransitionInProgress() ||
@@ -462,7 +442,8 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
     {
         std::vector<int> WindowIDsInTree;
 
-        tree_node *CurrentNode = GetFirstLeafNode(Space->RootNode);
+        tree_node *CurrentNode = NULL;
+        GetFirstLeafNode(Space->RootNode, (void**)&CurrentNode);
         while(CurrentNode)
         {
             if(CurrentNode->WindowID != -1)
@@ -518,7 +499,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     }
     else if(DoNotUseMarkedContainer || (KWMScreen.MarkedWindow == -1 && !UseFocusedContainer))
     {
-        CurrentNode = GetFirstLeafNode(RootNode);
+        GetFirstLeafNode(RootNode, (void**)&CurrentNode);
     }
     else
     {
@@ -755,7 +736,8 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
         if(Space->Mode == SpaceModeBSP)
         {
             DEBUG("AddWindowToTreeOfUnfocusedMonitor() BSP Space")
-            tree_node *CurrentNode = GetFirstLeafNode(Space->RootNode);
+            tree_node *CurrentNode = NULL;
+            GetFirstLeafNode(Space->RootNode, (void**)&CurrentNode);
             split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
 
             CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
@@ -1116,32 +1098,6 @@ void ShiftWindowFocusDirected(int Degrees)
             SetWindowFocus(&NewFocusWindow);
             MoveCursorToCenterOfFocusedWindow();
         }
-        else if(KWMMode.Cycle == CycleModeAll)
-        {
-            if(FindClosestWindow(Degrees, &NewFocusWindow, true))
-            {
-                int ScreenIndex = KWMScreen.Current->ID;
-                if(Degrees == 90 && WindowIsInDirection(KWMFocus.Window, &NewFocusWindow, 270, false))
-                    ScreenIndex = GetIndexOfNextScreen();
-                else if(Degrees == 270 && WindowIsInDirection(KWMFocus.Window, &NewFocusWindow, 90, false))
-                    ScreenIndex = GetIndexOfPrevScreen();
-
-                if(ScreenIndex == KWMScreen.Current->ID)
-                {
-                    SetWindowFocus(&NewFocusWindow);
-                    MoveCursorToCenterOfFocusedWindow();
-                }
-                else
-                {
-                    screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-                    space_info *Space = GetActiveSpaceOfScreen(Screen);
-                    tree_node *RootNode = Space->RootNode;
-                    tree_node *FocusNode = Degrees == 90 ? GetFirstLeafNode(RootNode) : GetLastLeafNode(RootNode);
-                    if(FocusNode)
-                        GiveFocusToScreen(ScreenIndex, FocusNode, false);
-                }
-            }
-        }
     }
     else if(Space->Mode == SpaceModeMonocle)
     {
@@ -1158,64 +1114,65 @@ void ShiftWindowFocus(int Shift)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    tree_node *FocusedWindowNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-    if(FocusedWindowNode)
+    if(Space->Mode == SpaceModeMonocle)
     {
-        tree_node *FocusNode = NULL;
-
-        if(Shift == 1)
+        link_node *Link = GetLinkNodeFromTree(Space->RootNode, KWMFocus.Window->WID);
+        if(Link)
         {
-            FocusNode = GetNearestTreeNodeToTheRight(FocusedWindowNode);
-            while(IsPseudoNode(FocusNode))
-                FocusNode = GetNearestTreeNodeToTheRight(FocusNode);
+            link_node *FocusNode = Shift == 1 ? Link->Next : Link->Prev;
 
             if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
             {
-                FocusNode = GetFirstLeafNode(Space->RootNode);
+                if(Shift == 1)
+                    GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
+                else
+                    GetLastLeafNode(Space->RootNode, (void**)&FocusNode);
+            }
+
+            if(FocusNode)
+            {
+                SetWindowFocusByNode(FocusNode);
+                MoveCursorToCenterOfFocusedWindow();
+            }
+        }
+    }
+    else if(Space->Mode == SpaceModeBSP)
+    {
+        tree_node *TreeNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+        if(TreeNode)
+        {
+            tree_node *FocusNode = NULL;
+
+            if(Shift == 1)
+            {
+                FocusNode = GetNearestTreeNodeToTheRight(TreeNode);
                 while(IsPseudoNode(FocusNode))
                     FocusNode = GetNearestTreeNodeToTheRight(FocusNode);
-            }
-            else if(KWMMode.Cycle == CycleModeAll && !FocusNode)
-            {
-                int ScreenIndex = GetIndexOfNextScreen();
-                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-                space_info *Space = GetActiveSpaceOfScreen(Screen);
-                FocusNode = GetFirstLeafNode(Space->RootNode);
-                if(FocusNode)
+
+                if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
                 {
-                    GiveFocusToScreen(ScreenIndex, FocusNode, false);
-                    return;
+                    GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
+                    while(IsPseudoNode(FocusNode))
+                        FocusNode = GetNearestTreeNodeToTheRight(FocusNode);
                 }
             }
-        }
-        else if(Shift == -1)
-        {
-            FocusNode = GetNearestTreeNodeToTheLeft(FocusedWindowNode);
-            while(IsPseudoNode(FocusNode))
-                FocusNode = GetNearestTreeNodeToTheLeft(FocusNode);
-
-            if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
+            else if(Shift == -1)
             {
-                FocusNode = GetLastLeafNode(Space->RootNode);
+                FocusNode = GetNearestTreeNodeToTheLeft(TreeNode);
                 while(IsPseudoNode(FocusNode))
                     FocusNode = GetNearestTreeNodeToTheLeft(FocusNode);
-            }
-            else if(KWMMode.Cycle == CycleModeAll && !FocusNode)
-            {
-                int ScreenIndex = GetIndexOfPrevScreen();
-                screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-                space_info *Space = GetActiveSpaceOfScreen(Screen);
-                FocusNode = GetLastLeafNode(Space->RootNode);
-                if(FocusNode)
+
+                if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
                 {
-                    GiveFocusToScreen(ScreenIndex, FocusNode, false);
-                    return;
+                    GetLastLeafNode(Space->RootNode, (void**)&FocusNode);
+                    while(IsPseudoNode(FocusNode))
+                        FocusNode = GetNearestTreeNodeToTheLeft(FocusNode);
                 }
             }
-        }
 
-        SetWindowFocusByNode(FocusNode);
-        MoveCursorToCenterOfFocusedWindow();
+            SetWindowFocusByNode(FocusNode);
+            MoveCursorToCenterOfFocusedWindow();
+        }
     }
 }
 
@@ -1326,7 +1283,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
     if(KWMToggles.EnableTilingMode)
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        Space->FocusedNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+        Space->FocusedWindowID = KWMFocus.Window->WID;
     }
 
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name << " " << KWMFocus.Window->X << "," << KWMFocus.Window->Y)

@@ -170,7 +170,7 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
 
     Leaf->Parent = Parent;
     Leaf->WindowID = WindowID;
-    Leaf->Type = TreeNodeBSP;
+    Leaf->Type = NodeTypeTree;
 
     CreateNodeContainer(Screen, Leaf, ContainerType);
 
@@ -180,14 +180,14 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
     return Leaf;
 }
 
-tree_node *CreateRootNode(tree_node_type Type)
+tree_node *CreateRootNode()
 {
     tree_node Clear = {0};
     tree_node *RootNode = (tree_node*) malloc(sizeof(tree_node));
     *RootNode = Clear;
 
     RootNode->WindowID = -1;
-    RootNode->Type = Type;
+    RootNode->Type = NodeTypeTree;
     RootNode->Parent = NULL;
     RootNode->LeftChild = NULL;
     RootNode->RightChild = NULL;
@@ -271,35 +271,49 @@ bool IsLeafNode(tree_node *Node)
     return Node->LeftChild == NULL && Node->RightChild == NULL ? true : false;
 }
 
-tree_node *GetFirstLeafNode(tree_node *Node)
+void GetFirstLeafNode(tree_node *Node, void **Result)
 {
     if(Node)
     {
-        while(Node->LeftChild)
-            Node = Node->LeftChild;
+        if(Node->Type == NodeTypeLink)
+            *Result = Node->List;
 
-        return Node;
+        else if(Node->Type == NodeTypeTree)
+        {
+            while(Node->LeftChild)
+                Node = Node->LeftChild;
+
+            *Result = Node;
+        }
     }
-
-    return NULL;
 }
 
-tree_node *GetLastLeafNode(tree_node *Node)
+void GetLastLeafNode(tree_node *Node, void **Result)
 {
     if(Node)
     {
-        while(Node->RightChild)
-            Node = Node->RightChild;
+        if(Node->Type == NodeTypeLink)
+        {
+            link_node *Link = Node->List;
+            while(Link->Next)
+                Link = Link->Next;
 
-        return Node;
+            *Result = Link;
+        }
+        else if(Node->Type == NodeTypeTree)
+        {
+            while(Node->RightChild)
+                Node = Node->RightChild;
+
+            *Result = Node;
+        }
     }
-
-    return NULL;
 }
 
 tree_node *GetFirstPseudoLeafNode(tree_node *Node)
 {
-    tree_node *Leaf = GetFirstLeafNode(Node);
+    tree_node *Leaf = NULL;
+    GetFirstLeafNode(Node, (void**)&Leaf);
     while(Leaf && Leaf->WindowID != -1)
         Leaf = GetNearestTreeNodeToTheRight(Leaf);
 
@@ -333,7 +347,7 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
     if(IsSpaceFloating(Screen->ActiveSpace))
         return NULL;
 
-    tree_node *RootNode = CreateRootNode(TreeNodeBSP);
+    tree_node *RootNode = CreateRootNode();
     SetRootNodeContainer(Screen, RootNode);
 
     bool Result = false;
@@ -396,7 +410,7 @@ bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<win
 
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
-    RootNode->Type = TreeNodeMonocle;
+    RootNode->Type = NodeTypeLink;
 
     if(!Windows.empty())
     {
@@ -463,7 +477,8 @@ tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID)
 {
     if(Node)
     {
-        tree_node *CurrentNode = GetFirstLeafNode(Node);
+        tree_node *CurrentNode = NULL;
+        GetFirstLeafNode(Node, (void**)&CurrentNode);
         while(CurrentNode)
         {
             if(CurrentNode->WindowID == WindowID)
@@ -487,6 +502,24 @@ link_node *GetLinkNodeFromTree(tree_node *Root, int WindowID)
                 return Link;
 
             Link = Link->Next;
+        }
+    }
+
+    return NULL;
+}
+
+tree_node *GetTreeNodeFromLink(tree_node *Root, link_node *Link)
+{
+    if(Root && Link)
+    {
+        tree_node *Node = NULL;
+        GetFirstLeafNode(Root, (void**)&Node);
+        while(Node)
+        {
+            if(GetLinkNodeFromTree(Node, Link->WindowID) == Link)
+                return Node;
+
+            Node = GetNearestTreeNodeToTheRight(Node);
         }
     }
 
@@ -679,7 +712,8 @@ void CreateDeserializedNodeContainer(tree_node *Node)
 void FillDeserializedTree(tree_node *RootNode)
 {
     std::vector<window_info*> Windows = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
-    tree_node *Current = GetFirstLeafNode(RootNode);
+    tree_node *Current = NULL;
+    GetFirstLeafNode(RootNode, (void**)&Current);
 
     std::size_t Counter = 0, Leafs = 0;
     while(Current)
@@ -819,7 +853,7 @@ tree_node *DeserializeNodeTree(std::vector<std::string> &Serialized)
         return NULL;
 
     DEBUG("Deserialize: Create Master")
-    tree_node *RootNode = CreateRootNode(TreeNodeBSP);
+    tree_node *RootNode = CreateRootNode();
     SetRootNodeContainer(KWMScreen.Current, RootNode);
     DeserializeParentNode(RootNode, Serialized, 1);
     return RootNode;

@@ -19,7 +19,7 @@ void ApplyLinkNodeContainer(link_node *Link);
 
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType);
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode);
-tree_node *CreateRootNode(tree_node_type Type);
+tree_node *CreateRootNode();
 link_node *CreateLinkNode();
 void CreatePseudoNode();
 void RemovePseudoNode();
@@ -29,14 +29,15 @@ bool IsLeafNode(tree_node *Node);
 bool IsLeftChild(tree_node *Node);
 bool IsRightChild(tree_node *Node);
 
-tree_node *GetFirstLeafNode(tree_node *Node);
-tree_node *GetLastLeafNode(tree_node *Node);
+void GetFirstLeafNode(tree_node *Node, void **Result);
+void GetLastLeafNode(tree_node *Node, void **Result);
 tree_node *GetFirstPseudoLeafNode(tree_node *Node);
 tree_node *GetNearestLeafNodeNeighbour(tree_node *Node);
 tree_node *GetNearestTreeNodeToTheLeft(tree_node *Node);
 tree_node *GetNearestTreeNodeToTheRight(tree_node *Node);
 tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID);
 link_node *GetLinkNodeFromTree(tree_node *Root, int WindowID);
+tree_node *GetTreeNodeFromLink(tree_node *Root, link_node *Link);
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
 split_type GetOptimalSplitMode(tree_node *Node);
 void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node);

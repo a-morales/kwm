@@ -23,8 +23,6 @@ bool ShouldWindowGainFocus(window_info *Window);
 int GetFocusedWindowID();
 bool FocusWindowOfOSX();
 void FocusWindowBelowCursor();
-void FocusFirstLeafNode();
-void FocusLastLeafNode();
 
 void UpdateWindowTree();
 std::vector<window_info> FilterWindowListAllDisplays();
