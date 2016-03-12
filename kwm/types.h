@@ -109,10 +109,10 @@ enum split_type
     SPLIT_HORIZONTAL = 2
 };
 
-enum sub_tree_type
+enum tree_node_type
 {
-    SubTreeBSP,
-    SubTreeMonocle
+    TreeNodeBSP,
+    TreeNodeMonocle
 };
 
 enum hotkey_state
@@ -167,16 +167,23 @@ struct node_container
     int Type;
 };
 
-struct sub_node
+struct link_node
 {
-    sub_tree_type Type;
-    tree_node *Root;
-}
+    int WindowID;
+    node_container Container;
+
+    link_node *Prev;
+    link_node *Next;
+};
 
 struct tree_node
 {
     int WindowID;
+    tree_node_type Type;
     node_container Container;
+
+    link_node *List;
+
     tree_node *Parent;
     tree_node *LeftChild;
     tree_node *RightChild;

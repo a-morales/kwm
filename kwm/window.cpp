@@ -109,7 +109,7 @@ bool FilterWindowList(screen_info *Screen)
             if(Screen != ScreenOfWindow)
             {
                 space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-                if(GetNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID, SpaceOfWindow->Mode))
+                if(GetTreeNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID))
                     continue;
             }
 
@@ -343,7 +343,7 @@ void UpdateWindowTree()
                     WindowsOnDisplay.empty() &&
                     Space->RootNode)
             {
-                DestroyNodeTree(Space->RootNode, Space->Mode);
+                DestroyNodeTree(Space->RootNode);
                 Space->RootNode = NULL;
                 ClearFocusedWindow();
             }
@@ -402,11 +402,11 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
             }
             else if(Space->Mode == SpaceModeMonocle)
             {
-                tree_node *CurrentNode = Space->RootNode;
-                while(CurrentNode)
+                link_node *Link = Space->RootNode->List;
+                while(Link)
                 {
-                    SetRootNodeContainer(Screen, CurrentNode);
-                    CurrentNode = CurrentNode->RightChild;
+                    SetLinkNodeContainer(Screen, Link);
+                    Link = Link->Next;
                 }
             }
         }
@@ -414,7 +414,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
 
     if(Space->RootNode)
     {
-        ApplyNodeContainer(Space->RootNode, Space->Mode);
+        ApplyTreeNodeContainer(Space->RootNode);
         FocusWindowBelowCursor();
     }
 }
@@ -435,7 +435,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
         window_info *FocusWindow = NULL;
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
-            if(!GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode))
+            if(!GetTreeNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID))
             {
                 if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]) &&
                    !IsWindowFloating(KWMTiling.WindowLst[WindowIndex].WID, NULL))
@@ -443,7 +443,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
                     DEBUG("ShouldBSPTreeUpdate() Add Window")
                     tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
                     if(Insert && (Insert->WindowID = KWMTiling.WindowLst[WindowIndex].WID))
-                        ApplyNodeContainer(Insert, SpaceModeBSP);
+                        ApplyTreeNodeContainer(Insert);
                     else
                         AddWindowToBSPTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
 
@@ -468,7 +468,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
             if(CurrentNode->WindowID != -1)
                 WindowIDsInTree.push_back(CurrentNode->WindowID);
 
-            CurrentNode = GetNearestNodeToTheRight(CurrentNode, SpaceModeBSP);
+            CurrentNode = GetNearestTreeNodeToTheRight(CurrentNode);
         }
 
         for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
@@ -514,7 +514,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
 
     if(KWMScreen.MarkedWindow == -1 && UseFocusedContainer)
     {
-        CurrentNode = GetNodeFromWindowID(RootNode, KWMFocus.Window->WID, Space->Mode);
+        CurrentNode = GetTreeNodeFromWindowID(RootNode, KWMFocus.Window->WID);
     }
     else if(DoNotUseMarkedContainer || (KWMScreen.MarkedWindow == -1 && !UseFocusedContainer))
     {
@@ -522,7 +522,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     }
     else
     {
-        CurrentNode = GetNodeFromWindowID(RootNode, KWMScreen.MarkedWindow, Space->Mode);
+        CurrentNode = GetTreeNodeFromWindowID(RootNode, KWMScreen.MarkedWindow);
         ClearMarkedWindow();
     }
 
@@ -530,7 +530,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     {
         split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
         CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
-        ApplyNodeContainer(CurrentNode, Space->Mode);
+        ApplyTreeNodeContainer(CurrentNode);
     }
 }
 
@@ -548,7 +548,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
-    tree_node *WindowNode = GetNodeFromWindowID(Space->RootNode, WindowID, Space->Mode);
+    tree_node *WindowNode = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
     if(!WindowNode)
         return;
 
@@ -576,7 +576,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
                 NewFocusNode = IsLeafNode(Parent->LeftChild) ? Parent->LeftChild : Parent->RightChild;
         }
 
-        ApplyNodeContainer(Parent, Space->Mode);
+        ApplyTreeNodeContainer(Parent);
         if(Center)
         {
             window_info *WindowInfo = GetWindowByID(WindowNode->WindowID);
@@ -626,7 +626,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
         DEBUG("ShouldMonocleTreeUpdate() Add Window")
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
-            if(!GetNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID, Space->Mode))
+            if(!GetLinkNodeFromTree(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID))
             {
                 if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]))
                 {
@@ -642,11 +642,11 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
         DEBUG("ShouldMonocleTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
 
-        tree_node *CurrentNode = Space->RootNode;
-        while(CurrentNode)
+        link_node *Link = Space->RootNode->List;
+        while(Link)
         {
-            WindowIDsInTree.push_back(CurrentNode->WindowID);
-            CurrentNode = GetNearestNodeToTheRight(CurrentNode, SpaceModeMonocle);
+            WindowIDsInTree.push_back(Link->WindowID);
+            Link = Link->Next;
         }
 
         if(WindowIDsInTree.size() >= 2)
@@ -669,12 +669,8 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
         }
         else
         {
-            tree_node *WindowNode = GetNodeFromWindowID(Space->RootNode, WindowIDsInTree[0], SpaceModeMonocle);
-            if(!WindowNode)
-                return;
-
-            free(WindowNode);
-            Space->RootNode = NULL;
+            free(Space->RootNode->List);
+            Space->RootNode->List = NULL;
         }
     }
 }
@@ -685,15 +681,18 @@ void AddWindowToMonocleTree(screen_info *Screen, int WindowID)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
-    tree_node *CurrentNode = GetLastLeafNode(Space->RootNode);
-    tree_node *NewNode = CreateRootNode();
-    SetRootNodeContainer(Screen, NewNode);
+    link_node *Link = Space->RootNode->List;
+    while(Link->Next)
+        Link = Link->Next;
 
-    NewNode->WindowID = WindowID;
-    CurrentNode->RightChild = NewNode;
-    NewNode->LeftChild = CurrentNode;
+    link_node *NewLink = CreateLinkNode();
+    SetLinkNodeContainer(Screen, NewLink);
 
-    ApplyNodeContainer(NewNode, SpaceModeMonocle);
+    NewLink->WindowID = WindowID;
+    Link->Next = NewLink;
+    NewLink->Prev = Link;
+
+    ResizeWindowToContainerSize(NewLink);
 }
 
 void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool UpdateFocus)
@@ -702,33 +701,37 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool UpdateF
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
-    tree_node *WindowNode = GetNodeFromWindowID(Space->RootNode, WindowID, Space->Mode);
-    if(!WindowNode)
-        return;
+    link_node *Link = GetLinkNodeFromTree(Space->RootNode, WindowID);
 
-    tree_node *Prev = WindowNode->LeftChild;
-    tree_node *Next = WindowNode->RightChild;
-    tree_node *NewFocusNode = Prev;
-
-    if(Prev)
-        Prev->RightChild = Next;
-
-    if(Next)
-        Next->LeftChild = Prev;
-
-    if(WindowNode == Space->RootNode)
+    if(Link)
     {
-        Space->RootNode = Next;
-        NewFocusNode = Next;
-    }
+        link_node *Prev = Link->Prev;
+        link_node *Next = Link->Next;
+        link_node *NewFocusNode = Prev;
 
-    if(UpdateFocus)
-    {
-        SetWindowFocusByNode(NewFocusNode);
-        MoveCursorToCenterOfFocusedWindow();
-    }
+        if(Prev)
+            Prev->Next = Next;
 
-    free(WindowNode);
+        if(Next)
+            Next->Prev = Prev;
+
+        if(Link == Space->RootNode->List)
+        {
+            free(Link);
+            Space->RootNode->List = Next;
+            NewFocusNode = Next;
+        }
+        else
+        {
+            free(Link);
+        }
+
+        if(UpdateFocus)
+        {
+            SetWindowFocusByNode(NewFocusNode);
+            MoveCursorToCenterOfFocusedWindow();
+        }
+    }
 }
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window, bool UpdateFocus)
@@ -756,19 +759,22 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
             split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
 
             CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
-            ApplyNodeContainer(CurrentNode, Space->Mode);
+            ApplyTreeNodeContainer(CurrentNode);
         }
         else if(Space->Mode == SpaceModeMonocle)
         {
             DEBUG("AddWindowToTreeOfUnfocusedMonitor() Monocle Space")
-            tree_node *CurrentNode = GetLastLeafNode(Space->RootNode);
-            tree_node *NewNode = CreateRootNode();
-            SetRootNodeContainer(Screen, NewNode);
+            link_node *Link = Space->RootNode->List;
+            while(Link->Next)
+                Link = Link->Next;
 
-            NewNode->WindowID = Window->WID;
-            CurrentNode->RightChild = NewNode;
-            NewNode->LeftChild = CurrentNode;
-            ResizeWindowToContainerSize(NewNode);
+            link_node *NewLink = CreateLinkNode();
+            SetLinkNodeContainer(Screen, NewLink);
+
+            NewLink->WindowID = Window->WID;
+            Link->Next = NewLink;
+            NewLink->Prev = Link;
+            ResizeWindowToContainerSize(NewLink);
         }
     }
     else
@@ -829,7 +835,7 @@ void ToggleFocusedWindowParentContainer()
     if(Space->Mode != SpaceModeBSP)
         return;
 
-    tree_node *Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+    tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
     if(Node && Node->Parent)
     {
         if(IsLeafNode(Node) && Node->Parent->WindowID == -1)
@@ -858,7 +864,7 @@ void ToggleFocusedWindowFullscreen()
         tree_node *Node = NULL;
         if(Space->RootNode->WindowID == -1)
         {
-            Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+            Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
             if(Node)
             {
                 DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
@@ -871,7 +877,7 @@ void ToggleFocusedWindowFullscreen()
             DEBUG("ToggleFocusedWindowFullscreen() Restore old size")
             Space->RootNode->WindowID = -1;
 
-            Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+            Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
             if(Node)
             {
                 ResizeWindowToContainerSize(Node);
@@ -918,10 +924,10 @@ void SwapFocusedWindowWithMarked()
     if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+        tree_node *FocusedWindowNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
         if(FocusedWindowNode)
         {
-            tree_node *NewFocusNode = GetNodeFromWindowID(Space->RootNode, KWMScreen.MarkedWindow, Space->Mode);
+            tree_node *NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, KWMScreen.MarkedWindow);
             if(NewFocusNode)
             {
                 SwapNodeWindowIDs(FocusedWindowNode, NewFocusNode);
@@ -939,15 +945,15 @@ void SwapFocusedWindowWithNearest(int Shift)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+    tree_node *FocusedWindowNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
     if(FocusedWindowNode)
     {
         tree_node *NewFocusNode = NULL;;
 
         if(Shift == 1)
-            NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
+            NewFocusNode = GetNearestTreeNodeToTheRight(FocusedWindowNode);
         else if(Shift == -1)
-            NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
+            NewFocusNode = GetNearestTreeNodeToTheLeft(FocusedWindowNode);
 
         if(NewFocusNode)
         {
@@ -967,7 +973,7 @@ void SwapFocusedWindowDirected(int Degrees)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+    tree_node *FocusedWindowNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
     if(FocusedWindowNode)
     {
         tree_node *NewFocusNode = NULL;
@@ -975,14 +981,14 @@ void SwapFocusedWindowDirected(int Degrees)
         {
             window_info SwapWindow = {};
             if(FindClosestWindow(Degrees, &SwapWindow, KWMMode.Cycle == CycleModeScreen))
-                NewFocusNode = GetNodeFromWindowID(Space->RootNode, SwapWindow.WID, Space->Mode);
+                NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, SwapWindow.WID);
         }
         else if(Space->Mode == SpaceModeMonocle)
         {
             if(Degrees == 90)
-                NewFocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
+                NewFocusNode = GetNearestTreeNodeToTheRight(FocusedWindowNode);
             else if(Degrees == 270)
-                NewFocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
+                NewFocusNode = GetNearestTreeNodeToTheLeft(FocusedWindowNode);
         }
 
         if(NewFocusNode)
@@ -1152,22 +1158,22 @@ void ShiftWindowFocus(int Shift)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    tree_node *FocusedWindowNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+    tree_node *FocusedWindowNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
     if(FocusedWindowNode)
     {
         tree_node *FocusNode = NULL;
 
         if(Shift == 1)
         {
-            FocusNode = GetNearestNodeToTheRight(FocusedWindowNode, Space->Mode);
+            FocusNode = GetNearestTreeNodeToTheRight(FocusedWindowNode);
             while(IsPseudoNode(FocusNode))
-                FocusNode = GetNearestNodeToTheRight(FocusNode, Space->Mode);
+                FocusNode = GetNearestTreeNodeToTheRight(FocusNode);
 
             if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
             {
                 FocusNode = GetFirstLeafNode(Space->RootNode);
                 while(IsPseudoNode(FocusNode))
-                    FocusNode = GetNearestNodeToTheRight(FocusNode, Space->Mode);
+                    FocusNode = GetNearestTreeNodeToTheRight(FocusNode);
             }
             else if(KWMMode.Cycle == CycleModeAll && !FocusNode)
             {
@@ -1184,15 +1190,15 @@ void ShiftWindowFocus(int Shift)
         }
         else if(Shift == -1)
         {
-            FocusNode = GetNearestNodeToTheLeft(FocusedWindowNode, Space->Mode);
+            FocusNode = GetNearestTreeNodeToTheLeft(FocusedWindowNode);
             while(IsPseudoNode(FocusNode))
-                FocusNode = GetNearestNodeToTheLeft(FocusNode, Space->Mode);
+                FocusNode = GetNearestTreeNodeToTheLeft(FocusNode);
 
             if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
             {
                 FocusNode = GetLastLeafNode(Space->RootNode);
                 while(IsPseudoNode(FocusNode))
-                    FocusNode = GetNearestNodeToTheLeft(FocusNode, Space->Mode);
+                    FocusNode = GetNearestTreeNodeToTheLeft(FocusNode);
             }
             else if(KWMMode.Cycle == CycleModeAll && !FocusNode)
             {
@@ -1229,7 +1235,7 @@ void FocusWindowByID(int WindowID)
         {
             space_info *Space = GetActiveSpaceOfScreen(Screen);
             tree_node *Root = Space->RootNode;
-            tree_node *Node = GetNodeFromWindowID(Root, WindowID, Space->Mode);
+            tree_node *Node = GetTreeNodeFromWindowID(Root, WindowID);
             if(Node)
                 GiveFocusToScreen(Screen->ID, Node, false);
         }
@@ -1320,7 +1326,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
     if(KWMToggles.EnableTilingMode)
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        Space->FocusedNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+        Space->FocusedNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
     }
 
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name << " " << KWMFocus.Window->X << "," << KWMFocus.Window->Y)
@@ -1342,6 +1348,19 @@ void SetWindowFocusByNode(tree_node *Node)
     if(Node)
     {
         window_info *Window = GetWindowByID(Node->WindowID);
+        if(Window)
+        {
+            DEBUG("SetWindowFocusByNode()")
+            SetWindowFocus(Window);
+        }
+    }
+}
+
+void SetWindowFocusByNode(link_node *Link)
+{
+    if(Link)
+    {
+        window_info *Window = GetWindowByID(Link->WindowID);
         if(Window)
         {
             DEBUG("SetWindowFocusByNode()")
@@ -1509,7 +1528,7 @@ void ModifyContainerSplitRatio(double Offset)
         if(IsLeafNode(Root) || Root->WindowID != -1)
             return;
 
-        tree_node *Node = GetNodeFromWindowID(Root, KWMFocus.Window->WID, Space->Mode);
+        tree_node *Node = GetTreeNodeFromWindowID(Root, KWMFocus.Window->WID);
         if(Node && Node->Parent)
         {
             if(Node->Parent->SplitRatio + Offset > 0.0 &&
@@ -1517,7 +1536,7 @@ void ModifyContainerSplitRatio(double Offset)
             {
                 Node->Parent->SplitRatio += Offset;
                 ResizeNodeContainer(KWMScreen.Current, Node->Parent);
-                ApplyNodeContainer(Node->Parent, Space->Mode);
+                ApplyTreeNodeContainer(Node->Parent);
             }
         }
     }
@@ -1542,13 +1561,32 @@ void ResizeWindowToContainerSize(tree_node *Node)
     }
 }
 
+void ResizeWindowToContainerSize(link_node *Link)
+{
+    window_info *Window = GetWindowByID(Link->WindowID);
+
+    if(Window)
+    {
+        AXUIElementRef WindowRef;
+        if(GetWindowRef(Window, &WindowRef))
+        {
+            SetWindowDimensions(WindowRef, Window,
+                        Link->Container.X, Link->Container.Y,
+                        Link->Container.Width, Link->Container.Height);
+
+            if(WindowsAreEqual(Window, KWMFocus.Window))
+                KWMFocus.Cache = *Window;
+        }
+    }
+}
+
 void ResizeWindowToContainerSize(window_info *Window)
 {
     Assert(Window, "ResizeWindowToContainerSize()")
     if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, Space->Mode);
+        tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
         if(Node)
             ResizeWindowToContainerSize(Node);
     }

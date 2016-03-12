@@ -26,23 +26,23 @@ void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
         FocusedIndex = 1;
         NumberOfWindows = 1;
 
-        if(Node->WindowID == KWMFocus.Window->WID)
+        link_node *Link = Node->List;
+        if(Link->WindowID == KWMFocus.Window->WID)
             FoundFocusedWindow = true;
 
-        while(Node->RightChild)
+        while(Link->Next)
         {
-            if(Node->WindowID == KWMFocus.Window->WID)
-                FoundFocusedWindow = true;
-
             if(!FoundFocusedWindow)
                 ++FocusedIndex;
 
-            ++NumberOfWindows;
+            if(Link->Next->WindowID == KWMFocus.Window->WID)
+                FoundFocusedWindow = true;
 
-            Node = Node->RightChild;
+            ++NumberOfWindows;
+            Link = Link->Next;
         }
 
-        if(Node->WindowID == KWMFocus.Window->WID)
+        if(Link->WindowID == KWMFocus.Window->WID)
             FoundFocusedWindow = true;
     }
 
@@ -238,7 +238,7 @@ void FloatFocusedSpace()
         if(Space->Mode == SpaceModeFloating)
             return;
 
-        DestroyNodeTree(Space->RootNode, Space->Mode);
+        DestroyNodeTree(Space->RootNode);
         Space->RootNode = NULL;
 
         Space->Mode = SpaceModeFloating;
@@ -258,7 +258,7 @@ void TileFocusedSpace(space_tiling_option Mode)
         if(Space->Mode == Mode)
             return;
 
-        DestroyNodeTree(Space->RootNode, Space->Mode);
+        DestroyNodeTree(Space->RootNode);
         Space->RootNode = NULL;
 
         Space->Mode = Mode;

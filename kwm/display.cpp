@@ -31,7 +31,7 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
             DEBUG("Display has been removed! DisplayID: " << Display)
             std::map<int, space_info>::iterator It;
             for(It = KWMTiling.DisplayMap[Display].Space.begin(); It != KWMTiling.DisplayMap[Display].Space.end(); ++It)
-                DestroyNodeTree(It->second.RootNode, It->second.Mode);
+                DestroyNodeTree(It->second.RootNode);
 
             if(KWMTiling.DisplayMap[Display].Identifier)
                 CFRelease(KWMTiling.DisplayMap[Display].Identifier);
@@ -241,15 +241,15 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
         }
         else if(Space->Mode == SpaceModeMonocle)
         {
-            tree_node *CurrentNode = Space->RootNode;
-            while(CurrentNode)
+            link_node *Link = Space->RootNode->List;
+            while(Link)
             {
-                SetRootNodeContainer(Screen, CurrentNode);
-                CurrentNode = CurrentNode->RightChild;
+                SetLinkNodeContainer(Screen, Link);
+                Link = Link->Next;
             }
         }
 
-        ApplyNodeContainer(Space->RootNode, Space->Mode);
+        ApplyTreeNodeContainer(Space->RootNode);
     }
 }
 
@@ -272,7 +272,7 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
     if(Space->RootNode && Space->Mode == SpaceModeBSP)
     {
         CreateNodeContainers(Screen, Space->RootNode, true);
-        ApplyNodeContainer(Space->RootNode, Space->Mode);
+        ApplyTreeNodeContainer(Space->RootNode);
     }
 }
 
