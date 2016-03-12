@@ -17,7 +17,8 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
     if(Window && CFEqual(Notification, kAXTitleChangedNotification))
         Window->Name = GetWindowTitle(Element);
     else if(CFEqual(Notification, kAXWindowResizedNotification) ||
-            CFEqual(Notification, kAXWindowMovedNotification))
+            CFEqual(Notification, kAXWindowMovedNotification) ||
+            CFEqual(Notification, kAXWindowMiniaturizedNotification))
         UpdateBorder("focused");
 
     pthread_mutex_unlock(&KWMThread.Lock);
@@ -53,7 +54,6 @@ void CreateApplicationNotifications()
         AXError Error = AXObserverCreate(KWMFocus.Window->PID, FocusedAXObserverCallback, &KWMFocus.Observer);
         if(Error == kAXErrorSuccess)
         {
-            DEBUG("CREATE NOTIFICATIONS")
             AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMiniaturizedNotification, NULL);
             AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowMovedNotification, NULL);
             AXObserverAddNotification(KWMFocus.Observer, KWMFocus.Application, kAXWindowResizedNotification, NULL);
