@@ -837,14 +837,12 @@ void ToggleFocusedWindowParentContainer()
             DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container")
             Node->Parent->WindowID = Node->WindowID;
             ResizeWindowToContainerSize(Node->Parent);
-            UpdateBorder("focused");
         }
         else
         {
             DEBUG("ToggleFocusedWindowParentContainer() Restore Window Container")
             Node->Parent->WindowID = -1;
             ResizeWindowToContainerSize(Node);
-            UpdateBorder("focused");
         }
     }
 }
@@ -866,7 +864,6 @@ void ToggleFocusedWindowFullscreen()
                 DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen")
                 Space->RootNode->WindowID = Node->WindowID;
                 ResizeWindowToContainerSize(Space->RootNode);
-                UpdateBorder("focused");
             }
         }
         else
@@ -878,7 +875,6 @@ void ToggleFocusedWindowFullscreen()
             if(Node)
             {
                 ResizeWindowToContainerSize(Node);
-                UpdateBorder("focused");
             }
         }
     }
@@ -1462,7 +1458,6 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
         Window->Y = Y;
         Window->Width = Width;
         Window->Height = Height;
-        UpdateBorder("focused");
     }
 
     CFRelease(NewWindowPos);
