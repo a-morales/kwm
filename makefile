@@ -7,7 +7,9 @@ KWM_OBJS_TMP  = $(KWM_SRCS:.cpp=.o)
 KWM_OBJS      = $(KWM_OBJS_TMP:.mm=.o)
 KWMC_SRCS     = kwmc/kwmc.cpp kwmc/help.cpp
 KWMC_OBJS     = $(KWMC_SRCS:.cpp=.o)
-KWMO_SRCS     = kwm-overlay/kwm-overlay.swift
+KWMO_SRCS     = kwm-overlay/kwm-overlay.swift kwm-overlay/Private-API.mm
+KWMO_OBJS_TMP = $(KWMO_SRCS:.swift=.o)
+KWMO_OBJS     = $(KWMO_OBJS_TMP:.mm=.o)
 SAMPLE_CONFIG = examples/kwmrc
 CONFIG_DIR    = $(HOME)/.kwm
 BUILD_PATH    = ./bin
@@ -35,6 +37,7 @@ clean:
 	rm -rf $(BUILD_PATH)
 	rm -f kwm/*.o
 	rm -f kwmc/*.o
+	rm -f kwm-overlay/*.o
 
 $(BUILD_PATH)/kwm: $(KWM_OBJS)
 	g++ $^ $(DEBUG_BUILD) $(BUILD_FLAGS) -lpthread $(FRAMEWORKS) -o $@
@@ -51,8 +54,14 @@ $(BUILD_PATH)/kwmc: $(KWMC_OBJS)
 kwmc/%.o: kwmc/%.cpp
 	g++ -c $< $(BUILD_FLAGS) -o $@
 
-$(BUILD_PATH)/kwm-overlay: $(KWMO_SRCS)
-	swiftc $(DEBUG_BUILD) -sdk $(SDK_ROOT) -Xlinker -rpath -Xlinker $(XTRA_RPATH) -o $@ $^
+$(BUILD_PATH)/kwm-overlay: $(KWMO_OBJS)
+	swiftc $^ -o $@
+
+kwm-overlay/%.o: kwm-overlay/%.swift
+	swiftc -c $^ $(DEBUG_BUILD) -sdk $(SDK_ROOT) -import-objc-header kwm-overlay/Private-API.h -Xlinker -rpath -Xlinker $(XTRA_RPATH) -o $@
+
+kwm-overlay/%.o: kwm-overlay/%.mm
+	g++ -c $^ $(DEBUG_BUILD) $(BUILD_FLAGS) -o $@
 
 $(BUILD_PATH)/kwm_template.plist: $(KWM_PLIST)
 	cp $^ $@

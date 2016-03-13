@@ -1,4 +1,4 @@
-#import "Private.h"
+#import "Private-API.h"
 
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID *out) __attribute__((weak_import));
 
