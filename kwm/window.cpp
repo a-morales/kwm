@@ -627,6 +627,9 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
 
         DEBUG("RemoveWindowFromBSPTree() Parent && LeftChild && RightChild")
         Parent->WindowID = AccessChild->WindowID;
+        Parent->Type = AccessChild->Type;
+        Parent->List = AccessChild->List;
+
         if(AccessChild->LeftChild && AccessChild->RightChild)
         {
             Parent->LeftChild = AccessChild->LeftChild;
@@ -641,6 +644,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
                 NewFocusNode = IsLeafNode(Parent->LeftChild) ? Parent->LeftChild : Parent->RightChild;
         }
 
+        ResizeLinkNodeContainers(Parent);
         ApplyTreeNodeContainer(Parent);
         if(Center)
         {
