@@ -109,7 +109,8 @@ bool FilterWindowList(screen_info *Screen)
             if(Screen != ScreenOfWindow)
             {
                 space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-                if(GetTreeNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID) ||
+                if(!SpaceOfWindow->Initialized ||
+                   GetTreeNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID) ||
                    GetLinkNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID))
                     continue;
             }
