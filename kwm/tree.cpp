@@ -505,21 +505,15 @@ void ChangeTypeOfFocusedNode(node_type Type)
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
     tree_node *TreeNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-    if(TreeNode)
-    {
-        DEBUG("NODE TYPE IS NOW " << Type)
+    if(TreeNode && TreeNode != Space->RootNode)
         TreeNode->Type = Type;
-    }
 
     else if(!TreeNode)
     {
         link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
         tree_node *TreeNode = GetTreeNodeFromLink(Space->RootNode, Link);
-        if(TreeNode)
-        {
-            DEBUG("NODE TYPE IS NOW " << Type)
+        if(TreeNode && TreeNode != Space->RootNode)
             TreeNode->Type = Type;
-        }
     }
 }
 
