@@ -244,6 +244,11 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowI
     Parent->SplitMode = SplitMode;
     Parent->SplitRatio = KWMScreen.SplitRatio;
 
+    node_type ParentType = Parent->Type;
+    link_node *ParentList = Parent->List;
+    Parent->Type = NodeTypeTree;
+    Parent->List = NULL;
+
     int LeftWindowID = KWMTiling.SpawnAsLeftChild ? SecondWindowID : FirstWindowID;
     int RightWindowID = KWMTiling.SpawnAsLeftChild ? FirstWindowID : SecondWindowID;
 
@@ -251,11 +256,21 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowI
     {
         Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 1);
         Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 2);
+
+        tree_node *Node = KWMTiling.SpawnAsLeftChild ?  Parent->RightChild : Parent->LeftChild;
+        Node->Type = ParentType;
+        Node->List = ParentList;
+        ResizeLinkNodeContainers(Node);
     }
     else if(SplitMode == SPLIT_HORIZONTAL)
     {
         Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 3);
         Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 4);
+
+        tree_node *Node = KWMTiling.SpawnAsLeftChild ?  Parent->RightChild : Parent->LeftChild;
+        Node->Type = ParentType;
+        Node->List = ParentList;
+        ResizeLinkNodeContainers(Node);
     }
     else
     {
@@ -602,12 +617,14 @@ void ResizeNodeContainer(screen_info *Screen, tree_node *Node)
         {
             CreateNodeContainer(Screen, Node->LeftChild, Node->LeftChild->Container.Type);
             ResizeNodeContainer(Screen, Node->LeftChild);
+            ResizeLinkNodeContainers(Node->LeftChild);
         }
 
         if(Node->RightChild)
         {
             CreateNodeContainer(Screen, Node->RightChild, Node->RightChild->Container.Type);
             ResizeNodeContainer(Screen, Node->RightChild);
+            ResizeLinkNodeContainers(Node->RightChild);
         }
     }
 }
