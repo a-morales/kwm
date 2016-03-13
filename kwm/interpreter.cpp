@@ -587,6 +587,8 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
             ChangeTypeOfFocusedNode(NodeTypeLink);
         else if(Tokens[2] == "bsp")
             ChangeTypeOfFocusedNode(NodeTypeTree);
+        else if(Tokens[2] == "toggle")
+            ToggleTypeOfFocusedNode();
 
         else if(Tokens[2] == "refresh")
         {

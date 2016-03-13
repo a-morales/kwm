@@ -498,23 +498,23 @@ void SwapNodeWindowIDs(link_node *A, link_node *B)
     }
 }
 
+void ToggleTypeOfFocusedNode()
+{
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
+    if(TreeNode && TreeNode != Space->RootNode)
+        TreeNode->Type = TreeNode->Type == NodeTypeTree ? NodeTypeLink : NodeTypeTree;
+}
+
 void ChangeTypeOfFocusedNode(node_type Type)
 {
     Assert(KWMScreen.Current, "ChangeTypeOfFocusedTreeNode() KWMScreen.Current");
     Assert(KWMFocus.Window, "ChangeTypeOfFocusedTreeNode() KWMFocus.Window");
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    tree_node *TreeNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
     if(TreeNode && TreeNode != Space->RootNode)
         TreeNode->Type = Type;
-
-    else if(!TreeNode)
-    {
-        link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-        tree_node *TreeNode = GetTreeNodeFromLink(Space->RootNode, Link);
-        if(TreeNode && TreeNode != Space->RootNode)
-            TreeNode->Type = Type;
-    }
 }
 
 tree_node *GetNearestLeafNodeNeighbour(tree_node *Node)

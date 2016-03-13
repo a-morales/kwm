@@ -47,6 +47,7 @@ split_type GetOptimalSplitMode(tree_node *Node);
 void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node);
 void ChangeSplitRatio(double Value);
 void ChangeTypeOfFocusedNode(node_type Type);
+void ToggleTypeOfFocusedNode();
 
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr);
 bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr);

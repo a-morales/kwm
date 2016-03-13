@@ -110,7 +110,7 @@ void ShowHelp(std::string Command)
             "Usage: kwmc tree <options>\n"
             "\n"
             "Options:\n"
-            "   -c monocle|bsp                                         Set the focused node to be a monocle-tree or normal bsp-node\n"
+            "   -c monocle|bsp|toggle                                  Set the focused node to be a monocle-tree or normal bsp-node\n"
             "   -r 90|180|270                                          Rotate window-tree\n"
             "   -c refresh                                             Resize all windows to container\n"
             "   -c pseudo create|remove                                Create or remove pseudo-container, filled by next window creation\n"
