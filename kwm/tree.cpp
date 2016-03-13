@@ -389,7 +389,7 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
 
-    if(Windows.size() >= 2)
+    if(!Windows.empty())
     {
         tree_node *Root = RootNode;
         Root->WindowID = Windows[0]->WID;
@@ -410,11 +410,6 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
 
         Result = true;
     }
-    else if(Windows.size() == 1)
-    {
-        RootNode->WindowID = Windows[0]->WID;
-        Result = true;
-    }
 
     return Result;
 }
@@ -425,7 +420,6 @@ bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<win
 
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
-    RootNode->Type = NodeTypeLink;
 
     if(!Windows.empty())
     {
