@@ -90,7 +90,6 @@ enum focus_option
 enum cycle_focus_option
 {
     CycleModeScreen,
-    CycleModeAll,
     CycleModeDisabled
 };
 
@@ -107,6 +106,12 @@ enum split_type
     SPLIT_OPTIMAL = -1,
     SPLIT_VERTICAL = 1,
     SPLIT_HORIZONTAL = 2
+};
+
+enum node_type
+{
+    NodeTypeTree,
+    NodeTypeLink
 };
 
 enum hotkey_state
@@ -161,10 +166,23 @@ struct node_container
     int Type;
 };
 
-struct tree_node
+struct link_node
 {
     int WindowID;
     node_container Container;
+
+    link_node *Prev;
+    link_node *Next;
+};
+
+struct tree_node
+{
+    int WindowID;
+    node_type Type;
+    node_container Container;
+
+    link_node *List;
+
     tree_node *Parent;
     tree_node *LeftChild;
     tree_node *RightChild;
@@ -196,8 +214,8 @@ struct space_info
     bool Managed;
 
     space_tiling_option Mode;
-    tree_node *FocusedNode;
     tree_node *RootNode;
+    int FocusedWindowID;
 };
 
 struct screen_info

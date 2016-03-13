@@ -23,8 +23,6 @@ bool ShouldWindowGainFocus(window_info *Window);
 int GetFocusedWindowID();
 bool FocusWindowOfOSX();
 void FocusWindowBelowCursor();
-void FocusFirstLeafNode();
-void FocusLastLeafNode();
 
 void UpdateWindowTree();
 std::vector<window_info> FilterWindowListAllDisplays();
@@ -57,6 +55,7 @@ void MoveCursorToCenterOfWindow(window_info *Window);
 void MoveCursorToCenterOfFocusedWindow();
 void FocusWindowByID(int WindowID);
 void ShiftWindowFocus(int Shift);
+void ShiftSubTreeWindowFocus(int Shift);
 void ShiftWindowFocusDirected(int Degrees);
 bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap);
 double GetWindowDistance(window_info *A, window_info *B);
@@ -70,6 +69,7 @@ void MarkFocusedWindowContainer();
 void SetWindowRefFocus(AXUIElementRef WindowRef);
 void SetWindowFocus(window_info *Window);
 void SetWindowFocusByNode(tree_node *Node);
+void SetWindowFocusByNode(link_node *Link);
 
 bool IsWindowNonResizable(AXUIElementRef WindowRef, window_info *Window, CFTypeRef NewWindowPos, CFTypeRef NewWindowSize);
 void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Yptr, int *Wptr, int *Hptr);
@@ -79,6 +79,7 @@ void CenterWindow(screen_info *Screen, window_info *Window);
 void MoveFloatingWindow(int X, int Y);
 void ModifyContainerSplitRatio(double Offset);
 void ResizeWindowToContainerSize(tree_node *Node);
+void ResizeWindowToContainerSize(link_node *Node);
 void ResizeWindowToContainerSize(window_info *Window);
 void ResizeWindowToContainerSize();
 

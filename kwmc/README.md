@@ -51,7 +51,7 @@
             kwmc config focus standby-on-float on|off
 
         Set focus-wrap-around for 'window -f prev|next'
-            kwmc config cycle-focus screen|all|off
+            kwmc config cycle-focus screen|off
 
         Set state of mouse-follows-focus
             kwmc config focus mouse-follows on|off
@@ -115,7 +115,7 @@
             kwmc window -c reduce|expand amount
 
         Change window focus
-            kwmc window -f north|east|south|west|prev|next|curr|first|last
+            kwmc window -f north|east|south|west|prev|next|curr
 
         Change window focus by id
             kwmc window -f id windowid
@@ -135,6 +135,9 @@
 
         Mark a window relative to the focused window
             kwmc mark -w focused|north|east|south|west wrap|nowrap
+
+        Set the focused node to be a monocle-tree or normal bsp-node
+            kwmc tree -c monocle|bsp
 
         Rotate window-tree
             kwmc tree -r 90|180|270

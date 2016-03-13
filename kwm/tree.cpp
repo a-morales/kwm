@@ -126,12 +126,12 @@ void CreatePseudoNode()
     if(!Screen || !Space || !Window)
         return;
 
-    tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, SpaceModeBSP);
+    tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
     if(Node)
     {
         split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(Node) : KWMScreen.SplitMode;
         CreateLeafNodePair(Screen, Node, Node->WindowID, -1, SplitMode);
-        ApplyNodeContainer(Node, SpaceModeBSP);
+        ApplyTreeNodeContainer(Node);
     }
 }
 
@@ -143,7 +143,7 @@ void RemovePseudoNode()
     if(!Screen || !Space || !Window)
         return;
 
-    tree_node *Node = GetNodeFromWindowID(Space->RootNode, Window->WID, SpaceModeBSP);
+    tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
     if(Node && Node->Parent)
     {
         tree_node *Parent = Node->Parent;
@@ -156,7 +156,7 @@ void RemovePseudoNode()
         Parent->RightChild = NULL;
         free(Node);
         free(PseudoNode);
-        ApplyNodeContainer(Parent, SpaceModeBSP);
+        ApplyTreeNodeContainer(Parent);
     }
 }
 
@@ -170,6 +170,7 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
 
     Leaf->Parent = Parent;
     Leaf->WindowID = WindowID;
+    Leaf->Type = NodeTypeTree;
 
     CreateNodeContainer(Screen, Leaf, ContainerType);
 
@@ -186,6 +187,7 @@ tree_node *CreateRootNode()
     *RootNode = Clear;
 
     RootNode->WindowID = -1;
+    RootNode->Type = NodeTypeTree;
     RootNode->Parent = NULL;
     RootNode->LeftChild = NULL;
     RootNode->RightChild = NULL;
@@ -193,6 +195,19 @@ tree_node *CreateRootNode()
     RootNode->SplitMode = SPLIT_OPTIMAL;
 
     return RootNode;
+}
+
+link_node *CreateLinkNode()
+{
+    link_node Clear = {0};
+    link_node *Link = (link_node*) malloc(sizeof(link_node));
+    *Link = Clear;
+
+    Link->WindowID = -1;
+    Link->Prev = NULL;
+    Link->Next = NULL;
+
+    return Link;
 }
 
 void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
@@ -210,6 +225,17 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
     Node->Container.Type = 0;
 }
 
+void SetLinkNodeContainer(screen_info *Screen, link_node *Link)
+{
+    Assert(Link, "SetRootNodeContainer()")
+
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
+
+    Link->Container.X = Screen->X + Space->Offset.PaddingLeft;
+    Link->Container.Y = Screen->Y + Space->Offset.PaddingTop;
+    Link->Container.Width = Screen->Width - Space->Offset.PaddingLeft - Space->Offset.PaddingRight;
+    Link->Container.Height = Screen->Height - Space->Offset.PaddingTop - Space->Offset.PaddingBottom;
+}
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode)
 {
     Assert(Parent, "CreateLeafNodePair()")
@@ -245,37 +271,51 @@ bool IsLeafNode(tree_node *Node)
     return Node->LeftChild == NULL && Node->RightChild == NULL ? true : false;
 }
 
-tree_node *GetFirstLeafNode(tree_node *Node)
+void GetFirstLeafNode(tree_node *Node, void **Result)
 {
     if(Node)
     {
-        while(Node->LeftChild)
-            Node = Node->LeftChild;
+        if(Node->Type == NodeTypeLink)
+            *Result = Node->List;
 
-        return Node;
+        else if(Node->Type == NodeTypeTree)
+        {
+            while(Node->LeftChild)
+                Node = Node->LeftChild;
+
+            *Result = Node;
+        }
     }
-
-    return NULL;
 }
 
-tree_node *GetLastLeafNode(tree_node *Node)
+void GetLastLeafNode(tree_node *Node, void **Result)
 {
     if(Node)
     {
-        while(Node->RightChild)
-            Node = Node->RightChild;
+        if(Node->Type == NodeTypeLink)
+        {
+            link_node *Link = Node->List;
+            while(Link->Next)
+                Link = Link->Next;
 
-        return Node;
+            *Result = Link;
+        }
+        else if(Node->Type == NodeTypeTree)
+        {
+            while(Node->RightChild)
+                Node = Node->RightChild;
+
+            *Result = Node;
+        }
     }
-
-    return NULL;
 }
 
 tree_node *GetFirstPseudoLeafNode(tree_node *Node)
 {
-    tree_node *Leaf = GetFirstLeafNode(Node);
+    tree_node *Leaf = NULL;
+    GetFirstLeafNode(Node, (void**)&Leaf);
     while(Leaf && Leaf->WindowID != -1)
-        Leaf = GetNearestNodeToTheRight(Leaf, SpaceModeBSP);
+        Leaf = GetNearestTreeNodeToTheRight(Leaf);
 
     return Leaf;
 }
@@ -370,21 +410,26 @@ bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<win
 
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
+    RootNode->Type = NodeTypeLink;
 
     if(!Windows.empty())
     {
         tree_node *Root = RootNode;
-        Root->WindowID = Windows[0]->WID;
+        Root->List = CreateLinkNode();
 
+        SetLinkNodeContainer(Screen, Root->List);
+        Root->List->WindowID = Windows[0]->WID;
+
+        link_node *Link = Root->List;
         for(std::size_t WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
         {
-            tree_node *Next = CreateRootNode();
-            SetRootNodeContainer(Screen, Next);
+            link_node *Next = CreateLinkNode();
+            SetLinkNodeContainer(Screen, Next);
             Next->WindowID = Windows[WindowIndex]->WID;
 
-            Root->RightChild = Next;
-            Next->LeftChild = Root;
-            Root = Next;
+            Link->Next = Next;
+            Next->Prev = Link;
+            Link = Next;
         }
 
         Result = true;
@@ -415,35 +460,134 @@ void SwapNodeWindowIDs(tree_node *A, tree_node *B)
         int TempWindowID = A->WindowID;
         A->WindowID = B->WindowID;
         B->WindowID = TempWindowID;
+
+        node_type TempNodeType = A->Type;
+        A->Type = B->Type;
+        B->Type = TempNodeType;
+
+        link_node *TempLinkList = A->List;
+        A->List = B->List;
+        B->List = TempLinkList;
+
+        ResizeLinkNodeContainers(A);
+        ResizeLinkNodeContainers(B);
+        ApplyTreeNodeContainer(A);
+        ApplyTreeNodeContainer(B);
+    }
+}
+
+void SwapNodeWindowIDs(link_node *A, link_node *B)
+{
+    if(A && B)
+    {
+        DEBUG("SwapNodeWindowIDs() " << A->WindowID << " with " << B->WindowID)
+        int TempWindowID = A->WindowID;
+        A->WindowID = B->WindowID;
+        B->WindowID = TempWindowID;
         ResizeWindowToContainerSize(A);
         ResizeWindowToContainerSize(B);
     }
 }
 
-tree_node *GetNearestLeafNeighbour(tree_node *Node, space_tiling_option Mode)
+void ChangeTypeOfFocusedNode(node_type Type)
+{
+    Assert(KWMScreen.Current, "ChangeTypeOfFocusedTreeNode() KWMScreen.Current");
+    Assert(KWMFocus.Window, "ChangeTypeOfFocusedTreeNode() KWMFocus.Window");
+
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    tree_node *TreeNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+    if(TreeNode)
+    {
+        DEBUG("NODE TYPE IS NOW " << Type)
+        TreeNode->Type = Type;
+    }
+
+    else if(!TreeNode)
+    {
+        link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+        tree_node *TreeNode = GetTreeNodeFromLink(Space->RootNode, Link);
+        if(TreeNode)
+        {
+            DEBUG("NODE TYPE IS NOW " << Type)
+            TreeNode->Type = Type;
+        }
+    }
+}
+
+tree_node *GetNearestLeafNodeNeighbour(tree_node *Node)
 {
     if(Node && IsLeafNode(Node))
-    {
-        if(Mode == SpaceModeBSP)
-            return IsLeftChild(Node) ? GetNearestNodeToTheRight(Node, Mode) : GetNearestNodeToTheLeft(Node, Mode);
-        else if(Mode == SpaceModeMonocle)
-            return Node->LeftChild ? Node->LeftChild : Node->RightChild;
-    }
+        return IsLeftChild(Node) ? GetNearestTreeNodeToTheRight(Node) : GetNearestTreeNodeToTheLeft(Node);
 
     return NULL;
 }
 
-tree_node *GetNodeFromWindowID(tree_node *Node, int WindowID, space_tiling_option Mode)
+tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID)
 {
     if(Node)
     {
-        tree_node *CurrentNode = GetFirstLeafNode(Node);;
+        tree_node *CurrentNode = NULL;
+        GetFirstLeafNode(Node, (void**)&CurrentNode);
         while(CurrentNode)
         {
             if(CurrentNode->WindowID == WindowID)
                 return CurrentNode;
 
-            CurrentNode = GetNearestNodeToTheRight(CurrentNode, Mode);
+            CurrentNode = GetNearestTreeNodeToTheRight(CurrentNode);
+        }
+    }
+
+    return NULL;
+}
+
+link_node *GetLinkNodeFromWindowID(tree_node *Root, int WindowID)
+{
+    if(Root)
+    {
+        tree_node *Node = NULL;
+        GetFirstLeafNode(Root, (void**)&Node);
+        while(Node)
+        {
+            link_node *Link = GetLinkNodeFromTree(Node, WindowID);
+            if(Link)
+                return Link;
+
+            Node = GetNearestTreeNodeToTheRight(Node);
+        }
+    }
+
+    return NULL;
+}
+
+link_node *GetLinkNodeFromTree(tree_node *Root, int WindowID)
+{
+    if(Root)
+    {
+        link_node *Link = Root->List;
+        while(Link)
+        {
+            if(Link->WindowID == WindowID)
+                return Link;
+
+            Link = Link->Next;
+        }
+    }
+
+    return NULL;
+}
+
+tree_node *GetTreeNodeFromLink(tree_node *Root, link_node *Link)
+{
+    if(Root && Link)
+    {
+        tree_node *Node = NULL;
+        GetFirstLeafNode(Root, (void**)&Node);
+        while(Node)
+        {
+            if(GetLinkNodeFromTree(Node, Link->WindowID) == Link)
+                return Node;
+
+            Node = GetNearestTreeNodeToTheRight(Node);
         }
     }
 
@@ -468,60 +612,61 @@ void ResizeNodeContainer(screen_info *Screen, tree_node *Node)
     }
 }
 
-tree_node *GetNearestNodeToTheLeft(tree_node *Node, space_tiling_option Mode)
+void ResizeLinkNodeContainers(tree_node *Root)
+{
+    if(Root)
+    {
+        link_node *Link = Root->List;
+        while(Link)
+        {
+            Link->Container = Root->Container;
+            Link = Link->Next;
+        }
+    }
+}
+
+tree_node *GetNearestTreeNodeToTheLeft(tree_node *Node)
 {
     if(Node)
     {
-        if(Mode == SpaceModeMonocle)
-            return Node->LeftChild;
-
-        if(Mode == SpaceModeBSP)
+        if(Node->Parent)
         {
-            if(Node->Parent)
-            {
-                tree_node *Root = Node->Parent;
-                if(Root->LeftChild == Node)
-                    return GetNearestNodeToTheLeft(Root, Mode);
+            tree_node *Root = Node->Parent;
+            if(Root->LeftChild == Node)
+                return GetNearestTreeNodeToTheLeft(Root);
 
-                if(IsLeafNode(Root->LeftChild))
-                    return Root->LeftChild;
+            if(IsLeafNode(Root->LeftChild))
+                return Root->LeftChild;
 
-                Root = Root->LeftChild;
-                while(!IsLeafNode(Root->RightChild))
-                    Root = Root->RightChild;
+            Root = Root->LeftChild;
+            while(!IsLeafNode(Root->RightChild))
+                Root = Root->RightChild;
 
-                return Root->RightChild;
-            }
+            return Root->RightChild;
         }
     }
 
     return NULL;
 }
 
-tree_node *GetNearestNodeToTheRight(tree_node *Node, space_tiling_option Mode)
+tree_node *GetNearestTreeNodeToTheRight(tree_node *Node)
 {
     if(Node)
     {
-        if(Mode == SpaceModeMonocle)
-            return Node->RightChild;
-
-        if(Mode == SpaceModeBSP)
+        if(Node->Parent)
         {
-            if(Node->Parent)
-            {
-                tree_node *Root = Node->Parent;
-                if(Root->RightChild == Node)
-                    return GetNearestNodeToTheRight(Root, Mode);
+            tree_node *Root = Node->Parent;
+            if(Root->RightChild == Node)
+                return GetNearestTreeNodeToTheRight(Root);
 
-                if(IsLeafNode(Root->RightChild))
-                    return Root->RightChild;
+            if(IsLeafNode(Root->RightChild))
+                return Root->RightChild;
 
-                Root = Root->RightChild;
-                while(!IsLeafNode(Root->LeftChild))
-                    Root = Root->LeftChild;
+            Root = Root->RightChild;
+            while(!IsLeafNode(Root->LeftChild))
+                Root = Root->LeftChild;
 
-                return Root->LeftChild;
-            }
+            return Root->LeftChild;
         }
     }
 
@@ -547,33 +692,61 @@ void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node)
 
     Node->SplitMode = Node->SplitMode == SPLIT_VERTICAL ? SPLIT_HORIZONTAL : SPLIT_VERTICAL;
     CreateNodeContainers(Screen, Node, false);
-    ApplyNodeContainer(Node, SpaceModeBSP);
+    ApplyTreeNodeContainer(Node);
 }
 
-void ApplyNodeContainer(tree_node *Node, space_tiling_option Mode)
+void ApplyLinkNodeContainer(link_node *Link)
+{
+    if(Link)
+    {
+        ResizeWindowToContainerSize(Link);
+        if(Link->Next)
+            ApplyLinkNodeContainer(Link->Next);
+    }
+}
+
+void ApplyTreeNodeContainer(tree_node *Node)
 {
     if(Node)
     {
         if(Node->WindowID != -1)
             ResizeWindowToContainerSize(Node);
 
-        if(Mode == SpaceModeBSP && Node->LeftChild)
-            ApplyNodeContainer(Node->LeftChild, Mode);
+        if(Node->List)
+            ApplyLinkNodeContainer(Node->List);
+
+        if(Node->LeftChild)
+            ApplyTreeNodeContainer(Node->LeftChild);
 
         if(Node->RightChild)
-            ApplyNodeContainer(Node->RightChild, Mode);
+            ApplyTreeNodeContainer(Node->RightChild);
     }
 }
 
-void DestroyNodeTree(tree_node *Node, space_tiling_option Mode)
+void DestroyLinkList(link_node *Link)
+{
+    if(Link)
+    {
+        if(Link->Next)
+            DestroyLinkList(Link->Next);
+
+        free(Link);
+        Link = NULL;
+    }
+}
+
+void DestroyNodeTree(tree_node *Node)
 {
     if(Node)
     {
-        if(Mode == SpaceModeBSP && Node->LeftChild)
-            DestroyNodeTree(Node->LeftChild, Mode);
+        if(Node->List)
+            DestroyLinkList(Node->List);
+
+        if(Node->LeftChild)
+            DestroyNodeTree(Node->LeftChild);
 
         if(Node->RightChild)
-            DestroyNodeTree(Node->RightChild, Mode);
+            DestroyNodeTree(Node->RightChild);
 
         free(Node);
         Node = NULL;
@@ -620,7 +793,8 @@ void CreateDeserializedNodeContainer(tree_node *Node)
 void FillDeserializedTree(tree_node *RootNode)
 {
     std::vector<window_info*> Windows = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
-    tree_node *Current = GetFirstLeafNode(RootNode);
+    tree_node *Current = NULL;
+    GetFirstLeafNode(RootNode, (void**)&Current);
 
     std::size_t Counter = 0, Leafs = 0;
     while(Current)
@@ -628,7 +802,7 @@ void FillDeserializedTree(tree_node *RootNode)
         if(Counter < Windows.size())
             Current->WindowID = Windows[Counter++]->WID;
 
-        Current = GetNearestNodeToTheRight(Current, SpaceModeBSP);
+        Current = GetNearestTreeNodeToTheRight(Current);
         ++Leafs;
     }
 
@@ -812,10 +986,10 @@ void LoadBSPTreeFromFile(screen_info *Screen, std::string Name)
         while(std::getline(InFD, Line))
             SerializedTree.push_back(Line);
 
-        DestroyNodeTree(Space->RootNode, SpaceModeBSP);
+        DestroyNodeTree(Space->RootNode);
         Space->RootNode = DeserializeNodeTree(SerializedTree);
         FillDeserializedTree(Space->RootNode);
-        ApplyNodeContainer(Space->RootNode, SpaceModeBSP);
+        ApplyTreeNodeContainer(Space->RootNode);
         UpdateBorder("focused");
         UpdateBorder("marked");
     }

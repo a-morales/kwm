@@ -61,7 +61,7 @@ kwmc config focus standby-on-float on
 kwmc config focus mouse-follows on
 
 # Allow window focus to wrap-around
-kwmc config cycle-focus screen # all | off
+kwmc config cycle-focus screen
 
 # Default tiling mode for new spaces
 kwmc config space bsp

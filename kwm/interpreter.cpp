@@ -197,8 +197,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "screen")
             KWMMode.Cycle = CycleModeScreen;
-        else if(Tokens[2] == "all")
-            KWMMode.Cycle = CycleModeAll;
         else if(Tokens[2] == "off")
             KWMMode.Cycle = CycleModeDisabled;;
     }
@@ -300,7 +298,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
             {
                 int WindowID = ConvertStringToInt(Tokens[2]);
                 space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-                tree_node *Node = GetNodeFromWindowID(Space->RootNode, WindowID, Space->Mode);
+                tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
                 if(Node)
                 {
                     if(Node->SplitMode == SPLIT_VERTICAL)
@@ -352,8 +350,6 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         std::string Output;
         if(KWMMode.Cycle == CycleModeScreen)
             Output = "screen";
-        else if(KWMMode.Cycle == CycleModeAll)
-            Output = "all";
         else
             Output = "off";
 
@@ -399,8 +395,8 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         {
             int WindowID = ConvertStringToInt(Tokens[2]);
             space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            tree_node *Node = GetNodeFromWindowID(Space->RootNode, WindowID, Space->Mode);
-            tree_node *FocusedNode = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
+            tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
+            tree_node *FocusedNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
 
             if(Node && FocusedNode)
                 Output = FocusedNode->Parent == Node->Parent ? "1" : "0";
@@ -415,7 +411,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         {
             int WindowID = ConvertStringToInt(Tokens[2]);
             space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            tree_node *Node = GetNodeFromWindowID(Space->RootNode, WindowID, Space->Mode);
+            tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
 
             if(Node)
                 Output = IsLeftChild(Node) ? "left" : "right";
@@ -460,8 +456,10 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
         if(Tokens[2] == "split")
         {
             space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            tree_node *Node = GetNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID, Space->Mode);
-            ToggleNodeSplitMode(KWMScreen.Current, Node->Parent);
+            tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+
+            if(Node)
+                ToggleNodeSplitMode(KWMScreen.Current, Node->Parent);
         }
         else if(Tokens[2] == "reduce" || Tokens[2] == "expand")
         {
@@ -492,12 +490,15 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             ShiftWindowFocus(1);
         else if(Tokens[2] == "curr")
             FocusWindowBelowCursor();
-        else if(Tokens[2] == "first")
-            FocusFirstLeafNode();
-        else if(Tokens[2] == "last")
-            FocusLastLeafNode();
         else if(Tokens[2] == "id")
             FocusWindowByID(ConvertStringToInt(Tokens[3]));
+    }
+    else if(Tokens[1] == "-fm")
+    {
+        if(Tokens[2] == "prev")
+            ShiftSubTreeWindowFocus(-1);
+        else if(Tokens[2] == "next")
+            ShiftSubTreeWindowFocus(1);
     }
     else if(Tokens[1] == "-s")
     {
@@ -576,16 +577,21 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
             {
                 RotateTree(Space->RootNode, ConvertStringToInt(Tokens[2]));
                 CreateNodeContainers(KWMScreen.Current, Space->RootNode, false);
-                ApplyNodeContainer(Space->RootNode, Space->Mode);
+                ApplyTreeNodeContainer(Space->RootNode);
             }
         }
     }
     else if(Tokens[1] == "-c")
     {
-        if(Tokens[2] == "refresh")
+        if(Tokens[2] == "monocle")
+            ChangeTypeOfFocusedNode(NodeTypeLink);
+        else if(Tokens[2] == "bsp")
+            ChangeTypeOfFocusedNode(NodeTypeTree);
+
+        else if(Tokens[2] == "refresh")
         {
             space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            ApplyNodeContainer(Space->RootNode, Space->Mode);
+            ApplyTreeNodeContainer(Space->RootNode);
         }
         else if(Tokens[2] == "pseudo")
         {
