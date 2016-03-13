@@ -1,15 +1,18 @@
-DEBUG_BUILD=-DDEBUG_BUILD -g
-FRAMEWORKS=-framework ApplicationServices -framework Carbon -framework Cocoa
-XTRA_RPATH=/Library/Developer/CommandLineTools/usr/lib/swift/macosx/
-SDK_ROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
-KWM_SRCS=kwm/kwm.cpp kwm/tree.cpp kwm/window.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp kwm/space.cpp kwm/border.cpp kwm/notifications.cpp kwm/workspace.mm
-KWMC_SRCS=kwmc/kwmc.cpp kwmc/help.cpp
-KWMO_SRCS=kwm-overlay/kwm-overlay.swift
-SAMPLE_CONFIG=examples/kwmrc
-CONFIG_DIR=$(HOME)/.kwm
-BUILD_PATH=./bin
-BUILD_FLAGS=-O3 -Wall
-BINS=$(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(CONFIG_DIR)/kwmrc
+DEBUG_BUILD   = -DDEBUG_BUILD -g
+FRAMEWORKS    = -framework ApplicationServices -framework Carbon -framework Cocoa
+XTRA_RPATH    = /Library/Developer/CommandLineTools/usr/lib/swift/macosx/
+SDK_ROOT      = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
+KWM_SRCS      = kwm/kwm.cpp kwm/tree.cpp kwm/window.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp kwm/space.cpp kwm/border.cpp kwm/notifications.cpp kwm/workspace.mm
+KWM_OBJS_TMP  = $(KWM_SRCS:.cpp=.o)
+KWM_OBJS      = $(KWM_OBJS_TMP:.mm=.o)
+KWMC_SRCS     = kwmc/kwmc.cpp kwmc/help.cpp
+KWMC_OBJS     = $(KWMC_SRCS:.cpp=.o)
+KWMO_SRCS     = kwm-overlay/kwm-overlay.swift
+SAMPLE_CONFIG = examples/kwmrc
+CONFIG_DIR    = $(HOME)/.kwm
+BUILD_PATH    = ./bin
+BUILD_FLAGS   = -O3 -Wall
+BINS          = $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(CONFIG_DIR)/kwmrc
 
 all: $(BINS)
 
@@ -30,12 +33,23 @@ $(BUILD_PATH):
 
 clean:
 	rm -rf $(BUILD_PATH)
+	rm -f kwm/*.o
+	rm -f kwmc/*.o
 
-$(BUILD_PATH)/kwm: $(KWM_SRCS)
+$(BUILD_PATH)/kwm: $(KWM_OBJS)
 	g++ $^ $(DEBUG_BUILD) $(BUILD_FLAGS) -lpthread $(FRAMEWORKS) -o $@
 
-$(BUILD_PATH)/kwmc: $(KWMC_SRCS)
+kwm/%.o: kwm/%.cpp
+	g++ -c $< $(DEBUG_BUILD) $(BUILD_FLAGS) -o $@
+
+kwm/%.o: kwm/%.mm
+	g++ -c $< $(DEBUG_BUILD) $(BUILD_FLAGS) -o $@
+
+$(BUILD_PATH)/kwmc: $(KWMC_OBJS)
 	g++ $^ $(BUILD_FLAGS) -o $@
+
+kwmc/%.o: kwmc/%.cpp
+	g++ -c $< $(BUILD_FLAGS) -o $@
 
 $(BUILD_PATH)/kwm-overlay: $(KWMO_SRCS)
 	swiftc -sdk $(SDK_ROOT) -Xlinker -rpath -Xlinker $(XTRA_RPATH) -o $@ $^
