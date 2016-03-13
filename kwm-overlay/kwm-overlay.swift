@@ -33,9 +33,17 @@ func parseFrame(args: Array<String>, strokeWidth: CGFloat) -> NSRect
                 let windowAppPID = windowInfo["kCGWindowOwnerPID"] as? Int
                 let appRef : AXUIElement = AXUIElementCreateApplication(pid_t(windowAppPID!)).takeRetainedValue()
 
-                var windowList : AnyObject? = nil
-                AXUIElementCopyAttributeValue(appRef, kAXFocusedWindowAttribute, &windowList)
-                let windowRef = windowList as! AXUIElementRef
+                var windowList : CFArray? = nil
+                AXUIElementCopyAttributeValues(appRef, kAXWindowsAttribute, 0, 100, &windowList)
+                let appWindowsRef = windowList as NSArray? as! [AXUIElement]
+                var windowRefTmp : AnyObject? = nil
+                for winRef in appWindowsRef {
+                    let cgWindowId = PrivateAPI.GetCGWindowIDFromAXElement(winRef)
+                    if (cgWindowId == relativeToWindow) {
+                        windowRefTmp = winRef
+                    }
+                }
+                let windowRef = windowRefTmp as! AXUIElementRef
 
                 var winPosition : AnyObject? = nil
                 AXUIElementCopyAttributeValue(windowRef, kAXPositionAttribute, &winPosition)
