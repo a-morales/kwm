@@ -136,6 +136,9 @@
         Mark a window relative to the focused window
             kwmc mark -w focused|north|east|south|west wrap|nowrap
 
+        Set the focused node to be a monocle-tree or normal bsp-node
+            kwmc tree -c monocle|bsp
+
         Rotate window-tree
             kwmc tree -r 90|180|270
 
