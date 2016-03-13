@@ -103,7 +103,11 @@ There are 3 types of split-modes available:
  - Vertical
  - Horizontal
 
-Example:
+A node in the bsp-tree can be in 2 different states:
+ - Tree Node
+ - Link Node
+
+Example of a bsp-tree consisting of only Tree Nodes:
 
 ```
           a                       a                       a
@@ -126,16 +130,32 @@ Example:
 
 ```
 
-By taking advantage of the fact that bsp-trees can be saved and restored
-from file, it is trivial to create layouts that can be loaded on the press
-of a hotkey. This allows the user to quickly get a given space to tile
-according to their needs as they change through the day.
-To save/restore a bsp-layout, see `kwmc help tree`.
+Example of a bsp-tree consisting of a [monocle-subtree (a Link Node)](https://github.com/koekeishiya/kwm/pull/231):
+
+```
+          a                       a                       a
+         / \         -->         / \         -->         / \
+        1   b                   1   b                   1   b
+           / \                 /   / \                 /   / \
+          3   2               4   3   2               4   3   2
+                                                     /
+                                                    5
+
+---------------------   ---------------------   ---------------------
+| SubTree |         |   | SubTree |         |   | SubTree |         |
+|    1    |    3    |   |    1    |    3    |   |    1    |    3    |
+|         |         |   |    |    |         |   |    |    |         |
+|         |---------|   |    4    |---------|   |    4    |---------|
+|         |         |   |         |         |   |    |    |         |
+|         |    2    |   |         |    2    |   |    5    |    2    |
+|         |         |   |         |         |   |         |         |
+---------------------   ---------------------   ---------------------
+
+```
 
 In addition to bsp, *Kwm* supports both monocle and floating spaces.
-If a space is set to floating mode, nothing will be tiled for this space.
-If a space is in monocle mode, every window will run fullscreen, and the
-user can switch between open windows using the kwmc command `window -f prev|next`.
+If a space is set to floating mode, Kwm will ignore this space.
+If a space is in monocle mode, every window will run fullscreen.
 
 If a window is not detected by Kwm, it is most likely due to a 'window role' mismatch.
 Use the command `kwmc config add-role role application` to fix this.
