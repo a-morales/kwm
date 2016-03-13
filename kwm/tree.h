@@ -37,6 +37,7 @@ tree_node *GetNearestLeafNodeNeighbour(tree_node *Node);
 tree_node *GetNearestTreeNodeToTheLeft(tree_node *Node);
 tree_node *GetNearestTreeNodeToTheRight(tree_node *Node);
 tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID);
+tree_node *GetTreeNodeFromWindowIDOrLinkNode(tree_node *Node, int WindowID);
 link_node *GetLinkNodeFromWindowID(tree_node *Root, int WindowID);
 link_node *GetLinkNodeFromTree(tree_node *Root, int WindowID);
 tree_node *GetTreeNodeFromLink(tree_node *Root, link_node *Link);

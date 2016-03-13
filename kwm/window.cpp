@@ -504,12 +504,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
 
     if(KWMScreen.MarkedWindow == -1 && UseFocusedContainer)
     {
-        CurrentNode = GetTreeNodeFromWindowID(RootNode, KWMFocus.Window->WID);
-        if(!CurrentNode)
-        {
-            link_node *Link = GetLinkNodeFromWindowID(RootNode, KWMFocus.Window->WID);
-            CurrentNode = GetTreeNodeFromLink(RootNode, Link);
-        }
+        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, KWMFocus.Window->WID);
     }
     else if(DoNotUseMarkedContainer || (KWMScreen.MarkedWindow == -1 && !UseFocusedContainer))
     {
@@ -517,12 +512,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     }
     else
     {
-        CurrentNode = GetTreeNodeFromWindowID(RootNode, KWMScreen.MarkedWindow);
-        if(!CurrentNode)
-        {
-            link_node *Link = GetLinkNodeFromWindowID(RootNode, KWMScreen.MarkedWindow);
-            CurrentNode = GetTreeNodeFromLink(RootNode, Link);
-        }
+        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, KWMScreen.MarkedWindow);
         ClearMarkedWindow();
     }
 
@@ -994,12 +984,7 @@ void SwapFocusedWindowWithMarked()
     if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *TreeNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-        if(!TreeNode)
-        {
-            link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-            TreeNode = GetTreeNodeFromLink(Space->RootNode, Link);
-        }
+        tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
 
         if(TreeNode)
         {
@@ -1048,13 +1033,7 @@ void SwapFocusedWindowWithNearest(int Shift)
     }
     else if(Space->Mode == SpaceModeBSP)
     {
-        tree_node *TreeNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-        if(!TreeNode)
-        {
-            link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-            TreeNode = GetTreeNodeFromLink(Space->RootNode, Link);
-        }
-
+        tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
         if(TreeNode)
         {
             tree_node *NewFocusNode = NULL;;
@@ -1092,13 +1071,7 @@ void SwapFocusedWindowDirected(int Degrees)
     }
     else if(Space->Mode == SpaceModeBSP)
     {
-        tree_node *TreeNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-        if(!TreeNode)
-        {
-            link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-            TreeNode = GetTreeNodeFromLink(Space->RootNode, Link);
-        }
-
+        tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
         if(TreeNode)
         {
             tree_node *NewFocusNode = NULL;

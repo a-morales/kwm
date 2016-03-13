@@ -8,7 +8,6 @@ extern int GetActiveSpaceOfDisplay(screen_info *Screen);
 void AllowRoleForApplication(std::string Application, std::string Role);
 bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubRole);
 bool IsApplicationCapturedByScreen(window_info *Window);
-void CaptureApplication(window_info *Window);
 
 bool IsApplicationFloating(window_info *Window);
 bool IsFocusedWindowFloating();

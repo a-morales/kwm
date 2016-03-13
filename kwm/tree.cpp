@@ -555,6 +555,19 @@ tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID)
     return NULL;
 }
 
+tree_node *GetTreeNodeFromWindowIDOrLinkNode(tree_node *Node, int WindowID)
+{
+    tree_node *Result = NULL;
+    Result = GetTreeNodeFromWindowID(Node, WindowID);
+    if(!Result)
+    {
+        link_node *Link = GetLinkNodeFromWindowID(Node, WindowID);
+        Result = GetTreeNodeFromLink(Node, Link);
+    }
+
+    return Result;
+}
+
 link_node *GetLinkNodeFromWindowID(tree_node *Root, int WindowID)
 {
     if(Root)
