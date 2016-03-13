@@ -491,6 +491,13 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "id")
             FocusWindowByID(ConvertStringToInt(Tokens[3]));
     }
+    else if(Tokens[1] == "-fm")
+    {
+        if(Tokens[2] == "prev")
+            ShiftSubTreeWindowFocus(-1);
+        else if(Tokens[2] == "next")
+            ShiftSubTreeWindowFocus(1);
+    }
     else if(Tokens[1] == "-s")
     {
         if(Tokens[2] == "north")
@@ -574,7 +581,12 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "-c")
     {
-        if(Tokens[2] == "refresh")
+        if(Tokens[2] == "monocle")
+            ChangeTypeOfFocusedNode(NodeTypeLink);
+        else if(Tokens[2] == "bsp")
+            ChangeTypeOfFocusedNode(NodeTypeTree);
+
+        else if(Tokens[2] == "refresh")
         {
             space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
             ApplyTreeNodeContainer(Space->RootNode);

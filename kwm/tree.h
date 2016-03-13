@@ -13,6 +13,7 @@ void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node
 void SetRootNodeContainer(screen_info *Screen, tree_node *Node);
 void SetLinkNodeContainer(screen_info *Screen, link_node *Link);
 void ResizeNodeContainer(screen_info *Screen, tree_node *Node);
+void ResizeLinkNodeContainers(tree_node *Root);
 void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSplit);
 void ApplyTreeNodeContainer(tree_node *Node);
 void ApplyLinkNodeContainer(link_node *Link);
@@ -36,6 +37,7 @@ tree_node *GetNearestLeafNodeNeighbour(tree_node *Node);
 tree_node *GetNearestTreeNodeToTheLeft(tree_node *Node);
 tree_node *GetNearestTreeNodeToTheRight(tree_node *Node);
 tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID);
+link_node *GetLinkNodeFromWindowID(tree_node *Root, int WindowID);
 link_node *GetLinkNodeFromTree(tree_node *Root, int WindowID);
 tree_node *GetTreeNodeFromLink(tree_node *Root, link_node *Link);
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
@@ -43,6 +45,7 @@ void SwapNodeWindowIDs(link_node *A, link_node *B);
 split_type GetOptimalSplitMode(tree_node *Node);
 void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node);
 void ChangeSplitRatio(double Value);
+void ChangeTypeOfFocusedNode(node_type Type);
 
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr);
 bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr);

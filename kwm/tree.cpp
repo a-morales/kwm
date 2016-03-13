@@ -460,8 +460,19 @@ void SwapNodeWindowIDs(tree_node *A, tree_node *B)
         int TempWindowID = A->WindowID;
         A->WindowID = B->WindowID;
         B->WindowID = TempWindowID;
-        ResizeWindowToContainerSize(A);
-        ResizeWindowToContainerSize(B);
+
+        node_type TempNodeType = A->Type;
+        A->Type = B->Type;
+        B->Type = TempNodeType;
+
+        link_node *TempLinkList = A->List;
+        A->List = B->List;
+        B->List = TempLinkList;
+
+        ResizeLinkNodeContainers(A);
+        ResizeLinkNodeContainers(B);
+        ApplyTreeNodeContainer(A);
+        ApplyTreeNodeContainer(B);
     }
 }
 
@@ -475,6 +486,31 @@ void SwapNodeWindowIDs(link_node *A, link_node *B)
         B->WindowID = TempWindowID;
         ResizeWindowToContainerSize(A);
         ResizeWindowToContainerSize(B);
+    }
+}
+
+void ChangeTypeOfFocusedNode(node_type Type)
+{
+    Assert(KWMScreen.Current, "ChangeTypeOfFocusedTreeNode() KWMScreen.Current");
+    Assert(KWMFocus.Window, "ChangeTypeOfFocusedTreeNode() KWMFocus.Window");
+
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    tree_node *TreeNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+    if(TreeNode)
+    {
+        DEBUG("NODE TYPE IS NOW " << Type)
+        TreeNode->Type = Type;
+    }
+
+    else if(!TreeNode)
+    {
+        link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+        tree_node *TreeNode = GetTreeNodeFromLink(Space->RootNode, Link);
+        if(TreeNode)
+        {
+            DEBUG("NODE TYPE IS NOW " << Type)
+            TreeNode->Type = Type;
+        }
     }
 }
 
@@ -498,6 +534,25 @@ tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID)
                 return CurrentNode;
 
             CurrentNode = GetNearestTreeNodeToTheRight(CurrentNode);
+        }
+    }
+
+    return NULL;
+}
+
+link_node *GetLinkNodeFromWindowID(tree_node *Root, int WindowID)
+{
+    if(Root)
+    {
+        tree_node *Node = NULL;
+        GetFirstLeafNode(Root, (void**)&Node);
+        while(Node)
+        {
+            link_node *Link = GetLinkNodeFromTree(Node, WindowID);
+            if(Link)
+                return Link;
+
+            Node = GetNearestTreeNodeToTheRight(Node);
         }
     }
 
@@ -553,6 +608,19 @@ void ResizeNodeContainer(screen_info *Screen, tree_node *Node)
         {
             CreateNodeContainer(Screen, Node->RightChild, Node->RightChild->Container.Type);
             ResizeNodeContainer(Screen, Node->RightChild);
+        }
+    }
+}
+
+void ResizeLinkNodeContainers(tree_node *Root)
+{
+    if(Root)
+    {
+        link_node *Link = Root->List;
+        while(Link)
+        {
+            Link->Container = Root->Container;
+            Link = Link->Next;
         }
     }
 }

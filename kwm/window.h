@@ -55,6 +55,7 @@ void MoveCursorToCenterOfWindow(window_info *Window);
 void MoveCursorToCenterOfFocusedWindow();
 void FocusWindowByID(int WindowID);
 void ShiftWindowFocus(int Shift);
+void ShiftSubTreeWindowFocus(int Shift);
 void ShiftWindowFocusDirected(int Degrees);
 bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap);
 double GetWindowDistance(window_info *A, window_info *B);
