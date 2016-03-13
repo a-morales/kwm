@@ -457,7 +457,9 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
         {
             space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
             tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-            ToggleNodeSplitMode(KWMScreen.Current, Node->Parent);
+
+            if(Node)
+                ToggleNodeSplitMode(KWMScreen.Current, Node->Parent);
         }
         else if(Tokens[2] == "reduce" || Tokens[2] == "expand")
         {
