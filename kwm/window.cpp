@@ -699,7 +699,6 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
     }
     else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
     {
-        DEBUG("ShouldMonocleTreeUpdate() Remove Window")
         std::vector<int> WindowIDsInTree;
 
         link_node *Link = Space->RootNode->List;
@@ -709,28 +708,23 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
             Link = Link->Next;
         }
 
-        if(WindowIDsInTree.size() >= 2)
+        for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
         {
-            for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
+            bool Found = false;
+            for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
             {
-                bool Found = false;
-                for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
+                if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
                 {
-                    if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
-                    {
-                        Found = true;
-                        break;
-                    }
+                    Found = true;
+                    break;
                 }
-
-                if(!Found)
-                    RemoveWindowFromMonocleTree(Screen, WindowIDsInTree[IDIndex], true);
             }
-        }
-        else
-        {
-            free(Space->RootNode->List);
-            Space->RootNode->List = NULL;
+
+            if(!Found)
+            {
+                DEBUG("ShouldMonocleTreeUpdate() Remove Window")
+                RemoveWindowFromMonocleTree(Screen, WindowIDsInTree[IDIndex], true);
+            }
         }
     }
 }
@@ -1015,10 +1009,12 @@ void SwapFocusedWindowWithNearest(int Shift)
             link_node *ShiftNode = Shift == 1 ? Link->Next : Link->Prev;
             if(KWMMode.Cycle == CycleModeScreen && !ShiftNode)
             {
+                Space->RootNode->Type = NodeTypeLink;
                 if(Shift == 1)
                     GetFirstLeafNode(Space->RootNode, (void**)&ShiftNode);
                 else
                     GetLastLeafNode(Space->RootNode, (void**)&ShiftNode);
+                Space->RootNode->Type = NodeTypeTree;
             }
 
             if(ShiftNode)
@@ -1230,10 +1226,12 @@ void ShiftWindowFocus(int Shift)
             link_node *FocusNode = Shift == 1 ? Link->Next : Link->Prev;
             if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
             {
+                Space->RootNode->Type = NodeTypeLink;
                 if(Shift == 1)
                     GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
                 else
                     GetLastLeafNode(Space->RootNode, (void**)&FocusNode);
+                Space->RootNode->Type = NodeTypeTree;
             }
 
             if(FocusNode)
