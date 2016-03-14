@@ -43,6 +43,11 @@ func parseFrame(args: Array<String>, strokeWidth: CGFloat) -> NSRect
                         windowRefTmp = winRef
                     }
                 }
+
+                if(windowRefTmp == nil) {
+                    break
+                }
+
                 let windowRef = windowRefTmp as! AXUIElementRef
 
                 var winPosition : AnyObject? = nil
