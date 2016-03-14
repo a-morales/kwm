@@ -23,27 +23,18 @@ void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
 
     if(Node && KWMFocus.Window)
     {
-        FocusedIndex = 1;
-        NumberOfWindows = 1;
-
         link_node *Link = Node->List;
-        if(Link->WindowID == KWMFocus.Window->WID)
-            FoundFocusedWindow = true;
-
-        while(Link->Next)
+        while(Link)
         {
             if(!FoundFocusedWindow)
                 ++FocusedIndex;
 
-            if(Link->Next->WindowID == KWMFocus.Window->WID)
+            if(Link->WindowID == KWMFocus.Window->WID)
                 FoundFocusedWindow = true;
 
             ++NumberOfWindows;
             Link = Link->Next;
         }
-
-        if(Link->WindowID == KWMFocus.Window->WID)
-            FoundFocusedWindow = true;
     }
 
     if(FoundFocusedWindow)
@@ -280,7 +271,6 @@ void UpdateActiveSpace()
     pthread_mutex_lock(&KWMThread.Lock);
     Assert(KWMScreen.Current, "UpdateActiveSpace()")
 
-    KWMScreen.Transitioning = false;
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
     ShouldActiveSpaceBeManaged();
@@ -298,5 +288,6 @@ void UpdateActiveSpace()
         }
     }
 
+    KWMScreen.Transitioning = false;
     pthread_mutex_unlock(&KWMThread.Lock);
 }
