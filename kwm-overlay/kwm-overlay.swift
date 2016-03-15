@@ -41,11 +41,12 @@ func parseFrame(args: Array<String>, strokeWidth: CGFloat) -> NSRect
                     let cgWindowId = PrivateAPI.GetCGWindowIDFromAXElement(winRef)
                     if (cgWindowId == relativeToWindow) {
                         windowRefTmp = winRef
+                        break
                     }
                 }
 
                 if(windowRefTmp == nil) {
-                    break
+                    return NSRect(x: 0.0, y: 0.0, width: 0.0, height: 0.0)
                 }
 
                 let windowRef = windowRefTmp as! AXUIElementRef
@@ -228,6 +229,12 @@ class OverlayController: NSObject, NSApplicationDelegate
         let overlayColor = parseColor(args)
         let overlayStroke = parseStroke(args)
         let overlayFrame = parseFrame(args, strokeWidth: overlayStroke["size"]!)
+
+        if(NSIsEmptyRect(overlayFrame)) {
+            window.contentView = nil
+            return
+        }
+
         let overlayView = OverlayView(frame: overlayFrame, color: overlayColor, width: overlayStroke["size"]!, radius: overlayStroke["rad"]!)
 
         window.contentView = overlayView
