@@ -53,7 +53,7 @@ RefreshBorder(kwm_border *Border, int WindowID)
 {
     AXUIElementRef WindowRef;
     window_info *Window = GetWindowByID(WindowID);
-    if(GetWindowRef(Window, &WindowRef))
+    if(Window && GetWindowRef(Window, &WindowRef))
     {
         CGPoint WindowPos = GetWindowPos(WindowRef);
         CGSize WindowSize = GetWindowSize(WindowRef);
