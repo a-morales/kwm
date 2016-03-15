@@ -61,15 +61,12 @@ std::vector<window_info> FilterWindowListAllDisplays()
     std::vector<window_info> FilteredWindowLst;
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
     {
-        if(ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
+        CFTypeRef Role, SubRole;
+        if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
         {
-            CFTypeRef Role, SubRole;
-            if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
-            {
-                if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
-                   IsAppSpecificWindowRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
-                        FilteredWindowLst.push_back(KWMTiling.FocusLst[WindowIndex]);
-            }
+            if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
+               IsAppSpecificWindowRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
+                    FilteredWindowLst.push_back(KWMTiling.FocusLst[WindowIndex]);
         }
     }
 
@@ -251,24 +248,6 @@ bool FocusWindowOfOSX()
     return false;
 }
 
-bool ShouldWindowGainFocus(window_info *Window)
-{
-    bool Result =  Window->Layer == CGWindowLevelForKey(kCGNormalWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGFloatingWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGDockWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGMainMenuWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGMaximumWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGModalPanelWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGUtilityWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGOverlayWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGHelpWindowLevelKey) ||
-                   Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey) ||
-                   Window->Layer == 1490; // Note(koekeishiya): Unknown WindowLevelKey constant
-
-    return Result;
-}
-
 void FocusWindowBelowCursor()
 {
     if(IsSpaceTransitionInProgress() ||
@@ -292,8 +271,7 @@ void FocusWindowBelowCursor()
            KWMTiling.FocusLst[WindowIndex].Y == 0)
             continue;
 
-        if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]) &&
-           ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
+        if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]))
         {
             CFTypeRef Role, SubRole;
             if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
@@ -1438,8 +1416,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
            !KWMFocus.Observer)
             CreateApplicationNotifications();
 
-        if(ShouldWindowGainFocus(KWMFocus.Window))
-            UpdateBorder("focused");
+        UpdateBorder("focused");
     }
 
     if(KWMToggles.EnableTilingMode)

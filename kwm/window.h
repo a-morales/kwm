@@ -18,7 +18,6 @@ bool IsWindowOnActiveSpace(int WindowID);
 bool WindowsAreEqual(window_info *Window, window_info *Match);
 
 void ClearFocusedWindow();
-bool ShouldWindowGainFocus(window_info *Window);
 int GetFocusedWindowID();
 bool FocusWindowOfOSX();
 void FocusWindowBelowCursor();
