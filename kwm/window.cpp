@@ -275,9 +275,16 @@ void FocusWindowBelowCursor()
 
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
     {
+        /* Note(koekeishiya): Allow focus-follows-mouse to ignore Launchpad */
+        if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock" &&
+           KWMTiling.FocusLst[WindowIndex].Name == "LPSpringboard")
+            return;
+
+        /* Note(koekeishiya): Allow focus-follows-mouse to ignore kwm-overlay */
         if(KWMTiling.FocusLst[WindowIndex].Owner == "kwm-overlay")
             continue;
 
+        /* Note(koekeishiya): Allow focus-follows-mouse to work when the dock is visible */
         if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock" &&
            KWMTiling.FocusLst[WindowIndex].X == 0 &&
            KWMTiling.FocusLst[WindowIndex].Y == 0)
@@ -286,10 +293,10 @@ void FocusWindowBelowCursor()
         if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]) &&
            ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
         {
-            if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
-                KWMFocus.Cache = KWMTiling.FocusLst[WindowIndex];
-            else
-                SetWindowFocus(&KWMTiling.FocusLst[WindowIndex]);
+           if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
+               KWMFocus.Cache = KWMTiling.FocusLst[WindowIndex];
+           else
+               SetWindowFocus(&KWMTiling.FocusLst[WindowIndex]);
 
             return;
         }
