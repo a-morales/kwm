@@ -8,7 +8,7 @@
 #include "tree.h"
 #include "keys.h"
 #include "border.h"
-#include "types.h"
+#include "serializer.h"
 #include "helpers.h"
 
 extern kwm_screen KWMScreen;
