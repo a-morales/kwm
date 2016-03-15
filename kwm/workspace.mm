@@ -96,7 +96,7 @@ int GetActiveSpaceOfDisplay(screen_info *Screen)
     NSString *CurrentIdentifier = (__bridge NSString *)GetDisplayIdentifier(Screen);
 
     CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
-    for (NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
+    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
     {
         NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
         if ([ScreenIdentifier isEqualToString:CurrentIdentifier])
@@ -108,4 +108,24 @@ int GetActiveSpaceOfDisplay(screen_info *Screen)
 
     CFRelease(ScreenDictionaries);
     return CurrentSpace;
+}
+
+int GetNumberOfSpacesOfDisplay(screen_info *Screen)
+{
+    int Result = 0;
+    NSString *CurrentIdentifier = (__bridge NSString *)GetDisplayIdentifier(Screen);
+
+    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
+    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
+    {
+        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
+        if ([ScreenIdentifier isEqualToString:CurrentIdentifier])
+        {
+            NSArray *Spaces = ScreenDictionary[@"Spaces"];
+            Result = CFArrayGetCount((__bridge CFArrayRef)Spaces);
+        }
+    }
+
+    CFRelease(ScreenDictionaries);
+    return Result;
 }
