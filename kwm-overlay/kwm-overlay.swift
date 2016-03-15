@@ -16,63 +16,9 @@ func parseFrame(args: Array<String>, strokeWidth: CGFloat) -> NSRect
     frameHash["x"] = 0
     frameHash["y"] = 0
 
-    let windowId = Int(args[0])
-
-    if (windowId != nil) {
-        let option = CGWindowListOption(arrayLiteral: CGWindowListOption.ExcludeDesktopElements, CGWindowListOption.OptionOnScreenOnly)
-        let relativeToWindow = CGWindowID(windowId!)
-        let windowInfoListRef = CGWindowListCopyWindowInfo(option, relativeToWindow)
-        let windowInfoList = windowInfoListRef as NSArray? as? [[String: AnyObject]]
-        let scrns: Array<NSScreen> = NSScreen.screens()!
-        let scrn: NSScreen = scrns[0]
-        let scrnHeight: CGFloat = scrn.frame.size.height
-
-        for windowInfo in windowInfoList! {
-            let windowNumber = windowInfo["kCGWindowNumber"]! as! Int
-            if (windowNumber == windowId) {
-                let windowAppPID = windowInfo["kCGWindowOwnerPID"] as? Int
-                let appRef : AXUIElement = AXUIElementCreateApplication(pid_t(windowAppPID!)).takeRetainedValue()
-
-                var windowList : CFArray? = nil
-                AXUIElementCopyAttributeValues(appRef, kAXWindowsAttribute, 0, 100, &windowList)
-                let appWindowsRef = windowList as NSArray? as! [AXUIElement]
-                var windowRefTmp : AnyObject? = nil
-                for winRef in appWindowsRef {
-                    let cgWindowId = PrivateAPI.GetCGWindowIDFromAXElement(winRef)
-                    if (cgWindowId == relativeToWindow) {
-                        windowRefTmp = winRef
-                        break
-                    }
-                }
-
-                if(windowRefTmp == nil) {
-                    return NSRect(x: 0.0, y: 0.0, width: 0.0, height: 0.0)
-                }
-
-                let windowRef = windowRefTmp as! AXUIElementRef
-
-                var winPosition : AnyObject? = nil
-                AXUIElementCopyAttributeValue(windowRef, kAXPositionAttribute, &winPosition)
-                let winPositionValue = winPosition as! AXValue
-                var winTopLeft = CGPoint()
-                AXValueGetValue(winPositionValue, AXValueType( rawValue:kAXValueCGPointType)!, &winTopLeft)
-
-                var winSize : AnyObject? = nil
-                AXUIElementCopyAttributeValue(windowRef, kAXSizeAttribute, &winSize)
-                let winSizeValue = winSize as! AXValue
-                var winCGSize = CGSize()
-                AXValueGetValue(winSizeValue, AXValueType( rawValue:kAXValueCGSizeType)!, &winCGSize)
-
-                if (windowInfo["kCGWindowBounds"] != nil) {
-                    frameHash["w"] = winCGSize.width
-                    frameHash["h"] = winCGSize.height
-                    frameHash["x"] = winTopLeft.x
-                    frameHash["y"] = scrnHeight - (winTopLeft.y + winCGSize.height)
-                }
-                break
-            }
-        }
-    }
+    let scrns: Array<NSScreen> = NSScreen.screens()!
+    let scrn: NSScreen = scrns[0]
+    let scrnHeight: CGFloat = scrn.frame.size.height
 
     for arg in args {
         if ((arg.characters.indexOf(":")) != nil) {
@@ -102,6 +48,8 @@ func parseFrame(args: Array<String>, strokeWidth: CGFloat) -> NSRect
             }
         }
     }
+
+    frameHash["y"] = scrnHeight - (frameHash["y"]! + frameHash["h"]!)
 
     let computedFrame = NSRect(x: frameHash["x"]!,
                                y: frameHash["y"]!,

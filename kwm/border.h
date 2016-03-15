@@ -2,6 +2,7 @@
 #define BORDER_H
 
 #include "types.h"
+#include "window.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
@@ -50,14 +51,25 @@ ClearBorder(kwm_border *Border)
 inline void
 RefreshBorder(kwm_border *Border, int WindowID)
 {
-    std::string Command = std::to_string(WindowID) + \
-                          " " + Border->Color.Format + \
-                          " s:" + std::to_string(Border->Width);
+    AXUIElementRef WindowRef;
+    window_info *Window = GetWindowByID(WindowID);
+    if(GetWindowRef(Window, &WindowRef))
+    {
+        CGPoint WindowPos = GetWindowPos(WindowRef);
+        CGSize WindowSize = GetWindowSize(WindowRef);
+        std::string Command = "x:" + std::to_string(WindowPos.x) + \
+                              " y:" + std::to_string(WindowPos.y) + \
+                              " w:" + std::to_string(WindowSize.width) + \
+                              " h:" + std::to_string(WindowSize.height) + \
+                              " " + Border->Color.Format + \
+                              " s:" + std::to_string(Border->Width);
 
-    Command += Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "";
+        Command += Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "";
 
-    fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
-    fflush(Border->Handle);
+        std::cout << Command << std::endl;
+        fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
+        fflush(Border->Handle);
+    }
 }
 
 void UpdateBorder(std::string BorderType);
