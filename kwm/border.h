@@ -66,7 +66,6 @@ RefreshBorder(kwm_border *Border, int WindowID)
 
         Command += Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "";
 
-        std::cout << Command << std::endl;
         fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
         fflush(Border->Handle);
     }
