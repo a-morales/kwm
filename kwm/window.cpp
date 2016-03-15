@@ -253,18 +253,20 @@ bool FocusWindowOfOSX()
 
 bool ShouldWindowGainFocus(window_info *Window)
 {
-    return Window->Layer == CGWindowLevelForKey(kCGNormalWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGFloatingWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGDockWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGMainMenuWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGMaximumWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGModalPanelWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGUtilityWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGOverlayWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGHelpWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey) ||
-           Window->Layer == 1490; // Note(koekeishiya): Unknown WindowLevelKey constant
+    bool Result =  Window->Layer == CGWindowLevelForKey(kCGNormalWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGFloatingWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGDockWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGMainMenuWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGMaximumWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGModalPanelWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGUtilityWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGOverlayWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGHelpWindowLevelKey) ||
+                   Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey) ||
+                   Window->Layer == 1490; // Note(koekeishiya): Unknown WindowLevelKey constant
+
+    return Result;
 }
 
 void FocusWindowBelowCursor()
@@ -293,11 +295,18 @@ void FocusWindowBelowCursor()
         if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]) &&
            ShouldWindowGainFocus(&KWMTiling.FocusLst[WindowIndex]))
         {
-           if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
-               KWMFocus.Cache = KWMTiling.FocusLst[WindowIndex];
-           else
-               SetWindowFocus(&KWMTiling.FocusLst[WindowIndex]);
-
+            CFTypeRef Role, SubRole;
+            if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
+            {
+                if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
+                   IsAppSpecificWindowRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
+                {
+                    if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
+                        KWMFocus.Cache = KWMTiling.FocusLst[WindowIndex];
+                    else
+                        SetWindowFocus(&KWMTiling.FocusLst[WindowIndex]);
+                }
+            }
             return;
         }
     }
