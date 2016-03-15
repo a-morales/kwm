@@ -7,7 +7,7 @@ KWM_OBJS_TMP  = $(KWM_SRCS:.cpp=.o)
 KWM_OBJS      = $(KWM_OBJS_TMP:.mm=.o)
 KWMC_SRCS     = kwmc/kwmc.cpp kwmc/help.cpp
 KWMC_OBJS     = $(KWMC_SRCS:.cpp=.o)
-KWMO_SRCS     = kwm-overlay/kwm-overlay.swift kwm-overlay/Private-API.mm
+KWMO_SRCS     = kwm-overlay/kwm-overlay.swift
 KWMO_OBJS_TMP = $(KWMO_SRCS:.swift=.o)
 KWMO_OBJS     = $(KWMO_OBJS_TMP:.mm=.o)
 OBJS_DIR      = ./obj
@@ -61,7 +61,7 @@ $(BUILD_PATH)/kwm-overlay: $(foreach obj,$(KWMO_OBJS),$(OBJS_DIR)/$(obj))
 
 $(OBJS_DIR)/kwm-overlay/%.o: kwm-overlay/%.swift
 	@mkdir -p $(@D)
-	swiftc -c $^ $(DEBUG_BUILD) -sdk $(SDK_ROOT) -import-objc-header kwm-overlay/Private-API.h -Xlinker -rpath -Xlinker $(XTRA_RPATH) -o $@
+	swiftc -c $^ $(DEBUG_BUILD) -sdk $(SDK_ROOT) -Xlinker -rpath -Xlinker $(XTRA_RPATH) -o $@
 
 $(OBJS_DIR)/kwm-overlay/%.o: kwm-overlay/%.mm
 	@mkdir -p $(@D)
