@@ -1,4 +1,6 @@
 #include "notifications.h"
+#include "display.h"
+#include "space.h"
 #include "window.h"
 #include "border.h"
 
@@ -22,6 +24,15 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
         {
             DEBUG("Element: " << GetWindowTitle(Element))
             SetKwmFocus(Element);
+            screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
+            if(Screen && KWMScreen.Current != Screen)
+            {
+                KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
+                KWMScreen.Current = Screen;
+                KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
+                ShouldActiveSpaceBeManaged();
+                MoveCursorToCenterOfFocusedWindow();
+            }
         }
     }
     else if(CFEqual(Notification, kAXWindowResizedNotification) ||
