@@ -220,6 +220,28 @@ void ClearFocusedWindow()
     KWMFocus.Cache = KWMFocus.NULLWindowInfo;
 }
 
+bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef)
+{
+    static AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
+
+    AXUIElementRef App;
+    AXUIElementCopyAttributeValue(SystemWideElement, kAXFocusedApplicationAttribute, (CFTypeRef*)&App);
+    if(App)
+    {
+        AXUIElementRef AppWindowRef;
+        AXError Error = AXUIElementCopyAttributeValue(App, kAXFocusedWindowAttribute, (CFTypeRef*)&AppWindowRef);
+        CFRelease(App);
+
+        if(Error == kAXErrorSuccess)
+        {
+            *WindowRef = AppWindowRef;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool FocusWindowOfOSX()
 {
     if(IsSpaceTransitionInProgress() ||
@@ -238,7 +260,7 @@ bool FocusWindowOfOSX()
 
         if (Error == kAXErrorSuccess)
         {
-            SetWindowRefFocus(WindowRef);
+            SetKwmFocus(WindowRef);
             CFRelease(WindowRef);
             return true;
         }
@@ -1386,6 +1408,44 @@ void MarkFocusedWindowContainer()
     MarkWindowContainer(KWMFocus.Window);
 }
 
+void SetKwmFocus(AXUIElementRef WindowRef)
+{
+    int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
+
+    KWMFocus.Cache = GetWindowByRef(WindowRef);
+    if(WindowsAreEqual(&KWMFocus.Cache, &KWMFocus.NULLWindowInfo))
+    {
+        KWMFocus.Window = NULL;
+        ClearBorder(&FocusedBorder);
+        return;
+    }
+
+    KWMFocus.Window = &KWMFocus.Cache;
+    ProcessSerialNumber NewPSN;
+    GetProcessForPID(KWMFocus.Window->PID, &NewPSN);
+    KWMFocus.PSN = NewPSN;
+
+    if(!IsActiveSpaceFloating())
+    {
+        if(OldProcessPID != KWMFocus.Window->PID ||
+           !KWMFocus.Observer)
+            CreateApplicationNotifications();
+
+        UpdateBorder("focused");
+    }
+
+    if(KWMToggles.EnableTilingMode)
+    {
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        Space->FocusedWindowID = KWMFocus.Window->WID;
+    }
+
+    if(KWMMode.Focus != FocusModeDisabled &&
+       KWMMode.Focus != FocusModeAutofocus &&
+       KWMToggles.StandbyOnFloat)
+        KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
+}
+
 void SetWindowRefFocus(AXUIElementRef WindowRef)
 {
     int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
@@ -1789,7 +1849,7 @@ window_info GetWindowByRef(AXUIElementRef WindowRef)
     return Window ? *Window : KWMFocus.NULLWindowInfo;
 }
 
-inline int GetWindowIDFromRef(AXUIElementRef WindowRef)
+int GetWindowIDFromRef(AXUIElementRef WindowRef)
 {
     int WindowRefWID = -1;
     _AXUIElementGetWindow(WindowRef, &WindowRefWID);

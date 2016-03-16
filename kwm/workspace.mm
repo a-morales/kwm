@@ -4,16 +4,16 @@
 
 extern void MoveCursorToCenterOfFocusedWindow();
 extern void UpdateActiveSpace();
-extern void UpdateActiveScreen();
-extern bool FocusWindowOfOSX();
-extern bool IsSpaceTransitionInProgress();
 extern screen_info *GetDisplayOfWindow(window_info *Window);
-extern void GiveFocusToScreen(int ScreenID, tree_node *Focus, bool Mouse);
-extern space_info *GetActiveSpaceOfScreen(screen_info *Screen);
+extern bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef);
+extern void SetKwmFocus(AXUIElementRef WindowRef);
+extern bool ShouldActiveSpaceBeManaged();
 
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
 extern kwm_thread KWMThread;
+
+int GetActiveSpaceOfDisplay(screen_info *Screen);
 
 @interface MDWorkspaceWatcher : NSObject {
 }
@@ -57,14 +57,23 @@ extern kwm_thread KWMThread;
     pid_t ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
     if(ProcessID != -1)
     {
-        if((KWMFocus.Window && KWMFocus.Window->PID != ProcessID) ||
-           !KWMFocus.Window)
+        window_info *Window = KWMFocus.Window;
+        if((Window && Window->PID != ProcessID) || !Window)
         {
-            if(FocusWindowOfOSX() && KWMFocus.Window)
+            AXUIElementRef OSXWindowRef;
+            if(GetWindowFocusedByOSX(&OSXWindowRef))
             {
+                SetKwmFocus(OSXWindowRef);
+                MoveCursorToCenterOfFocusedWindow();
+
                 screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
-                if(KWMScreen.Current != Screen)
-                    GiveFocusToScreen(Screen->ID, NULL, false);
+                if(Screen)
+                {
+                    KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
+                    KWMScreen.Current = Screen;
+                    KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
+                    ShouldActiveSpaceBeManaged();
+                }
             }
         }
     }
