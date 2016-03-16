@@ -64,15 +64,14 @@ int GetActiveSpaceOfDisplay(screen_info *Screen);
             if(GetWindowFocusedByOSX(&OSXWindowRef))
             {
                 SetKwmFocus(OSXWindowRef);
-                MoveCursorToCenterOfFocusedWindow();
-
                 screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
-                if(Screen)
+                if(Screen && KWMScreen.Current != Screen)
                 {
                     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
                     KWMScreen.Current = Screen;
                     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
                     ShouldActiveSpaceBeManaged();
+                    MoveCursorToCenterOfFocusedWindow();
                 }
             }
         }
