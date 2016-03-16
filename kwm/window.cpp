@@ -512,16 +512,17 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     tree_node *CurrentNode = NULL;
 
     DEBUG("AddWindowToBSPTree() Create pair of leafs")
-    bool UseFocusedContainer = KWMFocus.Window &&
-                               IsWindowOnActiveSpace(KWMFocus.Window->WID) &&
-                               KWMFocus.Window->WID != WindowID;
+    window_info *InsertionPoint = !WindowsAreEqual(&KWMFocus.InsertionPoint, &KWMFocus.NULLWindowInfo) ? &KWMFocus.InsertionPoint : NULL;
+    bool UseFocusedContainer = InsertionPoint &&
+                               IsWindowOnActiveSpace(InsertionPoint->WID) &&
+                               InsertionPoint->WID != WindowID;
 
     bool DoNotUseMarkedContainer = IsWindowFloating(KWMScreen.MarkedWindow, NULL) ||
                                    (KWMScreen.MarkedWindow == WindowID);
 
     if(KWMScreen.MarkedWindow == -1 && UseFocusedContainer)
     {
-        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, KWMFocus.Window->WID);
+        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, InsertionPoint->WID);
     }
     else if(DoNotUseMarkedContainer || (KWMScreen.MarkedWindow == -1 && !UseFocusedContainer))
     {
@@ -1459,6 +1460,8 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
     }
 
     KWMFocus.Window = &KWMFocus.Cache;
+    KWMFocus.InsertionPoint = KWMFocus.Cache;
+
     ProcessSerialNumber NewPSN;
     GetProcessForPID(KWMFocus.Window->PID, &NewPSN);
     KWMFocus.PSN = NewPSN;

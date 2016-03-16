@@ -295,6 +295,7 @@ struct kwm_focus
     window_info *Window;
     window_info Cache;
     window_info NULLWindowInfo;
+    window_info InsertionPoint;
 };
 
 struct kwm_screen
