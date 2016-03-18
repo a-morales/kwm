@@ -39,11 +39,16 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyDown:
         {
-            if(KWMToggles.UseBuiltinHotkeys &&
-               KwmMainHotkeyTrigger(&Event))
+            if(KWMToggles.UseBuiltinHotkeys)
             {
-                pthread_mutex_unlock(&KWMThread.Lock);
-                return NULL;
+                hotkey Eventkey = {}, Hotkey = {};
+                CreateHotkeyFromCGEvent(Event, &Eventkey);
+                if(HotkeyExists(Eventkey.Mod, Eventkey.Key, &Hotkey))
+                {
+                    KWMHotkeys.Queue.push(Hotkey);
+                    pthread_mutex_unlock(&KWMThread.Lock);
+                    return NULL;
+                }
             }
 
             if(KWMMode.Focus == FocusModeAutofocus &&
@@ -268,6 +273,7 @@ void KwmInit()
     KwmExecuteInitScript();
 
     pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
+    pthread_create(&KWMThread.Hotkey, NULL, &KwmMainHotkeyTrigger, NULL);
 }
 
 bool CheckPrivileges()

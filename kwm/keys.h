@@ -9,11 +9,13 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey);
 void DetermineHotkeyState(hotkey *Hotkey, std::string &Command);
 bool IsHotkeyStateReqFulfilled(hotkey *Hotkey);
 
+bool ShouldKeyBeProcessed(hotkey *Hotkey);
+void CreateHotkeyFromCGEvent(CGEventRef Event, hotkey *Hotkey);
 bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey);
 void KwmAddHotkey(std::string KeySym, std::string Command);
 void KwmRemoveHotkey(std::string KeySym);
-bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode);
-bool KwmMainHotkeyTrigger(CGEventRef *Event);
+void KwmExecuteHotkey(hotkey *Hotkey);
+void *KwmMainHotkeyTrigger(void *EventPtr);
 void KwmEmitKeystrokes(std::string Text);
 void KwmEmitKeystroke(modifiers Mod, std::string Key);
 void KwmEmitKeystroke(std::string KeySym);

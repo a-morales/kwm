@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <queue>
 #include <map>
 #include <fstream>
 #include <sstream>
@@ -264,6 +265,7 @@ struct kwm_prefix
 
 struct kwm_hotkeys
 {
+    std::queue<hotkey> Queue;
     std::vector<hotkey> List;
     kwm_prefix Prefix;
     modifiers SpacesKey;
@@ -349,6 +351,7 @@ struct kwm_thread
 {
     pthread_t WindowMonitor;
     pthread_t SystemCommand;
+    pthread_t Hotkey;
     pthread_t Daemon;
     pthread_mutex_t Lock;
 };
