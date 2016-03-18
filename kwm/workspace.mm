@@ -63,6 +63,7 @@ int GetActiveSpaceOfDisplay(screen_info *Screen);
     if(ProcessID != -1)
     {
         window_info *Window = KWMFocus.Window;
+        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
         if((Window && Window->PID != ProcessID) || !Window)
         {
             AXUIElementRef OSXWindowRef;
@@ -72,8 +73,12 @@ int GetActiveSpaceOfDisplay(screen_info *Screen);
                 screen_info *Screen = GetDisplayOfWindow(OSXWindow);
                 if(Window && Screen)
                 {
-                    GiveFocusToScreen(Screen->ID, NULL, false, false);
+                    if(ScreenOfWindow && ScreenOfWindow != Screen)
+                        GiveFocusToScreen(Screen->ID, NULL, false, false);
+
                     SetKwmFocus(OSXWindowRef);
+                    if(Screen == ScreenOfWindow)
+                        KWMFocus.InsertionPoint = KWMFocus.Cache;
                 }
             }
         }

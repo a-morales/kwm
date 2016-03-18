@@ -83,11 +83,7 @@ bool FilterWindowList(screen_info *Screen)
         /* Note(koekeishiya):
          * Mission-Control mode is on and so we do not try to tile windows */
         if(Window->Owner == "Dock" && Window->Name == "")
-        {
-                ClearFocusedWindow();
-                ClearMarkedWindow();
                 return false;
-        }
 
         if(Window->Layer == 0)
         {

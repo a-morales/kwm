@@ -28,7 +28,7 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             if(OSXWindow && Screen)
             {
                 screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-                if(ScreenOfWindow && Window)
+                if(ScreenOfWindow && Window && ScreenOfWindow != Screen)
                 {
                     space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
                     if(SpaceOfWindow->Mode == SpaceModeBSP)
@@ -37,10 +37,12 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
                         RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
 
                     SpaceOfWindow->FocusedWindowID = 0;
+                    GiveFocusToScreen(Screen->ID, NULL, false, false);
                 }
 
-                GiveFocusToScreen(Screen->ID, NULL, false, false);
                 SetKwmFocus(Element);
+                if(Screen == ScreenOfWindow)
+                    KWMFocus.InsertionPoint = KWMFocus.Cache;
             }
         }
     }
