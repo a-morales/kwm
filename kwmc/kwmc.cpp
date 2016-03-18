@@ -33,6 +33,7 @@ std::string ReadFromSocket(int SockFD)
 
 void WriteToSocket(std::string Msg)
 {
+    Msg += "\n";
     send(KwmcSockFD, Msg.c_str(), Msg.size(), 0);
 
     std::string Response = ReadFromSocket(KwmcSockFD);
@@ -53,7 +54,6 @@ void KwmcForwardMessageThroughSocket(int argc, char **argv)
         if(i < argc - 1)
             Msg += " ";
     }
-    Msg += "\n";
 
     WriteToSocket(Msg);
 }
