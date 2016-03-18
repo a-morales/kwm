@@ -23,15 +23,12 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
         if(!Window || Window->WID != GetWindowIDFromRef(Element))
         {
             DEBUG("Element: " << GetWindowTitle(Element))
-            SetKwmFocus(Element);
-            screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
-            if(Screen && KWMScreen.Current != Screen)
+            window_info *OSXWindow = GetWindowByID(GetWindowIDFromRef(Element));
+            screen_info *Screen = GetDisplayOfWindow(OSXWindow);
+            if(Window && Screen)
             {
-                KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-                KWMScreen.Current = Screen;
-                KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
-                ShouldActiveSpaceBeManaged();
-                MoveCursorToCenterOfFocusedWindow();
+                GiveFocusToScreen(Screen->ID, NULL, false, false);
+                SetKwmFocus(Element);
             }
         }
     }

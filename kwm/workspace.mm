@@ -2,12 +2,17 @@
 #import "types.h"
 #include "notifications.h"
 
+extern bool FilterWindowList(screen_info *Screen);
+extern void UpdateActiveWindowList(screen_info *Screen);
 extern void MoveCursorToCenterOfFocusedWindow();
 extern void UpdateActiveSpace();
 extern screen_info *GetDisplayOfWindow(window_info *Window);
 extern bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef);
 extern void SetKwmFocus(AXUIElementRef WindowRef);
 extern bool ShouldActiveSpaceBeManaged();
+extern void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *Focus, bool Mouse, bool UpdateFocus);
+extern window_info *GetWindowByID(int WindowID);
+extern int GetWindowIDFromRef(AXUIElementRef WindowRef);
 
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
@@ -63,15 +68,12 @@ int GetActiveSpaceOfDisplay(screen_info *Screen);
             AXUIElementRef OSXWindowRef;
             if(GetWindowFocusedByOSX(&OSXWindowRef))
             {
-                SetKwmFocus(OSXWindowRef);
-                screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
-                if(Screen && KWMScreen.Current != Screen)
+                window_info *OSXWindow = GetWindowByID(GetWindowIDFromRef(OSXWindowRef));
+                screen_info *Screen = GetDisplayOfWindow(OSXWindow);
+                if(Window && Screen)
                 {
-                    KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-                    KWMScreen.Current = Screen;
-                    KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
-                    ShouldActiveSpaceBeManaged();
-                    MoveCursorToCenterOfFocusedWindow();
+                    GiveFocusToScreen(Screen->ID, NULL, false, false);
+                    SetKwmFocus(OSXWindowRef);
                 }
             }
         }

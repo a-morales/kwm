@@ -1357,7 +1357,7 @@ void FocusWindowByID(int WindowID)
             tree_node *Root = Space->RootNode;
             tree_node *Node = GetTreeNodeFromWindowID(Root, WindowID);
             if(Node)
-                GiveFocusToScreen(Screen->ID, Node, false);
+                GiveFocusToScreen(Screen->ID, Node, false, true);
         }
     }
 }
