@@ -31,6 +31,18 @@ std::string ReadFromSocket(int SockFD)
     return Message;
 }
 
+void WriteToSocket(std::string Msg)
+{
+    send(KwmcSockFD, Msg.c_str(), Msg.size(), 0);
+
+    std::string Response = ReadFromSocket(KwmcSockFD);
+    if(!Response.empty())
+        std::cout << Response << std::endl;
+
+    shutdown(KwmcSockFD);
+    close(KwmcSockFD);
+}
+
 void KwmcForwardMessageThroughSocket(int argc, char **argv)
 {
     std::string Msg;
@@ -43,11 +55,7 @@ void KwmcForwardMessageThroughSocket(int argc, char **argv)
     }
     Msg += "\n";
 
-    send(KwmcSockFD, Msg.c_str(), Msg.size(), 0);
-
-    std::string Response = ReadFromSocket(KwmcSockFD);
-    if(!Response.empty())
-        std::cout << Response << std::endl;
+    WriteToSocket(Msg);
 }
 
 void KwmcConnectToDaemon()
@@ -68,29 +76,40 @@ void KwmcConnectToDaemon()
         Fatal("Connection failed!");
 }
 
+void KwmcInterpreter()
+{
+    while(true)
+    {
+        std::string Msg;
+        std::getline(std::cin, Msg);
+        if(Msg  == "/quit" || Msg == "/q")
+            break;
+
+        KwmcConnectToDaemon();
+        WriteToSocket(Msg);
+    }
+}
+
 int main(int argc, char **argv)
 {
-    if(argc >= 2)
+    if(argc <= 1)
+        ShowUsage();
+
+    else if(argc >= 2)
     {
         std::string Command = argv[1];
-        if(Command == "help" && argc >= 3)
-        {
+        if(Command == "interpret")
+            KwmcInterpreter();
+        else if(Command == "help" && argc >= 3)
             ShowHelp(argv[2]);
-        }
-        else if (Command == "help")
-        {
+        else if(Command == "help")
             ShowUsage();
-        }
+
         else
         {
             KwmcConnectToDaemon();
             KwmcForwardMessageThroughSocket(argc, argv);
-            close(KwmcSockFD);
         }
-    }
-    else
-    {
-        ShowUsage();
     }
 
     return 0;
