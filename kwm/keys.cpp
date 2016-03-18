@@ -148,12 +148,14 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
         if(HotkeysAreEqual(&KWMHotkeys.List[HotkeyIndex], &TempHotkey))
         {
             if(Hotkey)
+            {
                 *Hotkey = KWMHotkeys.List[HotkeyIndex];
 
-            if((Hotkey->Prefixed || KWMHotkeys.Prefix.Global) && KWMHotkeys.Prefix.Active)
-                return true;
-            else if(!Hotkey->Prefixed && !KWMHotkeys.Prefix.Global)
-                return true;
+                if((Hotkey->Prefixed || KWMHotkeys.Prefix.Global) && KWMHotkeys.Prefix.Active)
+                    return true;
+                else if(!Hotkey->Prefixed && !KWMHotkeys.Prefix.Global)
+                    return true;
+            }
         }
     }
 
