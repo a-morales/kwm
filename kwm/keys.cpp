@@ -145,17 +145,16 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
 
     for(std::size_t HotkeyIndex = 0; HotkeyIndex < KWMHotkeys.List.size(); ++HotkeyIndex)
     {
-        if(HotkeysAreEqual(&KWMHotkeys.List[HotkeyIndex], &TempHotkey))
+        hotkey *CheckHotkey = &KWMHotkeys.List[HotkeyIndex];
+        if(HotkeysAreEqual(CheckHotkey, &TempHotkey))
         {
             if(Hotkey)
-            {
-                *Hotkey = KWMHotkeys.List[HotkeyIndex];
+                *Hotkey = *CheckHotkey;
 
-                if((Hotkey->Prefixed || KWMHotkeys.Prefix.Global) && KWMHotkeys.Prefix.Active)
-                    return true;
-                else if(!Hotkey->Prefixed && !KWMHotkeys.Prefix.Global)
-                    return true;
-            }
+            if((CheckHotkey->Prefixed || KWMHotkeys.Prefix.Global) && KWMHotkeys.Prefix.Active)
+                return true;
+            else if(!CheckHotkey->Prefixed && !KWMHotkeys.Prefix.Global)
+                return true;
         }
     }
 
