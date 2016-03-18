@@ -25,8 +25,20 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             DEBUG("Element: " << GetWindowTitle(Element))
             window_info *OSXWindow = GetWindowByID(GetWindowIDFromRef(Element));
             screen_info *Screen = GetDisplayOfWindow(OSXWindow);
-            if(Window && Screen)
+            if(OSXWindow && Screen)
             {
+                screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
+                if(ScreenOfWindow && Window)
+                {
+                    space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
+                    if(SpaceOfWindow->Mode == SpaceModeBSP)
+                        RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
+                    else if(SpaceOfWindow->Mode == SpaceModeMonocle)
+                        RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
+
+                    SpaceOfWindow->FocusedWindowID = 0;
+                }
+
                 GiveFocusToScreen(Screen->ID, NULL, false, false);
                 SetKwmFocus(Element);
             }
