@@ -1168,7 +1168,9 @@ bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
     for(int Index = 0; Index < Windows.size(); ++Index)
     {
         if(!WindowsAreEqual(Match, &Windows[Index]) &&
-           WindowIsInDirection(Match, &Windows[Index], Degrees, Wrap))
+           WindowIsInDirection(Match, &Windows[Index], Degrees, Wrap) &&
+           !IsWindowFloating(Windows[Index].WID, NULL) &&
+           !IsApplicationFloating(&Windows[Index]))
         {
             window_info FocusWindow = Windows[Index];
 
