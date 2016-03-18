@@ -39,7 +39,7 @@ void WriteToSocket(std::string Msg)
     if(!Response.empty())
         std::cout << Response << std::endl;
 
-    shutdown(KwmcSockFD);
+    shutdown(KwmcSockFD, SHUT_RDWR);
     close(KwmcSockFD);
 }
 
