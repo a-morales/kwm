@@ -27,8 +27,6 @@ kwm_callback KWMCallback =  {};
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
-    pthread_mutex_lock(&KWMThread.Lock);
-
     switch(Type)
     {
         case kCGEventTapDisabledByTimeout:
@@ -46,7 +44,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 if(HotkeyExists(Eventkey.Mod, Eventkey.Key, &Hotkey))
                 {
                     KWMHotkeys.Queue.push(Hotkey);
-                    pthread_mutex_unlock(&KWMThread.Lock);
                     return NULL;
                 }
             }
@@ -56,7 +53,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&KWMFocus.PSN, Event);
-                pthread_mutex_unlock(&KWMThread.Lock);
                 return NULL;
             }
         } break;
@@ -67,22 +63,22 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&KWMFocus.PSN, Event);
-                pthread_mutex_unlock(&KWMThread.Lock);
                 return NULL;
             }
         } break;
         case kCGEventMouseMoved:
         {
+            pthread_mutex_lock(&KWMThread.Lock);
             UpdateActiveScreen();
 
             if(KWMMode.Focus != FocusModeDisabled &&
                KWMMode.Focus != FocusModeStandby &&
                !IsActiveSpaceFloating())
                 FocusWindowBelowCursor();
+            pthread_mutex_unlock(&KWMThread.Lock);
         } break;
     }
 
-    pthread_mutex_unlock(&KWMThread.Lock);
     return Event;
 }
 

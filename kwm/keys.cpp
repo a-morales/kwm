@@ -43,8 +43,10 @@ void *KwmMainHotkeyTrigger(void *HotkeyPtr)
             hotkey Hotkey = KWMHotkeys.Queue.front();
             KWMHotkeys.Queue.pop();
 
+            pthread_mutex_lock(&KWMThread.Lock);
             if(ShouldKeyBeProcessed(&Hotkey))
                 KwmExecuteHotkey(&Hotkey);
+            pthread_mutex_unlock(&KWMThread.Lock);
         }
 
         usleep(10000);
