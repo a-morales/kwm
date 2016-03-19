@@ -24,11 +24,15 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
         {
             DEBUG("Element: " << GetWindowTitle(Element))
             window_info *OSXWindow = GetWindowByID(GetWindowIDFromRef(Element));
-            screen_info *Screen = GetDisplayOfWindow(OSXWindow);
-            if(OSXWindow && Screen)
+            screen_info *OSXScreen = GetDisplayOfWindow(OSXWindow);
+            if(OSXWindow && OSXScreen)
             {
                 screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-                if(ScreenOfWindow && Window && ScreenOfWindow != Screen)
+                UpdateActiveWindowList(ScreenOfWindow);
+
+                if(ScreenOfWindow && Window &&
+                   GetWindowByID(Window->WID) == NULL &&
+                   OSXScreen != ScreenOfWindow)
                 {
                     space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
                     if(SpaceOfWindow->Mode == SpaceModeBSP)
@@ -37,11 +41,11 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
                         RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
 
                     SpaceOfWindow->FocusedWindowID = 0;
-                    GiveFocusToScreen(Screen->ID, NULL, false, false);
                 }
 
+                GiveFocusToScreen(OSXScreen->ID, NULL, false, false);
                 SetKwmFocus(Element);
-                if(Screen == ScreenOfWindow)
+                if(OSXScreen == ScreenOfWindow)
                     KWMFocus.InsertionPoint = KWMFocus.Cache;
             }
         }
