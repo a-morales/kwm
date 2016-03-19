@@ -118,7 +118,7 @@ void RefreshActiveDisplays()
 
     screen_info *NewScreen = GetDisplayOfMousePointer();
     if(NewScreen)
-        GiveFocusToScreen(NewScreen->ID, NULL, false);
+        GiveFocusToScreen(NewScreen->ID, NULL, false, true);
 }
 
 screen_info *GetDisplayFromScreenID(unsigned int ID)
@@ -305,7 +305,7 @@ int GetIndexOfPrevScreen()
     return KWMScreen.Current->ID == 0 ? KWMScreen.ActiveCount - 1 : KWMScreen.Current->ID - 1;
 }
 
-void GiveFocusToScreen(int ScreenIndex, tree_node *FocusNode, bool Mouse)
+void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mouse, bool UpdateFocus)
 {
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     if(Screen && Screen != KWMScreen.Current)
@@ -321,71 +321,74 @@ void GiveFocusToScreen(int ScreenIndex, tree_node *FocusNode, bool Mouse)
               ": Space transition ended " << KWMScreen.PrevSpace << \
               " -> " << Screen->ActiveSpace)
 
-        if(Space->Initialized && FocusNode)
+        if(UpdateFocus)
         {
-            DEBUG("Populated Screen 'Window -f Focus'")
-
-            UpdateActiveWindowList(Screen);
-            FilterWindowList(Screen);
-            SetWindowFocusByNode(FocusNode);
-            MoveCursorToCenterOfFocusedWindow();
-        }
-        else if(Space->Initialized && Space->RootNode)
-        {
-            DEBUG("Populated Screen Key/Mouse Focus")
-
-            UpdateActiveWindowList(Screen);
-            FilterWindowList(Screen);
-
-            bool WindowBelowCursor = IsAnyWindowBelowCursor();
-            if(Mouse && !WindowBelowCursor)
-                ClearFocusedWindow();
-            else if(Mouse && WindowBelowCursor)
-                FocusWindowBelowCursor();
-
-            if(!Mouse)
+            if(Space->Initialized && FocusNode)
             {
-                if(Space->FocusedWindowID == 0)
-                {
-                    void *FocusNode = NULL;
-                    GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
-                    if(Space->Mode == SpaceModeBSP)
-                        Space->FocusedWindowID = ((tree_node*)FocusNode)->WindowID;
-                    else if(Space->Mode == SpaceModeMonocle)
-                        Space->FocusedWindowID = ((link_node*)FocusNode)->WindowID;
-                }
+                DEBUG("Populated Screen 'Window -f Focus'")
 
-                FocusWindowByID(Space->FocusedWindowID);
+                UpdateActiveWindowList(Screen);
+                FilterWindowList(Screen);
+                SetWindowFocusByNode(FocusNode);
                 MoveCursorToCenterOfFocusedWindow();
             }
-        }
-        else
-        {
-            if(!Space->Initialized ||
-               Space->Mode == SpaceModeFloating ||
-               !Space->RootNode)
+            else if(Space->Initialized && Space->RootNode)
             {
-                DEBUG("Uninitialized Screen")
-                ClearFocusedWindow();
+                DEBUG("Populated Screen Key/Mouse Focus")
 
-                if(Space->Mode != SpaceModeFloating)
+                UpdateActiveWindowList(Screen);
+                FilterWindowList(Screen);
+
+                bool WindowBelowCursor = IsAnyWindowBelowCursor();
+                if(Mouse && !WindowBelowCursor)
+                    ClearFocusedWindow();
+                else if(Mouse && WindowBelowCursor)
+                    FocusWindowBelowCursor();
+
+                if(!Mouse)
                 {
-                    if(!Mouse)
-                        CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2),
-                                                              Screen->Y + (Screen->Height / 2)));
-
-                    if(!Space->RootNode)
+                    if(Space->FocusedWindowID == 0)
                     {
-                        CGPoint ClickPos = GetCursorPos();
-                        CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
-                        CGEventSetFlags(ClickEvent, 0);
-                        CGEventPost(kCGHIDEventTap, ClickEvent);
-                        CFRelease(ClickEvent);
+                        void *FocusNode = NULL;
+                        GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
+                        if(Space->Mode == SpaceModeBSP)
+                            Space->FocusedWindowID = ((tree_node*)FocusNode)->WindowID;
+                        else if(Space->Mode == SpaceModeMonocle)
+                            Space->FocusedWindowID = ((link_node*)FocusNode)->WindowID;
+                    }
 
-                        ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
-                        CGEventSetFlags(ClickEvent, 0);
-                        CGEventPost(kCGHIDEventTap, ClickEvent);
-                        CFRelease(ClickEvent);
+                    FocusWindowByID(Space->FocusedWindowID);
+                    MoveCursorToCenterOfFocusedWindow();
+                }
+            }
+            else
+            {
+                if(!Space->Initialized ||
+                        Space->Mode == SpaceModeFloating ||
+                        !Space->RootNode)
+                {
+                    DEBUG("Uninitialized Screen")
+                    ClearFocusedWindow();
+
+                    if(Space->Mode != SpaceModeFloating)
+                    {
+                        if(!Mouse)
+                            CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2),
+                                        Screen->Y + (Screen->Height / 2)));
+
+                        if(!Space->RootNode)
+                        {
+                            CGPoint ClickPos = GetCursorPos();
+                            CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
+                            CGEventSetFlags(ClickEvent, 0);
+                            CGEventPost(kCGHIDEventTap, ClickEvent);
+                            CFRelease(ClickEvent);
+
+                            ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
+                            CGEventSetFlags(ClickEvent, 0);
+                            CGEventPost(kCGHIDEventTap, ClickEvent);
+                            CFRelease(ClickEvent);
+                        }
                     }
                 }
             }
@@ -435,6 +438,6 @@ void UpdateActiveScreen()
         DEBUG("UpdateActiveScreen() Active Display Changed")
 
         ClearMarkedWindow();
-        GiveFocusToScreen(Screen->ID, NULL, true);
+        GiveFocusToScreen(Screen->ID, NULL, true, true);
     }
 }

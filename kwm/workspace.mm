@@ -2,14 +2,15 @@
 #import "types.h"
 #include "notifications.h"
 
-extern void MoveCursorToCenterOfFocusedWindow();
 extern void UpdateActiveSpace();
-extern void UpdateActiveScreen();
-extern bool FocusWindowOfOSX();
-extern bool IsSpaceTransitionInProgress();
 extern screen_info *GetDisplayOfWindow(window_info *Window);
-extern void GiveFocusToScreen(int ScreenID, tree_node *Focus, bool Mouse);
+extern bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef);
+extern void SetKwmFocus(AXUIElementRef WindowRef);
+extern void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *Focus, bool Mouse, bool UpdateFocus);
+extern window_info *GetWindowByID(int WindowID);
+extern int GetWindowIDFromRef(AXUIElementRef WindowRef);
 extern space_info *GetActiveSpaceOfScreen(screen_info *Screen);
+extern tree_node *GetTreeNodeFromWindowIDOrLinkNode(tree_node *RootNode, int WindowID);
 
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
@@ -57,14 +58,27 @@ extern kwm_thread KWMThread;
     pid_t ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
     if(ProcessID != -1)
     {
-        if((KWMFocus.Window && KWMFocus.Window->PID != ProcessID) ||
-           !KWMFocus.Window)
+        window_info *Window = KWMFocus.Window;
+        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
+        if((Window && Window->PID != ProcessID) || !Window)
         {
-            if(FocusWindowOfOSX() && KWMFocus.Window)
+            AXUIElementRef OSXWindowRef;
+            if(GetWindowFocusedByOSX(&OSXWindowRef))
             {
-                screen_info *Screen = GetDisplayOfWindow(KWMFocus.Window);
-                if(KWMScreen.Current != Screen)
-                    GiveFocusToScreen(Screen->ID, NULL, false);
+                window_info *OSXWindow = GetWindowByID(GetWindowIDFromRef(OSXWindowRef));
+                screen_info *OSXScreen = GetDisplayOfWindow(OSXWindow);
+                if(OSXWindow && OSXScreen)
+                {
+                    space_info *OSXSpace = GetActiveSpaceOfScreen(OSXScreen);
+                    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(OSXSpace->RootNode, OSXWindow->WID);
+                    if(TreeNode)
+                    {
+                        GiveFocusToScreen(OSXScreen->ID, NULL, false, false);
+                        SetKwmFocus(OSXWindowRef);
+                        if(OSXScreen == ScreenOfWindow)
+                            KWMFocus.InsertionPoint = KWMFocus.Cache;
+                    }
+                }
             }
         }
     }

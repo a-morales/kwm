@@ -618,11 +618,11 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
     if(Tokens[1] == "-f")
     {
         if(Tokens[2] == "prev")
-            GiveFocusToScreen(GetIndexOfPrevScreen(), NULL, false);
+            GiveFocusToScreen(GetIndexOfPrevScreen(), NULL, false, true);
         else if(Tokens[2] == "next")
-            GiveFocusToScreen(GetIndexOfNextScreen(), NULL, false);
+            GiveFocusToScreen(GetIndexOfNextScreen(), NULL, false, true);
         else
-            GiveFocusToScreen(ConvertStringToInt(Tokens[2]), NULL, false);
+            GiveFocusToScreen(ConvertStringToInt(Tokens[2]), NULL, false, true);
     }
     else if(Tokens[1] == "-s")
     {

@@ -83,11 +83,7 @@ bool FilterWindowList(screen_info *Screen)
         /* Note(koekeishiya):
          * Mission-Control mode is on and so we do not try to tile windows */
         if(Window->Owner == "Dock" && Window->Name == "")
-        {
-                ClearFocusedWindow();
-                ClearMarkedWindow();
                 return false;
-        }
 
         if(Window->Layer == 0)
         {
@@ -220,6 +216,28 @@ void ClearFocusedWindow()
     KWMFocus.Cache = KWMFocus.NULLWindowInfo;
 }
 
+bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef)
+{
+    static AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
+
+    AXUIElementRef App;
+    AXUIElementCopyAttributeValue(SystemWideElement, kAXFocusedApplicationAttribute, (CFTypeRef*)&App);
+    if(App)
+    {
+        AXUIElementRef AppWindowRef;
+        AXError Error = AXUIElementCopyAttributeValue(App, kAXFocusedWindowAttribute, (CFTypeRef*)&AppWindowRef);
+        CFRelease(App);
+
+        if(Error == kAXErrorSuccess)
+        {
+            *WindowRef = AppWindowRef;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool FocusWindowOfOSX()
 {
     if(IsSpaceTransitionInProgress() ||
@@ -238,7 +256,7 @@ bool FocusWindowOfOSX()
 
         if (Error == kAXErrorSuccess)
         {
-            SetWindowRefFocus(WindowRef);
+            SetKwmFocus(WindowRef);
             CFRelease(WindowRef);
             return true;
         }
@@ -490,16 +508,17 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     tree_node *CurrentNode = NULL;
 
     DEBUG("AddWindowToBSPTree() Create pair of leafs")
-    bool UseFocusedContainer = KWMFocus.Window &&
-                               IsWindowOnActiveSpace(KWMFocus.Window->WID) &&
-                               KWMFocus.Window->WID != WindowID;
+    window_info *InsertionPoint = !WindowsAreEqual(&KWMFocus.InsertionPoint, &KWMFocus.NULLWindowInfo) ? &KWMFocus.InsertionPoint : NULL;
+    bool UseFocusedContainer = InsertionPoint &&
+                               IsWindowOnActiveSpace(InsertionPoint->WID) &&
+                               InsertionPoint->WID != WindowID;
 
     bool DoNotUseMarkedContainer = IsWindowFloating(KWMScreen.MarkedWindow, NULL) ||
                                    (KWMScreen.MarkedWindow == WindowID);
 
     if(KWMScreen.MarkedWindow == -1 && UseFocusedContainer)
     {
-        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, KWMFocus.Window->WID);
+        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, InsertionPoint->WID);
     }
     else if(DoNotUseMarkedContainer || (KWMScreen.MarkedWindow == -1 && !UseFocusedContainer))
     {
@@ -1145,7 +1164,9 @@ bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
     for(int Index = 0; Index < Windows.size(); ++Index)
     {
         if(!WindowsAreEqual(Match, &Windows[Index]) &&
-           WindowIsInDirection(Match, &Windows[Index], Degrees, Wrap))
+           WindowIsInDirection(Match, &Windows[Index], Degrees, Wrap) &&
+           !IsWindowFloating(Windows[Index].WID, NULL) &&
+           !IsApplicationFloating(&Windows[Index]))
         {
             window_info FocusWindow = Windows[Index];
 
@@ -1334,7 +1355,7 @@ void FocusWindowByID(int WindowID)
             tree_node *Root = Space->RootNode;
             tree_node *Node = GetTreeNodeFromWindowID(Root, WindowID);
             if(Node)
-                GiveFocusToScreen(Screen->ID, Node, false);
+                GiveFocusToScreen(Screen->ID, Node, false, true);
         }
     }
 }
@@ -1386,7 +1407,7 @@ void MarkFocusedWindowContainer()
     MarkWindowContainer(KWMFocus.Window);
 }
 
-void SetWindowRefFocus(AXUIElementRef WindowRef)
+void SetKwmFocus(AXUIElementRef WindowRef)
 {
     int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
 
@@ -1403,12 +1424,52 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
     GetProcessForPID(KWMFocus.Window->PID, &NewPSN);
     KWMFocus.PSN = NewPSN;
 
-    AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
-    AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
-    AXUIElementPerformAction(WindowRef, kAXRaiseAction);
+    if(!IsActiveSpaceFloating())
+    {
+        if(OldProcessPID != KWMFocus.Window->PID ||
+           !KWMFocus.Observer)
+            CreateApplicationNotifications();
+
+        UpdateBorder("focused");
+    }
+
+    if(KWMToggles.EnableTilingMode)
+    {
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        Space->FocusedWindowID = KWMFocus.Window->WID;
+    }
+
+    if(KWMMode.Focus != FocusModeDisabled &&
+       KWMMode.Focus != FocusModeAutofocus &&
+       KWMToggles.StandbyOnFloat)
+        KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
+}
+
+void SetWindowRefFocus(AXUIElementRef WindowRef)
+{
+    int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
+
+    KWMFocus.Cache = GetWindowByRef(WindowRef);
+    if(WindowsAreEqual(&KWMFocus.Cache, &KWMFocus.NULLWindowInfo))
+    {
+        KWMFocus.Window = NULL;
+        ClearBorder(&FocusedBorder);
+        return;
+    }
+
+    KWMFocus.Window = &KWMFocus.Cache;
+    KWMFocus.InsertionPoint = KWMFocus.Cache;
+
+    ProcessSerialNumber NewPSN;
+    GetProcessForPID(KWMFocus.Window->PID, &NewPSN);
+    KWMFocus.PSN = NewPSN;
 
     if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
+
+    AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
+    AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
+    AXUIElementPerformAction(WindowRef, kAXRaiseAction);
 
     if(!IsActiveSpaceFloating())
     {
@@ -1789,7 +1850,7 @@ window_info GetWindowByRef(AXUIElementRef WindowRef)
     return Window ? *Window : KWMFocus.NULLWindowInfo;
 }
 
-inline int GetWindowIDFromRef(AXUIElementRef WindowRef)
+int GetWindowIDFromRef(AXUIElementRef WindowRef)
 {
     int WindowRefWID = -1;
     _AXUIElementGetWindow(WindowRef, &WindowRefWID);

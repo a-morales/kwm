@@ -24,27 +24,35 @@ bool HotkeysAreEqual(hotkey *A, hotkey *B)
     return false;
 }
 
-bool KwmMainHotkeyTrigger(CGEventRef *Event)
+void CreateHotkeyFromCGEvent(CGEventRef Event, hotkey *Hotkey)
 {
-    modifiers Mod = {};
-    CGEventFlags Flags = CGEventGetFlags(*Event);
-    Mod.CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
-    Mod.AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
-    Mod.CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
-    Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
-    CGKeyCode Keycode = (CGKeyCode)CGEventGetIntegerValueField(*Event, kCGKeyboardEventKeycode);
+    CGEventFlags Flags = CGEventGetFlags(Event);
+    Hotkey->Mod.CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
+    Hotkey->Mod.AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
+    Hotkey->Mod.CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
+    Hotkey->Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
+    Hotkey->Key = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
+}
 
-    if(KWMHotkeys.Prefix.Enabled && KwmIsPrefixKey(&KWMHotkeys.Prefix.Key, &Mod, Keycode))
+void *KwmMainHotkeyTrigger(void *HotkeyPtr)
+{
+    while(true)
     {
-        KWMHotkeys.Prefix.Active = true;
-        KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
-        if(PrefixBorder.Enabled)
-            UpdateBorder("focused");
+        while(!KWMHotkeys.Queue.empty())
+        {
+            hotkey Hotkey = KWMHotkeys.Queue.front();
+            KWMHotkeys.Queue.pop();
 
-        return true;
+            pthread_mutex_lock(&KWMThread.Lock);
+            if(ShouldKeyBeProcessed(&Hotkey))
+                KwmExecuteHotkey(&Hotkey);
+            pthread_mutex_unlock(&KWMThread.Lock);
+        }
+
+        usleep(10000);
     }
 
-    return KwmExecuteHotkey(Mod, Keycode);
+    return NULL;
 }
 
 bool KwmIsPrefixKey(hotkey *PrefixKey, modifiers *Mod, CGKeyCode Keycode)
@@ -95,38 +103,38 @@ bool IsHotkeyStateReqFulfilled(hotkey *Hotkey)
     return true;
 }
 
-bool KwmExecuteHotkey(modifiers Mod, CGKeyCode Keycode)
+bool ShouldKeyBeProcessed(hotkey *Hotkey)
 {
-    hotkey Hotkey = {};
-    if(HotkeyExists(Mod, Keycode, &Hotkey))
+    if(KWMHotkeys.Prefix.Enabled &&
+       KwmIsPrefixKey(&KWMHotkeys.Prefix.Key, &Hotkey->Mod, Hotkey->Key))
     {
-        if(KWMHotkeys.Prefix.Enabled)
-        {
-            CheckPrefixTimeout();
-            if((Hotkey.Prefixed || KWMHotkeys.Prefix.Global) &&
-                !KWMHotkeys.Prefix.Active)
-                    return false;
+        KWMHotkeys.Prefix.Active = true;
+        KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
+        if(PrefixBorder.Enabled)
+            UpdateBorder("focused");
 
-            if((Hotkey.Prefixed || KWMHotkeys.Prefix.Global) &&
-                KWMHotkeys.Prefix.Active)
-                    KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
-        }
-
-        if(IsHotkeyStateReqFulfilled(&Hotkey))
-        {
-            if(Hotkey.Command.empty())
-                return true;
-
-            if(Hotkey.IsSystemCommand)
-                KwmExecuteThreadedSystemCommand(Hotkey.Command);
-            else
-                KwmInterpretCommand(Hotkey.Command, 0);
-
-            return true;
-        }
+        return false;
     }
 
-    return false;
+    if(!IsHotkeyStateReqFulfilled(Hotkey))
+        return false;
+
+    return true;
+}
+
+void KwmExecuteHotkey(hotkey *Hotkey)
+{
+    DEBUG("KwmExecuteHotkey")
+    if(Hotkey->Command.empty())
+        return;
+
+    if(Hotkey->IsSystemCommand)
+        KwmExecuteThreadedSystemCommand(Hotkey->Command);
+    else
+        KwmInterpretCommand(Hotkey->Command, 0);
+
+    if((Hotkey->Prefixed || KWMHotkeys.Prefix.Global) && KWMHotkeys.Prefix.Active)
+        KWMHotkeys.Prefix.Time = std::chrono::steady_clock::now();
 }
 
 bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
@@ -137,13 +145,25 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
 
     for(std::size_t HotkeyIndex = 0; HotkeyIndex < KWMHotkeys.List.size(); ++HotkeyIndex)
     {
-        if(HotkeysAreEqual(&KWMHotkeys.List[HotkeyIndex], &TempHotkey))
+        hotkey *CheckHotkey = &KWMHotkeys.List[HotkeyIndex];
+        if(HotkeysAreEqual(CheckHotkey, &TempHotkey))
         {
             if(Hotkey)
-                *Hotkey = KWMHotkeys.List[HotkeyIndex];
+                *Hotkey = *CheckHotkey;
 
-            return true;
+            if((CheckHotkey->Prefixed || KWMHotkeys.Prefix.Global) && KWMHotkeys.Prefix.Active)
+                return true;
+            else if(!CheckHotkey->Prefixed && !KWMHotkeys.Prefix.Global)
+                return true;
         }
+    }
+
+    if(KwmIsPrefixKey(&KWMHotkeys.Prefix.Key, &TempHotkey.Mod, TempHotkey.Key))
+    {
+        if(Hotkey)
+            *Hotkey = KWMHotkeys.Prefix.Key;
+
+        return true;
     }
 
     return false;

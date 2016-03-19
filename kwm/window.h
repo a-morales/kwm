@@ -19,6 +19,7 @@ bool WindowsAreEqual(window_info *Window, window_info *Match);
 
 void ClearFocusedWindow();
 int GetFocusedWindowID();
+bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef);
 bool FocusWindowOfOSX();
 void FocusWindowBelowCursor();
 
@@ -65,6 +66,7 @@ void MarkWindowContainer(window_info *Window);
 void MarkFocusedWindowContainer();
 
 void SetWindowRefFocus(AXUIElementRef WindowRef);
+void SetKwmFocus(AXUIElementRef WindowRef);
 void SetWindowFocus(window_info *Window);
 void SetWindowFocusByNode(tree_node *Node);
 void SetWindowFocusByNode(link_node *Link);
@@ -82,7 +84,7 @@ void ResizeWindowToContainerSize(window_info *Window);
 void ResizeWindowToContainerSize();
 
 CGPoint GetCursorPos();
-inline int GetWindowIDFromRef(AXUIElementRef WindowRef);
+int GetWindowIDFromRef(AXUIElementRef WindowRef);
 window_info GetWindowByRef(AXUIElementRef WindowRef);
 window_info *GetWindowByID(int WindowID);
 std::string GetUTF8String(CFStringRef Temp);

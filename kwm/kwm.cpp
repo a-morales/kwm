@@ -27,8 +27,6 @@ kwm_callback KWMCallback =  {};
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
-    pthread_mutex_lock(&KWMThread.Lock);
-
     switch(Type)
     {
         case kCGEventTapDisabledByTimeout:
@@ -39,11 +37,15 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyDown:
         {
-            if(KWMToggles.UseBuiltinHotkeys &&
-               KwmMainHotkeyTrigger(&Event))
+            if(KWMToggles.UseBuiltinHotkeys)
             {
-                pthread_mutex_unlock(&KWMThread.Lock);
-                return NULL;
+                hotkey Eventkey = {}, Hotkey = {};
+                CreateHotkeyFromCGEvent(Event, &Eventkey);
+                if(HotkeyExists(Eventkey.Mod, Eventkey.Key, &Hotkey))
+                {
+                    KWMHotkeys.Queue.push(Hotkey);
+                    return NULL;
+                }
             }
 
             if(KWMMode.Focus == FocusModeAutofocus &&
@@ -51,7 +53,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&KWMFocus.PSN, Event);
-                pthread_mutex_unlock(&KWMThread.Lock);
                 return NULL;
             }
         } break;
@@ -62,22 +63,22 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             {
                 CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
                 CGEventPostToPSN(&KWMFocus.PSN, Event);
-                pthread_mutex_unlock(&KWMThread.Lock);
                 return NULL;
             }
         } break;
         case kCGEventMouseMoved:
         {
+            pthread_mutex_lock(&KWMThread.Lock);
             UpdateActiveScreen();
 
             if(KWMMode.Focus != FocusModeDisabled &&
                KWMMode.Focus != FocusModeStandby &&
                !IsActiveSpaceFloating())
                 FocusWindowBelowCursor();
+            pthread_mutex_unlock(&KWMThread.Lock);
         } break;
     }
 
-    pthread_mutex_unlock(&KWMThread.Lock);
     return Event;
 }
 
@@ -268,6 +269,7 @@ void KwmInit()
     KwmExecuteInitScript();
 
     pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
+    pthread_create(&KWMThread.Hotkey, NULL, &KwmMainHotkeyTrigger, NULL);
 }
 
 bool CheckPrivileges()
