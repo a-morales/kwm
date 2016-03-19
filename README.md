@@ -17,7 +17,7 @@ For in depth information, sample configurations, and useful scripts to implement
 kwmc commands, check out the [wiki](https://github.com/koekeishiya/kwm/wiki)
 
 *Kwm* requires access to the OSX accessibility API.
-Tested on El Capitan (10.11.1 - 10.11.3).
+Tested on El Capitan (10.11.1 - 10.11.4).
 
 ![img](https://cloud.githubusercontent.com/assets/6175959/12651784/55c7debe-c5e8-11e5-836f-97f99f2b4529.png)
 For more screenshots, [click here.](https://github.com/koekeishiya/kwm/issues/2)
@@ -47,8 +47,8 @@ There are 3 types of hotkeys: global, global + blacklist applications, specified
 Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.
 
 *Multiple monitor support:*
-Kwm supports external monitors and have commands that allow for focusing screens,  moving windows, and capturing applications.
-For more information, see `kwmc help screen` and `kwmc config capture`.
+Kwm supports external monitors and have commands that allow for focusing screens, and moving windows.
+For more information, see `kwmc help screen`.
 
 ## Install:
 
