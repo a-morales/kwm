@@ -66,18 +66,16 @@ extern kwm_thread KWMThread;
             if(GetWindowFocusedByOSX(&OSXWindowRef))
             {
                 window_info *OSXWindow = GetWindowByID(GetWindowIDFromRef(OSXWindowRef));
-                screen_info *Screen = GetDisplayOfWindow(OSXWindow);
-                if(Window && Screen)
+                screen_info *OSXScreen = GetDisplayOfWindow(OSXWindow);
+                if(OSXWindow && OSXScreen)
                 {
-                    space_info *Space = GetActiveSpaceOfScreen(Screen);
-                    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, OSXWindow->WID);
+                    space_info *OSXSpace = GetActiveSpaceOfScreen(OSXScreen);
+                    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(OSXSpace->RootNode, OSXWindow->WID);
                     if(TreeNode)
                     {
-                        if(ScreenOfWindow && ScreenOfWindow != Screen)
-                            GiveFocusToScreen(Screen->ID, NULL, false, false);
-
+                        GiveFocusToScreen(OSXScreen->ID, NULL, false, false);
                         SetKwmFocus(OSXWindowRef);
-                        if(Screen == ScreenOfWindow)
+                        if(OSXScreen == ScreenOfWindow)
                             KWMFocus.InsertionPoint = KWMFocus.Cache;
                     }
                 }
