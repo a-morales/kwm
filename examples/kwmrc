@@ -46,9 +46,6 @@ kwmc config prefix-timeout 0.75
 # Automatically float windows that fail to resize
 kwmc config float-non-resizable on
 
-# Float a window if moved using the mouse
-kwmc config dragndrop off
-
 # Set focus-follows-mouse-mode to autoraise
 kwmc config focus autoraise
 
@@ -103,6 +100,11 @@ kwmc config focused-border color FFBDD322
 kwmc config marked-border on
 kwmc config marked-border size 5
 kwmc config marked-border color FFCC5577
+
+# Change border color when prefix-key is active
+kwmc config prefix-border on
+kwmc config prefix-border size 5
+kwmc config prefix-border color FF458588
 
 ########  Default Keybinds ########
 
