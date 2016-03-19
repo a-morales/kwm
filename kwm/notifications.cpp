@@ -28,7 +28,8 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             if(OSXWindow && OSXScreen)
             {
                 screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-                UpdateActiveWindowList(ScreenOfWindow);
+                if(ScreenOfWindow)
+                    UpdateActiveWindowList(ScreenOfWindow);
 
                 if(ScreenOfWindow && Window &&
                    GetWindowByID(Window->WID) == NULL &&
