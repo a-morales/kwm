@@ -2,23 +2,19 @@
 #import "types.h"
 #include "notifications.h"
 
-extern bool FilterWindowList(screen_info *Screen);
-extern void UpdateActiveWindowList(screen_info *Screen);
-extern void MoveCursorToCenterOfFocusedWindow();
 extern void UpdateActiveSpace();
 extern screen_info *GetDisplayOfWindow(window_info *Window);
 extern bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef);
 extern void SetKwmFocus(AXUIElementRef WindowRef);
-extern bool ShouldActiveSpaceBeManaged();
 extern void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *Focus, bool Mouse, bool UpdateFocus);
 extern window_info *GetWindowByID(int WindowID);
 extern int GetWindowIDFromRef(AXUIElementRef WindowRef);
+extern space_info *GetActiveSpaceOfScreen(screen_info *Screen);
+extern tree_node *GetTreeNodeFromWindowIDOrLinkNode(tree_node *RootNode, int WindowID);
 
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
 extern kwm_thread KWMThread;
-
-int GetActiveSpaceOfDisplay(screen_info *Screen);
 
 @interface MDWorkspaceWatcher : NSObject {
 }
@@ -73,12 +69,17 @@ int GetActiveSpaceOfDisplay(screen_info *Screen);
                 screen_info *Screen = GetDisplayOfWindow(OSXWindow);
                 if(Window && Screen)
                 {
-                    if(ScreenOfWindow && ScreenOfWindow != Screen)
-                        GiveFocusToScreen(Screen->ID, NULL, false, false);
+                    space_info *Space = GetActiveSpaceOfScreen(Screen);
+                    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, OSXWindow->WID);
+                    if(TreeNode)
+                    {
+                        if(ScreenOfWindow && ScreenOfWindow != Screen)
+                            GiveFocusToScreen(Screen->ID, NULL, false, false);
 
-                    SetKwmFocus(OSXWindowRef);
-                    if(Screen == ScreenOfWindow)
-                        KWMFocus.InsertionPoint = KWMFocus.Cache;
+                        SetKwmFocus(OSXWindowRef);
+                        if(Screen == ScreenOfWindow)
+                            KWMFocus.InsertionPoint = KWMFocus.Cache;
+                    }
                 }
             }
         }
