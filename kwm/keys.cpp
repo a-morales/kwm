@@ -143,6 +143,15 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
     TempHotkey.Mod = Mod;
     TempHotkey.Key = Keycode;
 
+    if(KWMHotkeys.Prefix.Enabled &&
+       KwmIsPrefixKey(&KWMHotkeys.Prefix.Key, &Hotkey->Mod, Hotkey->Key))
+    {
+        if(Hotkey)
+            *Hotkey = KWMHotkeys.Prefix.Key;
+
+        return true;
+    }
+
     for(std::size_t HotkeyIndex = 0; HotkeyIndex < KWMHotkeys.List.size(); ++HotkeyIndex)
     {
         hotkey *CheckHotkey = &KWMHotkeys.List[HotkeyIndex];
@@ -156,14 +165,6 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
             else if(!CheckHotkey->Prefixed && !KWMHotkeys.Prefix.Global)
                 return true;
         }
-    }
-
-    if(KwmIsPrefixKey(&KWMHotkeys.Prefix.Key, &TempHotkey.Mod, TempHotkey.Key))
-    {
-        if(Hotkey)
-            *Hotkey = KWMHotkeys.Prefix.Key;
-
-        return true;
     }
 
     return false;
