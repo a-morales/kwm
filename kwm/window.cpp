@@ -1464,12 +1464,12 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
     GetProcessForPID(KWMFocus.Window->PID, &NewPSN);
     KWMFocus.PSN = NewPSN;
 
-    if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
-        SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
-
     AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(WindowRef, kAXRaiseAction);
+
+    if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
+        SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
     if(!IsActiveSpaceFloating())
     {
