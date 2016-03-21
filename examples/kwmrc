@@ -28,14 +28,14 @@ kwmc config padding right 20
 kwmc config gap vertical 15
 kwmc config gap horizontal 15
 
-# Allow Kwm to tile windows
-kwmc config tiling on
+# Default tiling mode for Kwm (bsp | monocle | float | off)
+kwmc config tiling bsp
 
 # Let Kwm listen for hotkeys
 kwmc config hotkeys on
 
 # Set prefix for Kwms hotkeys
-kwmc config prefix ctrl-x
+kwmc config prefix-key ctrl-x
 
 # Prefix is not applied globally
 kwmc config prefix-global off
@@ -60,8 +60,10 @@ kwmc config focus mouse-follows on
 # Allow window focus to wrap-around
 kwmc config cycle-focus screen
 
-# Default tiling mode for new spaces
-kwmc config space bsp
+# Override default settings for specific space
+# kwmc config space 1 mode monocle
+# kwmc config space 1 padding 100 100 100 100
+# kwmc config space 1 gap 40 40
 
 # Override default tiling mode for given monitors
 # kwmc config screen 0 bsp
