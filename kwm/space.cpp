@@ -4,6 +4,7 @@
 #include "tree.h"
 #include "border.h"
 #include "keys.h"
+#include "notifications.h"
 
 extern kwm_mach KWMMach;
 extern kwm_tiling KWMTiling;
@@ -73,6 +74,7 @@ void MoveWindowToSpace(std::string SpaceID)
         return;
 
     CGEventTapEnable(KWMMach.EventTap, false);
+    DestroyApplicationNotifications();
 
     window_info *Window = KWMFocus.Window;
     bool WasWindowFloating = IsFocusedWindowFloating();
@@ -121,6 +123,7 @@ void MoveWindowToSpace(std::string SpaceID)
     }
 
     CGWarpMouseCursorPosition(CursorPos);
+    CreateApplicationNotifications();
     CGEventTapEnable(KWMMach.EventTap, true);
 }
 
