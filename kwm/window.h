@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+extern int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID);
 extern int GetActiveSpaceOfDisplay(screen_info *Screen);
 
 void AllowRoleForApplication(std::string Application, std::string Role);

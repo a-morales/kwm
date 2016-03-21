@@ -376,12 +376,23 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Assert(Space, "CreateWindowNodeTree()")
         DEBUG("CreateWindowNodeTree() Create Space " << Screen->ActiveSpace)
 
-        Space->Mode = GetSpaceModeOfDisplay(Screen->ID);
-        if(Space->Mode == SpaceModeDefault)
-            Space->Mode = KWMMode.Space;
+        int DesktopID = GetSpaceNumberFromCGSpaceID(Screen, Screen->ActiveSpace);
+        space_info *SpaceInfo = GetSpaceInfoForDesktopID(DesktopID);
+        if(SpaceInfo)
+        {
+            Space->Mode = SpaceInfo->Mode;
+            Space->Offset = SpaceInfo->Offset;
+        }
+        else
+        {
+            Space->Mode = GetSpaceModeOfDisplay(Screen->ID);
+            if(Space->Mode == SpaceModeDefault)
+                Space->Mode = KWMMode.Space;
+
+            Space->Offset = Screen->Offset;
+        }
 
         Space->Initialized = true;
-        Space->Offset = Screen->Offset;
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
     }
     else if(Space->Initialized)

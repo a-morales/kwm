@@ -324,6 +324,7 @@ struct kwm_tiling
 
     std::map<unsigned int, screen_info> DisplayMap;
     std::map<unsigned int, space_tiling_option> DisplayMode;
+    std::map<unsigned int, space_info> SpaceInfo;
 
     std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
     std::map<std::string, int> CapturedAppLst;

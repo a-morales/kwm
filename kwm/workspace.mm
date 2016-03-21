@@ -143,3 +143,34 @@ int GetNumberOfSpacesOfDisplay(screen_info *Screen)
     CFRelease(ScreenDictionaries);
     return Result;
 }
+
+int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID)
+{
+    int Result = -1;
+    NSString *CurrentIdentifier = (__bridge NSString *)GetDisplayIdentifier(Screen);
+
+    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
+    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
+    {
+        int SpaceIndex = 1;
+        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
+        if ([ScreenIdentifier isEqualToString:CurrentIdentifier])
+        {
+            NSArray *Spaces = ScreenDictionary[@"Spaces"];
+            for(NSDictionary *SpaceDictionary in (__bridge NSArray *)Spaces)
+            {
+                int CurrentSpace = [SpaceDictionary[@"id64"] intValue];
+                if(CurrentSpace == CGSpaceID)
+                {
+                    Result = SpaceIndex;
+                    break;
+                }
+
+                ++SpaceIndex;
+            }
+        }
+    }
+
+    CFRelease(ScreenDictionaries);
+    return Result;
+}

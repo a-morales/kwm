@@ -36,7 +36,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         KWMTiling.OptimalRatio = ConvertStringToDouble(Tokens[2]);
     }
-    else if(Tokens[1] == "prefix")
+    else if(Tokens[1] == "prefix-key")
     {
         KwmSetPrefix(Tokens[2]);
     }
@@ -145,8 +145,21 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "off")
             KWMToggles.EnableTilingMode = false;
-        else if(Tokens[2] == "on")
+        else if(Tokens[2] == "bsp")
+        {
+            KWMMode.Space = SpaceModeBSP;
             KWMToggles.EnableTilingMode = true;
+        }
+        else if(Tokens[2] == "monocle")
+        {
+            KWMMode.Space = SpaceModeMonocle;
+            KWMToggles.EnableTilingMode = true;
+        }
+        else if(Tokens[2] == "float")
+        {
+            KWMMode.Space = SpaceModeFloating;
+            KWMToggles.EnableTilingMode = true;
+        }
     }
     else if(Tokens[1] == "capture")
     {
@@ -154,12 +167,36 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "space")
     {
-        if(Tokens[2] == "bsp")
-            KWMMode.Space = SpaceModeBSP;
-        else if(Tokens[2] == "monocle")
-            KWMMode.Space = SpaceModeMonocle;
-        else if(Tokens[2] == "float")
-            KWMMode.Space = SpaceModeFloating;
+        int DesktopID = ConvertStringToInt(Tokens[2]);
+        space_info *SpaceInfo = GetSpaceInfoForDesktopID(DesktopID);
+        if(!SpaceInfo)
+        {
+            space_info NULLSpaceInfo = {};
+            KWMTiling.SpaceInfo[DesktopID] = NULLSpaceInfo;
+            SpaceInfo = &KWMTiling.SpaceInfo[DesktopID];
+        }
+
+        if(Tokens[3] == "mode")
+        {
+            if(Tokens[4] == "bsp")
+                SpaceInfo->Mode = SpaceModeBSP;
+            else if(Tokens[4] == "monocle")
+                SpaceInfo->Mode = SpaceModeMonocle;
+            else if(Tokens[4] == "float")
+                SpaceInfo->Mode = SpaceModeFloating;
+        }
+        else if(Tokens[3] == "padding")
+        {
+            SpaceInfo->Offset.PaddingTop = ConvertStringToDouble(Tokens[4]);
+            SpaceInfo->Offset.PaddingBottom = ConvertStringToDouble(Tokens[5]);
+            SpaceInfo->Offset.PaddingLeft = ConvertStringToDouble(Tokens[6]);
+            SpaceInfo->Offset.PaddingRight = ConvertStringToDouble(Tokens[7]);
+        }
+        else if(Tokens[3] == "gap")
+        {
+            SpaceInfo->Offset.VerticalGap = ConvertStringToDouble(Tokens[4]);
+            SpaceInfo->Offset.HorizontalGap = ConvertStringToDouble(Tokens[5]);
+        }
     }
     else if(Tokens[1] == "focus")
     {

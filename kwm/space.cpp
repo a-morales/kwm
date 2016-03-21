@@ -6,6 +6,7 @@
 #include "keys.h"
 
 extern kwm_mach KWMMach;
+extern kwm_tiling KWMTiling;
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
@@ -290,4 +291,13 @@ void UpdateActiveSpace()
 
     KWMScreen.Transitioning = false;
     pthread_mutex_unlock(&KWMThread.Lock);
+}
+
+space_info *GetSpaceInfoForDesktopID(int DesktopID)
+{
+    std::map<unsigned int, space_info>::iterator It = KWMTiling.SpaceInfo.find(DesktopID);
+    if(It != KWMTiling.SpaceInfo.end())
+        return &It->second;
+    else
+        return NULL;
 }

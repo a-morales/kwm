@@ -24,5 +24,6 @@ void ToggleFocusedSpaceFloating();
 void UpdateActiveSpace();
 
 void MoveWindowToSpace(std::string SpaceID);
+space_info *GetSpaceInfoForDesktopID(int DesktopID);
 
 #endif
