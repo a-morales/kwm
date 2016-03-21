@@ -139,12 +139,12 @@ void KwmExecuteHotkey(hotkey *Hotkey)
 
 bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey)
 {
-    hotkey TempHotkey;
+    hotkey TempHotkey = {};
     TempHotkey.Mod = Mod;
     TempHotkey.Key = Keycode;
 
     if(KWMHotkeys.Prefix.Enabled &&
-       KwmIsPrefixKey(&KWMHotkeys.Prefix.Key, &Hotkey->Mod, Hotkey->Key))
+       KwmIsPrefixKey(&KWMHotkeys.Prefix.Key, &TempHotkey.Mod, TempHotkey.Key))
     {
         if(Hotkey)
             *Hotkey = KWMHotkeys.Prefix.Key;
