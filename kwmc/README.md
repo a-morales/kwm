@@ -9,7 +9,7 @@
             kwmc config spaces-key mod+mod+mod
 
         Set a prefix for Kwms hotkeys (optional)
-            kwmc config prefix mod+mod+mod-key
+            kwmc config prefix-key mod+mod+mod-key
 
         Make prefix global (apply for all binds)
             kwmc config prefix-global on|off
@@ -56,11 +56,17 @@
         Set state of mouse-follows-focus
             kwmc config focus mouse-follows on|off
 
-        Should Kwm perform tiling
-            kwmc config tiling on|off
+        Set default tiling mode for Kwm
+            kwmc config tiling bsp|monocle|float|off
 
-        Set default tiling mode
-            kwmc config space bsp|monocle|float
+        Override default tiling mode for space
+            kwmc config space id mode bsp|monocle|float
+
+        Override default padding for space
+            kwmc config space id padding top bottom left right
+
+        Override default gaps for space
+            kwmc config space id gap vertical horizontal
 
         Override default tiling mode for screen
             kwmc config screen id bsp|monocle|float
