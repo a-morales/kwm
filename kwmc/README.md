@@ -69,7 +69,13 @@
             kwmc config space screenid spaceid gap vertical horizontal
 
         Override default tiling mode for screen
-            kwmc config screen id bsp|monocle|float
+            kwmc config screen id mode bsp|monocle|float
+
+        Override default padding for screen
+            kwmc config screen id padding top bottom left right
+
+        Override default gaps for screen
+            kwmc config screen id gap vertical horizontal
 
         Set state of Kwm's hotkeys
             kwmc config hotkeys on|off
