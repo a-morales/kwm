@@ -278,25 +278,6 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
     }
 }
 
-void SetSpaceModeOfDisplay(unsigned int ScreenIndex, std::string Mode)
-{
-    if(Mode == "bsp")
-        KWMTiling.DisplayMode[ScreenIndex] = SpaceModeBSP;
-    else if(Mode == "monocle")
-        KWMTiling.DisplayMode[ScreenIndex] = SpaceModeMonocle;
-    else if(Mode == "float")
-        KWMTiling.DisplayMode[ScreenIndex] = SpaceModeFloating;
-}
-
-space_tiling_option GetSpaceModeOfDisplay(unsigned int ScreenIndex)
-{
-    std::map<unsigned int, space_tiling_option>::iterator It = KWMTiling.DisplayMode.find(ScreenIndex);
-    if(It == KWMTiling.DisplayMode.end())
-        return SpaceModeDefault;
-    else
-        return It->second;
-}
-
 int GetIndexOfNextScreen()
 {
     return KWMScreen.Current->ID + 1 >= KWMScreen.ActiveCount ? 0 : KWMScreen.Current->ID + 1;
@@ -442,4 +423,13 @@ void UpdateActiveScreen()
         ClearMarkedWindow();
         GiveFocusToScreen(Screen->ID, NULL, true, true);
     }
+}
+
+space_settings *GetSpaceSettingsForDisplay(unsigned int ScreenID)
+{
+    std::map<unsigned int, space_settings>::iterator It = KWMTiling.DisplaySettings.find(ScreenID);
+    if(It != KWMTiling.DisplaySettings.end())
+        return &It->second;
+    else
+        return NULL;
 }

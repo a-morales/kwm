@@ -173,7 +173,12 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         if(!SpaceSettings)
         {
             space_identifier Lookup = { ScreenID, DesktopID };
-            space_settings NULLSpaceSettings = {};
+            space_settings NULLSpaceSettings = { KWMScreen.DefaultOffset, SpaceModeDefault };
+
+            space_settings *ScreenSettings = GetSpaceSettingsForDisplay(ScreenID);
+            if(ScreenSettings)
+                NULLSpaceSettings = *ScreenSettings;
+
             KWMTiling.SpaceSettings[Lookup] = NULLSpaceSettings;
             SpaceSettings = &KWMTiling.SpaceSettings[Lookup];
         }
@@ -202,14 +207,35 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "screen")
     {
-        if(Tokens[2] == "mode")
+        int ScreenID = ConvertStringToInt(Tokens[2]);
+        space_settings *DisplaySettings = GetSpaceSettingsForDisplay(ScreenID);
+        if(!DisplaySettings)
         {
+            space_settings NULLSpaceSettings = { KWMScreen.DefaultOffset, SpaceModeDefault };
+            KWMTiling.DisplaySettings[ScreenID] = NULLSpaceSettings;
+            DisplaySettings = &KWMTiling.DisplaySettings[ScreenID];
         }
-        else if(Tokens[2] == "padding")
+
+        if(Tokens[3] == "mode")
         {
+            if(Tokens[4] == "bsp")
+                DisplaySettings->Mode = SpaceModeBSP;
+            else if(Tokens[4] == "monocle")
+                DisplaySettings->Mode = SpaceModeMonocle;
+            else if(Tokens[4] == "float")
+                DisplaySettings->Mode = SpaceModeFloating;
         }
-        else if(Tokens[2] == "gap")
+        else if(Tokens[3] == "padding")
         {
+            DisplaySettings->Offset.PaddingTop = ConvertStringToDouble(Tokens[4]);
+            DisplaySettings->Offset.PaddingBottom = ConvertStringToDouble(Tokens[5]);
+            DisplaySettings->Offset.PaddingLeft = ConvertStringToDouble(Tokens[6]);
+            DisplaySettings->Offset.PaddingRight = ConvertStringToDouble(Tokens[7]);
+        }
+        else if(Tokens[3] == "gap")
+        {
+            DisplaySettings->Offset.VerticalGap = ConvertStringToDouble(Tokens[4]);
+            DisplaySettings->Offset.HorizontalGap = ConvertStringToDouble(Tokens[5]);
         }
     }
     else if(Tokens[1] == "focus")

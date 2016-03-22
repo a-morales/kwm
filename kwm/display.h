@@ -20,8 +20,6 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex);
 void CaptureApplicationToScreen(int ScreenID, std::string Application);
 void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative, bool UpdateFocus);
 
-void SetSpaceModeOfDisplay(unsigned int ScreenIndex, std::string Mode);
-space_tiling_option GetSpaceModeOfDisplay(unsigned int ScreenIndex);
 void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *Focus, bool Mouse, bool UpdateFocus);
 void UpdateActiveScreen();
 
@@ -33,5 +31,6 @@ void SetDefaultPaddingOfDisplay(const std::string &Side, int Offset);
 void SetDefaultGapOfDisplay(const std::string &Side, int Offset);
 void ChangePaddingOfDisplay(const std::string &Side, int Offset);
 void ChangeGapOfDisplay(const std::string &Side, int Offset);
+space_settings *GetSpaceSettingsForDisplay(unsigned int ScreenID);
 
 #endif

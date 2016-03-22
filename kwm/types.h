@@ -342,7 +342,7 @@ struct kwm_tiling
     double OptimalRatio;
 
     std::map<unsigned int, screen_info> DisplayMap;
-    std::map<unsigned int, space_tiling_option> DisplayMode;
+    std::map<unsigned int, space_settings> DisplaySettings;
     std::map<space_identifier, space_settings> SpaceSettings;
 
     std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;

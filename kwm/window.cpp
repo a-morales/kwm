@@ -385,11 +385,14 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         }
         else
         {
-            Space->Settings.Mode = GetSpaceModeOfDisplay(Screen->ID);
+            SpaceSettings = GetSpaceSettingsForDisplay(Screen->ID);
+            if(SpaceSettings)
+                Space->Settings = *SpaceSettings;
+            else
+                Space->Settings.Offset = Screen->Settings.Offset;
+
             if(Space->Settings.Mode == SpaceModeDefault)
                 Space->Settings.Mode = KWMMode.Space;
-
-            Space->Settings.Offset = Screen->Settings.Offset;
         }
 
         Space->Initialized = true;
