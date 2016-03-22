@@ -60,14 +60,15 @@ kwmc config focus mouse-follows on
 # Allow window focus to wrap-around
 kwmc config cycle-focus screen
 
-# Override default settings for specific space
-# kwmc config space 1 mode monocle
-# kwmc config space 1 padding 100 100 100 100
-# kwmc config space 1 gap 40 40
+# Override default settings for space 1 on screen 0
+# kwmc config space 0 1 mode monocle
+# kwmc config space 0 1 padding 100 100 100 100
+# kwmc config space 0 1 gap 40 40
 
-# Override default tiling mode for given monitors
-# kwmc config screen 0 bsp
-# kwmc config screen 1 monocle
+# Override default settings for screen 1
+# kwmc config screen 1 mode bsp
+# kwmc config screen 1 padding 100 100 100 100
+# kwmc config screen 1 gap 40 40
 
 # Set default container split-ratio
 kwmc config split-ratio 0.5
