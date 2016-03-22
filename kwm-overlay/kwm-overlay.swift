@@ -193,7 +193,7 @@ class OverlayController: NSObject, NSApplicationDelegate
     {
         window.opaque = false
         window.backgroundColor = NSColor.clearColor()
-        if #available(OSX 10.11, *) {
+        if #available(OSX 10.10, *) {
             window.titleVisibility = NSWindowTitleVisibility.Hidden
             window.titlebarAppearsTransparent = true
             window.styleMask |= NSFullSizeContentViewWindowMask
