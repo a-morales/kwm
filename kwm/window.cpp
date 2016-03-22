@@ -1696,7 +1696,7 @@ void ModifyContainerSplitRatio(double Offset)
         if(IsLeafNode(Root) || Root->WindowID != -1)
             return;
 
-        tree_node *Node = GetTreeNodeFromWindowID(Root, KWMFocus.Window->WID);
+        tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, KWMFocus.Window->WID);
         if(Node && Node->Parent)
         {
             if(Node->Parent->SplitRatio + Offset > 0.0 &&
