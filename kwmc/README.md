@@ -60,13 +60,13 @@
             kwmc config tiling bsp|monocle|float|off
 
         Override default tiling mode for space
-            kwmc config space id mode bsp|monocle|float
+            kwmc config space screenid spaceid mode bsp|monocle|float
 
         Override default padding for space
-            kwmc config space id padding top bottom left right
+            kwmc config space screenid spaceid padding top bottom left right
 
         Override default gaps for space
-            kwmc config space id gap vertical horizontal
+            kwmc config space screenid spaceid gap vertical horizontal
 
         Override default tiling mode for screen
             kwmc config screen id bsp|monocle|float
