@@ -357,12 +357,12 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
                         {
                             CGPoint ClickPos = GetCursorPos();
                             CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
-                            CGEventSetFlags(ClickEvent, 0);
+                            CGEventSetFlags(ClickEvent, (CGEventFlags)0);
                             CGEventPost(kCGHIDEventTap, ClickEvent);
                             CFRelease(ClickEvent);
 
                             ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
-                            CGEventSetFlags(ClickEvent, 0);
+                            CGEventSetFlags(ClickEvent, (CGEventFlags)0);
                             CGEventPost(kCGHIDEventTap, ClickEvent);
                             CFRelease(ClickEvent);
                         }

@@ -93,7 +93,7 @@ void MoveWindowToSpace(std::string SpaceID)
     CGPoint ClickPos = CGPointMake(WindowPos.x + 75, WindowPos.y + 7);
 
     CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
-    CGEventSetFlags(ClickEvent, 0);
+    CGEventSetFlags(ClickEvent, (CGEventFlags)0);
     CGEventPost(kCGHIDEventTap, ClickEvent);
     CFRelease(ClickEvent);
     usleep(150000);
@@ -107,7 +107,7 @@ void MoveWindowToSpace(std::string SpaceID)
     UpdateActiveWindowList(KWMScreen.Current);
 
     ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
-    CGEventSetFlags(ClickEvent, 0);
+    CGEventSetFlags(ClickEvent, (CGEventFlags)0);
     CGEventPost(kCGHIDEventTap, ClickEvent);
     CFRelease(ClickEvent);
     usleep(150000);

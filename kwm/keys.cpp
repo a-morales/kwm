@@ -410,11 +410,11 @@ void KwmEmitKeystrokes(std::string Text)
     {
         CFStringGetCharacters(TextRef, CFRangeMake(CharIndex, 1), &OutputBuffer);
 
-        CGEventSetFlags(EventKeyDown, 0);
+        CGEventSetFlags(EventKeyDown, (CGEventFlags)0);
         CGEventKeyboardSetUnicodeString(EventKeyDown, 1, &OutputBuffer);
         CGEventPost(kCGHIDEventTap, EventKeyDown);
 
-        CGEventSetFlags(EventKeyUp, 0);
+        CGEventSetFlags(EventKeyUp, (CGEventFlags)0);
         CGEventKeyboardSetUnicodeString(EventKeyUp, 1, &OutputBuffer);
         CGEventPost(kCGHIDEventTap, EventKeyUp);
     }
@@ -449,15 +449,15 @@ void KwmEmitKeystroke(std::string KeySym)
 
 void KwmEmitKeystroke(modifiers Mod, std::string Key)
 {
-    CGEventFlags Flags = 0;
+    CGEventFlags Flags = (CGEventFlags)0;
     if(Mod.CmdKey)
-        Flags |= kCGEventFlagMaskCommand;
+        Flags = (CGEventFlags)(Flags | kCGEventFlagMaskCommand);
     if(Mod.CtrlKey)
-        Flags |= kCGEventFlagMaskControl;
+        Flags = (CGEventFlags)(Flags | kCGEventFlagMaskControl);
     if(Mod.AltKey)
-        Flags |= kCGEventFlagMaskAlternate;
+        Flags = (CGEventFlags)(Flags | kCGEventFlagMaskAlternate);
     if(Mod.ShiftKey)
-        Flags |= kCGEventFlagMaskShift;
+        Flags = (CGEventFlags)(Flags | kCGEventFlagMaskShift);
 
     CGKeyCode Keycode;
     bool Result = GetLayoutIndependentKeycode(Key, &Keycode);

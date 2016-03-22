@@ -77,6 +77,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 FocusWindowBelowCursor();
             pthread_mutex_unlock(&KWMThread.Lock);
         } break;
+        default: {} break;
     }
 
     return Event;
@@ -333,7 +334,7 @@ int main(int argc, char **argv)
                          (1 << kCGEventKeyUp) |
                          (1 << kCGEventMouseMoved));
 
-    KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, KWMMach.EventMask, CGEventCallback, NULL);
+    KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, (CGEventTapOptions)0, KWMMach.EventMask, CGEventCallback, NULL);
     if(!KWMMach.EventTap || !CGEventTapIsEnabled(KWMMach.EventTap))
         Fatal("ERROR: Could not create event-tap!");
 

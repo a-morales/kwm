@@ -294,10 +294,10 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "padding")
     {
-        container_offset Offset = { ConvertStringToInt(Tokens[2]),
-                                    ConvertStringToInt(Tokens[3]),
-                                    ConvertStringToInt(Tokens[4]),
-                                    ConvertStringToInt(Tokens[5]),
+        container_offset Offset = { ConvertStringToDouble(Tokens[2]),
+                                    ConvertStringToDouble(Tokens[3]),
+                                    ConvertStringToDouble(Tokens[4]),
+                                    ConvertStringToDouble(Tokens[5]),
                                     0,
                                     0
                                   };
@@ -310,8 +310,8 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
                                     0,
                                     0,
                                     0,
-                                    ConvertStringToInt(Tokens[2]),
-                                    ConvertStringToInt(Tokens[3])
+                                    ConvertStringToDouble(Tokens[2]),
+                                    ConvertStringToDouble(Tokens[3])
                                   };
 
         SetDefaultGapOfDisplay(Offset);
