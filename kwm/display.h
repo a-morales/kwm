@@ -27,8 +27,8 @@ container_offset CreateDefaultScreenOffset();
 screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex);
 void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenIndex);
 
-void SetDefaultPaddingOfDisplay(const std::string &Side, int Offset);
-void SetDefaultGapOfDisplay(const std::string &Side, int Offset);
+void SetDefaultPaddingOfDisplay(container_offset Offset);
+void SetDefaultGapOfDisplay(container_offset Offset);
 void ChangePaddingOfDisplay(const std::string &Side, int Offset);
 void ChangeGapOfDisplay(const std::string &Side, int Offset);
 space_settings *GetSpaceSettingsForDisplay(unsigned int ScreenID);

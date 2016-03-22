@@ -294,14 +294,27 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "padding")
     {
-        if(Tokens[2] == "left" || Tokens[2] == "right" ||
-           Tokens[2] == "top" || Tokens[2] == "bottom")
-            SetDefaultPaddingOfDisplay(Tokens[2], ConvertStringToInt(Tokens[3]));
+        container_offset Offset = { ConvertStringToInt(Tokens[2]),
+                                    ConvertStringToInt(Tokens[3]),
+                                    ConvertStringToInt(Tokens[4]),
+                                    ConvertStringToInt(Tokens[5]),
+                                    0,
+                                    0
+                                  };
+
+        SetDefaultPaddingOfDisplay(Offset);
     }
     else if(Tokens[1] == "gap")
     {
-        if(Tokens[2] == "vertical" || Tokens[2] == "horizontal")
-            SetDefaultGapOfDisplay(Tokens[2], ConvertStringToInt(Tokens[3]));
+        container_offset Offset = { 0,
+                                    0,
+                                    0,
+                                    0,
+                                    ConvertStringToInt(Tokens[2]),
+                                    ConvertStringToInt(Tokens[3])
+                                  };
+
+        SetDefaultGapOfDisplay(Offset);
     }
     else if(Tokens[1] == "split-ratio")
     {

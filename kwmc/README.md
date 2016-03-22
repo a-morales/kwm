@@ -17,12 +17,6 @@
         Set prefix timeout in seconds (default: 0.75)
             kwmc config prefix-timeout seconds
 
-        Set default padding
-            kwmc config padding top|bottom|left|right value
-
-        Set default container gaps
-            kwmc config gap vertical|horizontal value
-
         Override the value used by optimal split-mode (default: golden ratio -> 1.618)
             kwmc config optimal-ratio num
 
@@ -58,6 +52,12 @@
 
         Set default tiling mode for Kwm
             kwmc config tiling bsp|monocle|float|off
+
+        Set default padding
+            kwmc config padding top bottom left right
+
+        Set default container gaps
+            kwmc config gap vertical horizontal
 
         Override default tiling mode for space
             kwmc config space screenid spaceid mode bsp|monocle|float

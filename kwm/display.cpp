@@ -188,24 +188,18 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
     return ScreenWindowLst;
 }
 
-void SetDefaultPaddingOfDisplay(const std::string &Side, int Offset)
+void SetDefaultPaddingOfDisplay(container_offset Offset)
 {
-    if(Side == "left")
-        KWMScreen.DefaultOffset.PaddingLeft = Offset;
-    else if(Side == "right")
-        KWMScreen.DefaultOffset.PaddingRight = Offset;
-    else if(Side == "top")
-        KWMScreen.DefaultOffset.PaddingTop = Offset;
-    else if(Side == "bottom")
-        KWMScreen.DefaultOffset.PaddingBottom = Offset;
+    KWMScreen.DefaultOffset.PaddingTop = Offset.PaddingTop;
+    KWMScreen.DefaultOffset.PaddingBottom = Offset.PaddingBottom;
+    KWMScreen.DefaultOffset.PaddingLeft = Offset.PaddingLeft;
+    KWMScreen.DefaultOffset.PaddingRight = Offset.PaddingRight;
 }
 
-void SetDefaultGapOfDisplay(const std::string &Side, int Offset)
+void SetDefaultGapOfDisplay(container_offset Offset)
 {
-    if(Side == "vertical")
-        KWMScreen.DefaultOffset.VerticalGap = Offset;
-    else if(Side == "horizontal")
-        KWMScreen.DefaultOffset.HorizontalGap = Offset;
+    KWMScreen.DefaultOffset.VerticalGap = Offset.VerticalGap;
+    KWMScreen.DefaultOffset.HorizontalGap = Offset.HorizontalGap;
 }
 
 void ChangePaddingOfDisplay(const std::string &Side, int Offset)
