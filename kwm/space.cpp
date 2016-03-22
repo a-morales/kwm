@@ -50,11 +50,11 @@ void GetTagForCurrentSpace(std::string &Tag)
     if(IsSpaceInitializedForScreen(KWMScreen.Current))
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        if(Space->Mode == SpaceModeBSP)
+        if(Space->Settings.Mode == SpaceModeBSP)
             Tag = "[bsp]";
-        else if(Space->Mode == SpaceModeFloating)
+        else if(Space->Settings.Mode == SpaceModeFloating)
             Tag = "[float]";
-        else if(Space->Mode == SpaceModeMonocle)
+        else if(Space->Settings.Mode == SpaceModeMonocle)
             GetTagForMonocleSpace(Space, Tag);
     }
     else
@@ -82,9 +82,9 @@ void MoveWindowToSpace(std::string SpaceID)
     {
         screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
         space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-        if(SpaceOfWindow->Mode == SpaceModeBSP)
+        if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
             RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
-        else if(SpaceOfWindow->Mode == SpaceModeMonocle)
+        else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
             RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
     }
 
@@ -116,9 +116,9 @@ void MoveWindowToSpace(std::string SpaceID)
     {
         screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
         space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-        if(SpaceOfWindow->Mode == SpaceModeBSP)
+        if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
             AddWindowToBSPTree(ScreenOfWindow, Window->WID);
-        else if(SpaceOfWindow->Mode == SpaceModeMonocle)
+        else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
             AddWindowToMonocleTree(ScreenOfWindow, Window->WID);
     }
 
@@ -140,7 +140,7 @@ bool IsSpaceFloating(int SpaceID)
     {
         std::map<int, space_info>::iterator It = KWMScreen.Current->Space.find(SpaceID);
         if(It != KWMScreen.Current->Space.end())
-            Result = KWMScreen.Current->Space[SpaceID].Mode == SpaceModeFloating;
+            Result = KWMScreen.Current->Space[SpaceID].Settings.Mode == SpaceModeFloating;
     }
 
     return Result;
@@ -153,7 +153,7 @@ space_info *GetActiveSpaceOfScreen(screen_info *Screen)
 
     if(It == Screen->Space.end())
     {
-        space_info Clear = {{0}};
+        space_info Clear = {{{0}}};
         Screen->ActiveSpace = GetActiveSpaceOfDisplay(Screen);
         Screen->Space[Screen->ActiveSpace] = Clear;
         Space = &Screen->Space[Screen->ActiveSpace];
@@ -230,13 +230,13 @@ void FloatFocusedSpace()
        IsActiveSpaceManaged())
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        if(Space->Mode == SpaceModeFloating)
+        if(Space->Settings.Mode == SpaceModeFloating)
             return;
 
         DestroyNodeTree(Space->RootNode);
         Space->RootNode = NULL;
 
-        Space->Mode = SpaceModeFloating;
+        Space->Settings.Mode = SpaceModeFloating;
         Space->Initialized = true;
         ClearFocusedWindow();
     }
@@ -250,13 +250,13 @@ void TileFocusedSpace(space_tiling_option Mode)
        FilterWindowList(KWMScreen.Current))
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        if(Space->Mode == Mode)
+        if(Space->Settings.Mode == Mode)
             return;
 
         DestroyNodeTree(Space->RootNode);
         Space->RootNode = NULL;
 
-        Space->Mode = Mode;
+        Space->Settings.Mode = Mode;
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
         CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
     }
@@ -296,10 +296,11 @@ void UpdateActiveSpace()
     pthread_mutex_unlock(&KWMThread.Lock);
 }
 
-space_info *GetSpaceInfoForDesktopID(int DesktopID)
+space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID)
 {
-    std::map<unsigned int, space_info>::iterator It = KWMTiling.SpaceInfo.find(DesktopID);
-    if(It != KWMTiling.SpaceInfo.end())
+    space_identifier Lookup = { ScreenID, DesktopID };
+    std::map<space_identifier, space_settings>::iterator It = KWMTiling.SpaceSettings.find(Lookup);
+    if(It != KWMTiling.SpaceSettings.end())
         return &It->second;
     else
         return NULL;

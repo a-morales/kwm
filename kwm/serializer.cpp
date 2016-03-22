@@ -123,7 +123,7 @@ void SaveBSPTreeToFile(screen_info *Screen, std::string Name)
     if(IsSpaceInitializedForScreen(Screen))
     {
         space_info *Space = GetActiveSpaceOfScreen(Screen);
-        if(Space->Mode != SpaceModeBSP || IsLeafNode(Space->RootNode))
+        if(Space->Settings.Mode != SpaceModeBSP || IsLeafNode(Space->RootNode))
             return;
 
         struct stat Buffer;
@@ -151,7 +151,7 @@ void LoadBSPTreeFromFile(screen_info *Screen, std::string Name)
     if(IsSpaceInitializedForScreen(Screen))
     {
         space_info *Space = GetActiveSpaceOfScreen(Screen);
-        if(Space->Mode != SpaceModeBSP)
+        if(Space->Settings.Mode != SpaceModeBSP)
             return;
 
         std::string TempPath = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + KWMPath.BSPLayouts;

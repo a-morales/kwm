@@ -167,35 +167,49 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "space")
     {
-        int DesktopID = ConvertStringToInt(Tokens[2]);
-        space_info *SpaceInfo = GetSpaceInfoForDesktopID(DesktopID);
-        if(!SpaceInfo)
+        int ScreenID = ConvertStringToInt(Tokens[2]);
+        int DesktopID = ConvertStringToInt(Tokens[3]);
+        space_settings *SpaceSettings = GetSpaceSettingsForDesktopID(ScreenID, DesktopID);
+        if(!SpaceSettings)
         {
-            space_info NULLSpaceInfo = {};
-            KWMTiling.SpaceInfo[DesktopID] = NULLSpaceInfo;
-            SpaceInfo = &KWMTiling.SpaceInfo[DesktopID];
+            space_identifier Lookup = { ScreenID, DesktopID };
+            space_settings NULLSpaceSettings = {};
+            KWMTiling.SpaceSettings[Lookup] = NULLSpaceSettings;
+            SpaceSettings = &KWMTiling.SpaceSettings[Lookup];
         }
 
-        if(Tokens[3] == "mode")
+        if(Tokens[4] == "mode")
         {
-            if(Tokens[4] == "bsp")
-                SpaceInfo->Mode = SpaceModeBSP;
-            else if(Tokens[4] == "monocle")
-                SpaceInfo->Mode = SpaceModeMonocle;
-            else if(Tokens[4] == "float")
-                SpaceInfo->Mode = SpaceModeFloating;
+            if(Tokens[5] == "bsp")
+                SpaceSettings->Mode = SpaceModeBSP;
+            else if(Tokens[5] == "monocle")
+                SpaceSettings->Mode = SpaceModeMonocle;
+            else if(Tokens[5] == "float")
+                SpaceSettings->Mode = SpaceModeFloating;
         }
-        else if(Tokens[3] == "padding")
+        else if(Tokens[4] == "padding")
         {
-            SpaceInfo->Offset.PaddingTop = ConvertStringToDouble(Tokens[4]);
-            SpaceInfo->Offset.PaddingBottom = ConvertStringToDouble(Tokens[5]);
-            SpaceInfo->Offset.PaddingLeft = ConvertStringToDouble(Tokens[6]);
-            SpaceInfo->Offset.PaddingRight = ConvertStringToDouble(Tokens[7]);
+            SpaceSettings->Offset.PaddingTop = ConvertStringToDouble(Tokens[5]);
+            SpaceSettings->Offset.PaddingBottom = ConvertStringToDouble(Tokens[6]);
+            SpaceSettings->Offset.PaddingLeft = ConvertStringToDouble(Tokens[7]);
+            SpaceSettings->Offset.PaddingRight = ConvertStringToDouble(Tokens[8]);
         }
-        else if(Tokens[3] == "gap")
+        else if(Tokens[4] == "gap")
         {
-            SpaceInfo->Offset.VerticalGap = ConvertStringToDouble(Tokens[4]);
-            SpaceInfo->Offset.HorizontalGap = ConvertStringToDouble(Tokens[5]);
+            SpaceSettings->Offset.VerticalGap = ConvertStringToDouble(Tokens[5]);
+            SpaceSettings->Offset.HorizontalGap = ConvertStringToDouble(Tokens[6]);
+        }
+    }
+    else if(Tokens[1] == "screen")
+    {
+        if(Tokens[2] == "mode")
+        {
+        }
+        else if(Tokens[2] == "padding")
+        {
+        }
+        else if(Tokens[2] == "gap")
+        {
         }
     }
     else if(Tokens[1] == "focus")
@@ -266,10 +280,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "split-ratio")
     {
         ChangeSplitRatio(ConvertStringToDouble(Tokens[2]));
-    }
-    else if(Tokens[1] == "screen")
-    {
-        SetSpaceModeOfDisplay(ConvertStringToInt(Tokens[2]), Tokens[3]);
     }
 }
 
@@ -610,7 +620,7 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
         if(Tokens[2] == "90" || Tokens[2] == "270" || Tokens[2] == "180")
         {
             space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            if(Space->Mode == SpaceModeBSP)
+            if(Space->Settings.Mode == SpaceModeBSP)
             {
                 RotateTree(Space->RootNode, ConvertStringToInt(Tokens[2]));
                 CreateNodeContainers(KWMScreen.Current, Space->RootNode, false);

@@ -377,19 +377,19 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         DEBUG("CreateWindowNodeTree() Create Space " << Screen->ActiveSpace)
 
         int DesktopID = GetSpaceNumberFromCGSpaceID(Screen, Screen->ActiveSpace);
-        space_info *SpaceInfo = GetSpaceInfoForDesktopID(DesktopID);
-        if(SpaceInfo)
+        space_settings *SpaceSettings = GetSpaceSettingsForDesktopID(Screen->ID, DesktopID);
+        if(SpaceSettings)
         {
-            Space->Mode = SpaceInfo->Mode;
-            Space->Offset = SpaceInfo->Offset;
+            Space->Settings.Mode = SpaceSettings->Mode;
+            Space->Settings.Offset = SpaceSettings->Offset;
         }
         else
         {
-            Space->Mode = GetSpaceModeOfDisplay(Screen->ID);
-            if(Space->Mode == SpaceModeDefault)
-                Space->Mode = KWMMode.Space;
+            Space->Settings.Mode = GetSpaceModeOfDisplay(Screen->ID);
+            if(Space->Settings.Mode == SpaceModeDefault)
+                Space->Settings.Mode = KWMMode.Space;
 
-            Space->Offset = Screen->Offset;
+            Space->Settings.Offset = Screen->Settings.Offset;
         }
 
         Space->Initialized = true;
@@ -400,12 +400,12 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
         if(Space->RootNode)
         {
-            if(Space->Mode == SpaceModeBSP)
+            if(Space->Settings.Mode == SpaceModeBSP)
             {
                 SetRootNodeContainer(Screen, Space->RootNode);
                 CreateNodeContainers(Screen, Space->RootNode, true);
             }
-            else if(Space->Mode == SpaceModeMonocle)
+            else if(Space->Settings.Mode == SpaceModeMonocle)
             {
                 link_node *Link = Space->RootNode->List;
                 while(Link)
@@ -427,9 +427,9 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
 void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 {
     space_info *Space = GetActiveSpaceOfScreen(Screen);
-    if(Space->Mode == SpaceModeBSP)
+    if(Space->Settings.Mode == SpaceModeBSP)
         ShouldBSPTreeUpdate(Screen, Space);
-    else if(Space->Mode == SpaceModeMonocle)
+    else if(Space->Settings.Mode == SpaceModeMonocle)
         ShouldMonocleTreeUpdate(Screen, Space);
 }
 
@@ -819,9 +819,9 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
         return;
 
     space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-    if(SpaceOfWindow->Mode == SpaceModeBSP)
+    if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
         RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
-    else if(SpaceOfWindow->Mode == SpaceModeMonocle)
+    else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
         RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
 
     if(Window->WID == KWMScreen.MarkedWindow)
@@ -830,7 +830,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     if(Space->RootNode)
     {
-        if(Space->Mode == SpaceModeBSP)
+        if(Space->Settings.Mode == SpaceModeBSP)
         {
             DEBUG("AddWindowToTreeOfUnfocusedMonitor() BSP Space")
             tree_node *CurrentNode = NULL;
@@ -840,7 +840,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
             CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
             ApplyTreeNodeContainer(CurrentNode);
         }
-        else if(Space->Mode == SpaceModeMonocle)
+        else if(Space->Settings.Mode == SpaceModeMonocle)
         {
             DEBUG("AddWindowToTreeOfUnfocusedMonitor() Monocle Space")
             link_node *Link = Space->RootNode->List;
@@ -877,7 +877,7 @@ void ToggleWindowFloating(int WindowID, bool Center)
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
     if(IsWindowOnActiveSpace(WindowID) &&
-       Space->Mode == SpaceModeBSP)
+       Space->Settings.Mode == SpaceModeBSP)
     {
         int WindowIndex;
         if(IsWindowFloating(WindowID, &WindowIndex))
@@ -911,7 +911,7 @@ void ToggleFocusedWindowParentContainer()
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Mode != SpaceModeBSP)
+    if(Space->Settings.Mode != SpaceModeBSP)
         return;
 
     tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
@@ -938,7 +938,7 @@ void ToggleFocusedWindowFullscreen()
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Mode == SpaceModeBSP && !IsLeafNode(Space->RootNode))
+    if(Space->Settings.Mode == SpaceModeBSP && !IsLeafNode(Space->RootNode))
     {
         tree_node *Node = NULL;
         if(Space->RootNode->WindowID == -1)
@@ -1025,7 +1025,7 @@ void SwapFocusedWindowWithNearest(int Shift)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Mode == SpaceModeMonocle)
+    if(Space->Settings.Mode == SpaceModeMonocle)
     {
         link_node *Link = GetLinkNodeFromTree(Space->RootNode, KWMFocus.Window->WID);
         if(Link)
@@ -1052,7 +1052,7 @@ void SwapFocusedWindowWithNearest(int Shift)
             }
         }
     }
-    else if(Space->Mode == SpaceModeBSP)
+    else if(Space->Settings.Mode == SpaceModeBSP)
     {
         tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
         if(TreeNode)
@@ -1083,14 +1083,14 @@ void SwapFocusedWindowDirected(int Degrees)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Mode == SpaceModeMonocle)
+    if(Space->Settings.Mode == SpaceModeMonocle)
     {
         if(Degrees == 90)
             SwapFocusedWindowWithNearest(1);
         else if(Degrees == 270)
             SwapFocusedWindowWithNearest(-1);
     }
-    else if(Space->Mode == SpaceModeBSP)
+    else if(Space->Settings.Mode == SpaceModeBSP)
     {
         tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
         if(TreeNode)
@@ -1217,7 +1217,7 @@ void ShiftWindowFocusDirected(int Degrees)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Mode == SpaceModeBSP)
+    if(Space->Settings.Mode == SpaceModeBSP)
     {
         window_info NewFocusWindow = {};
         if((KWMMode.Cycle == CycleModeDisabled &&
@@ -1229,7 +1229,7 @@ void ShiftWindowFocusDirected(int Degrees)
             MoveCursorToCenterOfFocusedWindow();
         }
     }
-    else if(Space->Mode == SpaceModeMonocle)
+    else if(Space->Settings.Mode == SpaceModeMonocle)
     {
         if(Degrees == 90)
             ShiftWindowFocus(1);
@@ -1244,7 +1244,7 @@ void ShiftWindowFocus(int Shift)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Mode == SpaceModeMonocle)
+    if(Space->Settings.Mode == SpaceModeMonocle)
     {
         link_node *Link = GetLinkNodeFromTree(Space->RootNode, KWMFocus.Window->WID);
         if(Link)
@@ -1267,7 +1267,7 @@ void ShiftWindowFocus(int Shift)
             }
         }
     }
-    else if(Space->Mode == SpaceModeBSP)
+    else if(Space->Settings.Mode == SpaceModeBSP)
     {
         tree_node *TreeNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
         if(TreeNode)
@@ -1313,7 +1313,7 @@ void ShiftSubTreeWindowFocus(int Shift)
         return;
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Mode == SpaceModeBSP)
+    if(Space->Settings.Mode == SpaceModeBSP)
     {
         link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
         tree_node *Root = GetTreeNodeFromLink(Space->RootNode, Link);
@@ -1557,9 +1557,9 @@ bool IsWindowNonResizable(AXUIElementRef WindowRef, window_info *Window, CFTypeR
         if(DoesSpaceExistInMapOfScreen(Screen))
         {
             space_info *Space = GetActiveSpaceOfScreen(Screen);
-            if(Space->Mode == SpaceModeBSP)
+            if(Space->Settings.Mode == SpaceModeBSP)
                 RemoveWindowFromBSPTree(Screen, Window->WID, false, false);
-            else if(Space->Mode == SpaceModeMonocle)
+            else if(Space->Settings.Mode == SpaceModeMonocle)
                 RemoveWindowFromMonocleTree(Screen, Window->WID, false);
         }
 

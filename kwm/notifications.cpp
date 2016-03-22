@@ -36,9 +36,9 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
                    OSXScreen != ScreenOfWindow)
                 {
                     space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-                    if(SpaceOfWindow->Mode == SpaceModeBSP)
+                    if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
                         RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
-                    else if(SpaceOfWindow->Mode == SpaceModeMonocle)
+                    else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
                         RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
 
                     SpaceOfWindow->FocusedWindowID = 0;

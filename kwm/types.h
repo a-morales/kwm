@@ -24,10 +24,12 @@
 #include <sys/types.h>
 #include <time.h>
 
+struct space_identifier;
+struct color;
 struct hotkey;
 struct modifiers;
+struct space_settings;
 struct container_offset;
-struct color;
 
 struct window_info;
 struct window_role;
@@ -122,6 +124,18 @@ enum hotkey_state
     HotkeyStateExclude
 };
 
+struct space_identifier
+{
+
+    int ScreenID, SpaceID;
+
+    bool operator<(const space_identifier &Other) const
+    {
+        return (ScreenID < Other.ScreenID) ||
+               (ScreenID == Other.ScreenID && SpaceID < Other.SpaceID);
+    }
+};
+
 struct modifiers
 {
     bool CmdKey;
@@ -208,13 +222,18 @@ struct window_role
     CFTypeRef SubRole;
 };
 
-struct space_info
+struct space_settings
 {
     container_offset Offset;
+    space_tiling_option Mode;
+};
+
+struct space_info
+{
+    space_settings Settings;
     bool Initialized;
     bool Managed;
 
-    space_tiling_option Mode;
     tree_node *RootNode;
     int FocusedWindowID;
 };
@@ -226,7 +245,7 @@ struct screen_info
 
     int X, Y;
     double Width, Height;
-    container_offset Offset;
+    space_settings Settings;
 
     int ActiveSpace;
     int OldWindowListCount;
@@ -324,7 +343,7 @@ struct kwm_tiling
 
     std::map<unsigned int, screen_info> DisplayMap;
     std::map<unsigned int, space_tiling_option> DisplayMode;
-    std::map<unsigned int, space_info> SpaceInfo;
+    std::map<space_identifier, space_settings> SpaceSettings;
 
     std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
     std::map<std::string, int> CapturedAppLst;

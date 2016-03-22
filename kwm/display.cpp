@@ -60,7 +60,8 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
     Screen.Width = DisplayRect.size.width;
     Screen.Height = DisplayRect.size.height;
 
-    Screen.Offset = KWMScreen.DefaultOffset;
+    Screen.Settings.Offset = KWMScreen.DefaultOffset;
+    Screen.Settings.Mode = SpaceModeDefault;
     return Screen;
 }
 
@@ -74,7 +75,8 @@ void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenI
     Screen->Width = DisplayRect.size.width;
     Screen->Height = DisplayRect.size.height;
 
-    Screen->Offset = KWMScreen.DefaultOffset;
+    Screen->Settings.Offset = KWMScreen.DefaultOffset;
+    Screen->Settings.Mode = SpaceModeDefault;
 }
 
 void GetActiveDisplays()
@@ -213,33 +215,33 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 
     if(Side == "left")
     {
-        if(Space->Offset.PaddingLeft + Offset >= 0)
-            Space->Offset.PaddingLeft += Offset;
+        if(Space->Settings.Offset.PaddingLeft + Offset >= 0)
+            Space->Settings.Offset.PaddingLeft += Offset;
     }
     else if(Side == "right")
     {
-        if(Space->Offset.PaddingRight + Offset >= 0)
-            Space->Offset.PaddingRight += Offset;
+        if(Space->Settings.Offset.PaddingRight + Offset >= 0)
+            Space->Settings.Offset.PaddingRight += Offset;
     }
     else if(Side == "top")
     {
-        if(Space->Offset.PaddingTop + Offset >= 0)
-            Space->Offset.PaddingTop += Offset;
+        if(Space->Settings.Offset.PaddingTop + Offset >= 0)
+            Space->Settings.Offset.PaddingTop += Offset;
     }
     else if(Side == "bottom")
     {
-        if(Space->Offset.PaddingBottom + Offset >= 0)
-            Space->Offset.PaddingBottom += Offset;
+        if(Space->Settings.Offset.PaddingBottom + Offset >= 0)
+            Space->Settings.Offset.PaddingBottom += Offset;
     }
 
     if(Space->RootNode)
     {
-        if(Space->Mode == SpaceModeBSP)
+        if(Space->Settings.Mode == SpaceModeBSP)
         {
             SetRootNodeContainer(Screen, Space->RootNode);
             CreateNodeContainers(Screen, Space->RootNode, true);
         }
-        else if(Space->Mode == SpaceModeMonocle)
+        else if(Space->Settings.Mode == SpaceModeMonocle)
         {
             link_node *Link = Space->RootNode->List;
             while(Link)
@@ -260,16 +262,16 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
 
     if(Side == "vertical")
     {
-        if(Space->Offset.VerticalGap + Offset >= 0)
-            Space->Offset.VerticalGap += Offset;
+        if(Space->Settings.Offset.VerticalGap + Offset >= 0)
+            Space->Settings.Offset.VerticalGap += Offset;
     }
     else if(Side == "horizontal")
     {
-        if(Space->Offset.HorizontalGap + Offset >= 0)
-            Space->Offset.HorizontalGap += Offset;
+        if(Space->Settings.Offset.HorizontalGap + Offset >= 0)
+            Space->Settings.Offset.HorizontalGap += Offset;
     }
 
-    if(Space->RootNode && Space->Mode == SpaceModeBSP)
+    if(Space->RootNode && Space->Settings.Mode == SpaceModeBSP)
     {
         CreateNodeContainers(Screen, Space->RootNode, true);
         ApplyTreeNodeContainer(Space->RootNode);
@@ -351,9 +353,9 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
                     {
                         void *FocusNode = NULL;
                         GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
-                        if(Space->Mode == SpaceModeBSP)
+                        if(Space->Settings.Mode == SpaceModeBSP)
                             Space->FocusedWindowID = ((tree_node*)FocusNode)->WindowID;
-                        else if(Space->Mode == SpaceModeMonocle)
+                        else if(Space->Settings.Mode == SpaceModeMonocle)
                             Space->FocusedWindowID = ((link_node*)FocusNode)->WindowID;
                     }
 
@@ -364,13 +366,13 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
             else
             {
                 if(!Space->Initialized ||
-                        Space->Mode == SpaceModeFloating ||
+                        Space->Settings.Mode == SpaceModeFloating ||
                         !Space->RootNode)
                 {
                     DEBUG("Uninitialized Screen")
                     ClearFocusedWindow();
 
-                    if(Space->Mode != SpaceModeFloating)
+                    if(Space->Settings.Mode != SpaceModeFloating)
                     {
                         if(!Mouse)
                             CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2),
