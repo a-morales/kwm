@@ -3,7 +3,31 @@
 
 #include "types.h"
 
-inline  bool
+#define ConvertStringTo_(name, type) \
+inline type \
+ConvertStringTo##name(std::string Value) \
+{ \
+    type Result = 0; \
+    std::stringstream Stream; \
+    Stream << Value; \
+    Stream >> Result; \
+    return Result; \
+}
+
+ConvertStringTo_(Int, int);
+ConvertStringTo_(Double, double);
+
+inline unsigned int
+ConvertHexStringToInt(std::string HexString)
+{
+    unsigned int HexResult = 0xffffff;
+    std::stringstream Stream;
+    Stream << std::hex << HexString;
+    Stream >> HexResult;
+    return HexResult;
+}
+
+inline bool
 IsPrefixOfString(std::string &Line, std::string Prefix)
 {
     bool Result = false;
@@ -42,34 +66,6 @@ SplitString(std::string Line, char Delim)
         Elements.push_back(Temp);
 
     return Elements;
-}
-
-inline int
-ConvertStringToInt(std::string Integer)
-{
-    int IntResult;
-    std::stringstream Stream(Integer);
-    Stream >> IntResult;
-    return IntResult;
-}
-
-inline unsigned int
-ConvertHexStringToInt(std::string HexString)
-{
-    unsigned int HexResult = 0xffffff;
-    std::stringstream Stream;
-    Stream << std::hex << HexString;
-    Stream >> HexResult;
-    return HexResult;
-}
-
-inline double
-ConvertStringToDouble(std::string Double)
-{
-    double DoubleResult;
-    std::stringstream Stream(Double);
-    Stream >> DoubleResult;
-    return DoubleResult;
 }
 
 inline void
