@@ -11,40 +11,42 @@
 # Switch to space 2 and open Firefox.
 # Switch to space 3 and start Skype.
 
-/usr/local/bin/kwmc space -s id 1
+kwmc=/path/to/kwmc
+
+$kwmc space -s id 1
 sleep 1
 
 open -na /Applications/iTerm2.app
 sleep 1
-/usr/local/bin/kwmc tree restore dev3
-/usr/local/bin/kwmc write rtorrent
-/usr/local/bin/kwmc press -return
+$kwmc tree restore dev3
+$kwmc write rtorrent
+$kwmc press -return
 
-/usr/local/bin/kwmc press cmd-n
-/usr/local/bin/kwmc write vifm
-/usr/local/bin/kwmc press -return
+$kwmc press cmd-n
+$kwmc write vifm
+$kwmc press -return
 
 sleep 0.2
-/usr/local/bin/kwmc press cmd-n
+$kwmc press cmd-n
 
-/usr/local/bin/kwmc press cmd-n
-/usr/local/bin/kwmc write cd Documents/programming/C++/Kwm
-/usr/local/bin/kwmc press -return
-/usr/local/bin/kwmc write tmux
-/usr/local/bin/kwmc press -return
-/usr/local/bin/kwmc write vim
-/usr/local/bin/kwmc press -return
+$kwmc press cmd-n
+$kwmc write cd Documents/programming/C++/Kwm
+$kwmc press -return
+$kwmc write tmux
+$kwmc press -return
+$kwmc write vim
+$kwmc press -return
 
-/usr/local/bin/kwmc press cmd-n
-/usr/local/bin/kwmc write cd Documents/programming/C++/Kwm
-/usr/local/bin/kwmc press -return
-/usr/local/bin/kwmc write tmux
-/usr/local/bin/kwmc press -return
+$kwmc press cmd-n
+$kwmc write cd Documents/programming/C++/Kwm
+$kwmc press -return
+$kwmc write tmux
+$kwmc press -return
 
 sleep 1
-/usr/local/bin/kwmc space -s id 2
+$kwmc space -s id 2
 open -na /Applications/Firefox.app
 
 sleep 1
-/usr/local/bin/kwmc space -s id 3
+$kwmc space -s id 3
 open -na /Applications/Skype.app
