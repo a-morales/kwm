@@ -195,11 +195,17 @@ bool IsSpaceTransitionInProgress()
     if(KWMScreen.Transitioning)
         return true;
 
-    Assert(KWMScreen.Current, "IsSpaceTransitionInProgress()")
-    if(!KWMScreen.Current->Identifier)
-        KWMScreen.Current->Identifier = GetDisplayIdentifier(KWMScreen.Current);
+    bool Result = false;
+    std::map<unsigned int, screen_info>::iterator It;
+    for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
+    {
+        screen_info *Screen = &It->second;
+        if(!Screen->Identifier)
+            Screen->Identifier = GetDisplayIdentifier(Screen);
 
-    bool Result = CGSManagedDisplayIsAnimating(CGSDefaultConnection, KWMScreen.Current->Identifier);
+        Result = Result || CGSManagedDisplayIsAnimating(CGSDefaultConnection, Screen->Identifier);
+    }
+
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
@@ -289,6 +295,30 @@ void UpdateActiveSpace()
         {
             FocusWindowByID(Space->FocusedWindowID);
             MoveCursorToCenterOfFocusedWindow();
+        }
+    }
+    else
+    {
+        std::map<unsigned int, screen_info>::iterator It;
+        for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
+        {
+            screen_info *Screen = &It->second;
+            if(Screen->ID == KWMScreen.Current->ID)
+                continue;
+
+            int ScreenCurrentSpace = Screen->ActiveSpace;
+            int ScreenNewSpace = GetActiveSpaceOfDisplay(Screen);
+            if(ScreenCurrentSpace != ScreenNewSpace)
+            {
+                DEBUG("space changed on monitor: " << Screen->ID)
+
+                Screen->ActiveSpace = ScreenNewSpace;
+                KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
+                KWMScreen.Current = Screen;
+                UpdateActiveWindowList(Screen);
+                FilterWindowList(Screen);
+                break;
+            }
         }
     }
 
