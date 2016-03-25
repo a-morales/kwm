@@ -335,7 +335,7 @@ int main(int argc, char **argv)
                          (1 << kCGEventKeyUp) |
                          (1 << kCGEventMouseMoved));
 
-    KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, (CGEventTapOptions)0, KWMMach.EventMask, CGEventCallback, NULL);
+    KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, kCGEventTapOptionDefault, KWMMach.EventMask, CGEventCallback, NULL);
     if(!KWMMach.EventTap || !CGEventTapIsEnabled(KWMMach.EventTap))
         Fatal("ERROR: Could not create event-tap!");
 
