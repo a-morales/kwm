@@ -1,5 +1,6 @@
 #include "display.h"
 #include "space.h"
+#include "container.h"
 #include "tree.h"
 #include "window.h"
 

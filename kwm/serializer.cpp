@@ -1,4 +1,6 @@
 #include "serializer.h"
+#include "container.h"
+#include "node.h"
 #include "tree.h"
 #include "space.h"
 #include "border.h"

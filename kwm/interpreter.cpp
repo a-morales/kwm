@@ -5,6 +5,8 @@
 #include "display.h"
 #include "space.h"
 #include "window.h"
+#include "container.h"
+#include "node.h"
 #include "tree.h"
 #include "keys.h"
 #include "border.h"
