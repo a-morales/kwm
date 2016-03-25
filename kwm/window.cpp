@@ -1799,6 +1799,13 @@ void ResizeWindowToContainerSize(window_info *Window)
         tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
         if(Node)
             ResizeWindowToContainerSize(Node);
+
+        if(!Node)
+        {
+            link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, Window->WID);
+            if(Link)
+                ResizeWindowToContainerSize(Link);
+        }
     }
 }
 
