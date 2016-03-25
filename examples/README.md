@@ -20,12 +20,13 @@
         - l: increase split-ratio of focused container
 
         - f: toggle window fullscreen
-        - p: toggle window parent container
+        - d: toggle window parent container
         - w: toggle window floating
 
         - x: increase horizontal gap
         - y: increase vertical gap
 
+        - p: increase screen padding all directions
         - larrow: increase screen padding-left
         - rarrow: increase screen padding-right
         - uarrow: increase screen padding-top
@@ -35,6 +36,7 @@
         - x: decrease horizontal gap
         - y: decrease vertical gap
 
+        - p: decrease screen padding all directions
         - larrow: decrease screen padding-left
         - rarrow: decrease screen padding-right
         - uarrow: decrease screen padding-top
@@ -70,7 +72,7 @@
         - 3: give focus to screen id 2
 
     - cmd+ctrl:
-        - s: set mode of current space to bsp
-        - f: set mode of current space to monocle
+        - a: set mode of current space to bsp
+        - s: set mode of current space to monocle
         - d: set mode of current space to float
         - r: rotate window-tree by 90 degrees

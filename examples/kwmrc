@@ -207,14 +207,14 @@ kwmc bind prefix-left padding -space increase left
 kwmc bind prefix-right padding -space increase right
 kwmc bind prefix-up padding -space increase top
 kwmc bind prefix-down padding -space increase bottom
-kwmc bind prefix-p sys ~/.kwm/scripts/inc-padding.sh
+kwmc bind prefix-p padding -space increase all
 
 # Decrease Screen Padding
 kwmc bind prefix+shift-left padding -space decrease left
 kwmc bind prefix+shift-right padding -space decrease right
 kwmc bind prefix+shift-up padding -space decrease top
 kwmc bind prefix+shift-down padding -space decrease bottom
-kwmc bind prefix+shift-p sys ~/.kwm/scripts/dec-padding.sh
+kwmc bind prefix+shift-p padding -space decrease all
 
 # Autowrite
 kwmc bind cmd-7 write \
