@@ -6,11 +6,6 @@
 extern int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID);
 extern int GetActiveSpaceOfDisplay(screen_info *Screen);
 
-void AllowRoleForApplication(std::string Application, std::string Role);
-bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubRole);
-bool IsApplicationCapturedByScreen(window_info *Window);
-
-bool IsApplicationFloating(window_info *Window);
 bool IsFocusedWindowFloating();
 bool IsWindowFloating(int WindowID, int *Index);
 bool IsAnyWindowBelowCursor();
@@ -91,8 +86,5 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef);
 void GetWindowInfo(const void *Key, const void *Value, void *Context);
 bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole);
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);
-bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef);
-bool IsApplicationInCache(int PID, std::vector<AXUIElementRef> *Elements);
-void FreeWindowRefCache(int PID);
 
 #endif
