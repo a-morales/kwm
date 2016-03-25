@@ -51,8 +51,16 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             }
         }
     }
-    else if(CFEqual(Notification, kAXWindowResizedNotification) ||
-            CFEqual(Notification, kAXWindowMovedNotification) ||
+    else if(CFEqual(Notification, kAXWindowResizedNotification))
+    {
+        if(KWMTiling.LockToContainer)
+            ResizeWindowToContainerSize();
+
+        UpdateBorder("focused");
+        if (Window && Window->WID == KWMScreen.MarkedWindow)
+            UpdateBorder("marked");
+    }
+    else if(CFEqual(Notification, kAXWindowMovedNotification) ||
             CFEqual(Notification, kAXWindowMiniaturizedNotification))
     {
         UpdateBorder("focused");

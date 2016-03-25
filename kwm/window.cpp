@@ -935,6 +935,9 @@ void ToggleFocusedWindowParentContainer()
     tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
     if(Node && Node->Parent)
     {
+        if(KWMTiling.LockToContainer)
+            DestroyApplicationNotifications();
+
         if(IsLeafNode(Node) && Node->Parent->WindowID == -1)
         {
             DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container")
@@ -947,6 +950,15 @@ void ToggleFocusedWindowParentContainer()
             Node->Parent->WindowID = -1;
             ResizeWindowToContainerSize(Node);
         }
+
+        if(KWMTiling.LockToContainer)
+        {
+            UpdateBorder("focused");
+            if(KWMFocus.Window->WID == KWMScreen.MarkedWindow)
+                UpdateBorder("marked");
+
+            CreateApplicationNotifications();
+        }
     }
 }
 
@@ -958,6 +970,9 @@ void ToggleFocusedWindowFullscreen()
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
     if(Space->Settings.Mode == SpaceModeBSP && !IsLeafNode(Space->RootNode))
     {
+        if(KWMTiling.LockToContainer)
+            DestroyApplicationNotifications();
+
         tree_node *Node = NULL;
         if(Space->RootNode->WindowID == -1)
         {
@@ -979,6 +994,15 @@ void ToggleFocusedWindowFullscreen()
             {
                 ResizeWindowToContainerSize(Node);
             }
+        }
+
+        if(KWMTiling.LockToContainer)
+        {
+            UpdateBorder("focused");
+            if(KWMFocus.Window->WID == KWMScreen.MarkedWindow)
+                UpdateBorder("marked");
+
+            CreateApplicationNotifications();
         }
     }
 }

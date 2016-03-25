@@ -134,6 +134,13 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "on")
             KWMTiling.FloatNonResizable = true;
     }
+    else if(Tokens[1] == "lock-to-container")
+    {
+        if(Tokens[2] == "off")
+            KWMTiling.LockToContainer = false;
+        else if(Tokens[2] == "on")
+            KWMTiling.LockToContainer = true;
+    }
     else if(Tokens[1] == "spawn")
     {
         if(Tokens[2] == "left")

@@ -337,9 +337,10 @@ struct kwm_screen
 
 struct kwm_tiling
 {
+    double OptimalRatio;
     bool SpawnAsLeftChild;
     bool FloatNonResizable;
-    double OptimalRatio;
+    bool LockToContainer;
 
     std::map<unsigned int, screen_info> DisplayMap;
     std::map<unsigned int, space_settings> DisplaySettings;

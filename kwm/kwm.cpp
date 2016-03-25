@@ -246,6 +246,7 @@ void KwmInit()
     KWMToggles.UseBuiltinHotkeys = true;
     KWMToggles.UseMouseFollowsFocus = true;
     KWMTiling.OptimalRatio = 1.618;
+    KWMTiling.LockToContainer = true;
 
     KWMMode.Space = SpaceModeBSP;
     KWMMode.Focus = FocusModeAutoraise;
