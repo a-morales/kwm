@@ -24,7 +24,6 @@ extern kwm_border MarkedBorder;
 extern kwm_border PrefixBorder;
 extern kwm_hotkeys KWMHotkeys;
 
-// Command types
 void KwmConfigCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "reload")
@@ -530,112 +529,12 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     }
 }
 
-void KwmWindowCommand(std::vector<std::string> &Tokens)
-{
-    if(Tokens[1] == "-t")
-    {
-        if(Tokens[2] == "fullscreen")
-            ToggleFocusedWindowFullscreen();
-        else if(Tokens[2] == "parent")
-            ToggleFocusedWindowParentContainer();
-        else if(Tokens[2] == "float")
-            ToggleFocusedWindowFloating();
-    }
-    else if(Tokens[1] == "-m")
-    {
-        int XOff = ConvertStringToInt(Tokens[2]);
-        int YOff = ConvertStringToInt(Tokens[3]);
-        MoveFloatingWindow(XOff, YOff);
-    }
-    else if(Tokens[1] == "-c")
-    {
-        if(Tokens[2] == "split")
-        {
-            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-
-            if(Node)
-                ToggleNodeSplitMode(KWMScreen.Current, Node->Parent);
-        }
-        else if(Tokens[2] == "reduce" || Tokens[2] == "expand")
-        {
-            double Ratio = ConvertStringToDouble(Tokens[3]);
-            if(Tokens[2] == "reduce")
-                ModifyContainerSplitRatio(-Ratio);
-            else if(Tokens[2] == "expand")
-                ModifyContainerSplitRatio(Ratio);
-        }
-        else if(Tokens[2] == "refresh")
-        {
-            ResizeWindowToContainerSize();
-        }
-    }
-    else if(Tokens[1] == "-f")
-    {
-        if(Tokens[2] == "north")
-            ShiftWindowFocusDirected(0);
-        else if(Tokens[2] == "east")
-            ShiftWindowFocusDirected(90);
-        else if(Tokens[2] == "south")
-            ShiftWindowFocusDirected(180);
-        else if(Tokens[2] == "west")
-            ShiftWindowFocusDirected(270);
-        else if(Tokens[2] == "prev")
-            ShiftWindowFocus(-1);
-        else if(Tokens[2] == "next")
-            ShiftWindowFocus(1);
-        else if(Tokens[2] == "curr")
-            FocusWindowBelowCursor();
-        else if(Tokens[2] == "id")
-            FocusWindowByID(ConvertStringToInt(Tokens[3]));
-    }
-    else if(Tokens[1] == "-fm")
-    {
-        if(Tokens[2] == "prev")
-            ShiftSubTreeWindowFocus(-1);
-        else if(Tokens[2] == "next")
-            ShiftSubTreeWindowFocus(1);
-    }
-    else if(Tokens[1] == "-s")
-    {
-        if(Tokens[2] == "north")
-            SwapFocusedWindowDirected(0);
-        else if(Tokens[2] == "east")
-            SwapFocusedWindowDirected(90);
-        else if(Tokens[2] == "south")
-            SwapFocusedWindowDirected(180);
-        else if(Tokens[2] == "west")
-            SwapFocusedWindowDirected(270);
-        else if(Tokens[2] == "prev")
-            SwapFocusedWindowWithNearest(-1);
-        else if(Tokens[2] == "next")
-            SwapFocusedWindowWithNearest(1);
-        else if(Tokens[2] == "mark")
-            SwapFocusedWindowWithMarked();
-        else if(Tokens[2] == "space")
-            MoveWindowToSpace(Tokens[3]);
-    }
-    else if(Tokens[1] == "-x")
-    {
-        if(!KWMFocus.Window)
-            return;
-
-        if(Tokens[2] == "north")
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 0);
-        else if(Tokens[2] == "east")
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 90);
-        else if(Tokens[2] == "south")
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 180);
-        else if(Tokens[2] == "west")
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 270);
-        else if(Tokens[2] == "mark")
-            DetachAndReinsertWindow(KWMScreen.MarkedWindow, 0);
-    }
-}
-
+/* -------------------------------------------------- */
+/* NEW COMMANDS - EVERYTHING ABOVE SHOULD BE REVAMPED */
+/* -------------------------------------------------- */
 void KwmMarkCommand(std::vector<std::string> &Tokens)
 {
-    if(Tokens[1] == "-w")
+    if(Tokens[1] == "-window")
     {
         if(Tokens[2] == "focused")
         {
@@ -664,7 +563,7 @@ void KwmMarkCommand(std::vector<std::string> &Tokens)
 
 void KwmTreeCommand(std::vector<std::string> &Tokens)
 {
-    if(Tokens[1] == "-r")
+    if(Tokens[1] == "rotate")
     {
         if(Tokens[2] == "90" || Tokens[2] == "270" || Tokens[2] == "180")
         {
@@ -677,28 +576,6 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
             }
         }
     }
-    else if(Tokens[1] == "-c")
-    {
-        if(Tokens[2] == "monocle")
-            ChangeTypeOfFocusedNode(NodeTypeLink);
-        else if(Tokens[2] == "bsp")
-            ChangeTypeOfFocusedNode(NodeTypeTree);
-        else if(Tokens[2] == "toggle")
-            ToggleTypeOfFocusedNode();
-
-        else if(Tokens[2] == "refresh")
-        {
-            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            ApplyTreeNodeContainer(Space->RootNode);
-        }
-        else if(Tokens[2] == "pseudo")
-        {
-            if(Tokens[3] == "create")
-                CreatePseudoNode();
-            else if(Tokens[3] == "remove")
-                RemovePseudoNode();
-        }
-    }
     else if(Tokens[1] == "save")
     {
         SaveBSPTreeToFile(KWMScreen.Current, Tokens[2]);
@@ -709,9 +586,39 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmScreenCommand(std::vector<std::string> &Tokens)
+void KwmFocusCommand(std::vector<std::string> &Tokens)
 {
-    if(Tokens[1] == "-f")
+    if(Tokens[1] == "-window")
+    {
+        if(Tokens[2] == "north")
+            ShiftWindowFocusDirected(0);
+        else if(Tokens[2] == "east")
+            ShiftWindowFocusDirected(90);
+        else if(Tokens[2] == "south")
+            ShiftWindowFocusDirected(180);
+        else if(Tokens[2] == "west")
+            ShiftWindowFocusDirected(270);
+        else if(Tokens[2] == "prev")
+            ShiftWindowFocus(-1);
+        else if(Tokens[2] == "next")
+            ShiftWindowFocus(1);
+        else if(Tokens[2] == "curr")
+            FocusWindowBelowCursor();
+        else
+            FocusWindowByID(ConvertStringToInt(Tokens[2]));
+    }
+    else if(Tokens[1] == "-sub-window")
+    {
+        if(Tokens[2] == "prev")
+            ShiftSubTreeWindowFocus(-1);
+        else if(Tokens[2] == "next")
+            ShiftSubTreeWindowFocus(1);
+    }
+    else if(Tokens[1] == "-space")
+    {
+        KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[2]);
+    }
+    else if(Tokens[1] == "-screen")
     {
         if(Tokens[2] == "prev")
             GiveFocusToScreen(GetIndexOfPrevScreen(), NULL, false, true);
@@ -720,7 +627,179 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
         else
             GiveFocusToScreen(ConvertStringToInt(Tokens[2]), NULL, false, true);
     }
-    else if(Tokens[1] == "-s")
+}
+
+void KwmSwapCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-window")
+    {
+        if(Tokens[2] == "north")
+            SwapFocusedWindowDirected(0);
+        else if(Tokens[2] == "east")
+            SwapFocusedWindowDirected(90);
+        else if(Tokens[2] == "south")
+            SwapFocusedWindowDirected(180);
+        else if(Tokens[2] == "west")
+            SwapFocusedWindowDirected(270);
+        else if(Tokens[2] == "prev")
+            SwapFocusedWindowWithNearest(-1);
+        else if(Tokens[2] == "next")
+            SwapFocusedWindowWithNearest(1);
+        else if(Tokens[2] == "mark")
+            SwapFocusedWindowWithMarked();
+    }
+}
+
+void KwmZoomCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-window")
+    {
+        if(Tokens[2] == "fullscreen")
+            ToggleFocusedWindowFullscreen();
+        else if(Tokens[2] == "parent")
+            ToggleFocusedWindowParentContainer();
+    }
+}
+
+void KwmFloatCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-window")
+    {
+        if(Tokens[2] == "focused")
+            ToggleFocusedWindowFloating();
+    }
+    else if(Tokens[1] == "-space")
+    {
+        if(Tokens[2] == "focused")
+            FloatFocusedSpace();
+    }
+}
+
+void KwmRefreshCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-window")
+    {
+        if(Tokens[2] == "focused")
+            ResizeWindowToContainerSize();
+    }
+    else if(Tokens[1] == "-space")
+    {
+        if(Tokens[2] == "focused")
+        {
+            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+            ApplyTreeNodeContainer(Space->RootNode);
+        }
+    }
+}
+
+void KwmNodeCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-window")
+    {
+        if(Tokens[2] == "reduce" || Tokens[2] == "expand")
+        {
+            double Ratio = ConvertStringToDouble(Tokens[3]);
+            if(Tokens[2] == "reduce")
+                ModifyContainerSplitRatio(-Ratio);
+            else if(Tokens[2] == "expand")
+                ModifyContainerSplitRatio(Ratio);
+        }
+        else if(Tokens[2] == "type")
+        {
+            if(Tokens[3] == "monocle")
+                ChangeTypeOfFocusedNode(NodeTypeLink);
+            else if(Tokens[3] == "bsp")
+                ChangeTypeOfFocusedNode(NodeTypeTree);
+            else if(Tokens[3] == "toggle")
+                ToggleTypeOfFocusedNode();
+        }
+    }
+    if(Tokens[1] == "-pseudo")
+    {
+        if(Tokens[2] == "create")
+            CreatePseudoNode();
+        else if(Tokens[2] == "destroy")
+            RemovePseudoNode();
+    }
+}
+
+void KwmMoveCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-window")
+    {
+        if(!KWMFocus.Window)
+            return;
+
+        if(Tokens[2] == "space")
+        {
+            MoveWindowToSpace(Tokens[3]);
+        }
+        else if(Tokens[2] == "display")
+        {
+            if(IsApplicationCapturedByScreen(KWMFocus.Window))
+                return;
+
+            if(Tokens[2] == "prev")
+                MoveWindowToDisplay(KWMFocus.Window, -1, true, true);
+            else if(Tokens[2] == "next")
+                MoveWindowToDisplay(KWMFocus.Window, 1, true, true);
+            else
+                MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[2]), false, true);
+        }
+        else if(Tokens[2] == "north")
+        {
+            DetachAndReinsertWindow(KWMFocus.Window->WID, 0);
+        }
+        else if(Tokens[2] == "east")
+        {
+            DetachAndReinsertWindow(KWMFocus.Window->WID, 90);
+        }
+        else if(Tokens[2] == "south")
+        {
+            DetachAndReinsertWindow(KWMFocus.Window->WID, 180);
+        }
+        else if(Tokens[2] == "west")
+        {
+            DetachAndReinsertWindow(KWMFocus.Window->WID, 270);
+        }
+        else if(Tokens[2] == "mark")
+        {
+            DetachAndReinsertWindow(KWMScreen.MarkedWindow, 0);
+        }
+        else
+        {
+            int XOff = ConvertStringToInt(Tokens[2]);
+            int YOff = ConvertStringToInt(Tokens[3]);
+            MoveFloatingWindow(XOff, YOff);
+        }
+    }
+}
+
+void KwmTileCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-space")
+    {
+        if(Tokens[2] == "bsp")
+            TileFocusedSpace(SpaceModeBSP);
+        else if(Tokens[2] == "monocle")
+            TileFocusedSpace(SpaceModeMonocle);
+    }
+}
+
+void KwmSplitCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-window")
+    {
+        if(Tokens[2] == "toggle")
+        {
+            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+            tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+
+            if(Node)
+                ToggleNodeSplitMode(KWMScreen.Current, Node->Parent);
+        }
+    }
+    else if(Tokens[1] == "-display")
     {
         if(Tokens[2] == "optimal")
             KWMScreen.SplitMode = SPLIT_OPTIMAL;
@@ -729,40 +808,15 @@ void KwmScreenCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "horizontal")
             KWMScreen.SplitMode = SPLIT_HORIZONTAL;
     }
-    else if(Tokens[1] == "-m")
-    {
-        if(IsApplicationCapturedByScreen(KWMFocus.Window))
-            return;
-
-        if(Tokens[2] == "prev")
-            MoveWindowToDisplay(KWMFocus.Window, -1, true, true);
-        else if(Tokens[2] == "next")
-            MoveWindowToDisplay(KWMFocus.Window, 1, true, true);
-        else
-            MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[2]), false, true);
-    }
 }
 
-void KwmSpaceCommand(std::vector<std::string> &Tokens)
+void KwmPaddingCommand(std::vector<std::string> &Tokens)
 {
-    if(Tokens[1] == "-t")
-    {
-        if(Tokens[2] == "toggle")
-            ToggleFocusedSpaceFloating();
-        else if(Tokens[2] == "float")
-            FloatFocusedSpace();
-        else if(Tokens[2] == "bsp")
-            TileFocusedSpace(SpaceModeBSP);
-        else if(Tokens[2] == "monocle")
-            TileFocusedSpace(SpaceModeMonocle);
-    }
-    else if(Tokens[1] == "-r")
-    {
-    }
-    else if(Tokens[1] == "-p")
+    if(Tokens[1] == "-space")
     {
         if(Tokens[3] == "left" || Tokens[3] == "right" ||
-           Tokens[3] == "top" || Tokens[3] == "bottom")
+           Tokens[3] == "top" || Tokens[3] == "bottom" ||
+           Tokens[3] == "all")
         {
             int Value = 0;
             if(Tokens[2] == "increase")
@@ -772,11 +826,15 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
 
             ChangePaddingOfDisplay(Tokens[3], Value);
         }
-
     }
-    else if(Tokens[1] == "-g")
+}
+
+void KwmGapCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "-space")
     {
-        if(Tokens[3] == "vertical" || Tokens[3] == "horizontal")
+        if(Tokens[3] == "vertical" || Tokens[3] == "horizontal" ||
+           Tokens[3] == "all")
         {
             int Value = 0;
             if(Tokens[2] == "increase")
@@ -787,11 +845,6 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
             ChangeGapOfDisplay(Tokens[3], Value);
         }
     }
-    else if(Tokens[1] == "-s")
-    {
-        if(Tokens[2] == "id")
-            KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[3]);
-    }
 }
 
 void KwmBindCommand(std::vector<std::string> &Tokens)
@@ -801,7 +854,6 @@ void KwmBindCommand(std::vector<std::string> &Tokens)
     else
         KwmAddHotkey(Tokens[1], "");
 }
-// ------------------------------------------------------------------------------------
 
 void KwmInterpretCommand(std::string Message, int ClientSockFD)
 {
@@ -813,14 +865,30 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmConfigCommand(Tokens);
     else if(Tokens[0] == "read")
         KwmReadCommand(Tokens, ClientSockFD);
-    else if(Tokens[0] == "window")
-        KwmWindowCommand(Tokens);
+    else if(Tokens[0] == "focus")
+        KwmFocusCommand(Tokens);
+    else if(Tokens[0] == "swap")
+        KwmSwapCommand(Tokens);
+    else if(Tokens[0] == "zoom")
+        KwmZoomCommand(Tokens);
+    else if(Tokens[0] == "float")
+        KwmFloatCommand(Tokens);
+    else if(Tokens[0] == "refresh")
+        KwmRefreshCommand(Tokens);
+    else if(Tokens[0] == "node")
+        KwmNodeCommand(Tokens);
+    else if(Tokens[0] == "move")
+        KwmMoveCommand(Tokens);
+    else if(Tokens[0] == "tile")
+        KwmTileCommand(Tokens);
+    else if(Tokens[0] == "split")
+        KwmSplitCommand(Tokens);
+    else if(Tokens[0] == "padding")
+        KwmPaddingCommand(Tokens);
+    else if(Tokens[0] == "gap")
+        KwmGapCommand(Tokens);
     else if(Tokens[0] == "mark")
         KwmMarkCommand(Tokens);
-    else if(Tokens[0] == "screen")
-        KwmScreenCommand(Tokens);
-    else if(Tokens[0] == "space")
-        KwmSpaceCommand(Tokens);
     else if(Tokens[0] == "tree")
         KwmTreeCommand(Tokens);
     else if(Tokens[0] == "write")
