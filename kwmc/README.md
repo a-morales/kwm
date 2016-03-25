@@ -32,6 +32,9 @@
         Automatically float non-resizable windows
             kwmc config float-non-resizable on|off
 
+        Automatically reapply container if window changes size
+            kwmc config lock-to-container on|off
+
         Always float application
             kwmc config float application
 

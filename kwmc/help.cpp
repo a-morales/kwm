@@ -59,6 +59,7 @@ void ShowHelp(std::string Command)
             "   marked-border radius number                            Set the corner-radius of the border\n"
             "   spawn left|right                                       The container position to be occupied by the new window\n"
             "   capture id application                                 Capture application to screen\n"
+            "   lock-to-container on|off                               Automatically reapply container if window changes size\n"
             "   float-non-resizable on|off                             Automatically float non-resizable windows\n"
             "   float application                                      Always float application\n"
             "   focus toggle|autofocus|autoraise|off                   Set focus-mode\n"
