@@ -166,13 +166,9 @@ bool IsWindowOnActiveSpace(int WindowID)
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
         if(WindowID == KWMTiling.WindowLst[WindowIndex].WID)
-        {
-            DEBUG("IsWindowOnActiveSpace() window found")
             return true;
-        }
     }
 
-    DEBUG("IsWindowOnActiveSpace() window was not found")
     return false;
 }
 
