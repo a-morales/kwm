@@ -889,14 +889,16 @@ void ToggleWindowFloating(int WindowID, bool Center)
     Assert(KWMScreen.Current, "ToggleWindowFloating()")
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(IsWindowOnActiveSpace(WindowID) &&
-       Space->Settings.Mode == SpaceModeBSP)
+    if(IsWindowOnActiveSpace(WindowID))
     {
         int WindowIndex;
         if(IsWindowFloating(WindowID, &WindowIndex))
         {
             KWMTiling.FloatingWindowLst.erase(KWMTiling.FloatingWindowLst.begin() + WindowIndex);
-            AddWindowToBSPTree(KWMScreen.Current, WindowID);
+            if(Space->Settings.Mode == SpaceModeBSP)
+                AddWindowToBSPTree(KWMScreen.Current, WindowID);
+            else if(Space->Settings.Mode == SpaceModeMonocle)
+                AddWindowToMonocleTree(KWMScreen.Current, WindowID);
 
             if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
                 KWMMode.Focus = FocusModeAutoraise;
@@ -904,7 +906,10 @@ void ToggleWindowFloating(int WindowID, bool Center)
         else
         {
             KWMTiling.FloatingWindowLst.push_back(WindowID);
-            RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, Center, Center);
+            if(Space->Settings.Mode == SpaceModeBSP)
+                RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, Center, Center);
+            else if(Space->Settings.Mode == SpaceModeMonocle)
+                RemoveWindowFromMonocleTree(KWMScreen.Current, WindowID, false);
 
             if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
                 KWMMode.Focus = FocusModeStandby;
