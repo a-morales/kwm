@@ -345,7 +345,7 @@ void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     }
     else if(Tokens[1] == "current")
     {
-        std::string Output = std::to_string(GetFocusedWindowID());
+        std::string Output = KWMFocus.Window ? std::to_string(KWMFocus.Window->WID) : "-1";
         KwmWriteToSocket(ClientSockFD, Output);
     }
     else if(Tokens[1] == "marked")

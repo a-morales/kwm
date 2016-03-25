@@ -310,3 +310,26 @@ void ResizeWindowToContainerSize()
     if(KWMFocus.Window)
         ResizeWindowToContainerSize(KWMFocus.Window);
 }
+
+void ModifyContainerSplitRatio(double Offset)
+{
+    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    {
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        tree_node *Root = Space->RootNode;
+        if(IsLeafNode(Root) || Root->WindowID != -1)
+            return;
+
+        tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, KWMFocus.Window->WID);
+        if(Node && Node->Parent)
+        {
+            if(Node->Parent->SplitRatio + Offset > 0.0 &&
+               Node->Parent->SplitRatio + Offset < 1.0)
+            {
+                Node->Parent->SplitRatio += Offset;
+                ResizeNodeContainer(KWMScreen.Current, Node->Parent);
+                ApplyTreeNodeContainer(Node->Parent);
+            }
+        }
+    }
+}

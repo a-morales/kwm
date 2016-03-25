@@ -23,5 +23,6 @@ void ResizeWindowToContainerSize(tree_node *Node);
 void ResizeWindowToContainerSize(link_node *Node);
 void ResizeWindowToContainerSize(window_info *Window);
 void ResizeWindowToContainerSize();
+void ModifyContainerSplitRatio(double Offset);
 
 #endif

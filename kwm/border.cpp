@@ -6,7 +6,7 @@ void UpdateBorder(std::string BorderType)
     Assert(BorderType == "focused" || BorderType == "marked")
 
     kwm_border *Border = &FocusedBorder;
-    int WindowID = GetFocusedWindowID();
+    int WindowID = KWMFocus.Window ? KWMFocus.Window->WID : -1;
 
     if(BorderType == "focused" &&
        FocusedBorder.Enabled &&

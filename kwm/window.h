@@ -19,7 +19,6 @@ bool IsWindowOnActiveSpace(int WindowID);
 bool WindowsAreEqual(window_info *Window, window_info *Match);
 
 void ClearFocusedWindow();
-int GetFocusedWindowID();
 bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef);
 bool FocusWindowOfOSX();
 void FocusWindowBelowCursor();
@@ -81,7 +80,6 @@ void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Y
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
 void CenterWindow(screen_info *Screen, window_info *Window);
 void MoveFloatingWindow(int X, int Y);
-void ModifyContainerSplitRatio(double Offset);
 
 int GetWindowIDFromRef(AXUIElementRef WindowRef);
 window_info GetWindowByRef(AXUIElementRef WindowRef);

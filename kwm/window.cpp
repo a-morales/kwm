@@ -217,11 +217,6 @@ bool IsWindowOnActiveSpace(int WindowID)
     return false;
 }
 
-int GetFocusedWindowID()
-{
-    return (KWMFocus.Window && KWMFocus.Window->Layer == 0) ? KWMFocus.Window->WID : -1;
-}
-
 void ClearFocusedWindow()
 {
     ClearBorder(&FocusedBorder);
@@ -1757,29 +1752,6 @@ void MoveFloatingWindow(int X, int Y)
         {
             AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
             CFRelease(NewWindowPos);
-        }
-    }
-}
-
-void ModifyContainerSplitRatio(double Offset)
-{
-    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-    {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *Root = Space->RootNode;
-        if(IsLeafNode(Root) || Root->WindowID != -1)
-            return;
-
-        tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, KWMFocus.Window->WID);
-        if(Node && Node->Parent)
-        {
-            if(Node->Parent->SplitRatio + Offset > 0.0 &&
-               Node->Parent->SplitRatio + Offset < 1.0)
-            {
-                Node->Parent->SplitRatio += Offset;
-                ResizeNodeContainer(KWMScreen.Current, Node->Parent);
-                ApplyTreeNodeContainer(Node->Parent);
-            }
         }
     }
 }
