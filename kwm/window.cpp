@@ -1007,6 +1007,35 @@ void ToggleFocusedWindowFullscreen()
     }
 }
 
+bool IsWindowFullscreen(window_info *Window)
+{
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    return Space->RootNode->WindowID == Window->WID;
+}
+
+bool IsWindowParentContainer(window_info *Window)
+{
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
+    return Node && Node->Parent && Node->Parent->WindowID == Window->WID;
+}
+
+void LockWindowToContainerSize(window_info *Window)
+{
+    if(Window)
+    {
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
+
+        if(IsWindowFullscreen(Window))
+            ResizeWindowToContainerSize(Space->RootNode);
+        else if(IsWindowParentContainer(Window))
+            ResizeWindowToContainerSize(Node->Parent);
+        else
+            ResizeWindowToContainerSize(Node);
+    }
+}
+
 void DetachAndReinsertWindow(int WindowID, int Degrees)
 {
     if(WindowID == KWMScreen.MarkedWindow)

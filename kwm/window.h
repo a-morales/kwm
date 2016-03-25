@@ -46,6 +46,9 @@ void ToggleWindowFloating(int WindowID, bool Center);
 void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowParentContainer();
 void ToggleFocusedWindowFullscreen();
+bool IsWindowFullscreen(window_info *Window);
+bool IsWindowParentContainer(window_info *Window);
+void LockWindowToContainerSize(window_info *Window);
 
 void DetachAndReinsertWindow(int WindowID, int Degrees);
 void SwapFocusedWindowWithMarked();
