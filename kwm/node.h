@@ -19,5 +19,9 @@ void ChangeTypeOfFocusedNode(node_type Type);
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
 void SwapNodeWindowIDs(link_node *A, link_node *B);
 split_type GetOptimalSplitMode(tree_node *Node);
+void ResizeWindowToContainerSize(tree_node *Node);
+void ResizeWindowToContainerSize(link_node *Node);
+void ResizeWindowToContainerSize(window_info *Window);
+void ResizeWindowToContainerSize();
 
 #endif

@@ -6,6 +6,7 @@
 #include "tree.h"
 #include "notifications.h"
 #include "border.h"
+#include "helpers.h"
 
 #include <cmath>
 
@@ -1781,99 +1782,6 @@ void ModifyContainerSplitRatio(double Offset)
             }
         }
     }
-}
-
-void ResizeWindowToContainerSize(tree_node *Node)
-{
-    window_info *Window = GetWindowByID(Node->WindowID);
-
-    if(Window)
-    {
-        AXUIElementRef WindowRef;
-        if(GetWindowRef(Window, &WindowRef))
-        {
-            SetWindowDimensions(WindowRef, Window,
-                        Node->Container.X, Node->Container.Y,
-                        Node->Container.Width, Node->Container.Height);
-
-            if(WindowsAreEqual(Window, KWMFocus.Window))
-                KWMFocus.Cache = *Window;
-        }
-    }
-}
-
-void ResizeWindowToContainerSize(link_node *Link)
-{
-    window_info *Window = GetWindowByID(Link->WindowID);
-
-    if(Window)
-    {
-        AXUIElementRef WindowRef;
-        if(GetWindowRef(Window, &WindowRef))
-        {
-            SetWindowDimensions(WindowRef, Window,
-                        Link->Container.X, Link->Container.Y,
-                        Link->Container.Width, Link->Container.Height);
-
-            if(WindowsAreEqual(Window, KWMFocus.Window))
-                KWMFocus.Cache = *Window;
-        }
-    }
-}
-
-void ResizeWindowToContainerSize(window_info *Window)
-{
-    Assert(Window)
-    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-    {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
-        if(Node)
-            ResizeWindowToContainerSize(Node);
-
-        if(!Node)
-        {
-            link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, Window->WID);
-            if(Link)
-                ResizeWindowToContainerSize(Link);
-        }
-    }
-}
-
-void ResizeWindowToContainerSize()
-{
-    if(KWMFocus.Window)
-        ResizeWindowToContainerSize(KWMFocus.Window);
-}
-
-CGPoint GetCursorPos()
-{
-    CGEventRef Event = CGEventCreate(NULL);
-    CGPoint Cursor = CGEventGetLocation(Event);
-    CFRelease(Event);
-
-    return Cursor;
-}
-
-std::string GetUTF8String(CFStringRef Temp)
-{
-    std::string Result;
-
-    if(!CFStringGetCStringPtr(Temp, kCFStringEncodingUTF8))
-    {
-        CFIndex Length = CFStringGetLength(Temp);
-        CFIndex Bytes = 4 * Length + 1;
-        char *TempUTF8StringPtr = (char*) malloc(Bytes);
-
-        CFStringGetCString(Temp, TempUTF8StringPtr, Bytes, kCFStringEncodingUTF8);
-        if(TempUTF8StringPtr)
-        {
-            Result = TempUTF8StringPtr;
-            free(TempUTF8StringPtr);
-        }
-    }
-
-    return Result;
 }
 
 std::string GetWindowTitle(AXUIElementRef WindowRef)

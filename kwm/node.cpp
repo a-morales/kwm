@@ -247,3 +247,66 @@ split_type GetOptimalSplitMode(tree_node *Node)
 {
     return (Node->Container.Width / Node->Container.Height) >= KWMTiling.OptimalRatio ? SPLIT_VERTICAL : SPLIT_HORIZONTAL;
 }
+
+void ResizeWindowToContainerSize(tree_node *Node)
+{
+    window_info *Window = GetWindowByID(Node->WindowID);
+
+    if(Window)
+    {
+        AXUIElementRef WindowRef;
+        if(GetWindowRef(Window, &WindowRef))
+        {
+            SetWindowDimensions(WindowRef, Window,
+                        Node->Container.X, Node->Container.Y,
+                        Node->Container.Width, Node->Container.Height);
+
+            if(WindowsAreEqual(Window, KWMFocus.Window))
+                KWMFocus.Cache = *Window;
+        }
+    }
+}
+
+void ResizeWindowToContainerSize(link_node *Link)
+{
+    window_info *Window = GetWindowByID(Link->WindowID);
+
+    if(Window)
+    {
+        AXUIElementRef WindowRef;
+        if(GetWindowRef(Window, &WindowRef))
+        {
+            SetWindowDimensions(WindowRef, Window,
+                        Link->Container.X, Link->Container.Y,
+                        Link->Container.Width, Link->Container.Height);
+
+            if(WindowsAreEqual(Window, KWMFocus.Window))
+                KWMFocus.Cache = *Window;
+        }
+    }
+}
+
+void ResizeWindowToContainerSize(window_info *Window)
+{
+    Assert(Window)
+    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    {
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
+        if(Node)
+            ResizeWindowToContainerSize(Node);
+
+        if(!Node)
+        {
+            link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, Window->WID);
+            if(Link)
+                ResizeWindowToContainerSize(Link);
+        }
+    }
+}
+
+void ResizeWindowToContainerSize()
+{
+    if(KWMFocus.Window)
+        ResizeWindowToContainerSize(KWMFocus.Window);
+}

@@ -60,6 +60,33 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
     return LowerContainer;
 }
 
+void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
+{
+    Assert(Node)
+
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
+
+    Node->Container.X = Screen->X + Space->Settings.Offset.PaddingLeft;
+    Node->Container.Y = Screen->Y + Space->Settings.Offset.PaddingTop;
+    Node->Container.Width = Screen->Width - Space->Settings.Offset.PaddingLeft - Space->Settings.Offset.PaddingRight;
+    Node->Container.Height = Screen->Height - Space->Settings.Offset.PaddingTop - Space->Settings.Offset.PaddingBottom;
+    Node->SplitMode = GetOptimalSplitMode(Node);
+
+    Node->Container.Type = 0;
+}
+
+void SetLinkNodeContainer(screen_info *Screen, link_node *Link)
+{
+    Assert(Link)
+
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
+
+    Link->Container.X = Screen->X + Space->Settings.Offset.PaddingLeft;
+    Link->Container.Y = Screen->Y + Space->Settings.Offset.PaddingTop;
+    Link->Container.Width = Screen->Width - Space->Settings.Offset.PaddingLeft - Space->Settings.Offset.PaddingRight;
+    Link->Container.Height = Screen->Height - Space->Settings.Offset.PaddingTop - Space->Settings.Offset.PaddingBottom;
+}
+
 void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType)
 {
     Assert(Node)
@@ -106,33 +133,6 @@ void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node
         CreateNodeContainer(Screen, LeftNode, 3);
         CreateNodeContainer(Screen, RightNode, 4);
     }
-}
-
-void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
-{
-    Assert(Node)
-
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-
-    Node->Container.X = Screen->X + Space->Settings.Offset.PaddingLeft;
-    Node->Container.Y = Screen->Y + Space->Settings.Offset.PaddingTop;
-    Node->Container.Width = Screen->Width - Space->Settings.Offset.PaddingLeft - Space->Settings.Offset.PaddingRight;
-    Node->Container.Height = Screen->Height - Space->Settings.Offset.PaddingTop - Space->Settings.Offset.PaddingBottom;
-    Node->SplitMode = GetOptimalSplitMode(Node);
-
-    Node->Container.Type = 0;
-}
-
-void SetLinkNodeContainer(screen_info *Screen, link_node *Link)
-{
-    Assert(Link)
-
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-
-    Link->Container.X = Screen->X + Space->Settings.Offset.PaddingLeft;
-    Link->Container.Y = Screen->Y + Space->Settings.Offset.PaddingTop;
-    Link->Container.Width = Screen->Width - Space->Settings.Offset.PaddingLeft - Space->Settings.Offset.PaddingRight;
-    Link->Container.Height = Screen->Height - Space->Settings.Offset.PaddingTop - Space->Settings.Offset.PaddingBottom;
 }
 
 void ResizeNodeContainer(screen_info *Screen, tree_node *Node)

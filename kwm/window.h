@@ -82,16 +82,10 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
 void CenterWindow(screen_info *Screen, window_info *Window);
 void MoveFloatingWindow(int X, int Y);
 void ModifyContainerSplitRatio(double Offset);
-void ResizeWindowToContainerSize(tree_node *Node);
-void ResizeWindowToContainerSize(link_node *Node);
-void ResizeWindowToContainerSize(window_info *Window);
-void ResizeWindowToContainerSize();
 
-CGPoint GetCursorPos();
 int GetWindowIDFromRef(AXUIElementRef WindowRef);
 window_info GetWindowByRef(AXUIElementRef WindowRef);
 window_info *GetWindowByID(int WindowID);
-std::string GetUTF8String(CFStringRef Temp);
 std::string GetWindowTitle(AXUIElementRef WindowRef);
 CGSize GetWindowSize(AXUIElementRef WindowRef);
 CGPoint GetWindowPos(window_info *Window);

@@ -5,6 +5,7 @@
 #include "border.h"
 #include "keys.h"
 #include "notifications.h"
+#include "helpers.h"
 
 extern kwm_mach KWMMach;
 extern kwm_tiling KWMTiling;
