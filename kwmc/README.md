@@ -111,11 +111,11 @@
         Quit Kwm
             kwmc quit
 
-        Automatically emit keystrokes to the focused window
+        Automatically emit keystrokes
             kwmc write <opt>
             <opt>: some text
 
-        Send a key press with the specified modifiers
+        Send a key press
             kwmc press <opt>
             <opt>: mod+mod+mod-key
 
@@ -155,7 +155,7 @@
             kwmc refresh -window <opt>
             <opt>: focused
 
-        Resize all windows on space to their container size
+        Resize all windows to their container size
             kwmc refresh -space <opt>
             <opt>: focused
 
@@ -188,12 +188,6 @@
             <opt>: focused | north <arg> | east <arg> | south <arg> | west <arg>
             <arg>: wrap | nowrap
 
-        Manage window-tree
-            kwmc tree <opt>
-            <opt>: rotate <arg1> | save <arg2> | restore <arg2>
-            <arg1>: 90 | 180 | 270
-            <arg2>: filename
-
         Make space tiled
             kwmc tile -space <opt>
             <opt>: bsp | monocle
@@ -207,6 +201,12 @@
             kwmc gap -space <opt> <arg>
             <opt>: increase | decrease
             <arg>: all | vertical | horizontal
+
+        Manage window-tree
+            kwmc tree <opt>
+            <opt>: rotate <arg1> | save <arg2> | restore <arg2>
+            <arg1>: 90 | 180 | 270
+            <arg2>: filename
 
     Get state of Kwm
         Get owner and title of focused window
