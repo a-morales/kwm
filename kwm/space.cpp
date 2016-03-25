@@ -5,6 +5,7 @@
 #include "border.h"
 #include "keys.h"
 #include "notifications.h"
+#include "helpers.h"
 
 extern kwm_mach KWMMach;
 extern kwm_tiling KWMTiling;
@@ -266,14 +267,6 @@ void TileFocusedSpace(space_tiling_option Mode)
         std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
         CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
     }
-}
-
-void ToggleFocusedSpaceFloating()
-{
-    if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
-        FloatFocusedSpace();
-    else
-        TileFocusedSpace(SpaceModeBSP);
 }
 
 void UpdateActiveSpace()

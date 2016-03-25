@@ -1,7 +1,10 @@
 #include "display.h"
 #include "space.h"
+#include "container.h"
 #include "tree.h"
+#include "application.h"
 #include "window.h"
+#include "helpers.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
@@ -207,7 +210,21 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
     screen_info *Screen = GetDisplayOfMousePointer();
     space_info *Space = GetActiveSpaceOfScreen(Screen);
 
-    if(Side == "left")
+    if(Side == "all")
+    {
+        if(Space->Settings.Offset.PaddingLeft + Offset >= 0)
+            Space->Settings.Offset.PaddingLeft += Offset;
+
+        if(Space->Settings.Offset.PaddingRight + Offset >= 0)
+            Space->Settings.Offset.PaddingRight += Offset;
+
+        if(Space->Settings.Offset.PaddingTop + Offset >= 0)
+            Space->Settings.Offset.PaddingTop += Offset;
+
+        if(Space->Settings.Offset.PaddingBottom + Offset >= 0)
+            Space->Settings.Offset.PaddingBottom += Offset;
+    }
+    else if(Side == "left")
     {
         if(Space->Settings.Offset.PaddingLeft + Offset >= 0)
             Space->Settings.Offset.PaddingLeft += Offset;
@@ -254,7 +271,15 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
     screen_info *Screen = GetDisplayOfMousePointer();
     space_info *Space = GetActiveSpaceOfScreen(Screen);
 
-    if(Side == "vertical")
+    if(Side == "all")
+    {
+        if(Space->Settings.Offset.VerticalGap + Offset >= 0)
+            Space->Settings.Offset.VerticalGap += Offset;
+
+        if(Space->Settings.Offset.HorizontalGap + Offset >= 0)
+            Space->Settings.Offset.HorizontalGap += Offset;
+    }
+    else if(Side == "vertical")
     {
         if(Space->Settings.Offset.VerticalGap + Offset >= 0)
             Space->Settings.Offset.VerticalGap += Offset;

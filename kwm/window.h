@@ -6,11 +6,6 @@
 extern int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID);
 extern int GetActiveSpaceOfDisplay(screen_info *Screen);
 
-void AllowRoleForApplication(std::string Application, std::string Role);
-bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubRole);
-bool IsApplicationCapturedByScreen(window_info *Window);
-
-bool IsApplicationFloating(window_info *Window);
 bool IsFocusedWindowFloating();
 bool IsWindowFloating(int WindowID, int *Index);
 bool IsAnyWindowBelowCursor();
@@ -19,7 +14,6 @@ bool IsWindowOnActiveSpace(int WindowID);
 bool WindowsAreEqual(window_info *Window, window_info *Match);
 
 void ClearFocusedWindow();
-int GetFocusedWindowID();
 bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef);
 bool FocusWindowOfOSX();
 void FocusWindowBelowCursor();
@@ -81,17 +75,10 @@ void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Y
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
 void CenterWindow(screen_info *Screen, window_info *Window);
 void MoveFloatingWindow(int X, int Y);
-void ModifyContainerSplitRatio(double Offset);
-void ResizeWindowToContainerSize(tree_node *Node);
-void ResizeWindowToContainerSize(link_node *Node);
-void ResizeWindowToContainerSize(window_info *Window);
-void ResizeWindowToContainerSize();
 
-CGPoint GetCursorPos();
 int GetWindowIDFromRef(AXUIElementRef WindowRef);
 window_info GetWindowByRef(AXUIElementRef WindowRef);
 window_info *GetWindowByID(int WindowID);
-std::string GetUTF8String(CFStringRef Temp);
 std::string GetWindowTitle(AXUIElementRef WindowRef);
 CGSize GetWindowSize(AXUIElementRef WindowRef);
 CGPoint GetWindowPos(window_info *Window);
@@ -99,8 +86,5 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef);
 void GetWindowInfo(const void *Key, const void *Value, void *Context);
 bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole);
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);
-bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef);
-bool IsApplicationInCache(int PID, std::vector<AXUIElementRef> *Elements);
-void FreeWindowRefCache(int PID);
 
 #endif

@@ -20,7 +20,6 @@ bool IsActiveSpaceFloating();
 
 void TileFocusedSpace(space_tiling_option Mode);
 void FloatFocusedSpace();
-void ToggleFocusedSpaceFloating();
 void UpdateActiveSpace();
 
 void MoveWindowToSpace(std::string SpaceID);

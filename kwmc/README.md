@@ -111,82 +111,102 @@
         Quit Kwm
             kwmc quit
 
-        Automatically emit keystrokes to the focused window
-            kwmc write sentence
+        Automatically emit keystrokes
+            kwmc write <opt>
+            <opt>: some text
 
-        Send a key press with the specified modifiers
-            kwmc press mod+mod+mod-key
+        Send a key press
+            kwmc press <opt>
+            <opt>: mod+mod+mod-key
 
-        Set window-tiling mode
-            kwmc window -t fullscreen|parent|float
+        Change focus between windows
+            kwmc focus -window <opt>
+            <opt>: north | east | south | west | prev | next | curr | window_id
 
-        Resize window to container
-            kwmc window -c refresh
+        Change focus between monocle-subtree windows
+            kwmc focus -sub-window <opt>
+            <opt>: prev | next
 
-        Toggle between vertical and horizontal split for an existing container
-            kwmc window -c split
+        Change focus between spaces
+            kwmc focus -space <opt>
+            <opt>: workspace number
 
-        Change split-ratio of the focused container (0 < amount < 1)
-            kwmc window -c reduce|expand amount
-
-        Change window focus
-            kwmc window -f north|east|south|west|prev|next|curr
-
-        Change window focus by id
-            kwmc window -f id windowid
+        Change focus between displays
+            kwmc focus -display <opt>
+            <opt>: prev | next | id
 
         Swap window position
-            kwmc window -s north|east|south|west|prev|next|mark
+            kwmc swap -window <opt>
+            <opt>: north | east | south | west | prev | next
 
-        Detach window and reinsert at the given position
-            kwmc window -x north|east|south|west|mark
+        Adjust container zoom
+            kwmc zoom -window <opt>
+            <opt>: fullscreen | parent
 
-        Change position of a floating window
-            kwmc window -m xoff yoff
+        Toggle window floating
+            kwmc float -window <opt>
+            <opt>: focused
 
-        Move window to different space on same screen
-        (Requires spaces-key and OSX spaces shortcuts!)
-            kwmc window -s space id|left|right
+        Make space floating
+            kwmc float -space <opt>
+            <opt>: focused
 
-        Mark a window relative to the focused window
-            kwmc mark -w focused|north|east|south|west wrap|nowrap
+        Resize window to container size
+            kwmc refresh -window <opt>
+            <opt>: focused
 
-        Set the focused node to be a monocle-tree or normal bsp-node
-            kwmc tree -c monocle|bsp|toggle
+        Resize all windows to their container size
+            kwmc refresh -space <opt>
+            <opt>: focused
 
-        Rotate window-tree
-            kwmc tree -r 90|180|270
+        Modify container of window
+            kwmc node -window <opt>
+            <opt>: type <arg1> | reduce <arg2> | expand <arg2>
+            <arg1>: monocle | bsp | toggle
+            <arg2>: 0 < amount < 1
 
-        Create or remove pseudo-container, filled by next window creation
-            kwmc tree -c pseudo create|remove
+        Manage pseudo nodes
+            kwmc node -pseudo <opt>
+            <opt>: create | destroy
 
-        Resize all windows to container
-            kwmc tree -c refresh
+        Set split-mode for node of window
+            kwmc split -window <opt>
+            <opt>: toggle
 
-        Save/Restore current bsp-tree from file ($HOME/.kwm/layouts/name)
-            kwmc tree save|restore name
+        Set split-mode of display
+            kwmc split -display <opt>
+            <opt>: optimal | vertical | horizontal
 
-        Change space of current display (OSX shortcuts for spaces must be enabled!)
-            kwmc space -s id num
+        Move window
+            kwmc move -window <opt>
+            <opt>: display <arg1> | space <arg2> | north | east | south | west | mark | xoff yoff
+            <arg1>: display number | prev | next
+            <arg2>: workspace number | left | right
 
-        Set tiling mode of current space
-            kwmc space -t toggle|bsp|monocle|float
+        Mark window
+            kwmc mark -window <opt>
+            <opt>: focused | north <arg> | east <arg> | south <arg> | west <arg>
+            <arg>: wrap | nowrap
 
-        Change space padding
-            kwmc space -p increase|decrease left|right|top|bottom
+        Make space tiled
+            kwmc tile -space <opt>
+            <opt>: bsp | monocle
 
-        Change space container gaps
-            kwmc space -g increase|decrease vertical|horizontal
+        Adjust padding
+            kwmc padding -space <opt> <arg>
+            <opt>: increase | decrease
+            <arg>: all | left | right | top | bottom
 
-        Set split-mode
-            kwmc screen -s optimal|vertical|horizontal
+        Adjust gaps
+            kwmc gap -space <opt> <arg>
+            <opt>: increase | decrease
+            <arg>: all | vertical | horizontal
 
-        Move window between monitors (id of primary monitor is 0 and last monitor n-1)
-            kwmc screen -m prev|next|id
-
-        Give focus to monitor
-            kwmc screen -f prev|next|id
-
+        Manage window-tree
+            kwmc tree <opt>
+            <opt>: rotate <arg1> | save <arg2> | restore <arg2>
+            <arg1>: 90 | 180 | 270
+            <arg2>: filename
 
     Get state of Kwm
         Get owner and title of focused window
