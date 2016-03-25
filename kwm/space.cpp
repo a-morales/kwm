@@ -269,14 +269,6 @@ void TileFocusedSpace(space_tiling_option Mode)
     }
 }
 
-void ToggleFocusedSpaceFloating()
-{
-    if(!IsSpaceFloating(KWMScreen.Current->ActiveSpace))
-        FloatFocusedSpace();
-    else
-        TileFocusedSpace(SpaceModeBSP);
-}
-
 void UpdateActiveSpace()
 {
     pthread_mutex_lock(&KWMThread.Lock);
