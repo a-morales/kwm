@@ -191,8 +191,8 @@
         Manage window-tree
             kwmc tree <opt>
             <opt>: rotate <arg1> | save <arg2> | restore <arg2>
-            <arg1> 90 | 180 | 270
-            <arg2> filename
+            <arg1>: 90 | 180 | 270
+            <arg2>: filename
 
         Make space tiled
             kwmc tile -space <opt>
@@ -200,12 +200,12 @@
 
         Adjust padding
             kwmc padding -space <opt> <arg>
-            <opt> increase | decrease
+            <opt>: increase | decrease
             <arg>: all | left | right | top | bottom
 
         Adjust gaps
             kwmc gap -space <opt> <arg>
-            <opt> increase | decrease
+            <opt>: increase | decrease
             <arg>: all | vertical | horizontal
 
     Get state of Kwm
