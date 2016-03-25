@@ -60,7 +60,7 @@ struct kwm_thread;
                                }
 #else
     #define DEBUG(x)
-    #define Assert(Expression, Function)
+    #define Assert(Expression)
 #endif
 
 #define BSP_WINDOW_EVENT_CALLBACK(name) void name(window_info *Window, int OpenWindows)
