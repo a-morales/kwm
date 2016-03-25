@@ -121,7 +121,7 @@
 
         Change focus between windows
             kwmc focus -window <opt>
-            <opt>: north | east | south | west | prev | next | curr | window_id
+            <opt>: north | east | south | west | prev | next | curr | window id
 
         Change focus between monocle-subtree windows
             kwmc focus -sub-window <opt>
