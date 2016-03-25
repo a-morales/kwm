@@ -42,6 +42,9 @@ kwmc config prefix-timeout 0.75
 # Automatically float windows that fail to resize
 kwmc config float-non-resizable on
 
+# Automatically resize the window to its container
+kwmc config lock-to-container on
+
 # Set focus-follows-mouse-mode to autoraise
 kwmc config focus autoraise
 
