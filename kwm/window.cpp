@@ -1010,7 +1010,7 @@ void ToggleFocusedWindowFullscreen()
 bool IsWindowFullscreen(window_info *Window)
 {
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    return Space->RootNode->WindowID == Window->WID;
+    return Space->RootNode && Space->RootNode->WindowID == Window->WID;
 }
 
 bool IsWindowParentContainer(window_info *Window)
