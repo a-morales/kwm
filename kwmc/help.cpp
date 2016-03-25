@@ -11,11 +11,7 @@ void ShowUsage()
         "   quit                                                      Quit Kwm\n"
         "   help                                                      Display this screen\n"
         "   config                                                    Set configuration for Kwm\n"
-        "   window                                                    Manipulate current window\n"
-        "   mark                                                      Manage marked window\n"
         "   tree                                                      Manipulate current window-tree\n"
-        "   space                                                     Manipulate current space\n"
-        "   screen                                                    Manipulate current screen\n"
         "   read                                                      Retrieve current Kwm settings\n"
         "   write sentence                                            Automatically emit keystrokes to the focused window\n"
         "   press mod+mod+mod-key                                     Send a key press with the specified modifiers\n"
@@ -25,7 +21,7 @@ void ShowUsage()
         "   unbind mod+mod+mod-key                                    Unbinds hotkeys\n"
         "\n"
         "For further help run:\n"
-        "   kwmc help config|window|tree|space|screen|read\n"
+        "   kwmc help config|tree|read\n"
     ;
 }
 
@@ -82,69 +78,17 @@ void ShowHelp(std::string Command)
             "            config add-role AXDialog iTerm2\n"
         ;
     }
-    else if (Command ==  "window")
-    {
-        std::cout <<
-            "Usage: kwmc window <options>\n"
-            "\n"
-            "Options:\n"
-            "   -t fullscreen|parent|float|mark                        Set window-tiling mode\n"
-            "   -c refresh                                             Manually resize window to container\n"
-            "   -c split                                               Toggle between vertical and horizontal split for an existing container\n"
-            "   -c reduce|expand amount                                Change split-ratio of the focused container (0 < amount < 1)\n"
-            "   -f north|east|south|west|prev|next|curr                Change window focus\n"
-            "   -f id windowid                                         Change window focus by id\n"
-            "   -s north|east|south|west|prev|next|mark                Swap window position\n"
-            "   -s space id|left|right                                 Move window to different space on same screen (Requires spaces-key and OSX spaces shortcuts!)\n"
-            "   -x north|east|south|west|mark                          Detach window and reinsert at the given position\n"
-            "   -m xoff yoff                                           Change position of a floating window\n"
-        ;
-    }
-    else if (Command == "mark")
-    {
-        std::cout <<
-            "Usage: kwmc mark <options>\n"
-            "\n"
-            "Options:\n"
-            "   -w focused|north|east|south|west wrap|nowrap           Mark a window relative to the focused window\n"
-        ;
-    }
     else if (Command == "tree")
     {
         std::cout <<
             "Usage: kwmc tree <options>\n"
             "\n"
             "Options:\n"
-            "   -c monocle|bsp|toggle                                  Set the focused node to be a monocle-tree or normal bsp-node\n"
-            "   -r 90|180|270                                          Rotate window-tree\n"
-            "   -c refresh                                             Resize all windows to container\n"
-            "   -c pseudo create|remove                                Create or remove pseudo-container, filled by next window creation\n"
+            "   rotate 90|180|270                                      Rotate window-tree\n"
             "   save name                                              Save current bsp-tree to file ($HOME/.kwm/name)\n"
             "   restore name                                           Load current bsp-tree from file ($HOME/.kwm/layouts/name)\n"
         ;
     }
-    else if (Command ==  "space")
-    {
-        std::cout <<
-            "Usage: kwmc space <options>\n"
-            "\n"
-            "Options:\n"
-            "   -t toggle|bsp|monocle|float                             Set tiling mode of current space (every space uses bsp tiling by default)\n"
-            "   -p increase|decrease left|right|top|bottom              Change space padding\n"
-            "   -g increase|decrease vertical|horizontal                Change space container gaps\n"
-            "   -s id num                                               Change space of current display (System Preferences->Keyboard->Shortcuts for spaces must be enabled!)\n"
-        ;
-    }
-    else if (Command ==  "screen")
-    {
-        std::cout <<
-            "Usage: kwmc screen <options>\n"
-            "\n"
-            "Options:\n"
-            "   -s optimal|vertical|horizontal                         Set split-mode\n"
-            "   -f prev|next|id                                        Change monitor focus\n"
-            "   -m prev|next|id                                        Move window between monitors (id of primary monitor is 0 and last monitor n-1)\n"
-        ;
     }
     else if (Command == "read")
     {
