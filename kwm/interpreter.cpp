@@ -618,7 +618,7 @@ void KwmFocusCommand(std::vector<std::string> &Tokens)
     {
         KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[2]);
     }
-    else if(Tokens[1] == "-screen")
+    else if(Tokens[1] == "-display")
     {
         if(Tokens[2] == "prev")
             GiveFocusToScreen(GetIndexOfPrevScreen(), NULL, false, true);
