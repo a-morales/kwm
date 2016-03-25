@@ -78,7 +78,7 @@ void ShowHelp(std::string Command)
             "            config add-role AXDialog iTerm2\n"
         ;
     }
-    else if (Command == "tree")
+    else if(Command == "tree")
     {
         std::cout <<
             "Usage: kwmc tree <options>\n"
@@ -89,8 +89,7 @@ void ShowHelp(std::string Command)
             "   restore name                                           Load current bsp-tree from file ($HOME/.kwm/layouts/name)\n"
         ;
     }
-    }
-    else if (Command == "read")
+    else if(Command == "read")
     {
         std::cout <<
             "Usage: kwmc read <options>\n"
