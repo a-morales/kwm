@@ -714,7 +714,7 @@ void KwmNodeCommand(std::vector<std::string> &Tokens)
                 ToggleTypeOfFocusedNode();
         }
     }
-    if(Tokens[1] == "-pseudo")
+    else if(Tokens[1] == "-pseudo")
     {
         if(Tokens[2] == "create")
             CreatePseudoNode();
