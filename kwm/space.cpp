@@ -279,7 +279,7 @@ void ToggleFocusedSpaceFloating()
 void UpdateActiveSpace()
 {
     pthread_mutex_lock(&KWMThread.Lock);
-    Assert(KWMScreen.Current, "UpdateActiveSpace()")
+    Assert(KWMScreen.Current)
 
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);

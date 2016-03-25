@@ -11,7 +11,7 @@ extern kwm_tiling KWMTiling;
 
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node, "LeftVerticalContainerSplit()")
+    Assert(Node)
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container LeftContainer;
 
@@ -25,7 +25,7 @@ node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 
 node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node, "RightVerticalContainerSplit()")
+    Assert(Node)
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container RightContainer;
 
@@ -39,7 +39,7 @@ node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 
 node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node, "UpperHorizontalContainerSplit()")
+    Assert(Node)
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container UpperContainer;
 
@@ -53,7 +53,7 @@ node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 
 node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node, "LowerHorizontalContainerSplit()")
+    Assert(Node)
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container LowerContainer;
 
@@ -67,7 +67,7 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 
 void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType)
 {
-    Assert(Node, "CreateNodeContainer()")
+    Assert(Node)
 
     if(Node->SplitRatio == 0)
         Node->SplitRatio = KWMScreen.SplitRatio;
@@ -98,8 +98,8 @@ void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType
 
 void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode)
 {
-    Assert(LeftNode, "CreateNodeContainerPair() Left Node")
-    Assert(RightNode, "CreateNodeContainerPair() Right Node")
+    Assert(LeftNode)
+    Assert(RightNode)
 
     if(SplitMode == SPLIT_VERTICAL)
     {
@@ -162,7 +162,7 @@ void RemovePseudoNode()
 
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType)
 {
-    Assert(Parent, "CreateLeafNode()")
+    Assert(Parent)
 
     tree_node Clear = {0};
     tree_node *Leaf = (tree_node*) malloc(sizeof(tree_node));
@@ -212,7 +212,7 @@ link_node *CreateLinkNode()
 
 void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node, "SetRootNodeContainer()")
+    Assert(Node)
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
 
@@ -227,7 +227,7 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
 
 void SetLinkNodeContainer(screen_info *Screen, link_node *Link)
 {
-    Assert(Link, "SetRootNodeContainer()")
+    Assert(Link)
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
 
@@ -238,7 +238,7 @@ void SetLinkNodeContainer(screen_info *Screen, link_node *Link)
 }
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode)
 {
-    Assert(Parent, "CreateLeafNodePair()")
+    Assert(Parent)
 
     Parent->WindowID = -1;
     Parent->SplitMode = SplitMode;
@@ -384,7 +384,7 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
 
 bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
-    Assert(RootNode, "CreateBSPTree()")
+    Assert(RootNode)
 
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
@@ -416,7 +416,7 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
 
 bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
-    Assert(RootNode, "CreateMonocleTree()")
+    Assert(RootNode)
 
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
@@ -508,8 +508,8 @@ void ToggleTypeOfFocusedNode()
 
 void ChangeTypeOfFocusedNode(node_type Type)
 {
-    Assert(KWMScreen.Current, "ChangeTypeOfFocusedTreeNode() KWMScreen.Current");
-    Assert(KWMFocus.Window, "ChangeTypeOfFocusedTreeNode() KWMFocus.Window");
+    Assert(KWMScreen.Current)
+    Assert(KWMFocus.Window)
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
     tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);

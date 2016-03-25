@@ -187,7 +187,7 @@ bool IsAnyWindowBelowCursor()
 
 bool IsWindowBelowCursor(window_info *Window)
 {
-    Assert(Window, "IsWindowBelowCursor()")
+    Assert(Window)
 
     CGPoint Cursor = GetCursorPos();
     if(Cursor.x >= Window->X &&
@@ -383,7 +383,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     if(!Space->Initialized)
     {
-        Assert(Space, "CreateWindowNodeTree()")
+        Assert(Space)
         DEBUG("CreateWindowNodeTree() Create Space " << Screen->ActiveSpace)
 
         int DesktopID = GetSpaceNumberFromCGSpaceID(Screen, Screen->ActiveSpace);
@@ -886,7 +886,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
 
 void ToggleWindowFloating(int WindowID, bool Center)
 {
-    Assert(KWMScreen.Current, "ToggleWindowFloating()")
+    Assert(KWMScreen.Current)
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
     if(IsWindowOnActiveSpace(WindowID))
@@ -1444,7 +1444,7 @@ void FocusWindowByID(int WindowID)
 
 void MoveCursorToCenterOfWindow(window_info *Window)
 {
-    Assert(Window, "MoveCursorToCenterOfWindow()")
+    Assert(Window)
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
     {
@@ -1610,8 +1610,8 @@ void SetWindowFocusByNode(link_node *Link)
 
 bool IsWindowNonResizable(AXUIElementRef WindowRef, window_info *Window, CFTypeRef NewWindowPos, CFTypeRef NewWindowSize)
 {
-    Assert(WindowRef, "IsWindowNonResizable() WindowRef")
-    Assert(Window, "IsWindowNonResizable() Window")
+    Assert(WindowRef)
+    Assert(Window)
 
     AXError PosError = kAXErrorFailure;
     AXError SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
@@ -1690,8 +1690,8 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     if(!NewWindowPos || !NewWindowSize)
         return;
 
-    Assert(WindowRef, "SetWindowDimensions() WindowRef")
-    Assert(Window, "SetWindowDimensions() Window")
+    Assert(WindowRef)
+    Assert(Window)
 
     DEBUG("SetWindowDimensions()")
     bool UpdateWindowInfo = true;
@@ -1821,7 +1821,7 @@ void ResizeWindowToContainerSize(link_node *Link)
 
 void ResizeWindowToContainerSize(window_info *Window)
 {
-    Assert(Window, "ResizeWindowToContainerSize()")
+    Assert(Window)
     if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
@@ -1934,7 +1934,7 @@ CGPoint GetWindowPos(AXUIElementRef WindowRef)
 
 window_info GetWindowByRef(AXUIElementRef WindowRef)
 {
-    Assert(WindowRef, "GetWindowByRef()")
+    Assert(WindowRef)
     window_info *Window = GetWindowByID(GetWindowIDFromRef(WindowRef));
     return Window ? *Window : KWMFocus.NULLWindowInfo;
 }

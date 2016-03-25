@@ -53,11 +53,11 @@ struct kwm_thread;
 
 #ifdef DEBUG_BUILD
     #define DEBUG(x) std::cout << x << std::endl;
-    #define Assert(Expression, Function) if(!(Expression)) \
-                                         {\
-                                            std::cout << "Assertion failed: " << Function << std::endl;\
-                                            *(volatile int*)0 = 0;\
-                                         }
+    #define Assert(Expression) if(!(Expression)) \
+                               {\
+                                   std::cout << "Assertion failed: " << #Expression << std::endl;\
+                                   *(volatile int*)0 = 0;\
+                               }
 #else
     #define DEBUG(x)
     #define Assert(Expression, Function)
