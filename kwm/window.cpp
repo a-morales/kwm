@@ -1032,7 +1032,7 @@ void LockWindowToContainerSize(window_info *Window)
         else if(IsWindowParentContainer(Window))
             ResizeWindowToContainerSize(Node->Parent);
         else
-            ResizeWindowToContainerSize(Node);
+            ResizeWindowToContainerSize();
     }
 }
 
