@@ -739,12 +739,12 @@ void KwmMoveCommand(std::vector<std::string> &Tokens)
             if(IsApplicationCapturedByScreen(KWMFocus.Window))
                 return;
 
-            if(Tokens[2] == "prev")
+            if(Tokens[3] == "prev")
                 MoveWindowToDisplay(KWMFocus.Window, -1, true, true);
-            else if(Tokens[2] == "next")
+            else if(Tokens[3] == "next")
                 MoveWindowToDisplay(KWMFocus.Window, 1, true, true);
             else
-                MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[2]), false, true);
+                MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[3]), false, true);
         }
         else if(Tokens[2] == "north")
         {
