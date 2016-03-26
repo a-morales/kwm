@@ -1,0 +1,351 @@
+.TH kwmc 1 "26 March 2016" "version 2.0.0"
+.SH NAME
+kwmc - interact with the kwm window manager
+.SH SYNOPSIS
+.B kwmc
+[options]
+.SH DESCRIPTION
+.B kwmc
+is a tool that uses
+.BR socket "(2)"
+to be able to interact with the kwm
+window manager by sending simple text strings.
+.SH OPTIONS
+.IP config
+.RS 10
+.B reload
+            Reload config ($HOME/.kwm/kwmrc)
+.LP
+.B spaces-key <opt>
+            Set modifier used by OSX space-shortcuts
+            <opt>: mod+mod+mod
+.LP
+.B prefix-key <opt>
+            Set a prefix for kwms hotkeys
+            <opt>: mod+mod+mod-key
+.LP
+.B prefix-global <opt>
+            Make prefix apply globally
+            <opt>: on | off
+.LP
+.B prefix-timeout <opt>
+            Set prefix timeout in seconds
+            <opt>: floating point number
+.LP
+.B optimal-ratio <opt>
+            Override the optimal split-mode (golden ratio: 1.618)
+            <opt>: floating point number
+.LP
+.B <opt>-border <arg>
+            Enable window border
+            <opt>: focused | marked | prefix
+            <arg>: on | off
+.LP
+.B <opt>-border size <arg>
+            Set window border thickness
+            <opt>: focused | marked | prefix
+            <arg>: number
+.LP
+.B <opt>-border color <arg>
+            Set window border color
+            <opt>: focused | marked | prefix
+            <arg>: aarrggbb
+.LP
+.B spawn <opt>
+            The container position to be occupied by new windows
+            <opt>: left | right
+.LP
+.B float-non-resizable <opt>
+            Automatically float non-resizable windows
+            <opt>: on | off
+.LP
+.B lock-to-container <opt>
+            Automatically reapply container if window changes size
+            <opt>: on | off
+.LP
+.B float <opt>
+            Always float application
+            <opt>: name of application
+.LP
+.B capture <opt>
+            Capture application to display
+            <opt>: display_id <arg>
+            <arg>: name of application
+.LP
+.B focus <opt>
+            Set focus-mode
+            <opt>: toggle | autofocus | autoraise | off
+.LP
+.B focus standby-on-float <opt>
+            Disable focus-follows-mouse when a floating window gains focus
+            <opt>: on | off
+.LP
+.B cycle-focus <opt>
+            Allow focus commands to wrap
+            <opt>: screen | off
+.LP
+.B focus mouse-follows <opt>
+            Set state of mouse-follows-focus
+            <opt>: on | off
+.LP
+.B tiling <opt>
+            Set default tiling mode for Kwm
+            <opt>: bsp | monocle | float | off
+.LP
+.B padding <opt>
+            Set default padding
+            <opt>: top bottom left right
+.LP
+.B gap <opt>
+            Set default container gaps
+            <opt>: vertical horizontal
+.LP
+.B space <opt>
+            Override default settings for space
+            <opt>: display_id workspace_id <arg>
+            <arg>: mode <arg2> | padding <arg3> | gap <arg4>
+            <arg2>: bsp | monocle | float
+            <arg3>: top bottom left right
+            <arg4>: vertical horizontal
+.LP
+.B screen <opt>
+            Override default settings for screen
+            <opt>: display_id <arg>
+            <arg>: mode <arg2> | padding <arg3> | gap <arg4>
+            <arg2>: bsp | monocle | float
+            <arg3>: top bottom left right
+            <arg4>: vertical horizontal
+.LP
+.B hotkeys <opt>
+            Enable hotkeys registered using `bind`
+            <opt>: on | off
+.LP
+.B split-ratio <opt>
+            Set split-ratio for containers
+            <opt>: 0 < floating point number < 1
+.LP
+.B add-role <opt>
+            Add custom role for which windows Kwm should tile
+            <opt>: role <arg>
+            <arg>: name of application
+
+            The following allows Kwm to tile borderless iTerm2
+                kwmc config add-role AXDialog iTerm2
+.RE
+.IP bind
+.RS 10
+.B prefix+mod+mod+mod-key <opt>
+            Create a hotkey consumed by Kwm
+            <opt>: command | command <arg>
+            <arg>: {app,app,app} -e | {app,app,app} -i
+                -e: not enabled for listed applications
+                -i: only enabled for listed applications
+.RE
+.IP bind-passthrough
+.RS 10
+.B prefix+mod+mod+mod-key <opt>
+            Create a hotkey not consumed by Kwm
+            <opt>: command | command <arg>
+            <arg>: {app,app,app} -e | {app,app,app} -i
+                -e: not enabled for listed applications
+                -i: only enabled for listed applications
+.RE
+.IP unbind
+.RS 10
+.B mod+mod+mod-key
+            Unbind a hotkey
+.RE
+.IP quit
+.RS 10
+Terminate kwm
+.RE
+.IP write
+.RS 10
+.B some text
+            Automatically emit keystrokes
+.RE
+.IP press
+.RS 10
+.B mod+mod+mod-key
+            Send a key press
+.RE
+.IP focus
+.RS 10
+.B -window <opt>
+            Change focus between windows
+            <opt>: north | east | south | west | prev | next | curr | window_id
+.LP
+.B -sub-window <opt>
+            Change focus between monocle-subtree windows
+            <opt>: prev | next
+.LP
+.B -space <opt>
+            Change focus between spaces
+            <opt>: workspace_id
+.LP
+.B -display <opt>
+            Change focus between displays
+            <opt>: prev | next | display_id
+.RE
+.IP swap
+.RS 10
+.B -window <opt>
+            Swap window position
+            <opt>: north | east | south | west | prev | next
+.RE
+.IP zoom
+.RS 10
+.B -window <opt>
+            Adjust container zoom
+            <opt>: fullscreen | parent
+.RE
+.IP float
+.RS 10
+.B -window <opt>
+            Toggle window floating
+            <opt>: focused
+.LP
+.B -space <opt>
+            Make space floating
+            <opt>: focused
+.RE
+.IP refresh
+.RS 10
+.B -window <opt>
+            Resize window to container size
+            <opt>: focused
+.LP
+.B -space <opt>
+            Resize all windows to their container size
+            <opt>: focused
+.RE
+.IP node
+.RS 10
+.B -window <opt>
+            Modify container of window
+            <opt>: type <arg1> | reduce <arg2> | expand <arg2>
+            <arg1>: monocle | bsp | toggle
+            <arg2>: 0 < floating point number < 1
+.LP
+.B -pseudo <opt>
+            Manage pseudo nodes
+            <opt>: create | destroy
+.RE
+.IP split
+.RS 10
+.B -window <opt>
+            Set split-mode for node of window
+            <opt>: toggle
+.LP
+.B -display <opt>
+            Set split-mode of display
+            <opt>: optimal | vertical | horizontal
+.RE
+.IP move
+.RS 10
+.B -window <opt>
+            Move window
+            <opt>: display <arg1> | space <arg2> | north | east | south | west | mark | xoff yoff
+            <arg1>: display_id | prev | next
+            <arg2>: workspace_id | left | right
+.RE
+.IP mark
+.RS 10
+.B -window <opt>
+            Mark window
+            <opt>: focused | north <arg> | east <arg> | south <arg> | west <arg>
+            <arg>: wrap | nowrap
+.RE
+.IP tile
+.RS 10
+.B -space <opt>
+            Make space tiled
+            <opt>: bsp | monocle
+.RE
+.IP padding
+.RS 10
+.B -space <opt> <arg>
+            Adjust padding
+            <opt>: increase | decrease
+            <arg>: all | left | right | top | bottom
+.RE
+.IP gap
+.RS 10
+.B -space <opt> <arg>
+            Adjust gaps
+            <opt>: increase | decrease
+            <arg>: all | vertical | horizontal
+.RE
+.IP tree
+.RS 10
+.B rotate <opt>
+            Rotate window-tree
+            <opt>: 90 | 180 | 270
+.LP
+.B save file
+            save current bsp-tree as file
+.LP
+.B restore file
+            restore bsp-tree from file
+.RE
+.IP read
+.RS 10
+.B focused
+            Get owner and title of focused window
+.LP
+.B tag
+            Get tag for current space
+.LP
+.B current
+            Get id of focused window (-1 == none)
+.LP
+.B marked
+            Get id of marked window (-1 == none)
+.LP
+.B child window_id
+            Get child position of window from parent (left or right child)
+.LP
+.B dir <opt> <arg>
+            Get id of the window in direction of focused window
+            <opt>: south | north | east | west
+            <arg>: wrap | nowrap
+.LP
+.B parent window_id
+            Check if the focused window and a window have the same parent node
+.LP
+.B spawn
+            Get state of 'kwmc config spawn'
+.LP
+.B prefix
+            Get state of the prefix-key
+.LP
+.B space
+            Get tilling mode used for new spaces
+.LP
+.B cycle-focus
+            Get active cycle-focus mode
+.LP
+.B focus
+            Get state of focus-follows-mouse
+.LP
+.B mouse-follows
+            Get state of mouse-follows-focus
+.LP
+.B split-mode window_id
+            Get the split-mode for the given window
+.LP
+.B split-mode global
+            Get the current mode used for binary splits
+.LP
+.B split-ratio
+            Get the current ratio used for binary splits
+.LP
+.B border <opt>
+            Check if a border is enabled
+            <opt>: focused | marked | prefix
+.LP
+.B windows
+            Get list of visible windows on active space
+.RE
+.SH AUTHOR
+kwmc and kwm was written by koekeishiya <koekeishiya@hotmail.com>

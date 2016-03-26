@@ -1,4 +1,10 @@
-*Kwmc* is a program used to write to *Kwm*'s socket
+*Kwmc* is a program used to write to *Kwm*'s socket.
+The following are instructions for enabling the man file
+```
+gzip kwmc.1
+cp kwmc.1.gz /usr/share/man/man1  #requires sudo
+man kwmc
+```
 
 ### Configure Kwm
         Reload config ($HOME/.kwm/kwmrc)

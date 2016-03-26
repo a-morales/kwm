@@ -1,8 +1,6 @@
 #include <iostream>
 #include <string>
 
-#include "help.h"
-
 #include <libproc.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -92,24 +90,16 @@ void KwmcInterpreter()
 
 int main(int argc, char **argv)
 {
-    if(argc <= 1)
-        ShowUsage();
-
-    else if(argc >= 2)
+    if(argc >= 2)
     {
         std::string Command = argv[1];
         if(Command == "interpret")
             KwmcInterpreter();
-        else if(Command == "help" && argc >= 3)
-            ShowHelp(argv[2]);
-        else if(Command == "help")
-            ShowUsage();
-
-        else
-        {
-            KwmcConnectToDaemon();
-            KwmcForwardMessageThroughSocket(argc, argv);
-        }
+    }
+    else
+    {
+        KwmcConnectToDaemon();
+        KwmcForwardMessageThroughSocket(argc, argv);
     }
 
     return 0;
