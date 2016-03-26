@@ -201,7 +201,7 @@ void DetermineHotkeyState(hotkey *Hotkey, std::string &Command)
         Hotkey->State = HotkeyStateNone;
 }
 
-bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
+bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, bool Passthrough)
 {
     std::vector<std::string> KeyTokens = SplitString(KeySym, '-');
     if(KeyTokens.size() != 2)
@@ -224,6 +224,7 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey)
 
     DetermineHotkeyState(Hotkey, Command);
     Hotkey->IsSystemCommand = IsPrefixOfString(Command, "sys");
+    Hotkey->Passthrough = Passthrough;
     Hotkey->Command = Command;
 
     CGKeyCode Keycode;
@@ -256,7 +257,7 @@ void KwmSetSpacesKey(std::string KeySym)
 void KwmSetPrefix(std::string KeySym)
 {
     hotkey Hotkey = {};
-    if(KwmParseHotkey(KeySym, "", &Hotkey))
+    if(KwmParseHotkey(KeySym, "", &Hotkey, false))
     {
         KWMHotkeys.Prefix.Key = Hotkey;
         KWMHotkeys.Prefix.Active = false;
@@ -274,10 +275,10 @@ void KwmSetPrefixTimeout(double Timeout)
     KWMHotkeys.Prefix.Timeout = Timeout;
 }
 
-void KwmAddHotkey(std::string KeySym, std::string Command)
+void KwmAddHotkey(std::string KeySym, std::string Command, bool Passthrough)
 {
     hotkey Hotkey = {};
-    if(KwmParseHotkey(KeySym, Command, &Hotkey) &&
+    if(KwmParseHotkey(KeySym, Command, &Hotkey, Passthrough) &&
        !HotkeyExists(Hotkey.Mod, Hotkey.Key, NULL))
             KWMHotkeys.List.push_back(Hotkey);
 }
@@ -285,7 +286,7 @@ void KwmAddHotkey(std::string KeySym, std::string Command)
 void KwmRemoveHotkey(std::string KeySym)
 {
     hotkey NewHotkey = {};
-    if(KwmParseHotkey(KeySym, "", &NewHotkey))
+    if(KwmParseHotkey(KeySym, "", &NewHotkey, false))
     {
         for(std::size_t HotkeyIndex = 0; HotkeyIndex < KWMHotkeys.List.size(); ++HotkeyIndex)
         {

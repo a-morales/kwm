@@ -19,6 +19,6 @@ void KwmMoveCommand(std::vector<std::string> &Tokens);
 void KwmSplitCommand(std::vector<std::string> &Tokens);
 void KwmPaddingCommand(std::vector<std::string> &Tokens);
 void KwmGapCommand(std::vector<std::string> &Tokens);
-void KwmBindCommand(std::vector<std::string> &Tokens);
+void KwmBindCommand(std::vector<std::string> &Tokens, bool Passthrough);
 
 #endif

@@ -44,7 +44,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                 if(HotkeyExists(Eventkey.Mod, Eventkey.Key, &Hotkey))
                 {
                     KWMHotkeys.Queue.push(Hotkey);
-                    return NULL;
+                    if(!Hotkey.Passthrough)
+                        return NULL;
                 }
             }
 

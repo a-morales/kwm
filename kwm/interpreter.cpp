@@ -847,12 +847,12 @@ void KwmGapCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmBindCommand(std::vector<std::string> &Tokens)
+void KwmBindCommand(std::vector<std::string> &Tokens, bool Passthrough)
 {
     if(Tokens.size() > 2)
-        KwmAddHotkey(Tokens[1], CreateStringFromTokens(Tokens, 2));
+        KwmAddHotkey(Tokens[1], CreateStringFromTokens(Tokens, 2), Passthrough);
     else
-        KwmAddHotkey(Tokens[1], "");
+        KwmAddHotkey(Tokens[1], "", Passthrough);
 }
 
 void KwmInterpretCommand(std::string Message, int ClientSockFD)
@@ -896,7 +896,9 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     else if(Tokens[0] == "press")
         KwmEmitKeystroke(Tokens[1]);
     else if(Tokens[0] == "bind")
-        KwmBindCommand(Tokens);
+        KwmBindCommand(Tokens, false);
+    else if(Tokens[0] == "bind-passthrough")
+        KwmBindCommand(Tokens, true);
     else if(Tokens[0] == "unbind")
         KwmRemoveHotkey(Tokens[1]);
 }

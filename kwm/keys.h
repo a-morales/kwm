@@ -11,8 +11,8 @@ bool IsHotkeyStateReqFulfilled(hotkey *Hotkey);
 
 bool ShouldKeyBeProcessed(hotkey *Hotkey);
 void CreateHotkeyFromCGEvent(CGEventRef Event, hotkey *Hotkey);
-bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey);
-void KwmAddHotkey(std::string KeySym, std::string Command);
+bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, bool Passthrough);
+void KwmAddHotkey(std::string KeySym, std::string Command, bool Passthrough);
 void KwmRemoveHotkey(std::string KeySym);
 void KwmExecuteHotkey(hotkey *Hotkey);
 void *KwmMainHotkeyTrigger(void *EventPtr);
