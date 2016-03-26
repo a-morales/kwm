@@ -95,11 +95,11 @@ int main(int argc, char **argv)
         std::string Command = argv[1];
         if(Command == "interpret")
             KwmcInterpreter();
-    }
-    else
-    {
-        KwmcConnectToDaemon();
-        KwmcForwardMessageThroughSocket(argc, argv);
+        else
+        {
+            KwmcConnectToDaemon();
+            KwmcForwardMessageThroughSocket(argc, argv);
+        }
     }
 
     return 0;
