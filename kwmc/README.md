@@ -1,113 +1,143 @@
 *Kwmc* is a program used to write to *Kwm*'s socket
 
-## Kwmc Info:
-    Configure Kwm
+### Configure Kwm
         Reload config ($HOME/.kwm/kwmrc)
             kwmc config reload
 
-        Set modifier used by OSX space-hotkeys (Sys Preferences->Keyboard->Shortcuts)
-            kwmc config spaces-key mod+mod+mod
+        Set modifier used by OSX space-hotkeys
+            kwmc config spaces-key <opt>
+            <opt>: mod+mod+mod
 
-        Set a prefix for Kwms hotkeys (optional)
-            kwmc config prefix-key mod+mod+mod-key
+        Set a prefix for Kwms hotkeys
+            kwmc config prefix-key <opt>
+            <opt>: mod+mod+mod-key
 
-        Make prefix global (apply for all binds)
-            kwmc config prefix-global on|off
+        Make prefix global
+            kwmc config prefix-global <opt>
+            <opt>: on | off
 
-        Set prefix timeout in seconds (default: 0.75)
-            kwmc config prefix-timeout seconds
+        Set prefix timeout in seconds
+            kwmc config prefix-timeout <opt>
+            <opt>: floating point number
 
-        Override the value used by optimal split-mode (default: golden ratio -> 1.618)
-            kwmc config optimal-ratio num
+        Override the optimal split-mode (golden ratio -> 1.618)
+            kwmc config optimal-ratio <opt>
+            <opt>: floating point number
 
-        Customize focused|marked|prefix border
-            kwmc config focused|marked|prefix-border on|off
-            kwmc config focused|marked|prefix-border size number
-            kwmc config focused|marked|prefix-border color aarrggbb
-            kwmc config focused|marked|prefix-border radius number
+        Enable window border
+            kwmc config <opt>-border <arg>
+            <opt>: focused | marked | prefix
+            <arg>: on | off
 
-        The container position to be occupied by the new window
-            kwmc config spawn left|right
+        Set window border thickness
+            kwmc config <opt>-border size <arg>
+            <opt>: focused | marked | prefix
+            <arg>: number
+
+        Set window border color
+            kwmc config <opt>-border color <arg>
+            <opt>: focused | marked | prefix
+            <arg>: aarrggbb
+
+        The container position to be occupied by new windows
+            kwmc config spawn <opt>
+            <opt>: left | right
 
         Automatically float non-resizable windows
-            kwmc config float-non-resizable on|off
+            kwmc config float-non-resizable <opt>
+            <opt>: on | off
 
         Automatically reapply container if window changes size
-            kwmc config lock-to-container on|off
+            kwmc config lock-to-container <opt>
+            <opt>: on | off
 
         Always float application
-            kwmc config float application
+            kwmc config float <opt>
+            <opt>: name of application
 
-        Capture application to screen (Always open on the specified screen)
-            kwmc config capture id application
+        Capture application to display
+            kwmc config capture <opt>
+            <opt>: display_id <arg>
+            <arg>: name of application
 
         Set focus-mode
-            kwmc config focus toggle|autofocus|autoraise|off
+            kwmc config focus <opt>
+            <opt>: toggle | autofocus | autoraise | off
 
         Disable focus-follows-mouse when a floating window gains focus
-            kwmc config focus standby-on-float on|off
+            kwmc config focus standby-on-float <opt>
+            <opt>: on | off
 
-        Set focus-wrap-around for 'window -f prev|next'
-            kwmc config cycle-focus screen|off
+        Allow focus commands to wrap
+            kwmc config cycle-focus <opt>
+            <opt>: screen | off
 
         Set state of mouse-follows-focus
-            kwmc config focus mouse-follows on|off
+            kwmc config focus mouse-follows <opt>
+            <opt>: on | off
 
         Set default tiling mode for Kwm
-            kwmc config tiling bsp|monocle|float|off
+            kwmc config tiling <opt>
+            <opt>: bsp | monocle | float | off
 
         Set default padding
-            kwmc config padding top bottom left right
+            kwmc config padding <opt>
+            <opt>: top bottom left right
 
         Set default container gaps
-            kwmc config gap vertical horizontal
+            kwmc config gap <opt>
+            <opt>: vertical horizontal
 
-        Override default tiling mode for space
-            kwmc config space screenid spaceid mode bsp|monocle|float
+        Override default settings for space
+            kwmc config space <opt>
+            <opt>: display_id workspace_id <arg>
+            <arg>: mode <arg2> | padding <arg3> | gap <arg4>
+            <arg2>: bsp | monocle | float
+            <arg3>: top bottom left right
+            <arg4>: vertical horizontal
 
-        Override default padding for space
-            kwmc config space screenid spaceid padding top bottom left right
+        Override default settings for screen
+            kwmc config screen <opt>
+            <opt>: display_id <arg>
+            <arg>: mode <arg2> | padding <arg3> | gap <arg4>
+            <arg2>: bsp | monocle | float
+            <arg3>: top bottom left right
+            <arg4>: vertical horizontal
 
-        Override default gaps for space
-            kwmc config space screenid spaceid gap vertical horizontal
+        Enable hotkeys registered using `bind`
+            kwmc config hotkeys <opt>
+            <opt>: on | off
 
-        Override default tiling mode for screen
-            kwmc config screen id mode bsp|monocle|float
+        Set split-ratio for containers
+            kwmc config split-ratio <opt>
+            <opt>: 0 < floating point number < 1
 
-        Override default padding for screen
-            kwmc config screen id padding top bottom left right
+        Create a hotkey consumed by Kwm
+            kwmc bind prefix+mod+mod+mod-key <opt>
+            <opt>: command | command <arg>
+            <arg>: {app,app,app} -e | {app,app,app} -i
+                -e: not enabled for listed applications
+                -i: only enabled for listed applications
 
-        Override default gaps for screen
-            kwmc config screen id gap vertical horizontal
+        Create a hotkey not consumed by Kwm
+            kwmc bind-passthrough prefix+mod+mod+mod-key <opt>
+            <opt>: command | command <arg>
+            <arg>: {app,app,app} -e | {app,app,app} -i
 
-        Set state of Kwm's hotkeys
-            kwmc config hotkeys on|off
+        Unbind a hotkey
+            kwmc unbind <opt>
+            <opt>: mod+mod+mod-key
 
-        Set split-ratio to use for containers (0 < value < 1, default: 0.5)
-            kwmc config split-ratio value
+        Add custom role for which windows Kwm should tile
+            kwmc config add-role <opt>
+            <opt>: role <arg>
+            <arg>: name of application
 
-        Create a global hotkey (use `sys` prefix for non kwmc command)
-            kwmc bind prefix+mod+mod+mod-key command
-
-        Hotkey is NOT enabled while the listed applications have focus
-            kwmc bind prefix+mod+mod+mod-key command {app,app,app} -e
-
-        Hotkey is ONLY enabled while the listed applications have focus
-            kwmc bind prefix+mod+mod+mod-key command {app,app,app} -i
-
-        Unbind a hotkey that has already been set
-            kwmc unbind mod+mod+mod-key
-
-        Add custom role for which windows Kwm should tile.
-        To find the role of a window that Kwm doesn't tile,
-        Use the OSX Accessibility Inspector utility.
-            kwmc config add-role role application
-
-                e.g The following allows Kwm to tile iTerm2 windows that do not have a titlebar
+            The following allows Kwm to tile borderless iTerm2
                 kwmc config add-role AXDialog iTerm2
 
+### Interact with Kwm
 
-    Commands to interact with Kwm
         Quit Kwm
             kwmc quit
 
@@ -121,7 +151,7 @@
 
         Change focus between windows
             kwmc focus -window <opt>
-            <opt>: north | east | south | west | prev | next | curr | window id
+            <opt>: north | east | south | west | prev | next | curr | window_id
 
         Change focus between monocle-subtree windows
             kwmc focus -sub-window <opt>
@@ -129,11 +159,11 @@
 
         Change focus between spaces
             kwmc focus -space <opt>
-            <opt>: workspace number
+            <opt>: workspace_id
 
         Change focus between displays
             kwmc focus -display <opt>
-            <opt>: prev | next | id
+            <opt>: prev | next | display_id
 
         Swap window position
             kwmc swap -window <opt>
@@ -163,7 +193,7 @@
             kwmc node -window <opt>
             <opt>: type <arg1> | reduce <arg2> | expand <arg2>
             <arg1>: monocle | bsp | toggle
-            <arg2>: 0 < amount < 1
+            <arg2>: 0 < floating point number < 1
 
         Manage pseudo nodes
             kwmc node -pseudo <opt>
@@ -180,8 +210,8 @@
         Move window
             kwmc move -window <opt>
             <opt>: display <arg1> | space <arg2> | north | east | south | west | mark | xoff yoff
-            <arg1>: display number | prev | next
-            <arg2>: workspace number | left | right
+            <arg1>: display_id | prev | next
+            <arg2>: workspace_id | left | right
 
         Mark window
             kwmc mark -window <opt>
@@ -208,7 +238,8 @@
             <arg1>: 90 | 180 | 270
             <arg2>: filename
 
-    Get state of Kwm
+### Query current state
+
         Get owner and title of focused window
             kwmc read focused
 
