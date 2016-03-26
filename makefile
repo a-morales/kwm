@@ -5,7 +5,7 @@ SDK_ROOT      = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.plat
 KWM_SRCS      = kwm/kwm.cpp kwm/container.cpp kwm/node.cpp kwm/tree.cpp kwm/window.cpp kwm/application.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp kwm/space.cpp kwm/border.cpp kwm/notifications.cpp kwm/workspace.mm kwm/serializer.cpp
 KWM_OBJS_TMP  = $(KWM_SRCS:.cpp=.o)
 KWM_OBJS      = $(KWM_OBJS_TMP:.mm=.o)
-KWMC_SRCS     = kwmc/kwmc.cpp kwmc/help.cpp
+KWMC_SRCS     = kwmc/kwmc.cpp
 KWMC_OBJS     = $(KWMC_SRCS:.cpp=.o)
 KWMO_SRCS     = kwm-overlay/kwm-overlay.swift
 KWMO_OBJS_TMP = $(KWMO_SRCS:.swift=.o)
