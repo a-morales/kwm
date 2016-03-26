@@ -2,7 +2,7 @@
 The following are instructions for enabling the man file
 ```
 gzip kwmc.1
-cp kwmc.1.gz /usr/share/man/man1  #requires sudo
+cp kwmc.1.gz /usr/local/share/man/man1
 man kwmc
 ```
 
