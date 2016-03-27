@@ -331,7 +331,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
+void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 {
     if(Tokens[1] == "focused")
     {
@@ -864,7 +864,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     else if(Tokens[0] == "config")
         KwmConfigCommand(Tokens);
     else if(Tokens[0] == "read")
-        KwmReadCommand(Tokens, ClientSockFD);
+        KwmQueryCommand(Tokens, ClientSockFD);
     else if(Tokens[0] == "focus")
         KwmFocusCommand(Tokens);
     else if(Tokens[0] == "swap")

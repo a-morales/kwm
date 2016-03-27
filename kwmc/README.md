@@ -247,55 +247,55 @@ man kwmc
 ### Query current state
 
         Get owner and title of focused window
-            kwmc read focused
+            kwmc query focused
 
         Get tag for current space
-            kwmc read tag
+            kwmc query tag
 
         Get id of focused window (-1 == none)
-            kwmc read current
+            kwmc query current
 
         Get id of marked window (-1 == none)
-            kwmc read marked
+            kwmc query marked
 
         Get child position of window from parent (left or right child)
-            kwmc read child windowid
+            kwmc query child windowid
 
         Get id of the window in direction of focused window
-            kwmc read dir south|north|east|west wrap|nowrap
+            kwmc query dir south|north|east|west wrap|nowrap
 
         Check if the focused window and a window have the same parent node
-            kwmc read parent windowid
+            kwmc query parent windowid
 
         Get state of 'kwmc config spawn'
-            kwmc read spawn
+            kwmc query spawn
 
         Get state of the prefix-key
-            kwmc read prefix
+            kwmc query prefix
 
         Get tilling mode to use for new spaces
-            kwmc read space
+            kwmc query space
 
         Get active cycle-focus mode
-            kwmc read cycle-focus
+            kwmc query cycle-focus
 
         Get state of focus-follows-mouse
-            kwmc read focus
+            kwmc query focus
 
         Get state of mouse-follows-focus
-            kwmc read mouse-follows
+            kwmc query mouse-follows
 
         Get the split-mode for the given window
-            kwmc read split-mode windowid
+            kwmc query split-mode windowid
 
         Get the current mode used for binary splits
-            kwmc read split-mode global
+            kwmc query split-mode global
 
         Get the current ratio used for binary splits
-            kwmc read split-ratio
+            kwmc query split-ratio
 
         Get the state of border->enable
-            kwmc read border focused|marked|prefix
+            kwmc query border focused|marked|prefix
 
         Get list of visible windows on active space
-            kwmc read windows
+            kwmc query windows
