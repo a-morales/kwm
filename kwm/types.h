@@ -267,7 +267,6 @@ struct kwm_border
     FILE *Handle;
 
     color Color;
-    double Radius;
     int Width;
 };
 

@@ -64,11 +64,11 @@ RefreshBorder(kwm_border *Border, int WindowID)
                               " " + Border->Color.Format + \
                               " s:" + std::to_string(Border->Width);
 
-        Command += Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "";
-
         fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
         fflush(Border->Handle);
     }
+    else
+        ClearBorder(Border);
 }
 
 void UpdateBorder(std::string BorderType);

@@ -26,11 +26,8 @@ void UpdateBorder(std::string BorderType)
     if(!Border->Enabled)
         CloseBorder(Border);
 
-    if(Border->Enabled)
-    {
-        if(WindowID == -1)
-            ClearBorder(Border);
-        else
-            RefreshBorder(Border, WindowID);
-    }
+    if(WindowID == -1)
+        ClearBorder(Border);
+    else if(Border->Enabled)
+        RefreshBorder(Border, WindowID);
 }
