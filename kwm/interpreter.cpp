@@ -863,7 +863,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmQuit();
     else if(Tokens[0] == "config")
         KwmConfigCommand(Tokens);
-    else if(Tokens[0] == "read")
+    else if(Tokens[0] == "query")
         KwmQueryCommand(Tokens, ClientSockFD);
     else if(Tokens[0] == "focus")
         KwmFocusCommand(Tokens);

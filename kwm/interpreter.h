@@ -5,7 +5,7 @@
 
 void KwmInterpretCommand(std::string Message, int ClientSockFD);
 void KwmConfigCommand(std::vector<std::string> &Tokens);
-void KwmReadCommand(std::vector<std::string> &Tokens, int ClientSockFD);
+void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD);
 void KwmMarkCommand(std::vector<std::string> &Tokens);
 void KwmTreeCommand(std::vector<std::string> &Tokens);
 void KwmFocusCommand(std::vector<std::string> &Tokens);
