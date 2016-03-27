@@ -403,12 +403,8 @@ void CaptureApplicationToScreen(int ScreenID, std::string Application)
     std::map<std::string, int>::iterator It = KWMTiling.CapturedAppLst.find(Application);
     if(It == KWMTiling.CapturedAppLst.end())
     {
-        screen_info *Screen = GetDisplayFromScreenID(ScreenID);
-        if(Screen)
-        {
-            KWMTiling.CapturedAppLst[Application] = ScreenID;
-            DEBUG("CaptureApplicationToScreen() " << ScreenID << " " << Application)
-        }
+        KWMTiling.CapturedAppLst[Application] = ScreenID;
+        DEBUG("CaptureApplicationToScreen() " << ScreenID << " " << Application)
     }
 }
 
