@@ -322,6 +322,7 @@ void UpdateActiveSpace()
     {
         ClearFocusedWindow();
         ClearMarkedWindow();
+        DestroyApplicationNotifications();
     }
 
     KWMScreen.Transitioning = false;
