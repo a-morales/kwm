@@ -415,7 +415,12 @@ void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative, bool Upd
 
     screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
     if(NewScreen)
-        AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window, UpdateFocus);
+    {
+        if(IsWindowFloating(Window->WID, NULL))
+            CenterWindow(NewScreen, Window);
+        else
+            AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window, UpdateFocus);
+    }
 }
 
 container_offset CreateDefaultScreenOffset()
