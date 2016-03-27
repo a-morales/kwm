@@ -266,6 +266,7 @@ struct kwm_border
     bool Enabled;
     FILE *Handle;
 
+    double Radius;
     color Color;
     int Width;
 };

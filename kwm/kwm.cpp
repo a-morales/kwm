@@ -258,6 +258,10 @@ void KwmInit()
     KWMHotkeys.Prefix.Active = false;
     KWMHotkeys.Prefix.Timeout = 0.75;
 
+    FocusedBorder.Radius = -1;
+    MarkedBorder.Radius = -1;
+    PrefixBorder.Radius = -1;
+
     KWMPath.ConfigFile = "kwmrc";
     KWMPath.ConfigFolder = ".kwm";
     KWMPath.BSPLayouts = "layouts";
