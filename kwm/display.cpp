@@ -366,31 +366,27 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
             else
             {
                 if(!Space->Initialized ||
-                        Space->Settings.Mode == SpaceModeFloating ||
-                        !Space->RootNode)
+                   Space->Settings.Mode == SpaceModeFloating ||
+                   !Space->RootNode)
                 {
                     DEBUG("Uninitialized Screen")
                     ClearFocusedWindow();
 
-                    if(Space->Settings.Mode != SpaceModeFloating)
+                    if(!Mouse)
+                        CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2), Screen->Y + (Screen->Height / 2)));
+
+                    if(Space->Settings.Mode != SpaceModeFloating && !Space->RootNode)
                     {
-                        if(!Mouse)
-                            CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2),
-                                        Screen->Y + (Screen->Height / 2)));
+                        CGPoint ClickPos = GetCursorPos();
+                        CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
+                        CGEventSetFlags(ClickEvent, 0);
+                        CGEventPost(kCGHIDEventTap, ClickEvent);
+                        CFRelease(ClickEvent);
 
-                        if(!Space->RootNode)
-                        {
-                            CGPoint ClickPos = GetCursorPos();
-                            CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
-                            CGEventSetFlags(ClickEvent, 0);
-                            CGEventPost(kCGHIDEventTap, ClickEvent);
-                            CFRelease(ClickEvent);
-
-                            ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
-                            CGEventSetFlags(ClickEvent, 0);
-                            CGEventPost(kCGHIDEventTap, ClickEvent);
-                            CFRelease(ClickEvent);
-                        }
+                        ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
+                        CGEventSetFlags(ClickEvent, 0);
+                        CGEventPost(kCGHIDEventTap, ClickEvent);
+                        CFRelease(ClickEvent);
                     }
                 }
             }
