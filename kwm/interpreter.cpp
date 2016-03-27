@@ -214,7 +214,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             SpaceSettings->Offset.HorizontalGap = ConvertStringToDouble(Tokens[6]);
         }
     }
-    else if(Tokens[1] == "screen")
+    else if(Tokens[1] == "display")
     {
         int ScreenID = ConvertStringToInt(Tokens[2]);
         space_settings *DisplaySettings = GetSpaceSettingsForDisplay(ScreenID);
