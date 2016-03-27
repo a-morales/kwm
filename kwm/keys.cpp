@@ -304,23 +304,63 @@ bool GetLayoutIndependentKeycode(std::string Key, CGKeyCode *Keycode)
     bool Result = true;
 
     if(Key == "return")
-        *Keycode = 0x24;
+        *Keycode = kVK_Return;
     else if(Key == "tab")
-        *Keycode = 0x30;
+        *Keycode = kVK_Tab;
     else if(Key == "space")
-        *Keycode = 0x31;
+        *Keycode = kVK_Space;
     else if(Key == "delete")
-        *Keycode = 0x33;
+        *Keycode = kVK_Delete;
     else if(Key == "escape")
-        *Keycode =  0x35;
+        *Keycode =  kVK_Escape;
     else if(Key == "left")
-        *Keycode =  0x7B;
+        *Keycode =  kVK_LeftArrow;
     else if(Key == "right")
-        *Keycode =  0x7C;
+        *Keycode =  kVK_RightArrow;
     else if(Key == "up")
-        *Keycode = 0x7E;
+        *Keycode = kVK_UpArrow;
     else if(Key == "down")
-        *Keycode =  0x7D;
+        *Keycode = kVK_DownArrow;
+    else if(Key == "f1")
+        *Keycode = kVK_F1;
+    else if(Key == "f2")
+        *Keycode = kVK_F2;
+    else if(Key == "f3")
+        *Keycode = kVK_F3;
+    else if(Key == "f4")
+        *Keycode = kVK_F4;
+    else if(Key == "f5")
+        *Keycode = kVK_F5;
+    else if(Key == "f6")
+        *Keycode = kVK_F6;
+    else if(Key == "f7")
+        *Keycode = kVK_F7;
+    else if(Key == "f8")
+        *Keycode = kVK_F8;
+    else if(Key == "f9")
+        *Keycode = kVK_F9;
+    else if(Key == "f10")
+        *Keycode = kVK_F10;
+    else if(Key == "f11")
+        *Keycode = kVK_F11;
+    else if(Key == "f12")
+        *Keycode = kVK_F12;
+    else if(Key == "f13")
+        *Keycode = kVK_F13;
+    else if(Key == "f14")
+        *Keycode = kVK_F14;
+    else if(Key == "f15")
+        *Keycode = kVK_F15;
+    else if(Key == "f16")
+        *Keycode = kVK_F16;
+    else if(Key == "f17")
+        *Keycode = kVK_F17;
+    else if(Key == "f18")
+        *Keycode = kVK_F18;
+    else if(Key == "f19")
+        *Keycode = kVK_F19;
+    else if(Key == "f20")
+        *Keycode = kVK_F19;
     else
         Result = false;
 
