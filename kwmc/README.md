@@ -102,8 +102,8 @@ man kwmc
             <arg3>: top bottom left right
             <arg4>: vertical horizontal
 
-        Override default settings for screen
-            kwmc config screen <opt>
+        Override default settings for display
+            kwmc config display <opt>
             <opt>: display_id <arg>
             <arg>: mode <arg2> | padding <arg3> | gap <arg4>
             <arg2>: bsp | monocle | float
