@@ -394,16 +394,6 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
     }
 }
 
-void CaptureApplicationToScreen(int ScreenID, std::string Application)
-{
-    std::map<std::string, int>::iterator It = KWMTiling.CapturedAppLst.find(Application);
-    if(It == KWMTiling.CapturedAppLst.end())
-    {
-        KWMTiling.CapturedAppLst[Application] = ScreenID;
-        DEBUG("CaptureApplicationToScreen() " << ScreenID << " " << Application)
-    }
-}
-
 void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative, bool UpdateFocus)
 {
     int NewScreenIndex = -1;

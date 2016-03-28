@@ -127,7 +127,6 @@ void KwmClearSettings()
         WindowRoles.clear();
     }
 
-    KWMTiling.FloatingAppLst.clear();
     KWMHotkeys.List.clear();
     KWMHotkeys.Prefix.Enabled = false;
 }

@@ -13,6 +13,7 @@
 #include "border.h"
 #include "serializer.h"
 #include "helpers.h"
+#include "rules.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
@@ -170,10 +171,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             KWMToggles.EnableTilingMode = true;
         }
     }
-    else if(Tokens[1] == "capture")
-    {
-        CaptureApplicationToScreen(ConvertStringToInt(Tokens[2]), CreateStringFromTokens(Tokens, 3));
-    }
     else if(Tokens[1] == "space")
     {
         int ScreenID = ConvertStringToInt(Tokens[2]);
@@ -292,10 +289,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             KWMToggles.UseBuiltinHotkeys = false;
         else if(Tokens[2] == "on")
             KWMToggles.UseBuiltinHotkeys = true;
-    }
-    else if(Tokens[1] == "float")
-    {
-        KWMTiling.FloatingAppLst.push_back(CreateStringFromTokens(Tokens, 2));
     }
     else if(Tokens[1] == "add-role")
     {
@@ -736,7 +729,7 @@ void KwmMoveCommand(std::vector<std::string> &Tokens)
         }
         else if(Tokens[2] == "display")
         {
-            if(IsApplicationCapturedByScreen(KWMFocus.Window))
+            if(KWMFocus.Window && KWMFocus.Window->Display != -1)
                 return;
 
             if(Tokens[3] == "prev")
@@ -901,4 +894,6 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmBindCommand(Tokens, true);
     else if(Tokens[0] == "unbind")
         KwmRemoveHotkey(Tokens[1]);
+    else if(Tokens[0] == "rule")
+        KwmAddRule(CreateStringFromTokens(Tokens, 1));
 }
