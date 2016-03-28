@@ -24,6 +24,8 @@
 #include <sys/types.h>
 #include <time.h>
 
+struct token;
+struct tokenizer;
 struct space_identifier;
 struct color;
 struct hotkey;
@@ -31,6 +33,8 @@ struct modifiers;
 struct space_settings;
 struct container_offset;
 
+struct window_properties;
+struct window_rule;
 struct window_info;
 struct window_role;
 struct screen_info;
@@ -124,6 +128,40 @@ enum hotkey_state
     HotkeyStateExclude
 };
 
+enum token_type
+{
+    Token_Colon,
+    Token_SemiColon,
+    Token_Equals,
+    Token_Dash,
+
+    Token_OpenParen,
+    Token_CloseParen,
+    Token_OpenBracket,
+    Token_CloseBracket,
+    Token_OpenBrace,
+    Token_CloseBrace,
+
+    Token_Identifier,
+    Token_String,
+
+    Token_EndOfStream,
+    Token_Unknown,
+};
+
+struct token
+{
+    token_type Type;
+
+    int TextLength;
+    char *Text;
+};
+
+struct tokenizer
+{
+    char *At;
+};
+
 struct space_identifier
 {
 
@@ -207,6 +245,20 @@ struct tree_node
     double SplitRatio;
 };
 
+struct window_properties
+{
+    int Float;
+    int Display;
+};
+
+struct window_rule
+{
+    window_properties Properties;
+    std::string Except;
+    std::string Owner;
+    std::string Name;
+};
+
 struct window_info
 {
     std::string Name;
@@ -215,6 +267,9 @@ struct window_info
     int Layer;
     int X, Y;
     int Width, Height;
+
+    bool Float;
+    unsigned int Display;
 };
 
 struct window_role
@@ -347,13 +402,12 @@ struct kwm_tiling
     std::map<unsigned int, space_settings> DisplaySettings;
     std::map<space_identifier, space_settings> SpaceSettings;
 
-    std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
-    std::map<std::string, int> CapturedAppLst;
-    std::vector<std::string> FloatingAppLst;
-
     std::vector<window_info> FocusLst;
     std::vector<window_info> WindowLst;
     std::vector<int> FloatingWindowLst;
+
+    std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
+    std::vector<window_rule> WindowRules;
 };
 
 struct kwm_cache

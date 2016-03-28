@@ -8,6 +8,7 @@
 #include "notifications.h"
 #include "border.h"
 #include "helpers.h"
+#include "rules.h"
 
 #include <cmath>
 
@@ -65,16 +66,8 @@ bool FilterWindowList(screen_info *Screen)
 
         if(Window->Layer == 0)
         {
-            if(IsApplicationCapturedByScreen(Window))
-            {
-                int CapturedID = KWMTiling.CapturedAppLst[Window->Owner];
-                screen_info *Screen = GetDisplayFromScreenID(CapturedID);
-                if(Screen && Screen != GetDisplayOfWindow(Window))
-                {
-                    MoveWindowToDisplay(Window, CapturedID, false, true);
-                    return false;
-                }
-            }
+            if(ApplyWindowRules(Window))
+                return false;
 
             screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
             if(Screen != ScreenOfWindow)
