@@ -32,18 +32,7 @@ bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubR
 
 bool IsApplicationFloating(window_info *Window)
 {
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FloatingAppLst.size(); ++WindowIndex)
-    {
-        if(Window->Owner == KWMTiling.FloatingAppLst[WindowIndex])
-            return true;
-    }
-
-    return false;
-}
-
-bool IsApplicationCapturedByScreen(window_info *Window)
-{
-    return KWMTiling.CapturedAppLst.find(Window->Owner) != KWMTiling.CapturedAppLst.end();
+    return Window->Float;
 }
 
 bool IsApplicationInCache(int PID, std::vector<AXUIElementRef> *Elements)
