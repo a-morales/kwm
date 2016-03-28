@@ -220,7 +220,7 @@ bool ApplyWindowRules(window_info *Window)
     else
     {
         screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-        if(ScreenOfWindow)
+        if(ScreenOfWindow && !IsWindowFloating(Window->WID, NULL))
         {
             space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
             if(!GetTreeNodeFromWindowIDOrLinkNode(SpaceOfWindow->RootNode, Window->WID))
