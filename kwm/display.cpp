@@ -416,7 +416,7 @@ void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative, bool Upd
     screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
     if(NewScreen)
     {
-        if(IsWindowFloating(Window->WID, NULL))
+        if(IsWindowFloating(Window->WID, NULL) || IsApplicationFloating(Window))
             CenterWindow(NewScreen, Window);
         else
             AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window, UpdateFocus);
