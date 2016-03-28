@@ -51,6 +51,11 @@ window manager by sending simple text strings.
             <opt>: focused | marked | prefix
             <arg>: aarrggbb
 .LP
+.B <opt>-border radius <arg>
+            Set window border radius
+            <opt>: focused | marked | prefix
+            <arg>: number
+.LP
 .B spawn <opt>
             The container position to be occupied by new windows
             <opt>: left | right
@@ -63,20 +68,11 @@ window manager by sending simple text strings.
             Automatically reapply container if window changes size
             <opt>: on | off
 .LP
-.B float <opt>
-            Always float application
-            <opt>: name of application
-.LP
-.B capture <opt>
-            Capture application to display
-            <opt>: display_id <arg>
-            <arg>: name of application
-.LP
-.B focus <opt>
-            Set focus-mode
+.B focus-follows-mouse <opt>
+            Set state of focus-follows-mouse
             <opt>: toggle | autofocus | autoraise | off
 .LP
-.B focus standby-on-float <opt>
+.B standby-on-float <opt>
             Disable focus-follows-mouse when a floating window gains focus
             <opt>: on | off
 .LP
@@ -84,7 +80,7 @@ window manager by sending simple text strings.
             Allow focus commands to wrap
             <opt>: screen | off
 .LP
-.B focus mouse-follows <opt>
+.B mouse-follows-focus <opt>
             Set state of mouse-follows-focus
             <opt>: on | off
 .LP
@@ -100,21 +96,30 @@ window manager by sending simple text strings.
             Set default container gaps
             <opt>: vertical horizontal
 .LP
-.B space <opt>
-            Override default settings for space
-            <opt>: display_id workspace_id <arg>
-            <arg>: mode <arg2> | padding <arg3> | gap <arg4>
-            <arg2>: bsp | monocle | float
-            <arg3>: top bottom left right
-            <arg4>: vertical horizontal
+.B space display_id space_id mode <opt>
+            Override default tiling mode for space
+            <opt>: bsp | monocle | float
 .LP
-.B display <opt>
-            Override default settings for display
-            <opt>: display_id <arg>
-            <arg>: mode <arg2> | padding <arg3> | gap <arg4>
-            <arg2>: bsp | monocle | float
-            <arg3>: top bottom left right
-            <arg4>: vertical horizontal
+.B space display_id space_id padding <opt>
+            Override default padding for space
+            <opt>: top bottom left right
+.LP
+.B space display_id space_id gap <opt>
+            Override default gap for space
+            <opt>: vertical | horizontal
+
+.LP
+.B display display_id mode <opt>
+            Override default tiling mode for display
+            <opt>: bsp | monocle | float
+.LP
+.B display display_id padding <opt>
+            Override default padding for display
+            <opt>: top bottom left right
+.LP
+.B display display_id gap <opt>
+            Override default gap for display
+            <opt>: vertical | horizontal
 .LP
 .B hotkeys <opt>
             Enable hotkeys registered using `bind`
@@ -124,10 +129,9 @@ window manager by sending simple text strings.
             Set split-ratio for containers
             <opt>: 0 < floating point number < 1
 .LP
-.B add-role <opt>
+.B add-role AXRole <opt>
             Add custom role for which windows Kwm should tile
-            <opt>: role <arg>
-            <arg>: name of application
+            <opt>: name of application
 
             The following allows Kwm to tile borderless iTerm2
                 kwmc config add-role AXDialog iTerm2
@@ -155,6 +159,11 @@ window manager by sending simple text strings.
 .B mod+mod+mod-key
             Unbind a hotkey
 .RE
+.IP rule
+.RS 10
+.B owner="" name="" properties={float=""; display=""} except=""
+            Create rules that applies to specific windows
+.RE
 .IP quit
 .RS 10
 Terminate kwm
@@ -169,124 +178,115 @@ Terminate kwm
 .B mod+mod+mod-key
             Send a key press
 .RE
-.IP focus
+.IP window
 .RS 10
-.B -window <opt>
+.B -f <opt>
             Change focus between windows
             <opt>: north | east | south | west | prev | next | curr | window_id
 .LP
-.B -sub-window <opt>
+.B -fm <opt>
             Change focus between monocle-subtree windows
             <opt>: prev | next
 .LP
-.B -space <opt>
-            Change focus between spaces
-            <opt>: workspace_id
-.LP
-.B -display <opt>
-            Change focus between displays
-            <opt>: prev | next | display_id
-.RE
-.IP swap
-.RS 10
-.B -window <opt>
+.B -s <opt>
             Swap window position
-            <opt>: north | east | south | west | prev | next
-.RE
-.IP zoom
-.RS 10
-.B -window <opt>
+            <opt>: north | east | south | west | prev | next | mark
+.LP
+.B -z <opt>
             Adjust container zoom
             <opt>: fullscreen | parent
-.RE
-.IP float
-.RS 10
-.B -window <opt>
+.LP
+.B -t <opt>
             Toggle window floating
             <opt>: focused
 .LP
-.B -space <opt>
-            Make space floating
-            <opt>: focused
-.RE
-.IP refresh
-.RS 10
-.B -window <opt>
+.B -r <opt>
             Resize window to container size
             <opt>: focused
 .LP
-.B -space <opt>
-            Resize all windows to their container size
-            <opt>: focused
-.RE
-.IP node
-.RS 10
-.B -window <opt>
-            Modify container of window
-            <opt>: type <arg1> | reduce <arg2> | expand <arg2>
-            <arg1>: monocle | bsp | toggle
-            <arg2>: 0 < floating point number < 1
+.B -c type <opt>
+            Modify container type of window
+            <opt>: monocle | bsp | toggle
 .LP
-.B -pseudo <opt>
-            Manage pseudo nodes
-            <opt>: create | destroy
-.RE
-.IP split
-.RS 10
-.B -window <opt>
-            Set split-mode for node of window
-            <opt>: toggle
+.B -c reduce <opt>
+            Decrement container split-ratio
+            <opt>: 0 < floating point number < 1
 .LP
-.B -display <opt>
-            Set split-mode of display
-            <opt>: optimal | vertical | horizontal
-.RE
-.IP move
-.RS 10
-.B -window <opt>
-            Move window
-            <opt>: display <arg1> | space <arg2> | north | east | south | west | mark | xoff yoff
-            <arg1>: display_id | prev | next
-            <arg2>: workspace_id | left | right
-.RE
-.IP mark
-.RS 10
-.B -window <opt>
-            Mark window
-            <opt>: focused | north <arg> | east <arg> | south <arg> | west <arg>
+.B -c expand <opt>
+            Increment container split-ratio
+            <opt>: 0 < floating point number < 1
+.LP
+.B -m <opt>
+            Move window on the current space
+            <opt>: north | east | south | west | mark | xoff | yoff
+.LP
+.B -m space <opt>
+            Move window to a different space
+            <opt>: workspace_id | left | right
+.LP
+.B -m display <opt>
+            Move window to an external display
+            <opt>: display_id | prev | next
+.LP
+.B -mk focused
+            Mark the focused window
+.LP
+.B -mk <opt> <arg>
+            Mark window in direction of focused window
+            <opt>: north | east | south | west
             <arg>: wrap | nowrap
 .RE
-.IP tile
+.IP space
 .RS 10
-.B -space <opt>
-            Make space tiled
-            <opt>: bsp | monocle
-.RE
-.IP padding
-.RS 10
-.B -space <opt> <arg>
+.B -f <opt>
+            Change focus between spaces
+            <opt>: workspace_id | left | right
+.LP
+.B -t <opt>
+            Set tiling mode of space
+            <opt>: bsp | monocle | float
+.LP
+.B -r <opt>
+            Resize all windows to their container size
+            <opt>: focused
+.LP
+.B -p <opt> <arg>
             Adjust padding
             <opt>: increase | decrease
             <arg>: all | left | right | top | bottom
-.RE
-.IP gap
-.RS 10
-.B -space <opt> <arg>
+.LP
+.B -g <opt> <arg>
             Adjust gaps
             <opt>: increase | decrease
             <arg>: all | vertical | horizontal
 .RE
+.IP display
+.RS 10
+.B -f <opt>
+            Change focus between displays
+            <opt>: display_id | prev | next
+.LP
+.B -c <opt>
+            Set active split-mode of display
+            <opt>: optimal | vertical | horizontal
+.RE
 .IP tree
 .RS 10
+.B -pseudo <opt>
+            Manage pseudo containers
+            <opt>: create | destroy
+.LP
 .B rotate <opt>
-            Rotate window-tree
+            Rotate window-tree of current space
             <opt>: 90 | 180 | 270
 .LP
-.B save file
-            save current bsp-tree as file
+.B save <opt>
+            Save bsp-layout of window-tree of current space
+            <opt>: filename
 .LP
-.B restore file
-            restore bsp-tree from file
+.B restore <opt>
+            Restore bsp-layout of window-tree of current space
+            <opt>: filename
 .RE
 .IP query
 .RS 10

@@ -6,6 +6,11 @@ cp kwmc.1.gz /usr/local/share/man/man1
 man kwmc
 ```
 
+### Glossary
+
+        A command with <opt> or <arg> means that an argument of that type is required
+        A command with [opt] means that an argument is optional
+
 ### Configure Kwm
         Reload config ($HOME/.kwm/kwmrc)
             kwmc config reload
@@ -45,6 +50,11 @@ man kwmc
             <opt>: focused | marked | prefix
             <arg>: aarrggbb
 
+        Set window border radius
+            kwmc config <opt>-border radius <arg>
+            <opt>: focused | marked | prefix
+            <arg>: number
+
         The container position to be occupied by new windows
             kwmc config spawn <opt>
             <opt>: left | right
@@ -57,21 +67,12 @@ man kwmc
             kwmc config lock-to-container <opt>
             <opt>: on | off
 
-        Always float application
-            kwmc config float <opt>
-            <opt>: name of application
-
-        Capture application to display
-            kwmc config capture <opt>
-            <opt>: display_id <arg>
-            <arg>: name of application
-
-        Set focus-mode
-            kwmc config focus <opt>
+        Set status of focus-follows-mouse
+            kwmc config focus-follows-mouse <opt>
             <opt>: toggle | autofocus | autoraise | off
 
         Disable focus-follows-mouse when a floating window gains focus
-            kwmc config focus standby-on-float <opt>
+            kwmc config standby-on-float <opt>
             <opt>: on | off
 
         Allow focus commands to wrap
@@ -79,7 +80,7 @@ man kwmc
             <opt>: screen | off
 
         Set state of mouse-follows-focus
-            kwmc config focus mouse-follows <opt>
+            kwmc config mouse-follows-focus <opt>
             <opt>: on | off
 
         Set default tiling mode for Kwm
@@ -94,21 +95,29 @@ man kwmc
             kwmc config gap <opt>
             <opt>: vertical horizontal
 
-        Override default settings for space
-            kwmc config space <opt>
-            <opt>: display_id workspace_id <arg>
-            <arg>: mode <arg2> | padding <arg3> | gap <arg4>
-            <arg2>: bsp | monocle | float
-            <arg3>: top bottom left right
-            <arg4>: vertical horizontal
+        Override default tiling mode for space
+            kwmc config space display_id space_id mode <opt>
+            <opt>: bsp | monocle | float
 
-        Override default settings for display
-            kwmc config display <opt>
-            <opt>: display_id <arg>
-            <arg>: mode <arg2> | padding <arg3> | gap <arg4>
-            <arg2>: bsp | monocle | float
-            <arg3>: top bottom left right
-            <arg4>: vertical horizontal
+        Override default padding for space
+            kwmc config space display_id space_id padding <opt>
+            <opt>: top bottom left right
+
+        Override default gaps for space
+            kwmc config space display_id space_id gap <opt>
+            <opt>: vertical horizontal
+
+        Override default tiling mode for display
+            kwmc config display display_id mode <opt>
+            <opt>: bsp | monocle | float
+
+        Override default padding for display
+            kwmc config display display_id padding <opt>
+            <opt>: top bottom left right
+
+        Override default gap for display
+            kwmc config display display_id gap <opt>
+            <opt>: vertical horizontal
 
         Enable hotkeys registered using `bind`
             kwmc config hotkeys <opt>
@@ -119,28 +128,28 @@ man kwmc
             <opt>: 0 < floating point number < 1
 
         Create a hotkey consumed by Kwm
-            kwmc bind prefix+mod+mod+mod-key <opt>
-            <opt>: command | command <arg>
-            <arg>: {app,app,app} -e | {app,app,app} -i
-                -e: not enabled for listed applications
-                -i: only enabled for listed applications
+            kwmc bind prefix+mod+mod+mod-key command [opt]
+            [opt]: {app,app,app} -e | {app,app,app} -i
+                    -e: not enabled for listed applications
+                    -i: only enabled for listed applications
 
         Create a hotkey not consumed by Kwm
-            kwmc bind-passthrough prefix+mod+mod+mod-key <opt>
-            <opt>: command | command <arg>
-            <arg>: {app,app,app} -e | {app,app,app} -i
+            kwmc bind-passthrough prefix+mod+mod+mod-key command [opt]
+            [opt]: {app,app,app} -e | {app,app,app} -i
 
         Unbind a hotkey
             kwmc unbind <opt>
             <opt>: mod+mod+mod-key
 
         Add custom role for which windows Kwm should tile
-            kwmc config add-role <opt>
-            <opt>: role <arg>
-            <arg>: name of application
+            kwmc config add-role AXRole <opt>
+            <opt>: name of application
 
             The following allows Kwm to tile borderless iTerm2
                 kwmc config add-role AXDialog iTerm2
+
+        Create rules that applies to specific windows:[help](https://github.com/koekeishiya/kwm/issues/268)
+            kwmc rule owner="" name="" properties={float=""; display=""} except=""
 
 ### Interact with Kwm
 
@@ -156,93 +165,107 @@ man kwmc
             <opt>: mod+mod+mod-key
 
         Change focus between windows
-            kwmc focus -window <opt>
+            kwmc window -f <opt>
             <opt>: north | east | south | west | prev | next | curr | window_id
 
         Change focus between monocle-subtree windows
-            kwmc focus -sub-window <opt>
+            kwmc window -fm <opt>
             <opt>: prev | next
 
-        Change focus between spaces
-            kwmc focus -space <opt>
-            <opt>: workspace_id
-
-        Change focus between displays
-            kwmc focus -display <opt>
-            <opt>: prev | next | display_id
-
         Swap window position
-            kwmc swap -window <opt>
-            <opt>: north | east | south | west | prev | next
+            kwmc window -s <opt>
+            <opt>: north | east | south | west | prev | next | mark
 
         Adjust container zoom
-            kwmc zoom -window <opt>
+            kwmc window -z <opt>
             <opt>: fullscreen | parent
 
         Toggle window floating
-            kwmc float -window <opt>
-            <opt>: focused
-
-        Make space floating
-            kwmc float -space <opt>
+            kwmc window -t <opt>
             <opt>: focused
 
         Resize window to container size
-            kwmc refresh -window <opt>
+            kwmc window -r <opt>
             <opt>: focused
 
-        Resize all windows to their container size
-            kwmc refresh -space <opt>
-            <opt>: focused
-
-        Modify container of window
-            kwmc node -window <opt>
-            <opt>: type <arg1> | reduce <arg2> | expand <arg2>
-            <arg1>: monocle | bsp | toggle
-            <arg2>: 0 < floating point number < 1
-
-        Manage pseudo nodes
-            kwmc node -pseudo <opt>
-            <opt>: create | destroy
-
-        Set split-mode for node of window
-            kwmc split -window <opt>
+        Modify container split-mode of window
+            kwmc window -c split-mode <opt>
             <opt>: toggle
 
-        Set split-mode of display
-            kwmc split -display <opt>
-            <opt>: optimal | vertical | horizontal
+        Modify container type of window
+            kwmc window -c type <opt>
+            <opt>: monocle | bsp | toggle
 
-        Move window
-            kwmc move -window <opt>
-            <opt>: display <arg1> | space <arg2> | north | east | south | west | mark | xoff yoff
-            <arg1>: display_id | prev | next
-            <arg2>: workspace_id | left | right
+        Modify container split-ratio of window
+            kwmc window -c reduce <opt>
+            kwmc window -c expand <opt>
+            <opt>: 0 < floating point number < 1
 
-        Mark window
-            kwmc mark -window <opt>
-            <opt>: focused | north <arg> | east <arg> | south <arg> | west <arg>
+        Move window on the current space
+            kwmc window -m <opt>
+            <opt>: north | east | south | west | mark | xoff yoff
+
+        Move window to a different space
+            kwmc window -m space <opt>
+            <opt>: workspace_id | left | right
+
+        Move window to an external display
+            kwmc window -m display <opt>
+            <opt>: display_id | prev | next
+
+        Mark the focused window
+            kwmc window -mk focused
+
+        Mark window in direction of focused window
+            kwmc window -mk <opt> <arg>
+            <opt>: north | east | south | west
             <arg>: wrap | nowrap
 
-        Make space tiled
-            kwmc tile -space <opt>
-            <opt>: bsp | monocle
+        Change focus between spaces
+            kwmc space -f <opt>
+            <opt>: workspace_id
+
+        Set tiling mode of space
+            kwmc space -t <opt>
+            <opt>: bsp | monocle | float
+
+        Resize all windows to their container size
+            kwmc space -r <opt>
+            <opt>: focused
 
         Adjust padding
-            kwmc padding -space <opt> <arg>
+            kwmc space -p <opt> <arg>
             <opt>: increase | decrease
             <arg>: all | left | right | top | bottom
 
         Adjust gaps
-            kwmc gap -space <opt> <arg>
+            kwmc space -g <opt> <arg>
             <opt>: increase | decrease
             <arg>: all | vertical | horizontal
 
-        Manage window-tree
-            kwmc tree <opt>
-            <opt>: rotate <arg1> | save <arg2> | restore <arg2>
-            <arg1>: 90 | 180 | 270
-            <arg2>: filename
+        Change focus between displays
+            kwmc display -f <opt>
+            <opt>: prev | next | display_id
+
+        Set active split-mode of display
+            kwmc display -c <opt>
+            <opt>: optimal | vertical | horizontal
+
+        Manage pseudo containers
+            kwmc tree -pseudo <opt>
+            <opt>: create | destroy
+
+        Rotate window-tree of current space
+            kwmc tree rotate <opt>
+            <opt>: 90 | 180 | 270
+
+        Save bsp-layout of window-tree of current space
+            kwmc tree save <opt>
+            <opt>: filename
+
+        Restore bsp-layout of window-tree of current space
+            kwmc tree restore <opt>
+            <opt>: filename
 
 ### Query current state
 
