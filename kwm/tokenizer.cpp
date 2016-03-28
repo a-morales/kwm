@@ -4,7 +4,7 @@ void EatAllWhiteSpace(tokenizer *Tokenizer)
 {
     for(;;)
     {
-        if(IsWhiteSpace(Tokenizer->At[0]))
+        if(Tokenizer->At[0] && IsWhiteSpace(Tokenizer->At[0]))
             ++Tokenizer->At;
         else
             break;
