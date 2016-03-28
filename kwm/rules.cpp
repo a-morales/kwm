@@ -56,13 +56,13 @@ bool ParseIdentifier(tokenizer *Tokenizer, std::string *Member)
             } break;
             default:
             {
-                printf("Unexpected token %d: %.*s\n", Token.Type, Token.TextLength, Token.Text);
+                DEBUG("Expected token of type Token_String")
             } break;
         }
     }
     else
     {
-        printf("Expected token '='\n");
+        DEBUG("Expected token '='\n");
     }
 
     return false;
@@ -105,19 +105,20 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
                                 Properties->Display = ConvertStringToInt(Value);
                         }
                     } break;
-                    default: { printf("Unexpected token %d: %.*s\n", Token.Type, Token.TextLength, Token.Text); } break; }
+                    default: { DEBUG("Expected token of type Token_Identifier") } break;
+                }
             }
 
             return true;
         }
         else
         {
-            printf("Expected token '{'\n");
+            DEBUG("Expected token '{'")
         }
     }
     else
     {
-        printf("Expected token '='\n");
+        DEBUG("Expected token '='")
     }
 
     return false;
@@ -153,10 +154,7 @@ bool KwmParseRule(std::string RuleSym, window_rule *Rule)
                 else if(TokenEquals(Token, "except"))
                     Result = Result && ParseIdentifier(&Tokenizer, &Rule->Except);
             } break;
-            default:
-            {
-                //printf("%d: %.*s\n", Token.Type, Token.TextLength, Token.Text);
-            } break;
+            default: { } break;
         }
     }
 
@@ -167,10 +165,7 @@ void KwmAddRule(std::string RuleSym)
 {
     window_rule Rule = {};
     if(KwmParseRule(RuleSym, &Rule))
-    {
-        printf("the following rule has been added:\n owner: %s\n name: %s\n float: %d\n display: %d\n except: %s\n", Rule.Owner.c_str(), Rule.Name.c_str(), Rule.Properties.Float, Rule.Properties.Display, Rule.Except.c_str());
         KWMTiling.WindowRules.push_back(Rule);
-    }
 }
 
 bool CheckWindowRule(window_rule *Rule, window_info *Window)
