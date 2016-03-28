@@ -148,7 +148,7 @@ man kwmc
             The following allows Kwm to tile borderless iTerm2
                 kwmc config add-role AXDialog iTerm2
 
-        Create rules that applies to specific windows:[help](https://github.com/koekeishiya/kwm/issues/268)
+        Create rules that applies to specific applications or windows: [help](https://github.com/koekeishiya/kwm/issues/268)
             kwmc rule owner="" name="" properties={float=""; display=""} except=""
 
 ### Interact with Kwm
