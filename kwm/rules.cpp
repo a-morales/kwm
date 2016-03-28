@@ -190,8 +190,9 @@ bool CheckWindowRule(window_rule *Rule, window_info *Window)
 
 bool ApplyWindowRules(window_info *Window)
 {
-    Window->Float = 0;
+    bool ApplyRules = false;
     Window->Display = -1;
+    Window->Float = 0;
 
     for(int Index = 0; Index < KWMTiling.WindowRules.size(); ++Index)
     {
@@ -200,46 +201,37 @@ bool ApplyWindowRules(window_info *Window)
         {
             if(Rule->Properties.Float != -1)
                 Window->Float = Rule->Properties.Float == 1;
+
             if(Rule->Properties.Display != -1)
                 Window->Display = Rule->Properties.Display;
+
+            ApplyRules = true;
         }
     }
 
-    if(Window->Float)
+    if(ApplyRules)
     {
-        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-        if(ScreenOfWindow)
+        if(Window->Float)
         {
-            space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-            if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
-                RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
-            else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
-                RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
-        }
-    }
-    else
-    {
-        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-        if(ScreenOfWindow && !IsWindowFloating(Window->WID, NULL))
-        {
-            space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-            if(!GetTreeNodeFromWindowIDOrLinkNode(SpaceOfWindow->RootNode, Window->WID))
+            screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
+            if(ScreenOfWindow)
             {
+                space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
                 if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
-                    AddWindowToBSPTree(ScreenOfWindow, Window->WID);
+                    RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
                 else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
-                    AddWindowToMonocleTree(ScreenOfWindow, Window->WID);
+                    RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
             }
         }
-    }
 
-    if(Window->Display != -1)
-    {
-        screen_info *Screen = GetDisplayFromScreenID(Window->Display);
-        if(Screen && Screen != GetDisplayOfWindow(Window))
+        if(Window->Display != -1)
         {
-            MoveWindowToDisplay(Window, Window->Display, false, true);
-            return true;
+            screen_info *Screen = GetDisplayFromScreenID(Window->Display);
+            if(Screen && Screen != GetDisplayOfWindow(Window))
+            {
+                MoveWindowToDisplay(Window, Window->Display, false, true);
+                return true;
+            }
         }
     }
 
