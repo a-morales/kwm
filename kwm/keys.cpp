@@ -309,8 +309,10 @@ bool GetLayoutIndependentKeycode(std::string Key, CGKeyCode *Keycode)
         *Keycode = kVK_Tab;
     else if(Key == "space")
         *Keycode = kVK_Space;
-    else if(Key == "delete")
+    else if(Key == "backspace")
         *Keycode = kVK_Delete;
+    else if(Key == "delete")
+        *Keycode = kVK_ForwardDelete;
     else if(Key == "escape")
         *Keycode =  kVK_Escape;
     else if(Key == "left")
