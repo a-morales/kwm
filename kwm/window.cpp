@@ -72,20 +72,10 @@ bool FilterWindowList(screen_info *Screen)
             screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
             if(Screen != ScreenOfWindow)
             {
-                bool Skip = false;
-                std::map<int, space_info>::iterator It;
-                for(It = ScreenOfWindow->Space.begin(); It != ScreenOfWindow->Space.end(); ++It)
-                {
-                    space_info *SpaceOfWindow = &It->second;
-                    if(!SpaceOfWindow->Initialized ||
-                       GetTreeNodeFromWindowIDOrLinkNode(SpaceOfWindow->RootNode, Window->WID))
-                    {
-                        Skip = true;
-                        break;
-                    }
-                }
-
-                if(Skip)
+                space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
+                if(!SpaceOfWindow->Initialized ||
+                   GetTreeNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID) ||
+                   GetLinkNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID))
                     continue;
             }
 
