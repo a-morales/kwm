@@ -81,31 +81,33 @@ kwmc config spawn left
 # AXWindowRole and AXStandardWindowSubRole
 kwmc config add-role AXDialog iTerm2
 
-# The following command creates a rule that
-# blacklists a specific application from Kwms tiling
-kwmc rule owner="Steam" properties={float="true"}
-kwmc rule owner="Photoshop" properties={float="true"}
+# The following commands create rules that
+# blacklists an application from Kwms tiling
+#
+# kwmc rule owner="Steam" properties={float="true"}
+# kwmc rule owner="Photoshop" properties={float="true"}
 
 # The following command creates a rule that
 # captures an application to the given screen,
 # if the screen exists.
-kwmc rule owner="iTunes" properties={display="1"}
+#
+# kwmc rule owner="iTunes" properties={display="1"}
 
 # Enable border for focused window
 kwmc config focused-border on
-kwmc config focused-border size 5
+kwmc config focused-border size 2
 kwmc config focused-border color FFBDD322
 kwmc config focused-border radius 6
 
 # Enable border for marked window
 kwmc config marked-border on
-kwmc config marked-border size 5
+kwmc config marked-border size 2
 kwmc config marked-border color FFCC5577
 kwmc config marked-border radius 6
 
-# Change border color when prefix-key is active
+# Change border when prefix-key is active
 kwmc config prefix-border on
-kwmc config prefix-border size 5
+kwmc config prefix-border size 2
 kwmc config prefix-border color FF458588
 kwmc config prefix-border radius 6
 
@@ -218,6 +220,3 @@ kwmc bind prefix+shift-p space -p decrease all
 kwmc bind cmd-7 write \
 kwmc bind cmd-8 write {
 kwmc bind cmd-9 write }
-
-# Layout
-kwmc bind prefix-c tree restore dev3
