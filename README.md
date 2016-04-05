@@ -1,6 +1,6 @@
 ## Brief Description
 
-*WARNING:* The master branch is considered bleeding edge and changes may break configurations at any time! Check the latest release for a stable version.
+**WARNING:** The master branch is considered bleeding edge and changes may break configurations at any time! Check the latest release for a stable version.
 
 [*Kwm*](https://koekeishiya.github.io/kwm) started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
 It is now a tiling window manager that represents windows as the leaves of a binary tree.
@@ -12,11 +12,10 @@ and different types of hotkeys.
 
 *Kwm* runs a local daemon to read messages and trigger functions.
 *Kwmc* is used to write to *Kwm*'s socket, and must be used when interacting with and configuring how *Kwm* works.
-For a list of various commands that can be issued, check the readme located within the *kwmc* folder.
-The *Kwmc* tool also has a built-in help system that can be accessed from the terminal using `kwmc help`.
+For a list of various commands that can be issued, check the readme located within the *Kwmc* folder.
 
 For in depth information, sample configurations, and useful scripts to implement new features by combining
-kwmc commands, check out the [wiki](https://github.com/koekeishiya/kwm/wiki)
+*Kwmc* commands, check out the [wiki](https://github.com/koekeishiya/kwm/wiki)
 
 *Kwm* requires access to the OSX accessibility API.
 Tested on El Capitan (10.11.1 - 10.11.4).
@@ -34,7 +33,7 @@ The different features; binary space partitioning, focus-follows-mouse and the h
 independently. This allows the user to choose which functionality to enable depending on their workflow.
 
 *Binary Space Partitioning:*
-Kwm tiles windows using a binary-tree structure. For information, check the usage section.
+*Kwm* tiles windows using a binary-tree structure. For information, check the usage section.
 
 *Focus-Follows-Mouse:*
 Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,
@@ -43,14 +42,13 @@ use autoraise as it is meant to be used alongside the tiling functionality, and 
 a window is specifically made floating.
 
 *System-Wide Hotkeys:*
-Kwm allows the user to bind and unbind hotkeys to commands through the *Kwmc* tool, using a bind and unbind option.
+*Kwm* allows the user to bind and unbind hotkeys to commands through the *Kwmc* tool, using a bind and unbind option.
 These binds support the use of a single prefix, which may be bind-specific or global (apply to all binds).
 There are 3 types of hotkeys: global, global + blacklist applications, specified applications.
 Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.
 
 *Multiple monitor support:*
-Kwm supports external monitors and have commands that allow for focusing screens, and moving windows.
-For more information, see `kwmc help screen`.
+*Kwm* supports external monitors and have commands that allow for focusing screens, and moving windows.
 
 ## Install:
 
@@ -88,8 +86,8 @@ In addition to the above, the file `$HOME/.kwm/init` is a shell script that will
 
 A sample config file can be found within the [examples](examples) directory.
 
-Note: The sample configuration and information is updated to follow Kwm @ master. If you are running a release
-version of Kwm, be aware that the documentation in this github repository may not always apply.
+**Note:** The sample configuration and information is updated to follow *Kwm* @ master. If you are running a release
+version, check the documentation provided at that particular tag.
 
 ## Usage:
 
@@ -156,15 +154,15 @@ Example of a bsp-tree consisting of a [monocle-subtree (a Link Node)](https://gi
 ```
 
 In addition to bsp, *Kwm* supports both monocle and floating spaces.
-If a space is set to floating mode, Kwm will ignore this space.
+If a space is set to floating mode, *Kwm* will ignore this space.
 If a space is in monocle mode, every window will run fullscreen.
 
-If a window is not detected by Kwm, it is most likely due to a 'window role' mismatch.
+If a window is not detected by *Kwm*, it is most likely due to a 'window role' mismatch.
 Use the command `kwmc config add-role role application` to fix this.
 See https://github.com/koekeishiya/kwm/issues/40 for information.
 
 ### Donate
-First of all, Kwm will always be free and open source, however some users have
+First of all, *Kwm* will always be free and open source, however some users have
 expressed interest in some way to show their support.
 
 If you wish to do so, I have set up a patreon [here](https://www.patreon.com/aasvi).
