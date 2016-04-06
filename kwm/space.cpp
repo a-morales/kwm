@@ -125,7 +125,6 @@ void MoveWindowToSpace(std::string SpaceID)
     }
 
     CGWarpMouseCursorPosition(CursorPos);
-    CreateApplicationNotifications();
     CGEventTapEnable(KWMMach.EventTap, true);
     pthread_mutex_unlock(&KWMThread.Lock);
 }
