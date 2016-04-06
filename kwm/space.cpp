@@ -74,6 +74,7 @@ void MoveWindowToSpace(std::string SpaceID)
     if(!KWMFocus.Window)
         return;
 
+    pthread_mutex_lock(&KWMThread.Lock);
     CGEventTapEnable(KWMMach.EventTap, false);
     DestroyApplicationNotifications();
 
@@ -126,6 +127,7 @@ void MoveWindowToSpace(std::string SpaceID)
     CGWarpMouseCursorPosition(CursorPos);
     CreateApplicationNotifications();
     CGEventTapEnable(KWMMach.EventTap, true);
+    pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 bool IsActiveSpaceFloating()
