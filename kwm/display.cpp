@@ -422,7 +422,7 @@ container_offset CreateDefaultScreenOffset()
 void UpdateActiveScreen()
 {
     screen_info *Screen = GetDisplayOfMousePointer();
-    if(Screen && KWMSCreen.Current && KWMScreen.Current != Screen)
+    if(Screen && KWMScreen.Current && KWMScreen.Current != Screen)
     {
         DEBUG("UpdateActiveScreen() Active Display Changed")
 
