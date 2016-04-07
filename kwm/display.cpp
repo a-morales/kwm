@@ -44,6 +44,15 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
 
         RefreshActiveDisplays();
     }
+    else if (Flags & kCGDisplayDesktopShapeChangedFlag)
+    {
+        DEBUG("Display " << Display << " changed resolution")
+        screen_info *Screen = &KWMTiling.DisplayMap[Display];
+        UpdateExistingScreenInfo(Screen, Display, Screen->ID);
+        std::map<int, space_info>::iterator It;
+        for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
+            UpdateSpaceOfScreen(&It->second, Screen);
+    }
 
     pthread_mutex_unlock(&KWMThread.Lock);
 }
@@ -191,6 +200,29 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
     return ScreenWindowLst;
 }
 
+void UpdateSpaceOfScreen(space_info *Space, screen_info *Screen)
+{
+    if(Space->RootNode)
+    {
+        if(Space->Settings.Mode == SpaceModeBSP)
+        {
+            SetRootNodeContainer(Screen, Space->RootNode);
+            CreateNodeContainers(Screen, Space->RootNode, true);
+        }
+        else if(Space->Settings.Mode == SpaceModeMonocle)
+        {
+            link_node *Link = Space->RootNode->List;
+            while(Link)
+            {
+                SetLinkNodeContainer(Screen, Link);
+                Link = Link->Next;
+            }
+        }
+
+        ApplyTreeNodeContainer(Space->RootNode);
+    }
+}
+
 void SetDefaultPaddingOfDisplay(container_offset Offset)
 {
     KWMScreen.DefaultOffset.PaddingTop = Offset.PaddingTop;
@@ -245,25 +277,7 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
             Space->Settings.Offset.PaddingBottom += Offset;
     }
 
-    if(Space->RootNode)
-    {
-        if(Space->Settings.Mode == SpaceModeBSP)
-        {
-            SetRootNodeContainer(Screen, Space->RootNode);
-            CreateNodeContainers(Screen, Space->RootNode, true);
-        }
-        else if(Space->Settings.Mode == SpaceModeMonocle)
-        {
-            link_node *Link = Space->RootNode->List;
-            while(Link)
-            {
-                SetLinkNodeContainer(Screen, Link);
-                Link = Link->Next;
-            }
-        }
-
-        ApplyTreeNodeContainer(Space->RootNode);
-    }
+    UpdateSpaceOfScreen(Space, Screen);
 }
 
 void ChangeGapOfDisplay(const std::string &Side, int Offset)
@@ -290,11 +304,7 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
             Space->Settings.Offset.HorizontalGap += Offset;
     }
 
-    if(Space->RootNode && Space->Settings.Mode == SpaceModeBSP)
-    {
-        CreateNodeContainers(Screen, Space->RootNode, true);
-        ApplyTreeNodeContainer(Space->RootNode);
-    }
+    UpdateSpaceOfScreen(Space, Screen);
 }
 
 int GetIndexOfNextScreen()
