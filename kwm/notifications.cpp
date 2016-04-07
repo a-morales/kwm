@@ -22,18 +22,18 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
     {
         if(!Window || Window->WID != GetWindowIDFromRef(Element))
         {
-            DEBUG("Element: " << GetWindowTitle(Element))
             window_info *OSXWindow = GetWindowByID(GetWindowIDFromRef(Element));
             screen_info *OSXScreen = GetDisplayOfWindow(OSXWindow);
             if(OSXWindow && OSXScreen)
             {
                 screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-                if(ScreenOfWindow && ScreenOfWindow != OSXScreen)
+                bool SameScreen = ScreenOfWindow == OSXScreen;
+                if(ScreenOfWindow && !SameScreen)
                     UpdateActiveWindowList(ScreenOfWindow);
 
                 if(ScreenOfWindow && Window &&
                    GetWindowByID(Window->WID) == NULL &&
-                   OSXScreen != ScreenOfWindow)
+                   !SameScreen)
                 {
                     space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
                     if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
@@ -44,29 +44,31 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
                     SpaceOfWindow->FocusedWindowID = 0;
                 }
 
-                GiveFocusToScreen(OSXScreen->ID, NULL, false, false);
+                if(!SameScreen)
+                    GiveFocusToScreen(OSXScreen->ID, NULL, false, false);
+
                 SetKwmFocus(Element);
-                if(OSXScreen == ScreenOfWindow)
+                if(SameScreen && !IsFocusedWindowFloating())
                     KWMFocus.InsertionPoint = KWMFocus.Cache;
             }
         }
     }
-    else if(CFEqual(Notification, kAXWindowResizedNotification))
+    else if(CFEqual(Notification, kAXWindowResizedNotification) ||
+            CFEqual(Notification, kAXWindowMovedNotification))
     {
         if(KWMTiling.LockToContainer)
             LockWindowToContainerSize(Window);
 
         UpdateBorder("focused");
-        if (Window && Window->WID == KWMScreen.MarkedWindow)
+        if(Window && Window->WID == KWMScreen.MarkedWindow)
             UpdateBorder("marked");
     }
-    else if(CFEqual(Notification, kAXWindowMovedNotification) ||
-            CFEqual(Notification, kAXUIElementDestroyedNotification) ||
+    else if(CFEqual(Notification, kAXUIElementDestroyedNotification) ||
             CFEqual(Notification, kAXWindowMiniaturizedNotification))
     {
         UpdateBorder("focused");
-        if (Window && Window->WID == KWMScreen.MarkedWindow)
-            UpdateBorder("marked");
+        if(Window && Window->WID == KWMScreen.MarkedWindow)
+            ClearMarkedWindow();
     }
 
     pthread_mutex_unlock(&KWMThread.Lock);

@@ -9,7 +9,12 @@ extern void SetKwmFocus(AXUIElementRef WindowRef);
 extern void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *Focus, bool Mouse, bool UpdateFocus);
 extern window_info *GetWindowByID(int WindowID);
 extern int GetWindowIDFromRef(AXUIElementRef WindowRef);
+extern space_info *GetActiveSpaceOfScreen(screen_info *Screen);
+extern tree_node *GetTreeNodeFromWindowIDOrLinkNode(tree_node *RootNode, int WindowID);
+extern bool IsWindowFloating(int WindowID, int *Index);
 extern bool IsFocusedWindowFloating();
+extern void ClearFocusedWindow();
+extern void ClearMarkedWindow();
 
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
@@ -68,11 +73,33 @@ extern kwm_thread KWMThread;
                 screen_info *OSXScreen = GetDisplayOfWindow(OSXWindow);
                 if(OSXWindow && OSXScreen)
                 {
-                    GiveFocusToScreen(OSXScreen->ID, NULL, false, false);
-                    SetKwmFocus(OSXWindowRef);
-                    if(OSXScreen == ScreenOfWindow && !IsFocusedWindowFloating())
-                        KWMFocus.InsertionPoint = KWMFocus.Cache;
+                    space_info *OSXSpace = GetActiveSpaceOfScreen(OSXScreen);
+                    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(OSXSpace->RootNode, OSXWindow->WID);
+
+                    bool Floating = IsWindowFloating(OSXWindow->WID, NULL) || OSXWindow->Float;
+                    if(TreeNode || Floating)
+                    {
+                        bool SameScreen = OSXScreen == ScreenOfWindow;
+                        if(!SameScreen)
+                            GiveFocusToScreen(OSXScreen->ID, NULL, false, false);
+
+                        SetKwmFocus(OSXWindowRef);
+                        if(SameScreen && !Floating)
+                            KWMFocus.InsertionPoint = KWMFocus.Cache;
+                    }
+                    else
+                    {
+                        ClearFocusedWindow();
+                        ClearMarkedWindow();
+                        DestroyApplicationNotifications();
+                    }
                 }
+            }
+            else
+            {
+                ClearFocusedWindow();
+                ClearMarkedWindow();
+                DestroyApplicationNotifications();
             }
         }
     }

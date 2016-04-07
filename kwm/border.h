@@ -65,6 +65,11 @@ RefreshBorder(kwm_border *Border, int WindowID)
                               " s:" + std::to_string(Border->Width);
 
         Command += Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "";
+        if(WindowPos.x == 0 && WindowPos.y == 0 &&
+           WindowSize.width == KWMScreen.Current->Width &&
+           WindowSize.height == KWMScreen.Current->Height)
+            Command = "clear";
+
         fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
         fflush(Border->Handle);
     }

@@ -225,10 +225,6 @@ void FocusWindowBelowCursor()
            KWMTiling.FocusLst[WindowIndex].Name == "LPSpringboard")
             return;
 
-        /* Note(koekeishiya): Allow focus-follows-mouse to ignore kwm-overlay */
-        if(KWMTiling.FocusLst[WindowIndex].Owner == "kwm-overlay")
-            continue;
-
         /* Note(koekeishiya): Allow focus-follows-mouse to work when the dock is visible */
         if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock" &&
            KWMTiling.FocusLst[WindowIndex].X == 0 &&
@@ -309,6 +305,8 @@ void UpdateActiveWindowList(screen_info *Screen)
         CFDictionaryRef Elem = (CFDictionaryRef)CFArrayGetValueAtIndex(OsxWindowLst, WindowIndex);
         KWMTiling.WindowLst.push_back(window_info());
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
+        if(KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Owner == "kwm-overlay")
+            KWMTiling.WindowLst.pop_back();
     }
     CFRelease(OsxWindowLst);
 
@@ -1718,8 +1716,8 @@ std::string GetWindowTitle(AXUIElementRef WindowRef)
 
 CGSize GetWindowSize(AXUIElementRef WindowRef)
 {
+    CGSize WindowSize = {};
     AXValueRef Temp;
-    CGSize WindowSize;
 
     AXUIElementCopyAttributeValue(WindowRef, kAXSizeAttribute, (CFTypeRef*)&Temp);
     if(Temp)
@@ -1743,8 +1741,8 @@ CGPoint GetWindowPos(window_info *Window)
 
 CGPoint GetWindowPos(AXUIElementRef WindowRef)
 {
+    CGPoint WindowPos = {};
     AXValueRef Temp;
-    CGPoint WindowPos;
 
     AXUIElementCopyAttributeValue(WindowRef, kAXPositionAttribute, (CFTypeRef*)&Temp);
     if(Temp)
