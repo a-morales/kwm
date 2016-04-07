@@ -83,9 +83,12 @@ extern kwm_thread KWMThread;
                         if(!SameScreen)
                             GiveFocusToScreen(OSXScreen->ID, NULL, false, false);
 
-                        SetKwmFocus(OSXWindowRef);
-                        if(SameScreen && !Floating)
-                            KWMFocus.InsertionPoint = KWMFocus.Cache;
+                        if(OSXSpace->Managed)
+                        {
+                            SetKwmFocus(OSXWindowRef);
+                            if(SameScreen && !Floating)
+                                KWMFocus.InsertionPoint = KWMFocus.Cache;
+                        }
                     }
                     else
                     {
