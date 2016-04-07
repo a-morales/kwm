@@ -1513,7 +1513,6 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
        KWMMode.Focus != FocusModeAutofocus &&
        KWMToggles.StandbyOnFloat)
         KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
-    }
 }
 
 void SetWindowFocus(window_info *Window)
