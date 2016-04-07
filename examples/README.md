@@ -1,5 +1,5 @@
 ## Default Binds:
-    - prefix-key: fn-x
+    - prefix-key: ctrl-s
 
     - cmd:
         - return (enter): opens a new iTerm window

@@ -180,7 +180,6 @@ struct modifiers
     bool AltKey;
     bool CtrlKey;
     bool ShiftKey;
-    bool FnKey;
 };
 
 struct hotkey

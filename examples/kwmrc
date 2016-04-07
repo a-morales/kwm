@@ -31,7 +31,7 @@ kwmc config tiling bsp
 kwmc config hotkeys on
 
 # Set prefix for Kwms hotkeys
-kwmc config prefix-key fn-x
+kwmc config prefix-key ctrl-s
 
 # Prefix is not applied globally
 kwmc config prefix-global off

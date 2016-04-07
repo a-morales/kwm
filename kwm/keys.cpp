@@ -17,7 +17,6 @@ bool HotkeysAreEqual(hotkey *A, hotkey *B)
            A->Mod.CtrlKey == B->Mod.CtrlKey &&
            A->Mod.AltKey == B->Mod.AltKey &&
            A->Mod.ShiftKey == B->Mod.ShiftKey &&
-           A->Mod.FnKey == B->Mod.FnKey &&
            A->Key == B->Key)
             return true;
     }
@@ -32,7 +31,6 @@ void CreateHotkeyFromCGEvent(CGEventRef Event, hotkey *Hotkey)
     Hotkey->Mod.AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
     Hotkey->Mod.CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
     Hotkey->Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
-    Hotkey->Mod.FnKey = (Flags & kCGEventFlagMaskSecondaryFn) == kCGEventFlagMaskSecondaryFn;
     Hotkey->Key = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 }
 
@@ -220,8 +218,6 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, boo
             Hotkey->Mod.CtrlKey = true;
         else if(Modifiers[ModIndex] == "shift")
             Hotkey->Mod.ShiftKey = true;
-        else if(Modifiers[ModIndex] == "fn")
-            Hotkey->Mod.FnKey = true;
         else if(Modifiers[ModIndex] == "prefix")
             Hotkey->Prefixed = true;
     }
@@ -254,8 +250,6 @@ void KwmSetSpacesKey(std::string KeySym)
             Mod.CtrlKey = true;
         else if(Modifiers[ModIndex] == "shift")
             Mod.ShiftKey = true;
-        else if(Modifiers[ModIndex] == "fn")
-            Mod.FnKey = true;
     }
     KWMHotkeys.SpacesKey = Mod;
 }
@@ -491,8 +485,6 @@ void KwmEmitKeystroke(std::string KeySym)
             Mod.CtrlKey = true;
         else if(Modifiers[ModIndex] == "shift")
             Mod.ShiftKey = true;
-        else if(Modifiers[ModIndex] == "fn")
-            Mod.FnKey = true;
     }
 
     KwmEmitKeystroke(Mod, KeyTokens[1]);
@@ -509,8 +501,6 @@ void KwmEmitKeystroke(modifiers Mod, std::string Key)
         Flags |= kCGEventFlagMaskAlternate;
     if(Mod.ShiftKey)
         Flags |= kCGEventFlagMaskShift;
-    if(Mod.FnKey)
-        Flags |= kCGEventFlagMaskSecondaryFn;
 
     CGKeyCode Keycode;
     bool Result = GetLayoutIndependentKeycode(Key, &Keycode);
