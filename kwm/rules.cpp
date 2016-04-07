@@ -185,7 +185,6 @@ bool MatchWindowRule(window_rule *Rule, window_info *Window)
 
 void CheckWindowRules(window_info *Window)
 {
-    bool ApplyRules = false;
     Window->Display = -1;
     Window->Float = 0;
 
