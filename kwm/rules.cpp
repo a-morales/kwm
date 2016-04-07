@@ -168,7 +168,7 @@ void KwmAddRule(std::string RuleSym)
         KWMTiling.WindowRules.push_back(Rule);
 }
 
-bool CheckWindowRule(window_rule *Rule, window_info *Window)
+bool MatchWindowRule(window_rule *Rule, window_info *Window)
 {
     bool Match = true;
     if(!Rule->Owner.empty())
@@ -183,7 +183,7 @@ bool CheckWindowRule(window_rule *Rule, window_info *Window)
     return Match;
 }
 
-bool ApplyWindowRules(window_info *Window)
+void CheckWindowRules(window_info *Window)
 {
     bool ApplyRules = false;
     Window->Display = -1;
@@ -192,41 +192,39 @@ bool ApplyWindowRules(window_info *Window)
     for(int Index = 0; Index < KWMTiling.WindowRules.size(); ++Index)
     {
         window_rule *Rule = &KWMTiling.WindowRules[Index];
-        if(CheckWindowRule(Rule, Window))
+        if(MatchWindowRule(Rule, Window))
         {
             if(Rule->Properties.Float != -1)
                 Window->Float = Rule->Properties.Float == 1;
 
             if(Rule->Properties.Display != -1)
                 Window->Display = Rule->Properties.Display;
+        }
+    }
+}
 
-            ApplyRules = true;
+bool EnforceWindowRules(window_info *Window)
+{
+    if(Window->Float)
+    {
+        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
+        if(ScreenOfWindow)
+        {
+            space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
+            if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
+                RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
+            else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
+                RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
         }
     }
 
-    if(ApplyRules)
+    if(Window->Display != -1)
     {
-        if(Window->Float)
+        screen_info *Screen = GetDisplayFromScreenID(Window->Display);
+        if(Screen && Screen != GetDisplayOfWindow(Window))
         {
-            screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-            if(ScreenOfWindow)
-            {
-                space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-                if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
-                    RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
-                else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
-                    RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
-            }
-        }
-
-        if(Window->Display != -1)
-        {
-            screen_info *Screen = GetDisplayFromScreenID(Window->Display);
-            if(Screen && Screen != GetDisplayOfWindow(Window))
-            {
-                MoveWindowToDisplay(Window, Window->Display, false, true);
-                return true;
-            }
+            MoveWindowToDisplay(Window, Window->Display, false, true);
+            return true;
         }
     }
 

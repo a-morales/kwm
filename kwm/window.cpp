@@ -66,7 +66,7 @@ bool FilterWindowList(screen_info *Screen)
 
         if(Window->Layer == 0)
         {
-            if(ApplyWindowRules(Window))
+            if(EnforceWindowRules(Window))
                 return false;
 
             screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
@@ -311,6 +311,10 @@ void UpdateActiveWindowList(screen_info *Screen)
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
     }
     CFRelease(OsxWindowLst);
+
+    for(int Index = 0; Index < KWMTiling.WindowLst.size(); ++Index)
+        CheckWindowRules(&KWMTiling.WindowLst[Index]);
+
     KWMTiling.FocusLst = KWMTiling.WindowLst;
 }
 
@@ -1509,6 +1513,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
        KWMMode.Focus != FocusModeAutofocus &&
        KWMToggles.StandbyOnFloat)
         KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
+    }
 }
 
 void SetWindowFocus(window_info *Window)
