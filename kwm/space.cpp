@@ -287,6 +287,10 @@ void UpdateActiveSpace()
 
         Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         UpdateActiveWindowList(KWMScreen.Current);
+
+        if (Space->NeedsUpdate)
+            UpdateSpaceOfScreen(Space, KWMScreen.Current);
+
         if(Space->FocusedWindowID != 0)
         {
             FocusWindowByID(Space->FocusedWindowID);
@@ -325,10 +329,6 @@ void UpdateActiveSpace()
         ClearFocusedWindow();
         ClearMarkedWindow();
         DestroyApplicationNotifications();
-    }
-    else if (Space->NeedsUpdate)
-    {
-        UpdateSpaceOfScreen(Space, KWMScreen.Current);
     }
 
     KWMScreen.Transitioning = false;
