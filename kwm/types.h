@@ -289,6 +289,7 @@ struct space_info
     space_settings Settings;
     bool Initialized;
     bool Managed;
+    bool NeedsUpdate;
 
     tree_node *RootNode;
     int FocusedWindowID;

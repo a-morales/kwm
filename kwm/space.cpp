@@ -246,6 +246,7 @@ void FloatFocusedSpace()
 
         Space->Settings.Mode = SpaceModeFloating;
         Space->Initialized = true;
+        Space->NeedsUpdate = false;
         ClearFocusedWindow();
     }
 }
@@ -286,6 +287,10 @@ void UpdateActiveSpace()
 
         Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         UpdateActiveWindowList(KWMScreen.Current);
+
+        if (Space->NeedsUpdate)
+            UpdateSpaceOfScreen(Space, KWMScreen.Current);
+
         if(Space->FocusedWindowID != 0)
         {
             FocusWindowByID(Space->FocusedWindowID);

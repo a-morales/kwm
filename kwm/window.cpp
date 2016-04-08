@@ -344,6 +344,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         }
 
         Space->Initialized = true;
+        Space->NeedsUpdate = false;
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
     }
     else if(Space->Initialized)
