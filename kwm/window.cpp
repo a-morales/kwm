@@ -1589,30 +1589,27 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     Assert(WindowRef)
     Assert(Window)
 
-    if(IsWindowResizable(WindowRef) && IsWindowMovable(WindowRef))
-    {
-        CGPoint WindowPos = CGPointMake(X, Y);
-        CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
+    CGPoint WindowPos = CGPointMake(X, Y);
+    CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
 
-        CGSize WindowSize = CGSizeMake(Width, Height);
-        CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
+    CGSize WindowSize = CGSizeMake(Width, Height);
+    CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
 
-        if(!NewWindowPos || !NewWindowSize)
-            return;
+    if(!NewWindowPos || !NewWindowSize)
+        return;
 
-        AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-        AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-        CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
+    AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
+    AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+    CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
 
-        Window->X = X;
-        Window->Y = Y;
-        Window->Width = Width;
-        Window->Height = Height;
+    Window->X = X;
+    Window->Y = Y;
+    Window->Width = Width;
+    Window->Height = Height;
 
-        DEBUG("SetWindowDimensions() Update window dimensions")
-        CFRelease(NewWindowPos);
-        CFRelease(NewWindowSize);
-    }
+    DEBUG("SetWindowDimensions() Update window dimensions")
+    CFRelease(NewWindowPos);
+    CFRelease(NewWindowSize);
 }
 
 void CenterWindow(screen_info *Screen, window_info *Window)
@@ -1653,13 +1650,17 @@ void MoveFloatingWindow(int X, int Y)
 
 bool IsWindowTilable(window_info *Window)
 {
-    bool Result = false;
-    AXUIElementRef WindowRef;
-    if(GetWindowRef(Window, &WindowRef))
-        Result = IsWindowTilable(WindowRef);
+    bool Result = true;
 
-    if(KWMTiling.FloatNonResizable && !Result && !IsWindowFloating(Window->WID, NULL))
+    AXUIElementRef WindowRef;
+    if(KWMTiling.FloatNonResizable)
+    {
+        if(GetWindowRef(Window, &WindowRef))
+            Result = IsWindowTilable(WindowRef);
+
+        if(!Result && !IsWindowFloating(Window->WID, NULL))
             KWMTiling.FloatingWindowLst.push_back(Window->WID);
+    }
 
     return Result;
 }
