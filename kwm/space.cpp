@@ -246,6 +246,7 @@ void FloatFocusedSpace()
 
         Space->Settings.Mode = SpaceModeFloating;
         Space->Initialized = true;
+        Space->NeedsUpdate = false;
         ClearFocusedWindow();
     }
 }
@@ -324,6 +325,10 @@ void UpdateActiveSpace()
         ClearFocusedWindow();
         ClearMarkedWindow();
         DestroyApplicationNotifications();
+    }
+    else if (Space->NeedsUpdate)
+    {
+        UpdateSpaceOfScreen(Space, KWMScreen.Current);
     }
 
     KWMScreen.Transitioning = false;

@@ -51,9 +51,15 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
         UpdateExistingScreenInfo(Screen, Display, Screen->ID);
         std::map<int, space_info>::iterator It;
         for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
-            UpdateSpaceOfScreen(&It->second, Screen);
+        {
+            if (It->second.Managed || It->second.Settings.Mode == SpaceModeFloating) {
+                if (It->first == Screen->ActiveSpace)
+                    UpdateSpaceOfScreen(&It->second, Screen);
+                else
+                    It->second.NeedsUpdate = true;
+            }
+        }
     }
-
     pthread_mutex_unlock(&KWMThread.Lock);
 }
 
@@ -220,6 +226,7 @@ void UpdateSpaceOfScreen(space_info *Space, screen_info *Screen)
         }
 
         ApplyTreeNodeContainer(Space->RootNode);
+        Space->NeedsUpdate = false;
     }
 }
 
