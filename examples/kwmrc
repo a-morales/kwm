@@ -1,22 +1,32 @@
 # This is a sample config for Kwm
-# The commands listed here can be of
-# two types.
-#
+
 # Commands prefixed with 'kwmc' will call
 # local functions corresponding to the
 # kwmc syntax.
-#
+
 # To run a system command, use the prefix
 # 'sys' and then the requested command
 # e.g 'sys mvim' would open macvim
 
 # Read file and execute commands as
 # if they were written inside kwmrc.
-#
+
 # include filename
-#
+
 # e.g: bind-commands in a separate file called 'binds'
 # include binds
+
+# Create variables that can be used in the below commands.
+# Variables are in file-scope and must be defined before
+# they can be used. Re-definition is also possible.
+# Variable names can not contain whitespace, where as
+# the value can.
+
+# define variable value
+
+# e.g: create a variable for the hyper-key
+# define hyper cmd+ctrl+alt+shift
+# kwmc bind hyper-h window -f west
 
 # Set default values for screen padding
 kwmc config padding 40 20 20 20
