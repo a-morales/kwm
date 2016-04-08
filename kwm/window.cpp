@@ -1651,10 +1651,9 @@ void MoveFloatingWindow(int X, int Y)
 bool IsWindowTilable(window_info *Window)
 {
     bool Result = true;
-
-    AXUIElementRef WindowRef;
     if(KWMTiling.FloatNonResizable)
     {
+        AXUIElementRef WindowRef;
         if(GetWindowRef(Window, &WindowRef))
             Result = IsWindowTilable(WindowRef);
 
