@@ -17,6 +17,8 @@ void KwmExecuteInitScript();
 void KwmExecuteFile(std::string File);
 void KwmReloadConfig();
 void KwmClearSettings();
+void KwmSubstitueVariables(std::map<std::string, std::string> &Defines, std::string &Line);
+void KwmDefineVariable(std::map<std::string, std::string> &Defines, std::string Line);
 
 void KwmInit();
 void KwmQuit();

@@ -109,6 +109,30 @@ void * KwmWindowMonitor(void*)
     }
 }
 
+void KwmDefineVariable(std::map<std::string, std::string> &Defines, std::string Line)
+{
+    std::vector<std::string> Tokens = SplitString(Line, ' ');
+    std::string Value = CreateStringFromTokens(Tokens, 1);
+    Defines[Tokens[0]] = Value;
+}
+
+void KwmSubstitueVariables(std::map<std::string, std::string> &Defines, std::string &Line)
+{
+    if(Line.substr(0, 6) == "define")
+        return;
+
+    std::map<std::string, std::string>::iterator It;
+    for(It = Defines.begin(); It != Defines.end(); ++It)
+    {
+        std::size_t Pos = Line.find(It->first);
+        if(Pos != std::string::npos)
+        {
+            DEBUG("Replacing " << It->first << " with " << It->second)
+            Line.replace(Pos, It->first.size(), It->second);
+        }
+    }
+}
+
 void KwmReloadConfig()
 {
     KwmClearSettings();
@@ -165,16 +189,20 @@ void KwmExecuteFile(std::string File)
     }
 
     std::string Line;
+    std::map<std::string, std::string> Defines;
     while(std::getline(FileHandle, Line))
     {
         if(!Line.empty() && Line[0] != '#')
         {
+            KwmSubstitueVariables(Defines, Line);
             if(IsPrefixOfString(Line, "kwmc"))
                 KwmInterpretCommand(Line, 0);
             else if(IsPrefixOfString(Line, "sys"))
                 KwmExecuteThreadedSystemCommand(Line);
             else if(IsPrefixOfString(Line, "include"))
                 KwmExecuteFile(Line);
+            else if(IsPrefixOfString(Line, "define"))
+                KwmDefineVariable(Defines, Line);
         }
     }
 
