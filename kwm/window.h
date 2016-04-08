@@ -69,7 +69,10 @@ void SetWindowFocus(window_info *Window);
 void SetWindowFocusByNode(tree_node *Node);
 void SetWindowFocusByNode(link_node *Link);
 
-bool IsWindowNonResizable(AXUIElementRef WindowRef, window_info *Window, CFTypeRef NewWindowPos, CFTypeRef NewWindowSize);
+bool IsWindowTilable(window_info *Window);
+bool IsWindowTilable(AXUIElementRef WindowRef);
+bool IsWindowResizable(AXUIElementRef WindowRef);
+bool IsWindowMovable(AXUIElementRef WindowRef);
 void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Yptr, int *Wptr, int *Hptr);
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);

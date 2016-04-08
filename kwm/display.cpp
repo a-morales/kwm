@@ -195,7 +195,8 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
     for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
     {
         window_info *Window = &KWMTiling.WindowLst[WindowIndex];
-        if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]) &&
+        if(IsWindowTilable(Window) &&
+           !IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]) &&
            !IsWindowFloating(KWMTiling.WindowLst[WindowIndex].WID, NULL))
         {
             if(Screen == GetDisplayOfWindow(Window))

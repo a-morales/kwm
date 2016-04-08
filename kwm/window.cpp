@@ -393,20 +393,17 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
             if(!GetTreeNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID) &&
-               !GetLinkNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID))
+               !GetLinkNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID) &&
+               IsWindowTilable(&KWMTiling.WindowLst[WindowIndex]))
             {
-                if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]) &&
-                   !IsWindowFloating(KWMTiling.WindowLst[WindowIndex].WID, NULL))
-                {
-                    DEBUG("ShouldBSPTreeUpdate() Add Window")
-                    tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
-                    if(Insert && (Insert->WindowID = KWMTiling.WindowLst[WindowIndex].WID))
-                        ApplyTreeNodeContainer(Insert);
-                    else
-                        AddWindowToBSPTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
+                DEBUG("ShouldBSPTreeUpdate() Add Window")
+                tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
+                if(Insert && (Insert->WindowID = KWMTiling.WindowLst[WindowIndex].WID))
+                    ApplyTreeNodeContainer(Insert);
+                else
+                    AddWindowToBSPTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
 
-                    FocusWindow = &KWMTiling.WindowLst[WindowIndex];
-                }
+                FocusWindow = &KWMTiling.WindowLst[WindowIndex];
             }
         }
 
@@ -662,14 +659,12 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
         DEBUG("ShouldMonocleTreeUpdate() Add Window")
         for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
         {
-            if(!GetLinkNodeFromTree(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID))
+            if(!GetLinkNodeFromTree(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID) &&
+                IsWindowTilable(&KWMTiling.WindowLst[WindowIndex]))
             {
-                if(!IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]))
-                {
-                    AddWindowToMonocleTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
-                    SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
-                    MoveCursorToCenterOfFocusedWindow();
-                }
+                AddWindowToMonocleTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
+                SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
+                MoveCursorToCenterOfFocusedWindow();
             }
         }
     }
@@ -1550,38 +1545,6 @@ void SetWindowFocusByNode(link_node *Link)
     }
 }
 
-bool IsWindowNonResizable(AXUIElementRef WindowRef, window_info *Window, CFTypeRef NewWindowPos, CFTypeRef NewWindowSize)
-{
-    Assert(WindowRef)
-    Assert(Window)
-
-    AXError PosError = kAXErrorFailure;
-    AXError SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-    if(SizeError == kAXErrorSuccess)
-    {
-        PosError = AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-        SizeError = AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-    }
-
-    if(PosError != kAXErrorSuccess || SizeError != kAXErrorSuccess)
-    {
-        KWMTiling.FloatingWindowLst.push_back(Window->WID);
-        screen_info *Screen = GetDisplayOfWindow(Window);
-        if(DoesSpaceExistInMapOfScreen(Screen))
-        {
-            space_info *Space = GetActiveSpaceOfScreen(Screen);
-            if(Space->Settings.Mode == SpaceModeBSP)
-                RemoveWindowFromBSPTree(Screen, Window->WID, false, false);
-            else if(Space->Settings.Mode == SpaceModeMonocle)
-                RemoveWindowFromMonocleTree(Screen, Window->WID, false);
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
 void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Yptr, int *Wptr, int *Hptr)
 {
     CGPoint WindowOrigin = GetWindowPos(WindowRef);
@@ -1623,45 +1586,33 @@ void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Y
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)
 {
-    CGPoint WindowPos = CGPointMake(X, Y);
-    CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
-
-    CGSize WindowSize = CGSizeMake(Width, Height);
-    CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
-
-    if(!NewWindowPos || !NewWindowSize)
-        return;
-
     Assert(WindowRef)
     Assert(Window)
 
-    DEBUG("SetWindowDimensions()")
-    bool UpdateWindowInfo = true;
-    if(KWMTiling.FloatNonResizable)
+    if(IsWindowResizable(WindowRef) && IsWindowMovable(WindowRef))
     {
-        if(IsWindowNonResizable(WindowRef, Window, NewWindowPos, NewWindowSize))
-            UpdateWindowInfo = false;
-        else
-            CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
+        CGPoint WindowPos = CGPointMake(X, Y);
+        CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
 
-    }
-    else
-    {
+        CGSize WindowSize = CGSizeMake(Width, Height);
+        CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
+
+        if(!NewWindowPos || !NewWindowSize)
+            return;
+
         AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
         AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
         CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
-    }
 
-    if(UpdateWindowInfo)
-    {
         Window->X = X;
         Window->Y = Y;
         Window->Width = Width;
         Window->Height = Height;
-    }
 
-    CFRelease(NewWindowPos);
-    CFRelease(NewWindowSize);
+        DEBUG("SetWindowDimensions() Update window dimensions")
+        CFRelease(NewWindowPos);
+        CFRelease(NewWindowSize);
+    }
 }
 
 void CenterWindow(screen_info *Screen, window_info *Window)
@@ -1698,6 +1649,45 @@ void MoveFloatingWindow(int X, int Y)
             CFRelease(NewWindowPos);
         }
     }
+}
+
+bool IsWindowTilable(window_info *Window)
+{
+    bool Result = false;
+    AXUIElementRef WindowRef;
+    if(GetWindowRef(Window, &WindowRef))
+        Result = IsWindowTilable(WindowRef);
+
+    if(KWMTiling.FloatNonResizable && !Result && !IsWindowFloating(Window->WID, NULL))
+            KWMTiling.FloatingWindowLst.push_back(Window->WID);
+
+    return Result;
+}
+
+bool IsWindowTilable(AXUIElementRef WindowRef)
+{
+
+    return IsWindowResizable(WindowRef) && IsWindowMovable(WindowRef);
+}
+
+bool IsWindowResizable(AXUIElementRef WindowRef)
+{
+    bool Result = false;
+    AXError Error = AXUIElementIsAttributeSettable(WindowRef, kAXSizeAttribute, (Boolean*)&Result);
+    if(Error != kAXErrorSuccess)
+        Result = false;
+
+    return Result;
+}
+
+bool IsWindowMovable(AXUIElementRef WindowRef)
+{
+    bool Result = false;
+    AXError Error = AXUIElementIsAttributeSettable(WindowRef, kAXPositionAttribute, (Boolean*)&Result);
+    if(Error != kAXErrorSuccess)
+        Result = false;
+
+    return Result;
 }
 
 std::string GetWindowTitle(AXUIElementRef WindowRef)
