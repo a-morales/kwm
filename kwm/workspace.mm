@@ -15,6 +15,7 @@ extern bool IsWindowFloating(int WindowID, int *Index);
 extern bool IsFocusedWindowFloating();
 extern void ClearFocusedWindow();
 extern void ClearMarkedWindow();
+extern bool FocusWindowOfOSX();
 
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
@@ -39,6 +40,11 @@ extern kwm_thread KWMThread;
                 selector:@selector(didActivateApplication:)
                 name:NSWorkspaceDidActivateApplicationNotification
                 object:nil];
+
+       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                selector:@selector(didLaunchApplication:)
+                name:NSWorkspaceDidLaunchApplicationNotification
+                object:nil];
     }
 
     return self;
@@ -53,6 +59,11 @@ extern kwm_thread KWMThread;
 - (void)activeSpaceDidChange:(NSNotification *)notification
 {
     UpdateActiveSpace();
+}
+
+- (void)didLaunchApplication:(NSNotification *)notification
+{
+    FocusWindowOfOSX();
 }
 
 - (void)didActivateApplication:(NSNotification *)notification
