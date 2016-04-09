@@ -314,6 +314,7 @@ struct kwm_mach
     CFRunLoopSourceRef RunLoopSource;
     CFMachPortRef EventTap;
     CGEventMask EventMask;
+    bool DisableEventTapInternal;
 };
 
 struct kwm_border
@@ -393,6 +394,7 @@ struct kwm_screen
 
 struct kwm_tiling
 {
+    bool MonitorWindows;
     double OptimalRatio;
     bool SpawnAsLeftChild;
     bool FloatNonResizable;

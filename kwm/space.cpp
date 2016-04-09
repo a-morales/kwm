@@ -74,7 +74,8 @@ void MoveWindowToSpace(std::string SpaceID)
     if(!KWMFocus.Window)
         return;
 
-    pthread_mutex_lock(&KWMThread.Lock);
+    KWMTiling.MonitorWindows = false;
+    KWMMach.DisableEventTapInternal = true;
     CGEventTapEnable(KWMMach.EventTap, false);
     DestroyApplicationNotifications();
 
@@ -118,15 +119,19 @@ void MoveWindowToSpace(std::string SpaceID)
     {
         screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
         space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-        if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
-            AddWindowToBSPTree(ScreenOfWindow, Window->WID);
-        else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
-            AddWindowToMonocleTree(ScreenOfWindow, Window->WID);
+        if(SpaceOfWindow->Initialized)
+        {
+            if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
+                AddWindowToBSPTree(ScreenOfWindow, Window->WID);
+            else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
+                AddWindowToMonocleTree(ScreenOfWindow, Window->WID);
+        }
     }
 
     CGWarpMouseCursorPosition(CursorPos);
     CGEventTapEnable(KWMMach.EventTap, true);
-    pthread_mutex_unlock(&KWMThread.Lock);
+    KWMMach.DisableEventTapInternal = false;
+    KWMTiling.MonitorWindows = true;
 }
 
 bool IsActiveSpaceFloating()

@@ -32,8 +32,11 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         case kCGEventTapDisabledByTimeout:
         case kCGEventTapDisabledByUserInput:
         {
-            DEBUG("Restarting Event Tap")
-            CGEventTapEnable(KWMMach.EventTap, true);
+            if(!KWMMach.DisableEventTapInternal)
+            {
+                DEBUG("Restarting Event Tap")
+                CGEventTapEnable(KWMMach.EventTap, true);
+            }
         } break;
         case kCGEventKeyDown:
         {
@@ -97,14 +100,18 @@ void * KwmWindowMonitor(void*)
 {
     while(1)
     {
-        pthread_mutex_lock(&KWMThread.Lock);
-        CheckPrefixTimeout();
+        if(KWMTiling.MonitorWindows)
+        {
+            pthread_mutex_lock(&KWMThread.Lock);
+            CheckPrefixTimeout();
 
-        if(!IsSpaceTransitionInProgress() &&
-           IsActiveSpaceManaged())
-            UpdateWindowTree();
+            if(!IsSpaceTransitionInProgress() &&
+               IsActiveSpaceManaged())
+                UpdateWindowTree();
 
-        pthread_mutex_unlock(&KWMThread.Lock);
+            pthread_mutex_unlock(&KWMThread.Lock);
+        }
+
         usleep(200000);
     }
 }
@@ -276,6 +283,7 @@ void KwmInit()
     KWMToggles.UseMouseFollowsFocus = true;
     KWMTiling.OptimalRatio = 1.618;
     KWMTiling.LockToContainer = true;
+    KWMTiling.MonitorWindows = true;
 
     KWMMode.Space = SpaceModeBSP;
     KWMMode.Focus = FocusModeAutoraise;
