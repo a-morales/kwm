@@ -80,6 +80,8 @@ void GoToPreviousSpace(bool MoveFocusedWindow)
 
         int Workspace = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, CGSpaceID);
         std::string WorkspaceStr = std::to_string(Workspace);
+        KWMScreen.Current->TrackSpaceChange = false;
+
         if(MoveFocusedWindow)
             MoveWindowToSpace(WorkspaceStr);
         else
@@ -299,7 +301,10 @@ void UpdateActiveSpace()
     if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
     {
         DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
-        KWMScreen.Current->History.push(KWMScreen.PrevSpace);
+        if(KWMScreen.Current->TrackSpaceChange)
+            KWMScreen.Current->History.push(KWMScreen.PrevSpace);
+        else
+            KWMScreen.Current->TrackSpaceChange = true;
 
         Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         UpdateActiveWindowList(KWMScreen.Current);

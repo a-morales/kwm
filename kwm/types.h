@@ -306,6 +306,7 @@ struct screen_info
     space_settings Settings;
 
     int ActiveSpace;
+    bool TrackSpaceChange;
     std::stack<int> History;
     std::map<int, space_info> Space;
 };

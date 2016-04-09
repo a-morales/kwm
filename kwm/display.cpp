@@ -73,6 +73,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
     Screen.Identifier = NULL;
     Screen.ID = ScreenIndex;
     Screen.ActiveSpace = -1;
+    Screen.TrackSpaceChange = true;
 
     Screen.X = DisplayRect.origin.x;
     Screen.Y = DisplayRect.origin.y;
