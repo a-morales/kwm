@@ -71,8 +71,10 @@ void GetTagForCurrentSpace(std::string &Tag)
 
 void GoToPreviousSpace(bool MoveFocusedWindow)
 {
-    Assert(KWMScreen.Current)
+    if(IsSpaceTransitionInProgress())
+        return;
 
+    Assert(KWMScreen.Current)
     if(!KWMScreen.Current->History.empty())
     {
         int CGSpaceID = KWMScreen.Current->History.top();
@@ -124,6 +126,11 @@ void MoveWindowToSpace(std::string SpaceID)
 
     KwmEmitKeystroke(KWMHotkeys.SpacesKey, SpaceID);
     usleep(300000);
+
+    if(KWMScreen.Current->TrackSpaceChange)
+        KWMScreen.Current->History.push(KWMScreen.Current->ActiveSpace);
+    else
+        KWMScreen.Current->TrackSpaceChange = true;
 
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
