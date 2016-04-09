@@ -22,6 +22,7 @@ void TileFocusedSpace(space_tiling_option Mode);
 void FloatFocusedSpace();
 void UpdateActiveSpace();
 
+void GoToPreviousSpace(bool MoveFocusedWindow);
 void MoveWindowToSpace(std::string SpaceID);
 space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID);
 

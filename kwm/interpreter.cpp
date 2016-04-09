@@ -630,7 +630,10 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
 
         if(Tokens[2] == "space")
         {
-            MoveWindowToSpace(Tokens[3]);
+            if(Tokens[3] == "previous")
+                GoToPreviousSpace(true);
+            else
+                MoveWindowToSpace(Tokens[3]);
         }
         else if(Tokens[2] == "display")
         {
@@ -699,7 +702,10 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "-f")
     {
-        KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[2]);
+        if(Tokens[2] == "previous")
+            GoToPreviousSpace(false);
+        else
+            KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[2]);
     }
     else if(Tokens[1] == "-t")
     {

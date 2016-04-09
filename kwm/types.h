@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <stack>
 #include <map>
 #include <fstream>
 #include <sstream>
@@ -305,6 +306,7 @@ struct screen_info
     space_settings Settings;
 
     int ActiveSpace;
+    std::stack<int> History;
     std::map<int, space_info> Space;
 };
 
