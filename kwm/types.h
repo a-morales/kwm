@@ -305,7 +305,6 @@ struct screen_info
     space_settings Settings;
 
     int ActiveSpace;
-    int OldWindowListCount;
     std::map<int, space_info> Space;
 };
 

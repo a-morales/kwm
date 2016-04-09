@@ -26,6 +26,10 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
 void ShouldWindowNodeTreeUpdate(screen_info *Screen);
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window, bool UpdateFocus);
 
+std::vector<int> GetAllWindowIDsInTree(space_info *Space);
+std::vector<window_info*> GetAllWindowsNotInTree(std::vector<int> &WindowIDsInTree);
+std::vector<int> GetAllWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree);
+
 void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space);
 void AddWindowToBSPTree(screen_info *Screen, int WindowID);
 void AddWindowToBSPTree();

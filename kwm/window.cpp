@@ -292,9 +292,7 @@ void UpdateActiveWindowList(screen_info *Screen)
     static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly |
                                                     kCGWindowListExcludeDesktopElements;
 
-    Screen->OldWindowListCount = KWMTiling.WindowLst.size();
     KWMTiling.WindowLst.clear();
-
     CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
     if(!OsxWindowLst)
         return;
@@ -314,6 +312,85 @@ void UpdateActiveWindowList(screen_info *Screen)
         CheckWindowRules(&KWMTiling.WindowLst[Index]);
 
     KWMTiling.FocusLst = KWMTiling.WindowLst;
+}
+
+std::vector<int> GetAllWindowIDsInTree(space_info *Space)
+{
+    std::vector<int> Windows;
+    if(Space->Settings.Mode == SpaceModeBSP)
+    {
+        tree_node *CurrentNode = NULL;
+        GetFirstLeafNode(Space->RootNode, (void**)&CurrentNode);
+        while(CurrentNode)
+        {
+            if(CurrentNode->WindowID != -1)
+                Windows.push_back(CurrentNode->WindowID);
+
+            link_node *Link = CurrentNode->List;
+            while(Link)
+            {
+                Windows.push_back(Link->WindowID);
+                Link = Link->Next;
+            }
+
+            CurrentNode = GetNearestTreeNodeToTheRight(CurrentNode);
+        }
+    }
+    else if(Space->Settings.Mode == SpaceModeMonocle)
+    {
+        link_node *Link = Space->RootNode->List;
+        while(Link)
+        {
+            Windows.push_back(Link->WindowID);
+            Link = Link->Next;
+        }
+    }
+
+    return Windows;
+}
+
+std::vector<window_info*> GetAllWindowsNotInTree(std::vector<int> &WindowIDsInTree)
+{
+    std::vector<window_info*> Windows;
+    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
+    {
+        bool Found = false;
+        for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
+        {
+            if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
+            {
+                Found = true;
+                break;
+            }
+        }
+
+        if(!Found)
+            Windows.push_back(&KWMTiling.WindowLst[WindowIndex]);
+    }
+
+    return Windows;
+}
+
+std::vector<int> GetAllWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree)
+{
+    std::vector<int> Windows;
+    for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
+    {
+        bool Found = false;
+        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
+        {
+            if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
+            {
+                Found = true;
+                break;
+            }
+        }
+
+        if(!Found)
+            Windows.push_back(WindowIDsInTree[IDIndex]);
+    }
+
+    return Windows;
 }
 
 void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)
@@ -387,74 +464,36 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 
 void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
 {
-    if(KWMTiling.WindowLst.size() > Screen->OldWindowListCount)
+    std::vector<int> WindowIDsInTree = GetAllWindowIDsInTree(Space);
+    std::vector<window_info*> WindowsToAdd = GetAllWindowsNotInTree(WindowIDsInTree);
+    std::vector<int> WindowsToRemove = GetAllWindowIDsToRemoveFromTree(WindowIDsInTree);
+
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowsToRemove.size(); ++WindowIndex)
     {
-        window_info *FocusWindow = NULL;
-        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-        {
-            if(!GetTreeNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID) &&
-               !GetLinkNodeFromWindowID(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID) &&
-               IsWindowTilable(&KWMTiling.WindowLst[WindowIndex]))
-            {
-                DEBUG("ShouldBSPTreeUpdate() Add Window")
-                tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
-                if(Insert && (Insert->WindowID = KWMTiling.WindowLst[WindowIndex].WID))
-                    ApplyTreeNodeContainer(Insert);
-                else
-                    AddWindowToBSPTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
+        DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowsToRemove[WindowIndex])
+        RemoveWindowFromBSPTree(Screen, WindowsToRemove[WindowIndex], false, true);
+    }
 
-                FocusWindow = &KWMTiling.WindowLst[WindowIndex];
-            }
-        }
-
-        if(FocusWindow)
+    window_info *FocusWindow = NULL;
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
+    {
+        if(IsWindowTilable(WindowsToAdd[WindowIndex]))
         {
-            SetWindowFocus(FocusWindow);
-            MoveCursorToCenterOfFocusedWindow();
+            DEBUG("ShouldBSPTreeUpdate() Add Window")
+            tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
+            if(Insert && (Insert->WindowID = WindowsToAdd[WindowIndex]->WID))
+                ApplyTreeNodeContainer(Insert);
+            else
+                AddWindowToBSPTree(Screen, WindowsToAdd[WindowIndex]->WID);
+
+            FocusWindow = WindowsToAdd[WindowIndex];
         }
     }
-    else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
+
+    if(FocusWindow)
     {
-        std::vector<int> WindowIDsInTree;
-
-        tree_node *CurrentNode = NULL;
-        GetFirstLeafNode(Space->RootNode, (void**)&CurrentNode);
-        while(CurrentNode)
-        {
-            if(CurrentNode->WindowID != -1)
-                WindowIDsInTree.push_back(CurrentNode->WindowID);
-
-            link_node *Link = CurrentNode->List;
-            while(Link)
-            {
-                WindowIDsInTree.push_back(Link->WindowID);
-                Link = Link->Next;
-            }
-
-            CurrentNode = GetNearestTreeNodeToTheRight(CurrentNode);
-        }
-
-        for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
-        {
-            bool Found = false;
-            for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-            {
-                if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
-                {
-                    Found = true;
-                    break;
-                }
-            }
-
-            if(!Found)
-            {
-                DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowIDsInTree[IDIndex])
-                RemoveWindowFromBSPTree(Screen, WindowIDsInTree[IDIndex], false, true);
-            }
-        }
-
-        if(!KWMFocus.Window)
-            FocusWindowOfOSX();
+        SetWindowFocus(FocusWindow);
+        MoveCursorToCenterOfFocusedWindow();
     }
 }
 
@@ -654,48 +693,24 @@ void RemoveWindowFromBSPTree()
 
 void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
 {
-    if(KWMTiling.WindowLst.size() > Screen->OldWindowListCount)
+    std::vector<int> WindowIDsInTree = GetAllWindowIDsInTree(Space);
+    std::vector<window_info*> WindowsToAdd = GetAllWindowsNotInTree(WindowIDsInTree);
+    std::vector<int> WindowsToRemove = GetAllWindowIDsToRemoveFromTree(WindowIDsInTree);
+
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowsToRemove.size(); ++WindowIndex)
     {
-        DEBUG("ShouldMonocleTreeUpdate() Add Window")
-        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-        {
-            if(!GetLinkNodeFromTree(Space->RootNode, KWMTiling.WindowLst[WindowIndex].WID) &&
-                IsWindowTilable(&KWMTiling.WindowLst[WindowIndex]))
-            {
-                AddWindowToMonocleTree(Screen, KWMTiling.WindowLst[WindowIndex].WID);
-                SetWindowFocus(&KWMTiling.WindowLst[WindowIndex]);
-                MoveCursorToCenterOfFocusedWindow();
-            }
-        }
+        DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowsToRemove[WindowIndex])
+        RemoveWindowFromMonocleTree(Screen, WindowsToRemove[WindowIndex], false);
     }
-    else if(KWMTiling.WindowLst.size() < Screen->OldWindowListCount)
+
+    for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
     {
-        std::vector<int> WindowIDsInTree;
-
-        link_node *Link = Space->RootNode->List;
-        while(Link)
+        if(IsWindowTilable(WindowsToAdd[WindowIndex]))
         {
-            WindowIDsInTree.push_back(Link->WindowID);
-            Link = Link->Next;
-        }
-
-        for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
-        {
-            bool Found = false;
-            for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-            {
-                if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
-                {
-                    Found = true;
-                    break;
-                }
-            }
-
-            if(!Found)
-            {
-                DEBUG("ShouldMonocleTreeUpdate() Remove Window")
-                RemoveWindowFromMonocleTree(Screen, WindowIDsInTree[IDIndex], true);
-            }
+            DEBUG("ShouldMonocleTreeUpdate() Add Window")
+            AddWindowToMonocleTree(Screen, WindowsToAdd[WindowIndex]->WID);
+            SetWindowFocus(WindowsToAdd[WindowIndex]);
+            MoveCursorToCenterOfFocusedWindow();
         }
     }
 }
