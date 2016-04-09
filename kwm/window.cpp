@@ -477,7 +477,9 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
     window_info *FocusWindow = NULL;
     for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
     {
-        if(IsWindowTilable(WindowsToAdd[WindowIndex]))
+        if(IsWindowTilable(WindowsToAdd[WindowIndex]) &&
+           !IsWindowFloating(WindowsToAdd[WindowIndex]->WID, NULL) &&
+           !IsApplicationFloating(WindowsToAdd[WindowIndex]))
         {
             DEBUG("ShouldBSPTreeUpdate() Add Window")
             tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
@@ -705,7 +707,9 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
 
     for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
     {
-        if(IsWindowTilable(WindowsToAdd[WindowIndex]))
+        if(IsWindowTilable(WindowsToAdd[WindowIndex]) &&
+           !IsWindowFloating(WindowsToAdd[WindowIndex]->WID, NULL) &&
+           !IsApplicationFloating(WindowsToAdd[WindowIndex]))
         {
             DEBUG("ShouldMonocleTreeUpdate() Add Window")
             AddWindowToMonocleTree(Screen, WindowsToAdd[WindowIndex]->WID);
