@@ -52,14 +52,16 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
         std::map<int, space_info>::iterator It;
         for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
         {
-            if (It->second.Managed || It->second.Settings.Mode == SpaceModeFloating) {
-                if (It->first == Screen->ActiveSpace)
+            if(It->second.Managed || It->second.Settings.Mode == SpaceModeFloating)
+            {
+                if(It->first == Screen->ActiveSpace)
                     UpdateSpaceOfScreen(&It->second, Screen);
                 else
                     It->second.NeedsUpdate = true;
             }
         }
     }
+
     pthread_mutex_unlock(&KWMThread.Lock);
 }
 
@@ -71,7 +73,6 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
     Screen.Identifier = NULL;
     Screen.ID = ScreenIndex;
     Screen.ActiveSpace = -1;
-    Screen.OldWindowListCount = -1;
 
     Screen.X = DisplayRect.origin.x;
     Screen.Y = DisplayRect.origin.y;

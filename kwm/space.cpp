@@ -288,7 +288,7 @@ void UpdateActiveSpace()
         Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         UpdateActiveWindowList(KWMScreen.Current);
 
-        if (Space->NeedsUpdate)
+        if(Space->NeedsUpdate)
             UpdateSpaceOfScreen(Space, KWMScreen.Current);
 
         if(Space->FocusedWindowID != 0)
