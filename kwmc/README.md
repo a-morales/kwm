@@ -208,7 +208,7 @@ man kwmc
 
         Move window to a different space
             kwmc window -m space <opt>
-            <opt>: workspace_id | left | right
+            <opt>: workspace_id | previous | left | right
 
         Move window to an external display
             kwmc window -m display <opt>
@@ -224,7 +224,7 @@ man kwmc
 
         Change focus between spaces
             kwmc space -f <opt>
-            <opt>: workspace_id
+            <opt>: workspace_id | previous | left | right
 
         Set tiling mode of space
             kwmc space -t <opt>
