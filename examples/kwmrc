@@ -221,7 +221,7 @@ kwmc bind prefix-p space -p increase all
 
 # Decrease Screen Padding
 kwmc bind prefix+shift-left space -p decrease left
-kwmc bind prefix+shift-right space -o decrease right
+kwmc bind prefix+shift-right space -p decrease right
 kwmc bind prefix+shift-up space -p decrease top
 kwmc bind prefix+shift-down space -p decrease bottom
 kwmc bind prefix+shift-p space -p decrease all
