@@ -1,4 +1,4 @@
-## Brief Description
+## Brief Description [![Build Status](https://travis-ci.org/koekeishiya/kwm.svg?branch=master)](https://travis-ci.org/koekeishiya/kwm)
 
 **WARNING:** The master branch is considered bleeding edge and changes may break configurations at any time! Check the latest release for a stable version.
 
