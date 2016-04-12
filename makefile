@@ -1,7 +1,8 @@
 DEBUG_BUILD   = -DDEBUG_BUILD -g
 FRAMEWORKS    = -framework ApplicationServices -framework Carbon -framework Cocoa
-SWIFT_STATIC  = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift_static/macosx
-SDK_ROOT      = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
+DEVELOPER_DIR = $(shell xcode-select -p)
+SWIFT_STATIC  = $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift_static/macosx
+SDK_ROOT      = $(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
 KWM_SRCS      = kwm/kwm.cpp kwm/container.cpp kwm/node.cpp kwm/tree.cpp kwm/window.cpp kwm/application.cpp kwm/display.cpp kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp kwm/space.cpp kwm/border.cpp kwm/notifications.cpp kwm/workspace.mm kwm/serializer.cpp kwm/tokenizer.cpp kwm/rules.cpp
 KWM_OBJS_TMP  = $(KWM_SRCS:.cpp=.o)
 KWM_OBJS      = $(KWM_OBJS_TMP:.mm=.o)
