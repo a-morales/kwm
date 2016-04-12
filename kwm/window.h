@@ -33,12 +33,12 @@ std::vector<int> GetAllWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTr
 void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space);
 void AddWindowToBSPTree(screen_info *Screen, int WindowID);
 void AddWindowToBSPTree();
-void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool Refresh);
+void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus);
 void RemoveWindowFromBSPTree();
 
 void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space);
 void AddWindowToMonocleTree(screen_info *Screen, int WindowID);
-void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center);
+void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus);
 
 void ToggleWindowFloating(int WindowID, bool Center);
 void ToggleFocusedWindowFloating();

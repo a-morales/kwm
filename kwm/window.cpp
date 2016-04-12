@@ -653,7 +653,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
         ApplyTreeNodeContainer(Parent);
         if(Center)
         {
-            window_info *WindowInfo = GetWindowByID(WindowNode->WindowID);
+            window_info *WindowInfo = GetWindowByID(WindowID);
             if(WindowInfo)
                 CenterWindow(Screen, WindowInfo);
         }
@@ -702,7 +702,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
     for(std::size_t WindowIndex = 0; WindowIndex < WindowsToRemove.size(); ++WindowIndex)
     {
         DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowsToRemove[WindowIndex])
-        RemoveWindowFromMonocleTree(Screen, WindowsToRemove[WindowIndex], false);
+        RemoveWindowFromMonocleTree(Screen, WindowsToRemove[WindowIndex], false, true);
     }
 
     for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
@@ -739,7 +739,7 @@ void AddWindowToMonocleTree(screen_info *Screen, int WindowID)
     ResizeWindowToContainerSize(NewLink);
 }
 
-void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool UpdateFocus)
+void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus)
 {
     if(!DoesSpaceExistInMapOfScreen(Screen))
         return;
@@ -770,6 +770,13 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool UpdateF
             free(Link);
         }
 
+        if(Center)
+        {
+            window_info *WindowInfo = GetWindowByID(WindowID);
+            if(WindowInfo)
+                CenterWindow(Screen, WindowInfo);
+        }
+
         if(UpdateFocus)
         {
             SetWindowFocusByNode(NewFocusNode);
@@ -788,7 +795,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
     if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
         RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
     else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
-        RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
+        RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false, false);
 
     if(Window->WID == KWMScreen.MarkedWindow)
         ClearMarkedWindow();
@@ -860,9 +867,9 @@ void ToggleWindowFloating(int WindowID, bool Center)
         {
             KWMTiling.FloatingWindowLst.push_back(WindowID);
             if(Space->Settings.Mode == SpaceModeBSP)
-                RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, Center, Center);
+                RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, Center, false);
             else if(Space->Settings.Mode == SpaceModeMonocle)
-                RemoveWindowFromMonocleTree(KWMScreen.Current, WindowID, false);
+                RemoveWindowFromMonocleTree(KWMScreen.Current, WindowID, Center, false);
 
             if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
                 KWMMode.Focus = FocusModeStandby;
