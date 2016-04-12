@@ -111,7 +111,7 @@ void MoveWindowToSpace(std::string SpaceID)
         if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
             RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
         else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
-            RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false);
+            RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false, false);
     }
 
     CGPoint CursorPos = GetCursorPos();
