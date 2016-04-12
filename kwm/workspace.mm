@@ -209,3 +209,56 @@ int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID)
     CFRelease(ScreenDictionaries);
     return Result;
 }
+
+int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID)
+{
+    int Result = -1;
+    NSString *CurrentIdentifier = (__bridge NSString *)GetDisplayIdentifier(Screen);
+
+    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
+    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
+    {
+        int SpaceIndex = 1;
+        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
+        if ([ScreenIdentifier isEqualToString:CurrentIdentifier])
+        {
+            NSArray *Spaces = ScreenDictionary[@"Spaces"];
+            for(NSDictionary *SpaceDictionary in (__bridge NSArray *)Spaces)
+            {
+                if(SpaceIndex == SpaceID)
+                {
+                    Result = [SpaceDictionary[@"id64"] intValue];
+                    break;
+                }
+                ++SpaceIndex;
+            }
+        }
+    }
+
+    CFRelease(ScreenDictionaries);
+    return Result;
+}
+
+extern "C" int CGSRemoveWindowsFromSpaces(int cid, CFArrayRef windows, CFArrayRef spaces);
+extern "C" int CGSAddWindowsToSpaces(int cid, CFArrayRef windows, CFArrayRef spaces);
+void RemoveWindowFromSpace(int SpaceID, int WindowID)
+{
+    NSArray *NSArrayWindow = @[ @(WindowID) ];
+    NSArray *NSArraySourceSpace = @[ @(SpaceID) ];
+    CGSRemoveWindowsFromSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayWindow, (__bridge CFArrayRef)NSArraySourceSpace);
+}
+
+void AddWindowToSpace(int SpaceID, int WindowID)
+{
+    NSArray *NSArrayWindow = @[ @(WindowID) ];
+    NSArray *NSArrayDestinationSpace = @[ @(SpaceID) ];
+    CGSAddWindowsToSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayWindow, (__bridge CFArrayRef)NSArrayDestinationSpace);
+}
+
+void MoveWindowBetweenSpaces(int SourceSpaceID, int DestinationSpaceID, int WindowID)
+{
+    int SourceCGSpaceID = GetCGSpaceIDFromSpaceNumber(KWMScreen.Current, SourceSpaceID);
+    int DestinationCGSpaceID = GetCGSpaceIDFromSpaceNumber(KWMScreen.Current, DestinationSpaceID);
+    RemoveWindowFromSpace(SourceCGSpaceID, WindowID);
+    AddWindowToSpace(DestinationCGSpaceID, WindowID);
+}
