@@ -8,7 +8,7 @@
 #include "interpreter.h"
 #include "border.h"
 
-const std::string KwmCurrentVersion = "Kwm Version 2.0.3";
+const std::string KwmCurrentVersion = "Kwm Version 2.1.0";
 
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
