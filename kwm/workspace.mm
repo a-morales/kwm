@@ -21,12 +21,12 @@ extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
 extern kwm_thread KWMThread;
 
-@interface MDWorkspaceWatcher : NSObject {
+@interface WorkspaceWatcher : NSObject {
 }
 - (id)init;
 @end
 
-@implementation MDWorkspaceWatcher
+@implementation WorkspaceWatcher
 - (id)init
 {
     if ((self = [super init]))
@@ -125,8 +125,8 @@ extern kwm_thread KWMThread;
 
 void CreateWorkspaceWatcher(void *Watcher)
 {
-    MDWorkspaceWatcher *MDWatcher = [[MDWorkspaceWatcher alloc] init];
-    Watcher = (void*)MDWatcher;
+    WorkspaceWatcher *WSWatcher = [[WorkspaceWatcher alloc] init];
+    Watcher = (void*)WSWatcher;
 }
 
 CFStringRef GetDisplayIdentifier(screen_info *Screen)
@@ -241,6 +241,39 @@ int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID)
 
 extern "C" int CGSRemoveWindowsFromSpaces(int cid, CFArrayRef windows, CFArrayRef spaces);
 extern "C" int CGSAddWindowsToSpaces(int cid, CFArrayRef windows, CFArrayRef spaces);
+extern "C" void CGSHideSpaces(int cid, CFArrayRef spaces);
+extern "C" void CGSShowSpaces(int cid, CFArrayRef spaces);
+extern "C" void CGSManagedDisplaySetIsAnimating(int cid, CFStringRef display, bool animating);
+extern "C" void CGSManagedDisplaySetCurrentSpace(int cid, CFStringRef display, int space);
+
+void ActivateSpaceWithoutTransition(std::string SpaceID)
+{
+    if(KWMScreen.Current)
+    {
+        int TotalSpaces = GetNumberOfSpacesOfDisplay(KWMScreen.Current);
+        int ActiveSpace = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->ActiveSpace);
+        int DestinationSpaceID = ActiveSpace;
+        if(SpaceID == "left")
+            DestinationSpaceID = ActiveSpace > 1 ? ActiveSpace-1 : 1;
+        else if(SpaceID == "right")
+            DestinationSpaceID = ActiveSpace < TotalSpaces ? ActiveSpace+1 : TotalSpaces;
+        else
+            DestinationSpaceID = std::atoi(SpaceID.c_str());
+
+        if(DestinationSpaceID != ActiveSpace)
+        {
+            int CGSpaceID = GetCGSpaceIDFromSpaceNumber(KWMScreen.Current, DestinationSpaceID);
+            NSArray *NSArraySourceSpace = @[ @(KWMScreen.Current->ActiveSpace) ];
+            NSArray *NSArrayDestinationSpace = @[ @(CGSpaceID) ];
+            CGSManagedDisplaySetIsAnimating(CGSDefaultConnection, KWMScreen.Current->Identifier, true);
+            CGSShowSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayDestinationSpace);
+            CGSHideSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArraySourceSpace);
+            CGSManagedDisplaySetCurrentSpace(CGSDefaultConnection, KWMScreen.Current->Identifier, CGSpaceID);
+            CGSManagedDisplaySetIsAnimating(CGSDefaultConnection, KWMScreen.Current->Identifier, false);
+        }
+    }
+}
+
 void RemoveWindowFromSpace(int SpaceID, int WindowID)
 {
     NSArray *NSArrayWindow = @[ @(WindowID) ];

@@ -26,6 +26,7 @@ extern kwm_border PrefixBorder;
 extern kwm_hotkeys KWMHotkeys;
 
 void MoveFocusedWindowToSpace(std::string SpaceID);
+void ActivateSpaceWithoutTransition(std::string SpaceID);
 
 void KwmConfigCommand(std::vector<std::string> &Tokens)
 {
@@ -708,6 +709,10 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
             GoToPreviousSpace(false);
         else
             KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[2]);
+    }
+    else if(Tokens[1] == "-fExperimental")
+    {
+        ActivateSpaceWithoutTransition(Tokens[2]);
     }
     else if(Tokens[1] == "-t")
     {
