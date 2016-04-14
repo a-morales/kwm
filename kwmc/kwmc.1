@@ -242,6 +242,11 @@ Terminate kwm
             Change focus between spaces
             <opt>: workspace_id | previous | left | right
 .LP
+.B -fExperimental <opt>
+            Change focus between spaces, skipping transitions animation
+            (mission control does not update, requires `killall Dock`)
+            <opt>: workspace_id | previous | left | right
+.LP
 .B -t <opt>
             Set tiling mode of space
             <opt>: bsp | monocle | float
@@ -346,6 +351,9 @@ Terminate kwm
 .LP
 .B windows
             Get list of visible windows on active space
+.LP
+.B prev-space
+            Get id of previous active space for the focused display
 .RE
 .SH AUTHOR
 kwmc and kwm was written by koekeishiya <koekeishiya@hotmail.com>

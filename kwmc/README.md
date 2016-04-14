@@ -15,7 +15,7 @@ man kwmc
         Reload config ($HOME/.kwm/kwmrc)
             kwmc config reload
 
-        Set modifier used by OSX space-hotkeys
+        Set modifier used by OSX space-hotkeys (Used by `kwmc space -f ..`
             kwmc config spaces-key <opt>
             <opt>: mod+mod+mod
 
@@ -226,6 +226,11 @@ man kwmc
             kwmc space -f <opt>
             <opt>: workspace_id | previous | left | right
 
+        Change focus between spaces, skipping transitions animation
+        (mission control does not update, requires `killall Dock`)
+            kwmc space -fExperimental <opt>
+            <opt>: workspace_id | previous | left | right
+
         Set tiling mode of space
             kwmc space -t <opt>
             <opt>: bsp | monocle | float
@@ -323,3 +328,6 @@ man kwmc
 
         Get list of visible windows on active space
             kwmc query windows
+
+        Get id of previous active space for the focused display
+            kwmc query prev-space
