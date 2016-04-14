@@ -523,6 +523,14 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 
         KwmWriteToSocket(ClientSockFD, Output);
     }
+    else if(Tokens[1] == "prev-space")
+    {
+        std::string Output = "-1";
+        if(KWMScreen.Current && !KWMScreen.Current->History.empty())
+            Output = std::to_string(GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->History.top()));
+
+        KwmWriteToSocket(ClientSockFD, Output);
+    }
 }
 
 void KwmBindCommand(std::vector<std::string> &Tokens, bool Passthrough)
