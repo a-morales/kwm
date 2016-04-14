@@ -260,7 +260,8 @@ void ActivateSpaceWithoutTransition(std::string SpaceID)
         else
             DestinationSpaceID = std::atoi(SpaceID.c_str());
 
-        if(DestinationSpaceID != ActiveSpace)
+        if(DestinationSpaceID != ActiveSpace &&
+           DestinationSpaceID > 0 && DestinationSpaceID <= TotalSpaces)
         {
             int CGSpaceID = GetCGSpaceIDFromSpaceNumber(KWMScreen.Current, DestinationSpaceID);
             NSArray *NSArraySourceSpace = @[ @(KWMScreen.Current->ActiveSpace) ];
