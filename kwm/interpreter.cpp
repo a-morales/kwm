@@ -25,6 +25,8 @@ extern kwm_border MarkedBorder;
 extern kwm_border PrefixBorder;
 extern kwm_hotkeys KWMHotkeys;
 
+void MoveFocusedWindowToSpace(std::string SpaceID);
+
 void KwmConfigCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "reload")
@@ -633,7 +635,7 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
             if(Tokens[3] == "previous")
                 GoToPreviousSpace(true);
             else
-                MoveWindowToSpace(Tokens[3]);
+                MoveFocusedWindowToSpace(Tokens[3]);
         }
         else if(Tokens[2] == "display")
         {

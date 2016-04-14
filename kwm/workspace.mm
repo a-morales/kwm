@@ -262,3 +262,21 @@ void MoveWindowBetweenSpaces(int SourceSpaceID, int DestinationSpaceID, int Wind
     RemoveWindowFromSpace(SourceCGSpaceID, WindowID);
     AddWindowToSpace(DestinationCGSpaceID, WindowID);
 }
+
+void MoveFocusedWindowToSpace(std::string SpaceID)
+{
+    if(KWMScreen.Current && KWMFocus.Window)
+    {
+        int TotalSpaces = GetNumberOfSpacesOfDisplay(KWMScreen.Current);
+        int ActiveSpace = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->ActiveSpace);
+        int DestinationSpaceID = ActiveSpace;
+        if(SpaceID == "left")
+            DestinationSpaceID = ActiveSpace > 1 ? ActiveSpace-1 : 1;
+        else if(SpaceID == "right")
+            DestinationSpaceID = ActiveSpace < TotalSpaces ? ActiveSpace+1 : TotalSpaces;
+        else
+            DestinationSpaceID = std::atoi(SpaceID.c_str());
+
+        MoveWindowBetweenSpaces(ActiveSpace, DestinationSpaceID, KWMFocus.Window->WID);
+    }
+}

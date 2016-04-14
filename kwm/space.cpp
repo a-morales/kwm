@@ -85,72 +85,10 @@ void GoToPreviousSpace(bool MoveFocusedWindow)
         KWMScreen.Current->TrackSpaceChange = false;
 
         if(MoveFocusedWindow)
-            MoveWindowToSpace(WorkspaceStr);
+            MoveFocusedWindowToSpace(WorkspaceStr);
         else
             KwmEmitKeystroke(KWMHotkeys.SpacesKey, WorkspaceStr);
     }
-}
-
-void MoveWindowToSpace(std::string SpaceID)
-{
-    if(!KWMFocus.Window)
-        return;
-
-    KWMTiling.MonitorWindows = false;
-    KWMMach.DisableEventTapInternal = true;
-    CGEventTapEnable(KWMMach.EventTap, false);
-    int Result = pthread_mutex_trylock(&KWMThread.Lock);
-    DestroyApplicationNotifications();
-
-    window_info *Window = KWMFocus.Window;
-    bool WasWindowFloating = IsFocusedWindowFloating();
-    if(!WasWindowFloating)
-    {
-        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-        space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-        if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
-            RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
-        else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
-            RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false, false);
-    }
-
-    CGPoint CursorPos = GetCursorPos();
-    CGPoint WindowPos = GetWindowPos(Window);
-    CGPoint ClickPos = CGPointMake(WindowPos.x + 75, WindowPos.y + 7);
-
-    CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
-    CGEventSetFlags(ClickEvent, 0);
-    CGEventPost(kCGHIDEventTap, ClickEvent);
-    CFRelease(ClickEvent);
-    usleep(150000);
-
-    KwmEmitKeystroke(KWMHotkeys.SpacesKey, SpaceID);
-    usleep(300000);
-
-    if(KWMScreen.Current->TrackSpaceChange)
-        KWMScreen.Current->History.push(KWMScreen.Current->ActiveSpace);
-    else
-        KWMScreen.Current->TrackSpaceChange = true;
-
-    KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-    KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
-    ShouldActiveSpaceBeManaged();
-    UpdateActiveWindowList(KWMScreen.Current);
-
-    ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
-    CGEventSetFlags(ClickEvent, 0);
-    CGEventPost(kCGHIDEventTap, ClickEvent);
-    CFRelease(ClickEvent);
-    usleep(150000);
-
-    CreateApplicationNotifications();
-    CGWarpMouseCursorPosition(CursorPos);
-    CGEventTapEnable(KWMMach.EventTap, true);
-    KWMMach.DisableEventTapInternal = false;
-    KWMTiling.MonitorWindows = true;
-
-    if(Result == 0)
-        pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 bool IsActiveSpaceFloating()

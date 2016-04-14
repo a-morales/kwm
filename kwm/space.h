@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+extern void MoveFocusedWindowToSpace(std::string SpaceID);
 extern CFStringRef GetDisplayIdentifier(screen_info *Screen);
 
 void GetTagForMonocleSpace(space_info *Space, std::string &Tag);
@@ -23,7 +24,6 @@ void FloatFocusedSpace();
 void UpdateActiveSpace();
 
 void GoToPreviousSpace(bool MoveFocusedWindow);
-void MoveWindowToSpace(std::string SpaceID);
 space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID);
 
 #endif
