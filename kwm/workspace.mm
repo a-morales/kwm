@@ -266,6 +266,7 @@ void ActivateSpaceWithoutTransition(std::string SpaceID)
             int CGSpaceID = GetCGSpaceIDFromSpaceNumber(KWMScreen.Current, DestinationSpaceID);
             NSArray *NSArraySourceSpace = @[ @(KWMScreen.Current->ActiveSpace) ];
             NSArray *NSArrayDestinationSpace = @[ @(CGSpaceID) ];
+            KWMScreen.Transitioning = true;
             CGSManagedDisplaySetIsAnimating(CGSDefaultConnection, KWMScreen.Current->Identifier, true);
             CGSShowSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayDestinationSpace);
             CGSHideSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArraySourceSpace);
