@@ -29,7 +29,7 @@ CloseBorder(kwm_border *Border)
 {
     if(Border->Handle)
     {
-        static std::string Terminate = "quit";
+        static std::string Terminate = "quit\n";
         fwrite(Terminate.c_str(), Terminate.size(), 1, Border->Handle);
         fflush(Border->Handle);
         pclose(Border->Handle);
@@ -42,7 +42,7 @@ ClearBorder(kwm_border *Border)
 {
     if(Border->Handle)
     {
-        static std::string Command = "clear";
+        static std::string Command = "clear\n";
         fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
         fflush(Border->Handle);
     }
@@ -65,10 +65,11 @@ RefreshBorder(kwm_border *Border, int WindowID)
                               " s:" + std::to_string(Border->Width);
 
         Command += Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "";
+        Command += "\n";
         if(WindowPos.x == 0 && WindowPos.y == 0 &&
            WindowSize.width == KWMScreen.Current->Width &&
            WindowSize.height == KWMScreen.Current->Height)
-            Command = "clear";
+            Command = "clear\n";
 
         fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
         fflush(Border->Handle);

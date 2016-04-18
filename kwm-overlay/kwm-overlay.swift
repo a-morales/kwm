@@ -200,7 +200,6 @@ class OverlayController: NSObject, NSApplicationDelegate
         window.collectionBehavior = NSWindowCollectionBehavior.CanJoinAllSpaces
         window.makeKeyAndOrderFront(self)
         self.listenToStdIn()
-
     }
 
     func listenToStdIn() -> NSObjectProtocol
@@ -214,17 +213,18 @@ class OverlayController: NSObject, NSApplicationDelegate
             let data = outHandle.availableData
             if (data.length > 0) {
                 if let str = NSString(data: data, encoding: NSUTF8StringEncoding) as String? {
-                    let trimmedString = trim(str);
+                    str.enumerateLines { (line, stop) -> () in
+                        let trimmedString = trim(line);
 
-                    if (trimmedString == "clear") {
-                        self.window.contentView = nil
-                    } else if (trimmedString == "quit") {
-                        exit(0)
-                    } else {
-                        let args = trimmedString.componentsSeparatedByString(" ")
-                        self.showOverlayView(args)
+                        if (trimmedString == "clear") {
+                            self.window.contentView = nil
+                        } else if (trimmedString == "quit") {
+                            exit(0)
+                        } else {
+                            let args = trimmedString.componentsSeparatedByString(" ")
+                                self.showOverlayView(args)
+                        }
                     }
-
                     outHandle.waitForDataInBackgroundAndNotify()
                 } else {
                     NSNotificationCenter.defaultCenter().removeObserver(stdListen)

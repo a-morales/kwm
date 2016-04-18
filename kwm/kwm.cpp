@@ -309,6 +309,7 @@ void KwmInit()
 
     pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
     pthread_create(&KWMThread.Hotkey, NULL, &KwmMainHotkeyTrigger, NULL);
+    FocusWindowOfOSX();
 }
 
 bool CheckPrivileges()
