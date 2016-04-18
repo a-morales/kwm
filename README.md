@@ -15,7 +15,7 @@ and different types of hotkeys.
 For a list of various commands that can be issued, check the readme located within the *Kwmc* folder.
 
 For in depth information, sample configurations, and useful scripts to implement new features by combining
-*Kwmc* commands, check out the [wiki](https://github.com/koekeishiya/kwm/wiki). You can also drop by the channel ##kwm** on [freenode](http://webchat.freenode.net)
+*Kwmc* commands, check out the [wiki](https://github.com/koekeishiya/kwm/wiki). You can also drop by the channel **##kwm** on [freenode](http://webchat.freenode.net)
 
 *Kwm* requires access to the OSX accessibility API.
 Tested on El Capitan (10.11.1 - 10.11.4).
