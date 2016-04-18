@@ -243,6 +243,7 @@ void UpdateActiveSpace()
     ShouldActiveSpaceBeManaged();
 
     space_info *Space = NULL;
+    KWMScreen.Transitioning = false;
     if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
     {
         DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
@@ -257,10 +258,19 @@ void UpdateActiveSpace()
         if(Space->NeedsUpdate)
             UpdateSpaceOfScreen(Space, KWMScreen.Current);
 
-        if(Space->FocusedWindowID != 0)
+        if(KWMScreen.Current->RestoreFocus)
         {
-            FocusWindowByID(Space->FocusedWindowID);
+            if(Space->FocusedWindowID != 0)
+            {
+                FocusWindowByID(Space->FocusedWindowID);
+                MoveCursorToCenterOfFocusedWindow();
+            }
+        }
+        else
+        {
+            FocusWindowOfOSX();
             MoveCursorToCenterOfFocusedWindow();
+            KWMScreen.Current->RestoreFocus = true;
         }
     }
     else
@@ -298,7 +308,6 @@ void UpdateActiveSpace()
         DestroyApplicationNotifications();
     }
 
-    KWMScreen.Transitioning = false;
     pthread_mutex_unlock(&KWMThread.Lock);
 }
 

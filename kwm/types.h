@@ -81,6 +81,8 @@ extern "C" bool CGSManagedDisplayIsAnimating(const int cid, CFStringRef display)
 extern "C" CFStringRef CGSCopyManagedDisplayForSpace(const int cid, int space);
 extern "C" CFStringRef CGSCopyBestManagedDisplayForRect(const int cid, CGRect rect);
 extern "C" CFArrayRef CGSCopyManagedDisplaySpaces(const int cid);
+extern "C" CFArrayRef CGSCopySpacesForWindows(int cid, int type, CFArrayRef windows);
+
 
 #define CGSDefaultConnection _CGSDefaultConnection()
 extern "C" int _CGSDefaultConnection(void);
@@ -306,6 +308,7 @@ struct screen_info
     space_settings Settings;
 
     int ActiveSpace;
+    bool RestoreFocus;
     bool TrackSpaceChange;
     std::stack<int> History;
     std::map<int, space_info> Space;

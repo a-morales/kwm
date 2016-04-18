@@ -80,7 +80,8 @@ extern kwm_thread KWMThread;
             AXUIElementRef OSXWindowRef;
             if(GetWindowFocusedByOSX(&OSXWindowRef))
             {
-                window_info *OSXWindow = GetWindowByID(GetWindowIDFromRef(OSXWindowRef));
+                int OSXWindowID = GetWindowIDFromRef(OSXWindowRef);
+                window_info *OSXWindow = GetWindowByID(OSXWindowID);
                 screen_info *OSXScreen = GetDisplayOfWindow(OSXWindow);
                 if(OSXWindow && OSXScreen)
                 {
@@ -106,6 +107,20 @@ extern kwm_thread KWMThread;
                         ClearFocusedWindow();
                         ClearMarkedWindow();
                         DestroyApplicationNotifications();
+                    }
+                }
+                else
+                {
+                    NSArray *NSArrayWindow = @[ @(OSXWindowID) ];
+                    CFArrayRef Spaces = CGSCopySpacesForWindows(CGSDefaultConnection, 5, (__bridge CFArrayRef)NSArrayWindow);
+                    int NumberOfSpaces = CFArrayGetCount(Spaces);
+                    if(NumberOfSpaces == 0)
+                    {
+                        ClearFocusedWindow();
+                        ClearMarkedWindow();
+                        DestroyApplicationNotifications();
+                        DEBUG("Application was activated through cmd+tab or the dock!")
+                        KWMScreen.Current->RestoreFocus = false;
                     }
                 }
             }
