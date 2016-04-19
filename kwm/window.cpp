@@ -788,7 +788,6 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center,
 
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window, bool UpdateFocus)
 {
-    bool Locked = pthread_mutex_trylock(&KWMThread.Lock);
     screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
     if(!Screen || !Window || Screen == ScreenOfWindow)
         return;
@@ -846,9 +845,6 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
         SetWindowFocus(Window);
         MoveCursorToCenterOfFocusedWindow();
     }
-
-    if(Locked)
-        pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 void ToggleWindowFloating(int WindowID, bool Center)
