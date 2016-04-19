@@ -6,5 +6,6 @@ notifications:
         channels:
           - "irc.freenode.net##kwm"
         template:
-            - "%{author} @ %{repository} -> %{branch} - Build:#%{build_number} : %{message} - Commit: %{commit_message} - Changes: %{compare_url} - Build details: %{build_url}"
+            - "%{author} @ %{repository_name} -> %{branch} - Build:#%{build_number} : %{message} - Commit: %{commit_message}"
         use_notice: true
+        skip_join: true
