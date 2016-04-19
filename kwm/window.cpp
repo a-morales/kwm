@@ -19,6 +19,7 @@ extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
 extern kwm_path KWMPath;
+extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
@@ -792,6 +793,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
         return;
 
     space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
+    SpaceOfWindow->FocusedWindowID = 0;
     if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
         RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
     else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
@@ -838,9 +840,10 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
 
     if(UpdateFocus)
     {
+        KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
+        KWMScreen.Current = Screen;
         SetWindowFocus(Window);
         MoveCursorToCenterOfFocusedWindow();
-        UpdateActiveScreen();
     }
 }
 

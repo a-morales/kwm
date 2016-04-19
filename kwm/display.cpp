@@ -424,7 +424,7 @@ void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative, bool Upd
         NewScreenIndex = Shift;
 
     screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
-    if(NewScreen)
+    if(NewScreen && NewScreen != KWMScreen.Current)
     {
         if(IsWindowFloating(Window->WID, NULL) || IsApplicationFloating(Window))
             CenterWindow(NewScreen, Window);
