@@ -258,13 +258,11 @@ void UpdateActiveSpace()
         if(Space->NeedsUpdate)
             UpdateSpaceOfScreen(Space, KWMScreen.Current);
 
-        if(KWMScreen.Current->RestoreFocus)
+        if(KWMScreen.Current->RestoreFocus &&
+           Space->FocusedWindowID != 0)
         {
-            if(Space->FocusedWindowID != 0)
-            {
-                FocusWindowByID(Space->FocusedWindowID);
-                MoveCursorToCenterOfFocusedWindow();
-            }
+            FocusWindowByID(Space->FocusedWindowID);
+            MoveCursorToCenterOfFocusedWindow();
         }
         else
         {
