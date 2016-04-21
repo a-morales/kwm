@@ -333,3 +333,73 @@ void ModifyContainerSplitRatio(double Offset)
         }
     }
 }
+
+void ModifyContainerSplitRatio(double Offset, int Degrees)
+{
+    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    {
+        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+        tree_node *Root = Space->RootNode;
+        if(IsLeafNode(Root) || Root->WindowID != -1)
+            return;
+
+        tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, KWMFocus.Window->WID);
+        if(Node)
+        {
+            window_info WindowInDirection = {};
+            if(FindClosestWindow(Degrees, &WindowInDirection, false))
+            {
+                tree_node *Target = GetTreeNodeFromWindowIDOrLinkNode(Root, WindowInDirection.WID);
+                tree_node *Ancestor = FindLowestCommonAncestor(Node, Target);
+                if(Ancestor &&
+                   Ancestor->SplitRatio + Offset > 0.0 &&
+                   Ancestor->SplitRatio + Offset < 1.0)
+                {
+                    Ancestor->SplitRatio += Offset;
+                    ResizeNodeContainer(KWMScreen.Current, Ancestor);
+                    ApplyTreeNodeContainer(Ancestor);
+                }
+            }
+        }
+    }
+}
+
+tree_node *FindLowestCommonAncestor(tree_node *A, tree_node *B)
+{
+    if(!A || !B)
+        return NULL;
+
+    std::stack<tree_node*> PathToRootFromA;
+    std::stack<tree_node*> PathToRootFromB;
+
+    tree_node *PathA = A;
+    while(PathA->Parent)
+    {
+        PathToRootFromA.push(PathA->Parent);
+        PathA = PathA->Parent;
+    }
+
+    tree_node *PathB = B;
+    while(PathB->Parent)
+    {
+        PathToRootFromB.push(PathB->Parent);
+        PathB = PathB->Parent;
+    }
+
+    tree_node *LCA = NULL;
+    while(!PathToRootFromA.empty() && !PathToRootFromB.empty())
+    {
+        tree_node *RootA = PathToRootFromA.top();
+        PathToRootFromA.pop();
+
+        tree_node *RootB = PathToRootFromB.top();
+        PathToRootFromB.pop();
+
+        if(RootA == RootB)
+            LCA = RootA;
+        else
+            break;
+    }
+
+    return LCA;
+}

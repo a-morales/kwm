@@ -24,5 +24,7 @@ void ResizeWindowToContainerSize(link_node *Node);
 void ResizeWindowToContainerSize(window_info *Window);
 void ResizeWindowToContainerSize();
 void ModifyContainerSplitRatio(double Offset);
+void ModifyContainerSplitRatio(double Offset, int Degrees);
+tree_node *FindLowestCommonAncestor(tree_node *A, tree_node *B);
 
 #endif

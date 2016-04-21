@@ -628,10 +628,23 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "reduce" || Tokens[2] == "expand")
         {
             double Ratio = ConvertStringToDouble(Tokens[3]);
-            if(Tokens[2] == "reduce")
-                ModifyContainerSplitRatio(-Ratio);
-            else if(Tokens[2] == "expand")
+            Ratio = Tokens[2] == "reduce" ? -Ratio : Ratio;
+
+            if(Tokens.size() == 5)
+            {
+                if(Tokens[4] == "north")
+                    ModifyContainerSplitRatio(Ratio, 0);
+                else if(Tokens[4] == "east")
+                    ModifyContainerSplitRatio(Ratio, 90);
+                else if(Tokens[4] == "south")
+                    ModifyContainerSplitRatio(Ratio, 180);
+                else if(Tokens[4] == "west")
+                    ModifyContainerSplitRatio(Ratio, 270);
+            }
+            else
+            {
                 ModifyContainerSplitRatio(Ratio);
+            }
         }
     }
     else if(Tokens[1] == "-m")
