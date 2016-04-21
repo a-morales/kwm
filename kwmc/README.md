@@ -202,6 +202,12 @@ man kwmc
             kwmc window -c expand <opt>
             <opt>: 0 < floating point number < 1
 
+        Modify container split-ratio of window in direction
+            kwmc window -c reduce <opt> <arg>
+            kwmc window -c expand <opt> <arg>
+            <opt>: 0 < floating point number < 1
+            <arg>: north | east | south | west
+
         Move window on the current space
             kwmc window -m <opt>
             <opt>: north | east | south | west | mark | xoff yoff
