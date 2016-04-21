@@ -369,14 +369,19 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
 
                 if(!Mouse)
                 {
-                    if(Space->FocusedWindowID == 0)
+                    if(Space->FocusedWindowID == -1)
                     {
-                        void *FocusNode = NULL;
-                        GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
                         if(Space->Settings.Mode == SpaceModeBSP)
+                        {
+                            void *FocusNode = NULL;
+                            GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
                             Space->FocusedWindowID = ((tree_node*)FocusNode)->WindowID;
+                        }
                         else if(Space->Settings.Mode == SpaceModeMonocle)
-                            Space->FocusedWindowID = ((link_node*)FocusNode)->WindowID;
+                        {
+                            if(Space->RootNode->List)
+                                Space->FocusedWindowID = Space->RootNode->List->WindowID;
+                        }
                     }
 
                     FocusWindowByID(Space->FocusedWindowID);
@@ -414,7 +419,7 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
     }
 }
 
-void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative, bool UpdateFocus)
+void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
 {
     int NewScreenIndex = -1;
 
@@ -426,10 +431,13 @@ void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative, bool Upd
     screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
     if(NewScreen && NewScreen != KWMScreen.Current)
     {
+        space_info *SpaceOfWindow = GetActiveSpaceOfScreen(KWMScreen.Current);
+        SpaceOfWindow->FocusedWindowID = -1;
+
         if(IsWindowFloating(Window->WID, NULL) || IsApplicationFloating(Window))
             CenterWindow(NewScreen, Window);
         else
-            AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window, UpdateFocus);
+            AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window);
     }
 }
 

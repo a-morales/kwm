@@ -222,7 +222,7 @@ bool EnforceWindowRules(window_info *Window)
         screen_info *Screen = GetDisplayFromScreenID(Window->Display);
         if(Screen && Screen != GetDisplayOfWindow(Window))
         {
-            MoveWindowToDisplay(Window, Window->Display, false, true);
+            MoveWindowToDisplay(Window, Window->Display, false);
             return true;
         }
     }

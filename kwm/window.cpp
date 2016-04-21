@@ -282,6 +282,7 @@ void UpdateWindowTree()
             {
                 DestroyNodeTree(Space->RootNode);
                 Space->RootNode = NULL;
+                Space->FocusedWindowID = -1;
                 ClearFocusedWindow();
             }
         }
@@ -402,6 +403,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Assert(Space)
         DEBUG("CreateWindowNodeTree() Create Space " << Screen->ActiveSpace)
 
+        Space->FocusedWindowID = -1;
         int DesktopID = GetSpaceNumberFromCGSpaceID(Screen, Screen->ActiveSpace);
         space_settings *SpaceSettings = GetSpaceSettingsForDesktopID(Screen->ID, DesktopID);
         if(SpaceSettings)
@@ -427,6 +429,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
     }
     else if(Space->Initialized)
     {
+        Space->FocusedWindowID = -1;
         Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
         if(Space->RootNode)
         {
@@ -765,6 +768,13 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center,
             free(Link);
             Space->RootNode->List = Next;
             NewFocusNode = Next;
+
+            if(!Space->RootNode->List)
+            {
+                free(Space->RootNode);
+                Space->RootNode = NULL;
+                Space->FocusedWindowID = -1;
+            }
         }
         else
         {
@@ -778,7 +788,7 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center,
                 CenterWindow(Screen, WindowInfo);
         }
 
-        if(UpdateFocus)
+        if(UpdateFocus && NewFocusNode)
         {
             SetWindowFocusByNode(NewFocusNode);
             MoveCursorToCenterOfFocusedWindow();
@@ -786,14 +796,13 @@ void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center,
     }
 }
 
-void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window, bool UpdateFocus)
+void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 {
     screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
     if(!Screen || !Window || Screen == ScreenOfWindow)
         return;
 
     space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-    SpaceOfWindow->FocusedWindowID = 0;
     if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
         RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
     else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
@@ -802,6 +811,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
     if(Window->WID == KWMScreen.MarkedWindow)
         ClearMarkedWindow();
 
+    bool UpdateFocus = true;
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     if(Space->RootNode)
     {
@@ -836,6 +846,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
         std::vector<window_info*> Windows;
         Windows.push_back(Window);
         CreateWindowNodeTree(Screen, &Windows);
+        UpdateFocus = false;
     }
 
     if(UpdateFocus)

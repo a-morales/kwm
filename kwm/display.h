@@ -17,7 +17,7 @@ screen_info *GetDisplayOfMousePointer();
 screen_info *GetDisplayOfWindow(window_info *Window);
 
 std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex);
-void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative, bool UpdateFocus);
+void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative);
 
 void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *Focus, bool Mouse, bool UpdateFocus);
 void UpdateActiveScreen();

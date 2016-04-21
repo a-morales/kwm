@@ -41,7 +41,7 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
                     else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
                         RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false, false);
 
-                    SpaceOfWindow->FocusedWindowID = 0;
+                    SpaceOfWindow->FocusedWindowID = -1;
                 }
 
                 if(!SameScreen)
