@@ -840,8 +840,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window,
 
     if(UpdateFocus)
     {
-        KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-        KWMScreen.Current = Screen;
+        GiveFocusToScreen(Screen->ID, NULL, false, false);
         SetWindowFocus(Window);
         MoveCursorToCenterOfFocusedWindow();
     }
@@ -1636,7 +1635,9 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     Window->Width = Width;
     Window->Height = Height;
 
-    DEBUG("SetWindowDimensions() Update window dimensions")
+    DEBUG("SetWindowDimensions() " << Window->Name <<
+          " pos: " << Window->X << "," << Window->Y <<
+          " size: " << Window->Width << "," << Window->Height)
     CFRelease(NewWindowPos);
     CFRelease(NewWindowSize);
 }
