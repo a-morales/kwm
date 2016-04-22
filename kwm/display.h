@@ -7,7 +7,7 @@ extern int GetActiveSpaceOfDisplay(screen_info *Screen);
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo);
 void GetActiveDisplays();
-void RefreshActiveDisplays();
+void RefreshActiveDisplays(bool shouldFocusScreen);
 
 int GetIndexOfNextScreen();
 int GetIndexOfPrevScreen();
@@ -27,6 +27,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex);
 void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenIndex);
 
 void UpdateSpaceOfScreen(space_info *Space, screen_info *Screen);
+CFStringRef GetDisplayIdentifier(int DisplayID);
 void SetDefaultPaddingOfDisplay(container_offset Offset);
 void SetDefaultGapOfDisplay(container_offset Offset);
 void ChangePaddingOfDisplay(const std::string &Side, int Offset);
