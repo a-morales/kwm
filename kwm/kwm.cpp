@@ -73,12 +73,15 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         case kCGEventMouseMoved:
         {
             pthread_mutex_lock(&KWMThread.Lock);
-            UpdateActiveScreen();
+            if(!IsSpaceTransitionInProgress())
+            {
+                UpdateActiveScreen();
 
-            if(KWMMode.Focus != FocusModeDisabled &&
-               KWMMode.Focus != FocusModeStandby &&
-               !IsActiveSpaceFloating())
-                FocusWindowBelowCursor();
+                if(KWMMode.Focus != FocusModeDisabled &&
+                   KWMMode.Focus != FocusModeStandby &&
+                   !IsActiveSpaceFloating())
+                    FocusWindowBelowCursor();
+            }
             pthread_mutex_unlock(&KWMThread.Lock);
         } break;
         default: {} break;
@@ -107,7 +110,12 @@ void * KwmWindowMonitor(void*)
 
             if(!IsSpaceTransitionInProgress() &&
                IsActiveSpaceManaged())
-                UpdateWindowTree();
+            {
+                if(KWMScreen.Transitioning)
+                    KWMScreen.Transitioning = false;
+                else
+                    UpdateWindowTree();
+            }
 
             pthread_mutex_unlock(&KWMThread.Lock);
         }

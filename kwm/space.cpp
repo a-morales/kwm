@@ -156,9 +156,6 @@ bool DoesSpaceExistInMapOfScreen(screen_info *Screen)
 
 bool IsSpaceTransitionInProgress()
 {
-    if(KWMScreen.Transitioning)
-        return true;
-
     bool Result = false;
     std::map<unsigned int, screen_info>::iterator It;
     for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
@@ -170,9 +167,17 @@ bool IsSpaceTransitionInProgress()
     if(Result)
     {
         DEBUG("IsSpaceTransitionInProgress() Space transition detected")
-        KWMScreen.Transitioning = true;
-        ClearFocusedWindow();
-        ClearMarkedWindow();
+        if(!KWMMach.DisableEventTapInternal)
+        {
+            KWMMach.DisableEventTapInternal = true;
+            CGEventTapEnable(KWMMach.EventTap, false);
+            KWMScreen.Transitioning = true;
+        }
+    }
+    else if(KWMMach.DisableEventTapInternal)
+    {
+        KWMMach.DisableEventTapInternal = false;
+        CGEventTapEnable(KWMMach.EventTap, true);
     }
 
     return Result;
@@ -232,6 +237,9 @@ void TileFocusedSpace(space_tiling_option Mode)
 
 void UpdateActiveSpace()
 {
+    ClearFocusedWindow();
+    ClearMarkedWindow();
+
     pthread_mutex_lock(&KWMThread.Lock);
     Assert(KWMScreen.Current)
 
@@ -240,7 +248,6 @@ void UpdateActiveSpace()
     ShouldActiveSpaceBeManaged();
 
     space_info *Space = NULL;
-    KWMScreen.Transitioning = false;
     if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
     {
         DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
@@ -294,13 +301,6 @@ void UpdateActiveSpace()
                 break;
             }
         }
-    }
-
-    if(!Space || !Space->Managed || Space->Settings.Mode == SpaceModeFloating)
-    {
-        ClearFocusedWindow();
-        ClearMarkedWindow();
-        DestroyApplicationNotifications();
     }
 
     pthread_mutex_unlock(&KWMThread.Lock);

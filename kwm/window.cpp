@@ -158,6 +158,7 @@ bool IsWindowOnActiveSpace(int WindowID)
 
 void ClearFocusedWindow()
 {
+    DestroyApplicationNotifications();
     ClearBorder(&FocusedBorder);
     KWMFocus.Window = NULL;
     KWMFocus.Cache = KWMFocus.NULLWindowInfo;
