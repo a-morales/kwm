@@ -64,9 +64,9 @@ RefreshBorder(kwm_border *Border, int WindowID)
                               " " + Border->Color.Format + \
                               " s:" + std::to_string(Border->Width);
 
-        Command += Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "";
-        Command += "\n";
-        if(WindowPos.x == 0 && WindowPos.y == 0 &&
+        Command += (Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "") + "\n";
+        if(WindowPos.x == KWMScreen.Current->X &&
+           WindowPos.y == KWMScreen.Current->Y &&
            WindowSize.width == KWMScreen.Current->Width &&
            WindowSize.height == KWMScreen.Current->Height)
             Command = "clear\n";
