@@ -34,7 +34,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             if(!KWMMach.DisableEventTapInternal)
             {
-                DEBUG("Restarting Event Tap")
+                DEBUG("Restarting Event Tap");
                 CGEventTapEnable(KWMMach.EventTap, true);
             }
         } break;
@@ -142,7 +142,7 @@ void KwmSubstitueVariables(std::map<std::string, std::string> &Defines, std::str
         std::size_t Pos = Line.find(It->first);
         if(Pos != std::string::npos)
         {
-            DEBUG("Replacing " << It->first << " with " << It->second)
+            DEBUG("Replacing " << It->first << " with " << It->second);
             Line.replace(Pos, It->first.size(), It->second);
         }
     }
@@ -176,7 +176,7 @@ void KwmExecuteConfig()
     char *HomeP = std::getenv("HOME");
     if(!HomeP)
     {
-        DEBUG("Failed to get environment variable 'HOME'")
+        DEBUG("Failed to get environment variable 'HOME'");
         return;
     }
 
@@ -199,7 +199,7 @@ void KwmExecuteFile(std::string File)
     if(FileHandle.fail())
     {
         DEBUG("Could not open " << KWMPath.EnvHome << "/" << KWMPath.ConfigFolder << "/" << File
-              << ", make sure the file exists." << std::endl)
+              << ", make sure the file exists." << std::endl);
         return;
     }
 

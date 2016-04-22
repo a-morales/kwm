@@ -57,15 +57,17 @@ struct kwm_mode;
 struct kwm_thread;
 
 #ifdef DEBUG_BUILD
-    #define DEBUG(x) std::cout << x << std::endl;
-    #define Assert(Expression) if(!(Expression)) \
-                               {\
-                                   std::cout << "Assertion failed: " << #Expression << std::endl;\
-                                   *(volatile int*)0 = 0;\
-                               }
+    #define DEBUG(x) std::cout << x << std::endl
+    #define Assert(Expression) do \
+                               { if(!(Expression)) \
+                                   {\
+                                       std::cout << "Assertion failed: " << #Expression << std::endl;\
+                                       *(volatile int*)0 = 0;\
+                                   } \
+                               } while(0)
 #else
-    #define DEBUG(x)
-    #define Assert(Expression)
+    #define DEBUG(x) do {} while(0)
+    #define Assert(Expression) do {} while(0)
 #endif
 
 #define BSP_WINDOW_EVENT_CALLBACK(name) void name(window_info *Window, int OpenWindows)

@@ -75,6 +75,6 @@ bool KwmStartDaemon()
         return false;
 
     KwmDaemonIsRunning = true;
-    DEBUG("Local Daemon is now running..")
+    DEBUG("Local Daemon is now running..");
     return true;
 }

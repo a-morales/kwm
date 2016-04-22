@@ -74,7 +74,7 @@ void GoToPreviousSpace(bool MoveFocusedWindow)
     if(IsSpaceTransitionInProgress())
         return;
 
-    Assert(KWMScreen.Current)
+    Assert(KWMScreen.Current);
     if(!KWMScreen.Current->History.empty())
     {
         int CGSpaceID = KWMScreen.Current->History.top();
@@ -166,7 +166,7 @@ bool IsSpaceTransitionInProgress()
 
     if(Result)
     {
-        DEBUG("IsSpaceTransitionInProgress() Space transition detected")
+        DEBUG("IsSpaceTransitionInProgress() Space transition detected");
         if(!KWMMach.DisableEventTapInternal)
         {
             KWMMach.DisableEventTapInternal = true;
@@ -241,7 +241,7 @@ void UpdateActiveSpace()
     ClearMarkedWindow();
 
     pthread_mutex_lock(&KWMThread.Lock);
-    Assert(KWMScreen.Current)
+    Assert(KWMScreen.Current);
 
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
@@ -250,7 +250,7 @@ void UpdateActiveSpace()
     space_info *Space = NULL;
     if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
     {
-        DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace)
+        DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace);
         if(KWMScreen.Current->TrackSpaceChange)
             KWMScreen.Current->History.push(KWMScreen.PrevSpace);
         else
@@ -288,7 +288,7 @@ void UpdateActiveSpace()
             int ScreenNewSpace = GetActiveSpaceOfDisplay(Screen);
             if(ScreenCurrentSpace != ScreenNewSpace)
             {
-                DEBUG("space changed on monitor: " << Screen->ID)
+                DEBUG("space changed on monitor: " << Screen->ID);
 
                 Screen->History.push(Screen->ActiveSpace);
                 Screen->ActiveSpace = ScreenNewSpace;

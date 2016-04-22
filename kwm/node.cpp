@@ -40,7 +40,7 @@ link_node *CreateLinkNode()
 
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType)
 {
-    Assert(Parent)
+    Assert(Parent);
 
     tree_node Clear = {0};
     tree_node *Leaf = (tree_node*) malloc(sizeof(tree_node));
@@ -60,7 +60,7 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
 
 void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode)
 {
-    Assert(Parent)
+    Assert(Parent);
 
     Parent->WindowID = -1;
     Parent->SplitMode = SplitMode;
@@ -197,8 +197,8 @@ void ToggleTypeOfFocusedNode()
 
 void ChangeTypeOfFocusedNode(node_type Type)
 {
-    Assert(KWMScreen.Current)
-    Assert(KWMFocus.Window)
+    Assert(KWMScreen.Current);
+    Assert(KWMFocus.Window);
 
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
     tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
@@ -210,7 +210,7 @@ void SwapNodeWindowIDs(tree_node *A, tree_node *B)
 {
     if(A && B)
     {
-        DEBUG("SwapNodeWindowIDs() " << A->WindowID << " with " << B->WindowID)
+        DEBUG("SwapNodeWindowIDs() " << A->WindowID << " with " << B->WindowID);
         int TempWindowID = A->WindowID;
         A->WindowID = B->WindowID;
         B->WindowID = TempWindowID;
@@ -234,7 +234,7 @@ void SwapNodeWindowIDs(link_node *A, link_node *B)
 {
     if(A && B)
     {
-        DEBUG("SwapNodeWindowIDs() " << A->WindowID << " with " << B->WindowID)
+        DEBUG("SwapNodeWindowIDs() " << A->WindowID << " with " << B->WindowID);
         int TempWindowID = A->WindowID;
         A->WindowID = B->WindowID;
         B->WindowID = TempWindowID;
@@ -288,7 +288,7 @@ void ResizeWindowToContainerSize(link_node *Link)
 
 void ResizeWindowToContainerSize(window_info *Window)
 {
-    Assert(Window)
+    Assert(Window);
     if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);

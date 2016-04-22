@@ -36,7 +36,7 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
 {
     pthread_mutex_lock(&KWMThread.Lock);
     static int idx = 0;
-    DEBUG("\n[" << idx << "] BEGIN DISPLAY CONFIGURATION CALLBACK")
+    DEBUG("\n[" << idx << "] BEGIN DISPLAY CONFIGURATION CALLBACK");
 
     if (Flags & kCGDisplayAddFlag)
     {
@@ -45,14 +45,14 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
         if(displayIdentifier)
             savedDisplayID = GetDisplayIDFromIdentifier(displayIdentifier);
         if (!savedDisplayID) {
-            DEBUG("New display detected! DisplayID: " << Display << " Index: " << KWMScreen.ActiveCount)
+            DEBUG("New display detected! DisplayID: " << Display << " Index: " << KWMScreen.ActiveCount);
         }
         else if (savedDisplayID != Display) {
-            DEBUG("This display being added had saved ID: " << savedDisplayID)
+            DEBUG("This display being added had saved ID: " << savedDisplayID);
             UpdateDisplayIDForDisplay(savedDisplayID, Display);
         }
         else {
-            DEBUG("The display that is being added is already there!")
+            DEBUG("The display that is being added is already there!");
         }
         // Display has been added
         RefreshActiveDisplays(true);
@@ -67,12 +67,12 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
             // Display has been removed
             if(CGDisplayIsAsleep(Display))
             {
-                DEBUG("Display " << Display << " is asleep!")
+                DEBUG("Display " << Display << " is asleep!");
                 RefreshActiveDisplays(false);
             }
             else
             {
-                DEBUG("Display has been removed! DisplayID: " << Display)
+                DEBUG("Display has been removed! DisplayID: " << Display);
                 std::map<int, space_info>::iterator It;
                 for(It = KWMTiling.DisplayMap[Display].Space.begin(); It != KWMTiling.DisplayMap[Display].Space.end(); ++It)
                     DestroyNodeTree(It->second.RootNode);
@@ -85,7 +85,7 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
             }
         }
         else if (savedDisplayID != Display) {
-            DEBUG("This display being removed had saved ID: " << savedDisplayID)
+            DEBUG("This display being removed had saved ID: " << savedDisplayID);
             RefreshActiveDisplays(true);
         }
     }
@@ -97,7 +97,7 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
                 DEBUG("Display " << Display << " changed resolution");
             }
             else {
-                DEBUG("Display " << Display << " moved")
+                DEBUG("Display " << Display << " moved");
             }
             screen_info *Screen = &KWMTiling.DisplayMap[Display];
             UpdateExistingScreenInfo(Screen, Display, Screen->ID);
@@ -116,22 +116,22 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
     }
     if (Flags & kCGDisplaySetMainFlag)
     {
-        DEBUG("Display " << Display << " became main")
+        DEBUG("Display " << Display << " became main");
     }
     if (Flags & kCGDisplaySetModeFlag)
     {
-        DEBUG("Display " << Display << " changed mode")
+        DEBUG("Display " << Display << " changed mode");
     }
     if (Flags & kCGDisplayEnabledFlag)
     {
-        DEBUG("Display " << Display << " enabled")
+        DEBUG("Display " << Display << " enabled");
     }
     if (Flags & kCGDisplayDisabledFlag)
     {
-        DEBUG("Display " << Display << " disabled")
+        DEBUG("Display " << Display << " disabled");
     }
 
-    DEBUG("[" << idx << "] END DISPLAY CONFIGURATION CALLBACK\n")
+    DEBUG("[" << idx << "] END DISPLAY CONFIGURATION CALLBACK\n");
     idx++;
     pthread_mutex_unlock(&KWMThread.Lock);
 }
@@ -154,7 +154,7 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
     Screen.Settings.Offset = KWMScreen.DefaultOffset;
     Screen.Settings.Mode = SpaceModeDefault;
 
-    DEBUG("Creating screen info for display ID: " << DisplayIndex << " Resolution: " << Screen.Width << "x" << Screen.Height << " Origin: (" << Screen.X << "," << Screen.Y << ")")
+    DEBUG("Creating screen info for display ID: " << DisplayIndex << " Resolution: " << Screen.Width << "x" << Screen.Height << " Origin: (" << Screen.X << "," << Screen.Y << ")");
 
     return Screen;
 }
@@ -192,7 +192,7 @@ void GetActiveDisplays()
         unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
         KWMTiling.DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);;
 
-        DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex << " and Identifier " << CFStringGetCStringPtr(KWMTiling.DisplayMap[DisplayID].Identifier,kCFStringEncodingUTF8))
+        DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex << " and Identifier " << CFStringGetCStringPtr(KWMTiling.DisplayMap[DisplayID].Identifier,kCFStringEncodingUTF8));
     }
 
     KWMScreen.Current = GetDisplayOfMousePointer();
@@ -219,7 +219,7 @@ void RefreshActiveDisplays(bool ShouldFocusScreen)
         else
             KWMTiling.DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);
 
-        DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex << " and Identifier " << CFStringGetCStringPtr(KWMTiling.DisplayMap[DisplayID].Identifier,kCFStringEncodingUTF8))
+        DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex << " and Identifier " << CFStringGetCStringPtr(KWMTiling.DisplayMap[DisplayID].Identifier,kCFStringEncodingUTF8));
     }
 
     if (ShouldFocusScreen)
@@ -428,13 +428,13 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
 
         DEBUG("GiveFocusToScreen() " << ScreenIndex << \
               ": Space transition ended " << KWMScreen.PrevSpace << \
-              " -> " << Screen->ActiveSpace)
+              " -> " << Screen->ActiveSpace);
 
         if(UpdateFocus)
         {
             if(Space->Initialized && FocusNode)
             {
-                DEBUG("Populated Screen 'Window -f Focus'")
+                DEBUG("Populated Screen 'Window -f Focus'");
 
                 UpdateActiveWindowList(Screen);
                 FilterWindowList(Screen);
@@ -443,7 +443,7 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
             }
             else if(Space->Initialized && Space->RootNode)
             {
-                DEBUG("Populated Screen Key/Mouse Focus")
+                DEBUG("Populated Screen Key/Mouse Focus");
 
                 UpdateActiveWindowList(Screen);
                 FilterWindowList(Screen);
@@ -481,7 +481,7 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
                    Space->Settings.Mode == SpaceModeFloating ||
                    !Space->RootNode)
                 {
-                    DEBUG("Uninitialized Screen")
+                    DEBUG("Uninitialized Screen");
                     ClearFocusedWindow();
 
                     if(!Mouse)
@@ -539,7 +539,7 @@ void UpdateActiveScreen()
     screen_info *Screen = GetDisplayOfMousePointer();
     if(Screen && KWMScreen.Current && KWMScreen.Current != Screen)
     {
-        DEBUG("UpdateActiveScreen() Active Display Changed")
+        DEBUG("UpdateActiveScreen() Active Display Changed");
 
         ClearMarkedWindow();
         GiveFocusToScreen(Screen->ID, NULL, true, true);

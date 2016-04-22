@@ -46,17 +46,17 @@ unsigned int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &
         if(Tokens[2] == "split-mode")
         {
             Parent->SplitMode = (split_type)ConvertStringToInt(Tokens[3]);
-            DEBUG("Root: SplitMode Found " + Tokens[3])
+            DEBUG("Root: SplitMode Found " + Tokens[3]);
         }
         else if(Tokens[2] == "split-ratio")
         {
             Parent->SplitRatio = ConvertStringToDouble(Tokens[3]);
-            DEBUG("Root: SplitRatio Found " + Tokens[3])
+            DEBUG("Root: SplitRatio Found " + Tokens[3]);
         }
         else if(Tokens[2] == "child")
         {
-            DEBUG("Root: Child Found")
-            DEBUG("Parent: " << Parent->SplitMode << "|" << Parent->SplitRatio)
+            DEBUG("Root: Child Found");
+            DEBUG("Parent: " << Parent->SplitMode << "|" << Parent->SplitRatio);
             LineNumber = DeserializeChildNode(Parent, Serialized, LineNumber+1);
         }
 
@@ -75,7 +75,7 @@ unsigned int DeserializeChildNode(tree_node *Parent, std::vector<std::string> &S
         std::string Line = Serialized[LineNumber];
         if(Line == "kwmc tree root create left")
         {
-            DEBUG("Child: Create root")
+            DEBUG("Child: Create root");
             Parent->LeftChild = CreateLeafNode(KWMScreen.Current, Parent, -1, 1);
             CreateDeserializedNodeContainer(Parent->LeftChild);
             LineNumber = DeserializeParentNode(Parent->LeftChild, Serialized, LineNumber+1);
@@ -83,7 +83,7 @@ unsigned int DeserializeChildNode(tree_node *Parent, std::vector<std::string> &S
         }
         else if(Line == "kwmc tree root create right")
         {
-            DEBUG("Child: Create root")
+            DEBUG("Child: Create root");
             Parent->RightChild = CreateLeafNode(KWMScreen.Current, Parent, -1, 2);
             CreateDeserializedNodeContainer(Parent->RightChild);
             LineNumber = DeserializeParentNode(Parent->RightChild, Serialized, LineNumber+1);
@@ -91,14 +91,14 @@ unsigned int DeserializeChildNode(tree_node *Parent, std::vector<std::string> &S
         }
         else if(Line == "kwmc tree leaf create left")
         {
-            DEBUG("Child: Create left leaf")
+            DEBUG("Child: Create left leaf");
             Parent->LeftChild = CreateLeafNode(KWMScreen.Current, Parent, -1, 1);
             CreateDeserializedNodeContainer(Parent->LeftChild);
             return LineNumber;
         }
         else if(Line == "kwmc tree leaf create right")
         {
-            DEBUG("Child: Create right leaf")
+            DEBUG("Child: Create right leaf");
             Parent->RightChild = CreateLeafNode(KWMScreen.Current, Parent, -1, 2);
             CreateDeserializedNodeContainer(Parent->RightChild);
             return LineNumber;
@@ -113,7 +113,7 @@ tree_node *DeserializeNodeTree(std::vector<std::string> &Serialized)
     if(Serialized.empty() || Serialized[0] != "kwmc tree root create parent")
         return NULL;
 
-    DEBUG("Deserialize: Create Master")
+    DEBUG("Deserialize: Create Master");
     tree_node *RootNode = CreateRootNode();
     SetRootNodeContainer(KWMScreen.Current, RootNode);
     DeserializeParentNode(RootNode, Serialized, 1);

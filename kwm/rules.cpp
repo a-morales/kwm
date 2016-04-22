@@ -56,7 +56,7 @@ bool ParseIdentifier(tokenizer *Tokenizer, std::string *Member)
             } break;
             default:
             {
-                DEBUG("Expected token of type Token_String")
+                DEBUG("Expected token of type Token_String");
             } break;
         }
     }
@@ -105,7 +105,7 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
                                 Properties->Display = ConvertStringToInt(Value);
                         }
                     } break;
-                    default: { DEBUG("Expected token of type Token_Identifier") } break;
+                    default: { DEBUG("Expected token of type Token_Identifier"); } break;
                 }
             }
 
@@ -113,12 +113,12 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
         }
         else
         {
-            DEBUG("Expected token '{'")
+            DEBUG("Expected token '{'");
         }
     }
     else
     {
-        DEBUG("Expected token '='")
+        DEBUG("Expected token '='");
     }
 
     return false;

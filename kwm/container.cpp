@@ -6,7 +6,7 @@ extern kwm_screen KWMScreen;
 
 node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node)
+    Assert(Node);
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container LeftContainer;
 
@@ -20,7 +20,7 @@ node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 
 node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node)
+    Assert(Node);
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container RightContainer;
 
@@ -34,7 +34,7 @@ node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 
 node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node)
+    Assert(Node);
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container UpperContainer;
 
@@ -48,7 +48,7 @@ node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 
 node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node)
+    Assert(Node);
     space_info *Space = GetActiveSpaceOfScreen(Screen);
     node_container LowerContainer;
 
@@ -62,7 +62,7 @@ node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
 
 void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
 {
-    Assert(Node)
+    Assert(Node);
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
 
@@ -77,7 +77,7 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
 
 void SetLinkNodeContainer(screen_info *Screen, link_node *Link)
 {
-    Assert(Link)
+    Assert(Link);
 
     space_info *Space = GetActiveSpaceOfScreen(Screen);
 
@@ -89,7 +89,7 @@ void SetLinkNodeContainer(screen_info *Screen, link_node *Link)
 
 void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType)
 {
-    Assert(Node)
+    Assert(Node);
 
     if(Node->SplitRatio == 0)
         Node->SplitRatio = KWMScreen.SplitRatio;
@@ -120,8 +120,8 @@ void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType
 
 void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode)
 {
-    Assert(LeftNode)
-    Assert(RightNode)
+    Assert(LeftNode);
+    Assert(RightNode);
 
     if(SplitMode == SPLIT_VERTICAL)
     {

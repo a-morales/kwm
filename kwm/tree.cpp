@@ -34,7 +34,7 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
 
 bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
-    Assert(RootNode)
+    Assert(RootNode);
 
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
@@ -53,7 +53,7 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
                     Root = Root->LeftChild;
             }
 
-            DEBUG("CreateBSPTree() Create pair of leafs")
+            DEBUG("CreateBSPTree() Create pair of leafs");
             CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, GetOptimalSplitMode(Root));
             Root = RootNode;
         }
@@ -66,7 +66,7 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
 
 bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
 {
-    Assert(RootNode)
+    Assert(RootNode);
 
     bool Result = false;
     std::vector<window_info*> &Windows = *WindowsPtr;
@@ -350,7 +350,7 @@ void RotateTree(tree_node *Node, int Deg)
     if (Node == NULL || IsLeafNode(Node))
         return;
 
-    DEBUG("RotateTree() " << Deg << " degrees")
+    DEBUG("RotateTree() " << Deg << " degrees");
 
     if((Deg == 90 && Node->SplitMode == SPLIT_VERTICAL) ||
        (Deg == 270 && Node->SplitMode == SPLIT_HORIZONTAL) ||
@@ -398,7 +398,7 @@ void FillDeserializedTree(tree_node *RootNode)
                     Root = Root->LeftChild;
             }
 
-            DEBUG("FillDeserializedTree() Create pair of leafs")
+            DEBUG("FillDeserializedTree() Create pair of leafs");
             CreateLeafNodePair(KWMScreen.Current, Root, Root->WindowID, Windows[Counter]->WID, GetOptimalSplitMode(Root));
             Root = RootNode;
         }
@@ -409,7 +409,7 @@ void ChangeSplitRatio(double Value)
 {
     if(Value > 0.0 && Value < 1.0)
     {
-        DEBUG("ChangeSplitRatio() New Split-Ratio is " << Value)
+        DEBUG("ChangeSplitRatio() New Split-Ratio is " << Value);
         KWMScreen.SplitRatio = Value;
     }
 }

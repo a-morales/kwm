@@ -119,7 +119,7 @@ extern kwm_thread KWMThread;
                         ClearFocusedWindow();
                         ClearMarkedWindow();
                         DestroyApplicationNotifications();
-                        DEBUG("Application was activated through cmd+tab or the dock!")
+                        DEBUG("Application was activated through cmd+tab or the dock!");
                         KWMScreen.Current->RestoreFocus = false;
                     }
                 }

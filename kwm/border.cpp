@@ -3,7 +3,7 @@
 
 void UpdateBorder(std::string BorderType)
 {
-    Assert(BorderType == "focused" || BorderType == "marked")
+    Assert(BorderType == "focused" || BorderType == "marked");
 
     kwm_border *Border = &FocusedBorder;
     int WindowID = KWMFocus.Window ? KWMFocus.Window->WID : -1;

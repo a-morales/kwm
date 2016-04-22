@@ -124,10 +124,10 @@ bool ShouldKeyBeProcessed(hotkey *Hotkey)
 
 void KwmExecuteHotkey(hotkey *Hotkey)
 {
-    DEBUG("KwmExecuteHotkey")
     if(Hotkey->Command.empty())
         return;
 
+    DEBUG("KwmExecuteHotkey() " << Hotkey->Command);
     if(Hotkey->IsSystemCommand)
         KwmExecuteThreadedSystemCommand(Hotkey->Command);
     else
