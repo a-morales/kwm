@@ -71,7 +71,7 @@ bool FilterWindowList(screen_info *Screen)
                 return false;
 
             screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-            if(Screen != ScreenOfWindow)
+            if(ScreenOfWindow && Screen != ScreenOfWindow)
             {
                 space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
                 if(!SpaceOfWindow->Initialized ||

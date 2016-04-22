@@ -164,9 +164,6 @@ bool IsSpaceTransitionInProgress()
     for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
     {
         screen_info *Screen = &It->second;
-        if(!Screen->Identifier)
-            Screen->Identifier = GetDisplayIdentifier(Screen);
-
         Result = Result || CGSManagedDisplayIsAnimating(CGSDefaultConnection, Screen->Identifier);
     }
 

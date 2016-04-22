@@ -144,20 +144,10 @@ void CreateWorkspaceWatcher(void *Watcher)
     Watcher = (void*)WSWatcher;
 }
 
-CFStringRef GetDisplayIdentifier(screen_info *Screen)
-{
-    if(Screen->Identifier)
-        return Screen->Identifier;
-
-    CGRect Frame = CGRectMake(Screen->X, Screen->Y, Screen->Width, Screen->Height);
-    Screen->Identifier = CGSCopyBestManagedDisplayForRect(CGSDefaultConnection, Frame);
-    return Screen->Identifier;
-}
-
 int GetActiveSpaceOfDisplay(screen_info *Screen)
 {
     int CurrentSpace = -1;
-    NSString *CurrentIdentifier = (__bridge NSString *)GetDisplayIdentifier(Screen);
+    NSString *CurrentIdentifier = (__bridge NSString *)Screen->Identifier;
 
     CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
     for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
@@ -177,7 +167,7 @@ int GetActiveSpaceOfDisplay(screen_info *Screen)
 int GetNumberOfSpacesOfDisplay(screen_info *Screen)
 {
     int Result = 0;
-    NSString *CurrentIdentifier = (__bridge NSString *)GetDisplayIdentifier(Screen);
+    NSString *CurrentIdentifier = (__bridge NSString *)Screen->Identifier;
 
     CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
     for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
@@ -197,7 +187,7 @@ int GetNumberOfSpacesOfDisplay(screen_info *Screen)
 int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID)
 {
     int Result = -1;
-    NSString *CurrentIdentifier = (__bridge NSString *)GetDisplayIdentifier(Screen);
+    NSString *CurrentIdentifier = (__bridge NSString *)Screen->Identifier;
 
     CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
     for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
@@ -228,7 +218,7 @@ int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID)
 int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID)
 {
     int Result = -1;
-    NSString *CurrentIdentifier = (__bridge NSString *)GetDisplayIdentifier(Screen);
+    NSString *CurrentIdentifier = (__bridge NSString *)Screen->Identifier;
 
     CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
     for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
