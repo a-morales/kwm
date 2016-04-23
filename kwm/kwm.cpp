@@ -168,6 +168,7 @@ void KwmClearSettings()
     KWMTiling.SpaceSettings.clear();
     KWMTiling.DisplaySettings.clear();
     KWMTiling.EnforcedWindows.clear();
+    KWMHotkeys.ActiveMode = GetBindingMode("default");
 }
 
 void KwmExecuteConfig()
