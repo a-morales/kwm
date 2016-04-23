@@ -418,8 +418,10 @@ struct kwm_tiling
     std::vector<window_info> WindowLst;
     std::vector<int> FloatingWindowLst;
 
+
     std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
     std::vector<window_rule> WindowRules;
+    std::map<int, bool> EnforcedWindows;
 };
 
 struct kwm_cache

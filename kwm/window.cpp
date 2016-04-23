@@ -67,7 +67,7 @@ bool FilterWindowList(screen_info *Screen)
 
         if(Window->Layer == 0)
         {
-            if(EnforceWindowRules(Window))
+            if(!HasRuleBeenApplied(Window) && EnforceWindowRules(Window))
                 return false;
 
             screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);

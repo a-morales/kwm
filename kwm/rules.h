@@ -11,5 +11,6 @@ void KwmAddRule(std::string RuleSym);
 bool MatchWindowRule(window_rule *Rule, window_info *Window);
 void CheckWindowRules(window_info *Window);
 bool EnforceWindowRules(window_info *Window);
+bool HasRuleBeenApplied(window_info *Window);
 
 #endif

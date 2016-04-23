@@ -194,6 +194,9 @@ bool MatchWindowRule(window_rule *Rule, window_info *Window)
 
 void CheckWindowRules(window_info *Window)
 {
+    if(HasRuleBeenApplied(Window))
+        return;
+
     Window->Display = -1;
     Window->Space = -1;
     Window->Float = 0;
@@ -260,5 +263,12 @@ bool EnforceWindowRules(window_info *Window)
         }
     }
 
+    KWMTiling.EnforcedWindows[Window->WID] = true;
     return Result;
+}
+
+bool HasRuleBeenApplied(window_info *Window)
+{
+    std::map<int, bool>::iterator It = KWMTiling.EnforcedWindows.find(Window->WID);
+    return It != KWMTiling.EnforcedWindows.end();
 }
