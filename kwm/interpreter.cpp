@@ -61,6 +61,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         {
             FocusedBorder.Color = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[3]));
             CreateColorFormat(&FocusedBorder.Color);
+            FocusedBorder.ModeColors["default"] = FocusedBorder.Color;
         }
         else if(Tokens[2] == "radius")
         {
@@ -488,6 +489,15 @@ void KwmModeCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "activate")
         KwmActivateBindingMode(Tokens[2]);
+    else
+    {
+        std::string Mode = Tokens[1];
+        if(Tokens[2] == "color")
+        {
+            FocusedBorder.ModeColors[Mode] = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[3]));
+            CreateColorFormat(&FocusedBorder.ModeColors[Mode]);
+        }
+    }
 }
 
 void KwmBindCommand(std::vector<std::string> &Tokens, bool Passthrough)

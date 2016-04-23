@@ -334,6 +334,8 @@ struct kwm_border
     double Radius;
     color Color;
     int Width;
+
+    std::map<std::string, color> ModeColors;
 };
 
 struct kwm_hotkeys

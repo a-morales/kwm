@@ -269,6 +269,8 @@ void KwmActivateBindingMode(std::string Mode)
         KWMHotkeys.ActiveMode = Mode;
     else
         KWMHotkeys.ActiveMode = "default";
+
+    UpdateBorder("focused");
 }
 
 bool GetLayoutIndependentKeycode(std::string Key, CGKeyCode *Keycode)
