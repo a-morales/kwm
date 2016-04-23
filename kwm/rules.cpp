@@ -233,6 +233,8 @@ bool EnforceWindowRules(window_info *Window)
             else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
                 RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, true, false);
         }
+
+        KWMTiling.FloatingWindowLst.push_back(Window->WID);
     }
 
     if(Window->Display != -1)

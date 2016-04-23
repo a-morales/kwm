@@ -96,7 +96,7 @@ bool FilterWindowList(screen_info *Screen)
 
 bool IsFocusedWindowFloating()
 {
-    return KWMFocus.Window && (IsWindowFloating(KWMFocus.Window->WID, NULL) || IsApplicationFloating(KWMFocus.Window));
+    return KWMFocus.Window && IsWindowFloating(KWMFocus.Window->WID, NULL);
 }
 
 bool IsWindowFloating(int WindowID, int *Index)
@@ -483,8 +483,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
     for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
     {
         if(IsWindowTilable(WindowsToAdd[WindowIndex]) &&
-           !IsWindowFloating(WindowsToAdd[WindowIndex]->WID, NULL) &&
-           !IsApplicationFloating(WindowsToAdd[WindowIndex]))
+           !IsWindowFloating(WindowsToAdd[WindowIndex]->WID, NULL))
         {
             DEBUG("ShouldBSPTreeUpdate() Add Window");
             tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
@@ -713,8 +712,7 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space)
     for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
     {
         if(IsWindowTilable(WindowsToAdd[WindowIndex]) &&
-           !IsWindowFloating(WindowsToAdd[WindowIndex]->WID, NULL) &&
-           !IsApplicationFloating(WindowsToAdd[WindowIndex]))
+           !IsWindowFloating(WindowsToAdd[WindowIndex]->WID, NULL))
         {
             DEBUG("ShouldMonocleTreeUpdate() Add Window");
             AddWindowToMonocleTree(Screen, WindowsToAdd[WindowIndex]->WID);
@@ -1224,8 +1222,7 @@ bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
     {
         if(!WindowsAreEqual(Match, &Windows[Index]) &&
            WindowIsInDirection(Match, &Windows[Index], Degrees, Wrap) &&
-           !IsWindowFloating(Windows[Index].WID, NULL) &&
-           !IsApplicationFloating(&Windows[Index]))
+           !IsWindowFloating(Windows[Index].WID, NULL))
         {
             window_info FocusWindow = Windows[Index];
 
@@ -1669,9 +1666,7 @@ void CenterWindow(screen_info *Screen, window_info *Window)
 
 void MoveFloatingWindow(int X, int Y)
 {
-    if(!KWMFocus.Window ||
-       (!IsWindowFloating(KWMFocus.Window->WID, NULL) &&
-       !IsApplicationFloating(KWMFocus.Window)))
+    if(!KWMFocus.Window || !IsWindowFloating(KWMFocus.Window->WID, NULL))
         return;
 
     AXUIElementRef WindowRef;

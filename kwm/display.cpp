@@ -285,7 +285,6 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
     {
         window_info *Window = &KWMTiling.WindowLst[WindowIndex];
         if(IsWindowTilable(Window) &&
-           !IsApplicationFloating(&KWMTiling.WindowLst[WindowIndex]) &&
            !IsWindowFloating(KWMTiling.WindowLst[WindowIndex].WID, NULL))
         {
             if(Screen == GetDisplayOfWindow(Window))
@@ -521,7 +520,7 @@ void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
         space_info *SpaceOfWindow = GetActiveSpaceOfScreen(KWMScreen.Current);
         SpaceOfWindow->FocusedWindowID = -1;
 
-        if(IsWindowFloating(Window->WID, NULL) || IsApplicationFloating(Window))
+        if(IsWindowFloating(Window->WID, NULL))
             CenterWindow(NewScreen, Window);
         else
             AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window);

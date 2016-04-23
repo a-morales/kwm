@@ -30,11 +30,6 @@ bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubR
     return false;
 }
 
-bool IsApplicationFloating(window_info *Window)
-{
-    return Window->Float;
-}
-
 bool IsApplicationInCache(int PID, std::vector<AXUIElementRef> *Elements)
 {
     bool Result = false;
