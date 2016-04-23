@@ -168,6 +168,9 @@ void KwmClearSettings()
 
     KWMHotkeys.List.clear();
     KWMTiling.WindowRules.clear();
+    KWMTiling.SpaceSettings.clear();
+    KWMTiling.DisplaySettings.clear();
+    KWMTiling.EnforcedWindows.clear();
     KWMHotkeys.Prefix.Enabled = false;
 }
 
