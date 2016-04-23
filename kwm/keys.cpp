@@ -110,6 +110,9 @@ void KwmExecuteHotkey(hotkey *Hotkey)
         KwmExecuteThreadedSystemCommand(Hotkey->Command);
     else
         KwmInterpretCommand(Hotkey->Command, 0);
+
+    if(KWMHotkeys.ActiveMode->Prefix)
+        KWMHotkeys.ActiveMode->Time = std::chrono::steady_clock::now();
 }
 
 bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string Mode)
