@@ -22,7 +22,6 @@ extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
-extern kwm_border PrefixBorder;
 extern kwm_hotkeys KWMHotkeys;
 
 void MoveFocusedWindowToSpace(std::string SpaceID);
@@ -41,21 +40,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "optimal-ratio")
     {
         KWMTiling.OptimalRatio = ConvertStringToDouble(Tokens[2]);
-    }
-    else if(Tokens[1] == "prefix-key")
-    {
-        KwmSetPrefix(Tokens[2]);
-    }
-    else if(Tokens[1] == "prefix-global")
-    {
-        if(Tokens[2] == "off")
-            KwmSetPrefixGlobal(false);
-        else if(Tokens[2] == "on")
-            KwmSetPrefixGlobal(true);
-    }
-    else if(Tokens[1] == "prefix-timeout")
-    {
-        KwmSetPrefixTimeout(ConvertStringToDouble(Tokens[2]));
     }
     else if(Tokens[1] == "focused-border")
     {
@@ -106,31 +90,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "radius")
         {
             MarkedBorder.Radius = ConvertStringToDouble(Tokens[3]);
-        }
-    }
-    else if(Tokens[1] == "prefix-border")
-    {
-        if(Tokens[2] == "on")
-        {
-            PrefixBorder.Enabled = true;
-        }
-        else if(Tokens[2] == "off")
-        {
-            PrefixBorder.Enabled = false;
-            UpdateBorder("focused");
-        }
-        else if(Tokens[2] == "size")
-        {
-            PrefixBorder.Width = ConvertStringToInt(Tokens[3]);
-        }
-        else if(Tokens[2] == "color")
-        {
-            PrefixBorder.Color = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[3]));
-            CreateColorFormat(&PrefixBorder.Color);
-        }
-        else if(Tokens[2] == "radius")
-        {
-            PrefixBorder.Radius = ConvertStringToDouble(Tokens[3]);
         }
     }
     else if(Tokens[1] == "float-non-resizable")
@@ -360,11 +319,6 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         std::string Output = KWMTiling.SpawnAsLeftChild ? "left" : "right";
         KwmWriteToSocket(ClientSockFD, Output);
     }
-    else if(Tokens[1] == "prefix")
-    {
-        std::string Output = KWMHotkeys.Prefix.Active ? "active" : "inactive";
-        KwmWriteToSocket(ClientSockFD, Output);
-    }
     else if(Tokens[1] == "split-ratio")
     {
         std::string Output = std::to_string(KWMScreen.SplitRatio);
@@ -453,8 +407,6 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
             Output = FocusedBorder.Enabled ? "1" : "0";
         else if(Tokens[2] == "marked")
             Output = MarkedBorder.Enabled ? "1" : "0";
-        else if(Tokens[2] == "prefix")
-            Output = PrefixBorder.Enabled ? "1" : "0";
 
         KwmWriteToSocket(ClientSockFD, Output);
     }
@@ -531,6 +483,11 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 
         KwmWriteToSocket(ClientSockFD, Output);
     }
+}
+void KwmModeCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "activate")
+        KwmActivateBindingMode(Tokens[2]);
 }
 
 void KwmBindCommand(std::vector<std::string> &Tokens, bool Passthrough)
@@ -859,6 +816,8 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmEmitKeystrokes(CreateStringFromTokens(Tokens, 1));
     else if(Tokens[0] == "press")
         KwmEmitKeystroke(Tokens[1]);
+    else if(Tokens[0] == "mode")
+        KwmModeCommand(Tokens);
     else if(Tokens[0] == "bind")
         KwmBindCommand(Tokens, false);
     else if(Tokens[0] == "bind-passthrough")

@@ -46,7 +46,6 @@ struct tree_node;
 struct kwm_mach;
 struct kwm_border;
 struct kwm_hotkeys;
-struct kwm_prefix;
 struct kwm_toggles;
 struct kwm_path;
 struct kwm_focus;
@@ -196,7 +195,7 @@ struct hotkey
 
     modifiers Mod;
     CGKeyCode Key;
-    bool Prefixed;
+    std::string Mode;
 
     std::string Command;
 };
@@ -337,23 +336,12 @@ struct kwm_border
     int Width;
 };
 
-struct kwm_prefix
-{
-    kwm_time_point Time;
-    hotkey Key;
-
-    double Timeout;
-    bool Enabled;
-    bool Active;
-    bool Global;
-};
-
-
 struct kwm_hotkeys
 {
     std::queue<hotkey> Queue;
-    std::vector<hotkey> List;
-    kwm_prefix Prefix;
+    std::map<std::string, std::vector<hotkey> > Modes;
+
+    std::string ActiveMode;
     modifiers SpacesKey;
 };
 

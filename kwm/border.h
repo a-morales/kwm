@@ -9,7 +9,6 @@ extern kwm_focus KWMFocus;
 extern kwm_path KWMPath;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
-extern kwm_border PrefixBorder;
 extern kwm_hotkeys KWMHotkeys;
 
 inline void

@@ -5,7 +5,7 @@
 
 bool HotkeysAreEqual(hotkey *A, hotkey *B);
 bool KwmIsPrefixKey(hotkey *PrefixKey, modifiers *Mod, CGKeyCode Keycode);
-bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey);
+bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string Mode);
 void DetermineHotkeyState(hotkey *Hotkey, std::string &Command);
 bool IsHotkeyStateReqFulfilled(hotkey *Hotkey);
 
@@ -20,10 +20,9 @@ void KwmEmitKeystrokes(std::string Text);
 void KwmEmitKeystroke(modifiers Mod, std::string Key);
 void KwmEmitKeystroke(std::string KeySym);
 
+std::vector<hotkey> *GetHotkeysForMode(std::string Mode);
+void KwmActivateBindingMode(std::string Mode);
 void KwmSetSpacesKey(std::string KeySym);
-void KwmSetPrefix(std::string KeySym);
-void KwmSetPrefixGlobal(bool Global);
-void KwmSetPrefixTimeout(double Timeout);
 void CheckPrefixTimeout();
 
 CFStringRef KeycodeToString(CGKeyCode Keycode);

@@ -8,15 +8,7 @@ void UpdateBorder(std::string BorderType)
     kwm_border *Border = &FocusedBorder;
     int WindowID = KWMFocus.Window ? KWMFocus.Window->WID : -1;
 
-    if(BorderType == "focused" &&
-       FocusedBorder.Enabled &&
-       PrefixBorder.Enabled &&
-       KWMHotkeys.Prefix.Active)
-    {
-        Border = &PrefixBorder;
-        Border->Handle = FocusedBorder.Handle;
-    }
-    else if(BorderType == "marked")
+    if(BorderType == "marked")
     {
         WindowID = KWMScreen.MarkedWindow;
         Border = &MarkedBorder;
