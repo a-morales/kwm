@@ -150,7 +150,7 @@ man kwmc
 
         Create rules that applies to specific applications or windows
         See (https://github.com/koekeishiya/kwm/issues/268) for details
-            kwmc rule owner="" name="" properties={float=""; display=""} except=""
+            kwmc rule owner="" name="" properties={float=""; display=""; space=""} except=""
 
 ### Interact with Kwm
 
