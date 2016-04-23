@@ -43,7 +43,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             {
                 hotkey Eventkey = {}, Hotkey = {};
                 CreateHotkeyFromCGEvent(Event, &Eventkey);
-                if(HotkeyExists(Eventkey.Mod, Eventkey.Key, &Hotkey, KWMHotkeys.ActiveMode))
+                if(HotkeyExists(Eventkey.Mod, Eventkey.Key, &Hotkey, KWMHotkeys.ActiveMode->Name))
                 {
                     KWMHotkeys.Queue.push(Hotkey);
                     if(!Hotkey.Passthrough)
@@ -104,7 +104,7 @@ void * KwmWindowMonitor(void*)
         if(KWMTiling.MonitorWindows)
         {
             pthread_mutex_lock(&KWMThread.Lock);
-
+            CheckPrefixTimeout();
             if(!IsSpaceTransitionInProgress() &&
                IsActiveSpaceManaged())
             {
@@ -302,7 +302,7 @@ void KwmInit()
     KWMPath.ConfigFile = "kwmrc";
     KWMPath.ConfigFolder = ".kwm";
     KWMPath.BSPLayouts = "layouts";
-    KWMHotkeys.ActiveMode = "default";
+    KWMHotkeys.ActiveMode = GetBindingMode("default");
 
     GetKwmFilePath();
     KwmExecuteConfig();

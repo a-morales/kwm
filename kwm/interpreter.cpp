@@ -61,7 +61,8 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         {
             FocusedBorder.Color = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[3]));
             CreateColorFormat(&FocusedBorder.Color);
-            FocusedBorder.ModeColors["default"] = FocusedBorder.Color;
+            mode *BindingMode = GetBindingMode("default");
+            BindingMode->Color = FocusedBorder.Color;
         }
         else if(Tokens[2] == "radius")
         {
@@ -492,10 +493,26 @@ void KwmModeCommand(std::vector<std::string> &Tokens)
     else
     {
         std::string Mode = Tokens[1];
+        mode *BindingMode = GetBindingMode(Mode);
         if(Tokens[2] == "color")
         {
-            FocusedBorder.ModeColors[Mode] = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[3]));
-            CreateColorFormat(&FocusedBorder.ModeColors[Mode]);
+            BindingMode->Color = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[3]));
+            CreateColorFormat(&BindingMode->Color);
+        }
+        else if(Tokens[2] == "prefix")
+        {
+            if(Tokens[3] == "on")
+                BindingMode->Prefix = true;
+            else if(Tokens[3] == "off")
+                BindingMode->Prefix = false;
+        }
+        else if(Tokens[2] == "timeout")
+        {
+            BindingMode->Timeout = ConvertStringToDouble(Tokens[3]);
+        }
+        else if(Tokens[2] == "restore")
+        {
+            BindingMode->Restore = Tokens[3];
         }
     }
 }

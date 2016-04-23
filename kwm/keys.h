@@ -20,7 +20,7 @@ void KwmEmitKeystrokes(std::string Text);
 void KwmEmitKeystroke(modifiers Mod, std::string Key);
 void KwmEmitKeystroke(std::string KeySym);
 
-std::vector<hotkey> *GetHotkeysForMode(std::string Mode);
+mode *GetBindingMode(std::string Mode);
 void KwmActivateBindingMode(std::string Mode);
 void KwmSetSpacesKey(std::string KeySym);
 void CheckPrefixTimeout();

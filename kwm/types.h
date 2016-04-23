@@ -29,6 +29,7 @@ struct token;
 struct tokenizer;
 struct space_identifier;
 struct color;
+struct mode;
 struct hotkey;
 struct modifiers;
 struct space_settings;
@@ -195,8 +196,8 @@ struct hotkey
 
     modifiers Mod;
     CGKeyCode Key;
-    std::string Mode;
 
+    std::string Mode;
     std::string Command;
 };
 
@@ -215,6 +216,18 @@ struct color
     double Alpha;
 
     std::string Format;
+};
+
+struct mode
+{
+    std::vector<hotkey> Hotkeys;
+    std::string Name;
+    color Color;
+
+    bool Prefix;
+    double Timeout;
+    std::string Restore;
+    kwm_time_point Time;
 };
 
 struct node_container
@@ -334,16 +347,15 @@ struct kwm_border
     double Radius;
     color Color;
     int Width;
-
-    std::map<std::string, color> ModeColors;
 };
 
 struct kwm_hotkeys
 {
     std::queue<hotkey> Queue;
-    std::map<std::string, std::vector<hotkey> > Modes;
+    std::map<std::string, mode> Modes;
 
-    std::string ActiveMode;
+    //std::string ActiveMode;
+    mode *ActiveMode;
     modifiers SpacesKey;
 };
 

@@ -1,11 +1,6 @@
 #include "border.h"
 #include "window.h"
-
-bool DoesModeHaveCustomBorder(std::string Mode)
-{
-    std::map<std::string, color>::iterator It = FocusedBorder.ModeColors.find(Mode);
-    return It != FocusedBorder.ModeColors.end();
-}
+#include "keys.h"
 
 void UpdateBorder(std::string BorderType)
 {
@@ -14,10 +9,8 @@ void UpdateBorder(std::string BorderType)
     kwm_border *Border = &FocusedBorder;
     int WindowID = KWMFocus.Window ? KWMFocus.Window->WID : -1;
 
-    if(DoesModeHaveCustomBorder(KWMHotkeys.ActiveMode))
-        Border->Color = FocusedBorder.ModeColors[KWMHotkeys.ActiveMode];
-    else
-        Border->Color = FocusedBorder.ModeColors["default"];
+    if(!KWMHotkeys.ActiveMode->Color.Format.empty())
+        Border->Color = KWMHotkeys.ActiveMode->Color;
 
     if(BorderType == "marked")
     {
