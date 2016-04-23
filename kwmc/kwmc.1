@@ -20,40 +20,28 @@ window manager by sending simple text strings.
             Set modifier used by OSX space-shortcuts
             <opt>: mod+mod+mod
 .LP
-.B prefix-key <opt>
-            Set a prefix for kwms hotkeys
-            <opt>: mod+mod+mod-key
-.LP
-.B prefix-global <opt>
-            Make prefix apply globally
-            <opt>: on | off
-.LP
-.B prefix-timeout <opt>
-            Set prefix timeout in seconds
-            <opt>: floating point number
-.LP
 .B optimal-ratio <opt>
             Override the optimal split-mode (golden ratio: 1.618)
             <opt>: floating point number
 .LP
 .B <opt>-border <arg>
             Enable window border
-            <opt>: focused | marked | prefix
+            <opt>: focused | marked
             <arg>: on | off
 .LP
 .B <opt>-border size <arg>
             Set window border thickness
-            <opt>: focused | marked | prefix
+            <opt>: focused | marked
             <arg>: number
 .LP
 .B <opt>-border color <arg>
             Set window border color
-            <opt>: focused | marked | prefix
+            <opt>: focused | marked
             <arg>: aarrggbb
 .LP
 .B <opt>-border radius <arg>
             Set window border radius
-            <opt>: focused | marked | prefix
+            <opt>: focused | marked
             <arg>: number
 .LP
 .B spawn <opt>
@@ -138,7 +126,7 @@ window manager by sending simple text strings.
 .RE
 .IP bind
 .RS 10
-.B prefix+mod+mod+mod-key <opt>
+.B mode+mod+mod+mod-key <opt>
             Create a hotkey consumed by Kwm
             <opt>: command | command <arg>
             <arg>: {app,app,app} -e | {app,app,app} -i
@@ -147,7 +135,7 @@ window manager by sending simple text strings.
 .RE
 .IP bind-passthrough
 .RS 10
-.B prefix+mod+mod+mod-key <opt>
+.B mode+mod+mod+mod-key <opt>
             Create a hotkey not consumed by Kwm
             <opt>: command | command <arg>
             <arg>: {app,app,app} -e | {app,app,app} -i
@@ -331,9 +319,6 @@ Terminate kwm
 .B spawn
             Get state of 'kwmc config spawn'
 .LP
-.B prefix
-            Get state of the prefix-key
-.LP
 .B space
             Get tilling mode used for new spaces
 .LP
@@ -357,7 +342,7 @@ Terminate kwm
 .LP
 .B border <opt>
             Check if a border is enabled
-            <opt>: focused | marked | prefix
+            <opt>: focused | marked
 .LP
 .B windows
             Get list of visible windows on active space
