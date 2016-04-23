@@ -320,3 +320,18 @@ void MoveFocusedWindowToSpace(std::string SpaceID)
         MoveWindowBetweenSpaces(ActiveSpace, DestinationSpaceID, KWMFocus.Window->WID);
     }
 }
+
+bool IsWindowOnSpace(int WindowID, int CGSpaceID)
+{
+    NSArray *NSArrayWindow = @[ @(WindowID) ];
+    CFArrayRef Spaces = CGSCopySpacesForWindows(CGSDefaultConnection, 7, (__bridge CFArrayRef)NSArrayWindow);
+    int NumberOfSpaces = CFArrayGetCount(Spaces);
+    for(int Index = 0; Index < NumberOfSpaces; ++Index)
+    {
+        NSNumber *ID = (__bridge NSNumber*)CFArrayGetValueAtIndex(Spaces, Index);
+        if(CGSpaceID == [ID intValue])
+            return true;
+    }
+
+    return false;
+}

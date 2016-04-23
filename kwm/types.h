@@ -252,8 +252,9 @@ struct tree_node
 
 struct window_properties
 {
-    int Float;
     int Display;
+    int Space;
+    int Float;
 };
 
 struct window_rule
@@ -274,6 +275,7 @@ struct window_info
     int Width, Height;
 
     bool Float;
+    unsigned int Space;
     unsigned int Display;
 };
 

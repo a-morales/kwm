@@ -6,23 +6,22 @@
 #include "tree.h"
 #include "helpers.h"
 
+extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
+extern void AddWindowToSpace(int CGSpaceID, int WindowID);
+extern void RemoveWindowFromSpace(int CGSpaceID, int WindowID);
+extern bool IsWindowOnSpace(int WindowID, int CGSpaceID);
+extern int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID);
+
+extern kwm_screen KWMScreen;
 extern kwm_tiling KWMTiling;
 
 /* Current Window Properties:
  *          float = "true" | "false"
  *          display = "id"
- *
- * Replaces:
- *          kwmc config float
- *          kwmc config capture
- *
- * Additions:
- *          (??) kwmc add-role
- *          (??) override gap / padding
- *          (??) callbacks
+ *          space = "id"
  *
  * Examples:
- *          kwmc rule owner="" name="" properties={float=""; display=""} except=""
+ *          kwmc rule owner="" name="" properties={float=""; display=""; space=""} except=""
  *
  * Apply given properties to all iTerm2 windows that does not have
  * a title containing $except:
@@ -37,6 +36,9 @@ extern kwm_tiling KWMTiling;
  *
  * Apply given properties to all iTunes windows
  *          kwmc rule owner="iTunes" properties={display="1"}
+ *
+ * Assign iTunes to space 1 of display 1
+ *          kwmc rule owner="iTunes" properties={space="1"; display="1"}
 */
 
 bool ParseIdentifier(tokenizer *Tokenizer, std::string *Member)
@@ -75,6 +77,7 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
         if(RequireToken(Tokenizer, Token_OpenBrace))
         {
             Properties->Display = -1;
+            Properties->Space = -1;
             Properties->Float = -1;
             bool ValidState = true;
 
@@ -103,6 +106,12 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
                             std::string Value;
                             if(ParseIdentifier(Tokenizer, &Value))
                                 Properties->Display = ConvertStringToInt(Value);
+                        }
+                        else if(TokenEquals(Token, "space"))
+                        {
+                            std::string Value;
+                            if(ParseIdentifier(Tokenizer, &Value))
+                                Properties->Space = ConvertStringToInt(Value);
                         }
                     } break;
                     default: { DEBUG("Expected token of type Token_Identifier"); } break;
@@ -186,6 +195,7 @@ bool MatchWindowRule(window_rule *Rule, window_info *Window)
 void CheckWindowRules(window_info *Window)
 {
     Window->Display = -1;
+    Window->Space = -1;
     Window->Float = 0;
 
     for(int Index = 0; Index < KWMTiling.WindowRules.size(); ++Index)
@@ -198,12 +208,17 @@ void CheckWindowRules(window_info *Window)
 
             if(Rule->Properties.Display != -1)
                 Window->Display = Rule->Properties.Display;
+
+            if(Rule->Properties.Space != -1)
+                Window->Space = Rule->Properties.Space;
         }
     }
 }
 
 bool EnforceWindowRules(window_info *Window)
 {
+    bool Result  = false;
+
     if(Window->Float)
     {
         screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
@@ -223,9 +238,27 @@ bool EnforceWindowRules(window_info *Window)
         if(Screen && Screen != GetDisplayOfWindow(Window))
         {
             MoveWindowToDisplay(Window, Window->Display, false);
-            return true;
+            Result = true;
         }
     }
 
-    return false;
+    if(Window->Space != -1)
+    {
+        int Display = Window->Display == -1 ? 0 : Window->Display;
+        screen_info *SourceScreen = GetDisplayOfWindow(Window);
+        screen_info *DestinationScreen = GetDisplayFromScreenID(Display);
+        int TotalSpaces = GetNumberOfSpacesOfDisplay(DestinationScreen);
+        if(Window->Space <= TotalSpaces && Window->Space >= 1)
+        {
+            int SourceCGSpaceID = SourceScreen->ActiveSpace;
+            int DestinationCGSpaceID = GetCGSpaceIDFromSpaceNumber(DestinationScreen, Window->Space);
+            if(!IsWindowOnSpace(Window->WID, DestinationCGSpaceID))
+            {
+                AddWindowToSpace(DestinationCGSpaceID, Window->WID);
+                RemoveWindowFromSpace(SourceCGSpaceID, Window->WID);
+            }
+        }
+    }
+
+    return Result;
 }
