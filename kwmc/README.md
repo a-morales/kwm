@@ -11,6 +11,52 @@ man kwmc
         A command with <opt> or <arg> means that an argument of that type is required
         A command with [opt] means that an argument is optional
 
+## Create Keybindings
+
+        Kwm supports two different ways to create a keybind,
+        either through the key-symbol or the key-code.
+
+        bindsym: accepts a symbol / letter
+        bindcode: accepts a hexadecimal keycode
+
+            kwmc bindsym mode+mod+mod+mod-key command [opt]
+            kwmc bindcode mode+mod+mod+mod-hex command [opt]
+
+            [opt]: {app,app,app} -e | {app,app,app} -i
+                    -e: not enabled for listed applications
+                    -i: only enabled for listed applications
+
+        Any keybinds created with the above commands, will be consumed by Kwm.
+        If you wish to have a keybind that performs some action and still passes
+        through to the target application, the below command can be used.
+
+            kwmc bind-passthrough mode+mod+mod+mod-key command [opt]
+            [opt]: {app,app,app} -e | {app,app,app} -i
+
+        To remove a keybind, the unbind command can be used.
+            kwmc unbind mode+mod+mod+mod-key
+
+        Kwm does support multiple binding-modes. A binding-mode is a set of keybinds
+        that will only be active when Kwm enters that state. The mode can be specified
+        through the `mode` symbol as seen in the above commands. If no mode is set,
+        it will be added to a `default` mode.
+
+        A binding-mode can be configured to activate a specific mode when a timeout is reached.
+        For this to work, the mode must enable the prefix flag, as well as specify a timeout
+        duration. The restore option will default to the `default` mode.
+        The color of the focused-border will be changed to the color associated with the active
+        mode, if one has been set.
+
+            kwmc mode my_mode prefix on
+            kwmc mode my_mode timeout 0.75
+            kwmc mode my_mode restore mode_to_activate
+            kwmc mode my_mode color aarrggbb
+
+        To activate a certain binding-mode, the following command must be used.
+            kwmc mode activate my_mode
+
+        My keybinds can be found [here](https://gist.githubusercontent.com/koekeishiya/8760be63d6171e150278/raw/2b5a6b37e5106570cf02d36ff4e3eed9b11ced9d/Kwm:%2520binds) as an example.
+
 ### Configure Kwm
         Reload config ($HOME/.kwm/kwmrc)
             kwmc config reload
@@ -107,32 +153,13 @@ man kwmc
             kwmc config display display_id gap <opt>
             <opt>: vertical horizontal
 
-        Enable hotkeys registered using `bind`
+        Enable hotkeys registered using `bindsym` and `bindcode`
             kwmc config hotkeys <opt>
             <opt>: on | off
 
         Set split-ratio for containers
             kwmc config split-ratio <opt>
             <opt>: 0 < floating point number < 1
-
-        Create hotkeys for Kwm
-            bindsym: accepts a symbol / letter
-            bindcode: accepts a hexadecimal keycode
-
-            kwmc bindsym mode+mod+mod+mod-key command [opt]
-            kwmc bindcode mode+mod+mod+mod-hex command [opt]
-
-            [opt]: {app,app,app} -e | {app,app,app} -i
-                    -e: not enabled for listed applications
-                    -i: only enabled for listed applications
-
-        Create a hotkey not consumed by Kwm
-            kwmc bind-passthrough mode+mod+mod+mod-key command [opt]
-            [opt]: {app,app,app} -e | {app,app,app} -i
-
-        Unbind a hotkey
-            kwmc unbind <opt>
-            <opt>: mode+mod+mod+mod-key
 
         Add custom role for which windows Kwm should tile
             kwmc config add-role AXRole <opt>
