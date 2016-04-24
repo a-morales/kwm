@@ -518,20 +518,24 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
                                IsWindowOnActiveSpace(InsertionPoint->WID) &&
                                InsertionPoint->WID != WindowID;
 
-    bool DoNotUseMarkedContainer = IsWindowFloating(KWMScreen.MarkedWindow, NULL) ||
-                                   (KWMScreen.MarkedWindow == WindowID);
+    bool DoNotUseMarkedContainer = IsWindowFloating(KWMScreen.MarkedWindow.WID, NULL) ||
+                                   (KWMScreen.MarkedWindow.WID == WindowID);
 
-    if(KWMScreen.MarkedWindow == -1 && UseFocusedContainer)
+    if((KWMScreen.MarkedWindow.WID == -1 ||
+       KWMScreen.MarkedWindow.WID == 0) &&
+       UseFocusedContainer)
     {
         CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, InsertionPoint->WID);
     }
-    else if(DoNotUseMarkedContainer || (KWMScreen.MarkedWindow == -1 && !UseFocusedContainer))
+    else if(DoNotUseMarkedContainer ||
+           ((KWMScreen.MarkedWindow.WID == -1 || KWMScreen.MarkedWindow.WID == 0) &&
+           !UseFocusedContainer))
     {
         GetFirstLeafNode(RootNode, (void**)&CurrentNode);
     }
     else
     {
-        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, KWMScreen.MarkedWindow);
+        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, KWMScreen.MarkedWindow.WID);
         ClearMarkedWindow();
     }
 
@@ -807,7 +811,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
     else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
         RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false, false);
 
-    if(Window->WID == KWMScreen.MarkedWindow)
+    if(Window->WID == KWMScreen.MarkedWindow.WID)
         ClearMarkedWindow();
 
     bool UpdateFocus = true;
@@ -926,7 +930,7 @@ void ToggleFocusedWindowParentContainer()
         if(KWMTiling.LockToContainer)
         {
             UpdateBorder("focused");
-            if(KWMFocus.Window->WID == KWMScreen.MarkedWindow)
+            if(KWMFocus.Window->WID == KWMScreen.MarkedWindow.WID)
                 UpdateBorder("marked");
 
             CreateApplicationNotifications();
@@ -971,7 +975,7 @@ void ToggleFocusedWindowFullscreen()
         if(KWMTiling.LockToContainer)
         {
             UpdateBorder("focused");
-            if(KWMFocus.Window->WID == KWMScreen.MarkedWindow)
+            if(KWMFocus.Window->WID == KWMScreen.MarkedWindow.WID)
                 UpdateBorder("marked");
 
             CreateApplicationNotifications();
@@ -1013,9 +1017,9 @@ void LockWindowToContainerSize(window_info *Window)
 
 void DetachAndReinsertWindow(int WindowID, int Degrees)
 {
-    if(WindowID == KWMScreen.MarkedWindow)
+    if(WindowID == KWMScreen.MarkedWindow.WID)
     {
-        int Marked = KWMScreen.MarkedWindow;
+        int Marked = KWMScreen.MarkedWindow.WID;
         if(Marked == -1 || (KWMFocus.Window && Marked == KWMFocus.Window->WID))
             return;
 
@@ -1026,7 +1030,7 @@ void DetachAndReinsertWindow(int WindowID, int Degrees)
     }
     else
     {
-        if(WindowID == KWMScreen.MarkedWindow ||
+        if(WindowID == KWMScreen.MarkedWindow.WID ||
            WindowID == -1)
             return;
 
@@ -1034,7 +1038,7 @@ void DetachAndReinsertWindow(int WindowID, int Degrees)
         if(FindClosestWindow(Degrees, &InsertWindow, false))
         {
             ToggleWindowFloating(WindowID, false);
-            KWMScreen.MarkedWindow = InsertWindow.WID;
+            KWMScreen.MarkedWindow = InsertWindow;
             ToggleWindowFloating(WindowID, false);
             MoveCursorToCenterOfFocusedWindow();
         }
@@ -1043,7 +1047,8 @@ void DetachAndReinsertWindow(int WindowID, int Degrees)
 
 void SwapFocusedWindowWithMarked()
 {
-    if(!KWMFocus.Window || KWMScreen.MarkedWindow == KWMFocus.Window->WID || KWMScreen.MarkedWindow == -1)
+    if(!KWMFocus.Window || KWMScreen.MarkedWindow.WID == KWMFocus.Window->WID ||
+       KWMScreen.MarkedWindow.WID == -1 || KWMScreen.MarkedWindow.WID == 0)
         return;
 
     if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
@@ -1053,7 +1058,7 @@ void SwapFocusedWindowWithMarked()
 
         if(TreeNode)
         {
-            tree_node *NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, KWMScreen.MarkedWindow);
+            tree_node *NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, KWMScreen.MarkedWindow.WID);
             if(NewFocusNode)
             {
                 SwapNodeWindowIDs(TreeNode, NewFocusNode);
@@ -1092,8 +1097,8 @@ void SwapFocusedWindowWithNearest(int Shift)
                 SwapNodeWindowIDs(Link, ShiftNode);
                 MoveCursorToCenterOfFocusedWindow();
 
-                if(Link->WindowID == KWMScreen.MarkedWindow ||
-                   ShiftNode->WindowID == KWMScreen.MarkedWindow)
+                if(Link->WindowID == KWMScreen.MarkedWindow.WID ||
+                   ShiftNode->WindowID == KWMScreen.MarkedWindow.WID)
                     UpdateBorder("marked");
             }
         }
@@ -1115,8 +1120,8 @@ void SwapFocusedWindowWithNearest(int Shift)
                 SwapNodeWindowIDs(TreeNode, NewFocusNode);
                 MoveCursorToCenterOfFocusedWindow();
 
-                if(TreeNode->WindowID == KWMScreen.MarkedWindow ||
-                   NewFocusNode->WindowID == KWMScreen.MarkedWindow)
+                if(TreeNode->WindowID == KWMScreen.MarkedWindow.WID ||
+                   NewFocusNode->WindowID == KWMScreen.MarkedWindow.WID)
                     UpdateBorder("marked");
             }
         }
@@ -1151,8 +1156,8 @@ void SwapFocusedWindowDirected(int Degrees)
                 SwapNodeWindowIDs(TreeNode, NewFocusNode);
                 MoveCursorToCenterOfFocusedWindow();
 
-                if(TreeNode->WindowID == KWMScreen.MarkedWindow ||
-                   NewFocusNode->WindowID == KWMScreen.MarkedWindow)
+                if(TreeNode->WindowID == KWMScreen.MarkedWindow.WID ||
+                   NewFocusNode->WindowID == KWMScreen.MarkedWindow.WID)
                     UpdateBorder("marked");
             }
         }
@@ -1436,7 +1441,7 @@ void MoveCursorToCenterOfFocusedWindow()
 
 void ClearMarkedWindow()
 {
-    KWMScreen.MarkedWindow = -1;
+    std::memset(&KWMScreen.MarkedWindow, 0, sizeof(window_info));
     ClearBorder(&MarkedBorder);
 }
 
@@ -1444,7 +1449,7 @@ void MarkWindowContainer(window_info *Window)
 {
     if(Window)
     {
-        if(KWMScreen.MarkedWindow == Window->WID)
+        if(KWMScreen.MarkedWindow.WID == Window->WID)
         {
             DEBUG("MarkWindowContainer() Unmarked " << Window->Name);
             ClearMarkedWindow();
@@ -1452,7 +1457,7 @@ void MarkWindowContainer(window_info *Window)
         else
         {
             DEBUG("MarkWindowContainer() Marked " << Window->Name);
-            KWMScreen.MarkedWindow = Window->WID;
+            KWMScreen.MarkedWindow = *Window;
             UpdateBorder("marked");
         }
     }
