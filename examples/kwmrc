@@ -13,7 +13,7 @@
 
 # include filename
 
-# e.g: bind-commands in a separate file called 'binds'
+# e.g: bindsym-commands in a separate file called 'binds'
 # include binds
 
 # Create variables that can be used in the below commands.
@@ -26,7 +26,7 @@
 
 # e.g: create a variable for the hyper-key
 # define hyper cmd+ctrl+alt+shift
-# kwmc bind hyper-h window -f west
+# kwmc bindsym hyper-h window -f west
 
 # Set default values for screen padding
 kwmc config padding 40 20 20 20
@@ -39,15 +39,6 @@ kwmc config tiling bsp
 
 # Let Kwm listen for hotkeys
 kwmc config hotkeys on
-
-# Set prefix for Kwms hotkeys
-kwmc config prefix-key ctrl-s
-
-# Prefix is not applied globally
-kwmc config prefix-global off
-
-# Time in seconds, before prefix must be re-activated
-kwmc config prefix-timeout 0.75
 
 # Automatically float windows that fail to resize
 kwmc config float-non-resizable on
@@ -115,118 +106,121 @@ kwmc config marked-border size 2
 kwmc config marked-border color FFCC5577
 kwmc config marked-border radius 6
 
-# Change border when prefix-key is active
-kwmc config prefix-border on
-kwmc config prefix-border size 2
-kwmc config prefix-border color FF458588
-kwmc config prefix-border radius 6
+# Enable the prefix mode
+kwmc mode prefix prefix on
+kwmc mode prefix timeout 0.75
+kwmc mode prefix restore default
+kwmc mode prefix color FF458588
 
 ########  Default Keybinds ########
 
+# Activate prefix mode
+kwmc bindsym ctrl-s mode activate prefix
+
 # Quit Kwm
-kwmc bind cmd+alt+ctrl-q quit
+kwmc bindsym cmd+alt+ctrl-q quit
 
 # Launch iTerm2
-kwmc bind cmd-return sys open -na /Applications/iTerm2.app
+kwmc bindsym cmd-return sys open -na /Applications/iTerm2.app
 
 # Set Space Tiling Mode To BSP
-kwmc bind cmd+ctrl-a space -t bsp
+kwmc bindsym cmd+ctrl-a space -t bsp
 
 # Set Space Tiling Mode To Monocle
-kwmc bind cmd+ctrl-s space -t monocle
+kwmc bindsym cmd+ctrl-s space -t monocle
 
 # Set Space Tiling Mode To Floating
-kwmc bind cmd+ctrl-d space -t float
+kwmc bindsym cmd+ctrl-d space -t float
 
 # Rotate Window-Tree By 90* (Clockwise)
-kwmc bind cmd+ctrl-r tree rotate 90
+kwmc bindsym cmd+ctrl-r tree rotate 90
 
 # Modify Container
-kwmc bind prefix-s window -c split-mode toggle
-kwmc bind prefix-h window -c reduce 0.05
-kwmc bind prefix-l window -c expand 0.05
-kwmc bind prefix-< window -c type toggle
+kwmc bindsym prefix-s window -c split-mode toggle
+kwmc bindsym prefix-h window -c reduce 0.05
+kwmc bindsym prefix-l window -c expand 0.05
+kwmc bindsym prefix-< window -c type toggle
 
 # Set Temporary Window Container
-kwmc bind prefix-f window -z fullscreen
-kwmc bind prefix-d window -z parent
-kwmc bind prefix-w window -t focused
+kwmc bindsym prefix-f window -z fullscreen
+kwmc bindsym prefix-d window -z parent
+kwmc bindsym prefix-w window -t focused
 
 # Mark Window
-kwmc bind cmd+alt+ctrl-m window -mk focused
-kwmc bind cmd+alt+ctrl-h window -mk west wrap
-kwmc bind cmd+alt+ctrl-l window -mk east wrap
-kwmc bind cmd+alt+ctrl-j window -mk south wrap
-kwmc bind cmd+alt+ctrl-k window -mk north wrap
+kwmc bindsym cmd+alt+ctrl-m window -mk focused
+kwmc bindsym cmd+alt+ctrl-h window -mk west wrap
+kwmc bindsym cmd+alt+ctrl-l window -mk east wrap
+kwmc bindsym cmd+alt+ctrl-j window -mk south wrap
+kwmc bindsym cmd+alt+ctrl-k window -mk north wrap
 
 # Give Focus To Window
-kwmc bind cmd+alt-h window -f west
-kwmc bind cmd+alt-l window -f east
-kwmc bind cmd+alt-j window -f south
-kwmc bind cmd+alt-k window -f north
+kwmc bindsym cmd+alt-h window -f west
+kwmc bindsym cmd+alt-l window -f east
+kwmc bindsym cmd+alt-j window -f south
+kwmc bindsym cmd+alt-k window -f north
 
-kwmc bind cmd+alt-n window -fm prev
-kwmc bind cmd+alt-m window -fm next
+kwmc bindsym cmd+alt-n window -fm prev
+kwmc bindsym cmd+alt-m window -fm next
 
 # Give Focus To Screen
-kwmc bind cmd+alt-1 display -f 0
-kwmc bind cmd+alt-2 display -f 1
-kwmc bind cmd+alt-3 display -f 2
+kwmc bindsym cmd+alt-1 display -f 0
+kwmc bindsym cmd+alt-2 display -f 1
+kwmc bindsym cmd+alt-3 display -f 2
 
 # Swap Focused Window
-kwmc bind ctrl+alt-h window -s west
-kwmc bind ctrl+alt-j window -s south
-kwmc bind ctrl+alt-k window -s north
-kwmc bind ctrl+alt-l window -s east
-kwmc bind ctrl+alt-m window -s mark
+kwmc bindsym ctrl+alt-h window -s west
+kwmc bindsym ctrl+alt-j window -s south
+kwmc bindsym ctrl+alt-k window -s north
+kwmc bindsym ctrl+alt-l window -s east
+kwmc bindsym ctrl+alt-m window -s mark
 
 # Pseudo containers
-kwmc bind cmd+ctrl+alt-p tree -pseudo create
-kwmc bind cmd+ctrl+alt-o tree -pseudo destroy
-kwmc bind ctrl+alt-p window -s prev
-kwmc bind ctrl+alt-n window -s next
+kwmc bindsym cmd+ctrl+alt-p tree -pseudo create
+kwmc bindsym cmd+ctrl+alt-o tree -pseudo destroy
+kwmc bindsym ctrl+alt-p window -s prev
+kwmc bindsym ctrl+alt-n window -s next
 
 # Detach Focused Window And Reinsert In Direction
-kwmc bind ctrl+shift-k window -m north
-kwmc bind ctrl+shift-l window -m east
-kwmc bind ctrl+shift-j window -m south
-kwmc bind ctrl+shift-h window -m west
+kwmc bindsym ctrl+shift-k window -m north
+kwmc bindsym ctrl+shift-l window -m east
+kwmc bindsym ctrl+shift-j window -m south
+kwmc bindsym ctrl+shift-h window -m west
 
 # Detach Marked Window And Reinsert At Focused Window
-kwmc bind ctrl+shift-x window -m mark
+kwmc bindsym ctrl+shift-x window -m mark
 
 # Move Focused Window To Space
-kwmc bind ctrl+alt-left window -m space left
-kwmc bind ctrl+alt-right window -m space right
+kwmc bindsym ctrl+alt-left window -m space left
+kwmc bindsym ctrl+alt-right window -m space right
 
 # Move Focused Window To Screen
-kwmc bind ctrl+alt-1 window -m display 0
-kwmc bind ctrl+alt-2 window -m display 1
-kwmc bind ctrl+alt-3 window -m display 2
+kwmc bindsym ctrl+alt-1 window -m display 0
+kwmc bindsym ctrl+alt-2 window -m display 1
+kwmc bindsym ctrl+alt-3 window -m display 2
 
 # Increase Container Gaps
-kwmc bind prefix-x space -g increase horizontal
-kwmc bind prefix-y space -g increase vertical
+kwmc bindsym prefix-x space -g increase horizontal
+kwmc bindsym prefix-y space -g increase vertical
 
 # Decrease Container Gaps
-kwmc bind prefix+shift-x space -g decrease horizontal
-kwmc bind prefix+shift-y space -g decrease vertical
+kwmc bindsym prefix+shift-x space -g decrease horizontal
+kwmc bindsym prefix+shift-y space -g decrease vertical
 
 # Increase Screen Padding
-kwmc bind prefix-left space -p increase left
-kwmc bind prefix-right space -p increase right
-kwmc bind prefix-up space -p increase top
-kwmc bind prefix-down space -p increase bottom
-kwmc bind prefix-p space -p increase all
+kwmc bindsym prefix-left space -p increase left
+kwmc bindsym prefix-right space -p increase right
+kwmc bindsym prefix-up space -p increase top
+kwmc bindsym prefix-down space -p increase bottom
+kwmc bindsym prefix-p space -p increase all
 
 # Decrease Screen Padding
-kwmc bind prefix+shift-left space -p decrease left
-kwmc bind prefix+shift-right space -p decrease right
-kwmc bind prefix+shift-up space -p decrease top
-kwmc bind prefix+shift-down space -p decrease bottom
-kwmc bind prefix+shift-p space -p decrease all
+kwmc bindsym prefix+shift-left space -p decrease left
+kwmc bindsym prefix+shift-right space -p decrease right
+kwmc bindsym prefix+shift-up space -p decrease top
+kwmc bindsym prefix+shift-down space -p decrease bottom
+kwmc bindsym prefix+shift-p space -p decrease all
 
 # Autowrite
-kwmc bind cmd-7 write \
-kwmc bind cmd-8 write {
-kwmc bind cmd-9 write }
+kwmc bindsym cmd-7 write \
+kwmc bindsym cmd-8 write {
+kwmc bindsym cmd-9 write }
