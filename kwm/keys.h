@@ -21,6 +21,7 @@ void KwmEmitKeystroke(modifiers Mod, std::string Key);
 void KwmEmitKeystroke(std::string KeySym);
 
 mode *GetBindingMode(std::string Mode);
+bool DoesBindingModeExist(std::string Mode);
 void KwmActivateBindingMode(std::string Mode);
 void KwmSetSpacesKey(std::string KeySym);
 void CheckPrefixTimeout();

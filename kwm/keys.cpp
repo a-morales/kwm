@@ -261,7 +261,7 @@ mode *GetBindingMode(std::string Mode)
     return &KWMHotkeys.Modes[Mode];
 }
 
-bool DoesHotkeyModeExist(std::string Mode)
+bool DoesBindingModeExist(std::string Mode)
 {
     std::map<std::string, mode>::iterator It = KWMHotkeys.Modes.find(Mode);
     return !Mode.empty() && It != KWMHotkeys.Modes.end();
@@ -270,7 +270,7 @@ bool DoesHotkeyModeExist(std::string Mode)
 void KwmActivateBindingMode(std::string Mode)
 {
     mode *BindingMode = GetBindingMode(Mode);
-    if(!DoesHotkeyModeExist(Mode))
+    if(!DoesBindingModeExist(Mode))
         BindingMode = GetBindingMode("default");
 
     KWMHotkeys.ActiveMode = BindingMode;
