@@ -299,7 +299,7 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
             KwmWriteToSocket(ClientSockFD, GetActiveSpawnPosition());
         else if(Tokens[2] == "split-mode")
             KwmWriteToSocket(ClientSockFD, GetActiveSplitMode());
-        else if(Tokens[1] == "split-ratio")
+        else if(Tokens[2] == "split-ratio")
             KwmWriteToSocket(ClientSockFD, GetActiveSplitRatio());
     }
     else if(Tokens[1] == "window")
