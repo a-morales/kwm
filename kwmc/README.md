@@ -115,8 +115,13 @@ man kwmc
             kwmc config split-ratio <opt>
             <opt>: 0 < floating point number < 1
 
-        Create a hotkey consumed by Kwm
-            kwmc bind mode+mod+mod+mod-key command [opt]
+        Create hotkeys for Kwm
+            bindsym: accepts a symbol / letter
+            bindcode: accepts a hexadecimal keycode
+
+            kwmc bindsym mode+mod+mod+mod-key command [opt]
+            kwmc bindcode mode+mod+mod+mod-hex command [opt]
+
             [opt]: {app,app,app} -e | {app,app,app} -i
                     -e: not enabled for listed applications
                     -i: only enabled for listed applications
@@ -269,56 +274,66 @@ man kwmc
 
 ### Query current state
 
-        Get owner and title of focused window
-            kwmc query focused
+        Get the state of borders
+            kwmc query border <opt>
+            <opt>: focused | marked
 
-        Get tag for current space
-            kwmc query tag
+        Get property of focused window
+            kwmc query window focused <opt>
+            <opt>: id | name | split | float
 
-        Get id of focused window (-1 == none)
-            kwmc query current
+        Get id of window in direction of focused window
+            kwmc query window focused <opt>
+            <opt>: north | east | south | west
 
-        Get id of marked window (-1 == none)
-            kwmc query marked
+        Get property of marked window
+            kwmc query window marked <opt>
+            <opt>: id | name | split | float
 
-        Get child position of window from parent (left or right child)
-            kwmc query child windowid
+        Check if two windows have the same parent
+            kwmc query window parent windiw_id1 window_id2
 
-        Get id of the window in direction of focused window
-            kwmc query dir south|north|east|west wrap|nowrap
+        Get child position of window (left or right)
+            kwmc query window child window_id
 
-        Check if the focused window and a window have the same parent node
-            kwmc query parent windowid
+        Get tilling mode to be used for new spaces
+            kwmc query tiling mode
 
-        Get state of 'kwmc config spawn'
-            kwmc query spawn
+        Get child position used by new windows
+            kwmc query tiling spawn
 
-        Get tilling mode to use for new spaces
-            kwmc query space
+        Get the mode used for binary splits
+            kwmc query tiling split-mode
+
+        Get the ratio used for binary splits
+            kwmc query tiling split-ratio
+
+        Get tag of the active space
+            kwmc query space tag
+
+        Get id of the active space
+            kwmc query space active
+
+        Get id of the previously active space
+            kwmc query space previous
 
         Get active cycle-focus mode
             kwmc query cycle-focus
 
+        Get state of float-non-resizable
+            kwmc query float-non-resizable
+
+        Get state of lock-to-container
+            kwmc query lock-to-container
+
+        Get state of standby-on-float
+            kwmc query standby-on-float
+
         Get state of focus-follows-mouse
-            kwmc query focus
+            kwmc query focus-follows-mouse
 
         Get state of mouse-follows-focus
-            kwmc query mouse-follows
-
-        Get the split-mode for the given window
-            kwmc query split-mode windowid
-
-        Get the current mode used for binary splits
-            kwmc query split-mode global
-
-        Get the current ratio used for binary splits
-            kwmc query split-ratio
-
-        Get the state of border->enable
-            kwmc query border focused|marked
+            kwmc query mouse-follows-focus
 
         Get list of visible windows on active space
-            kwmc query windows
-
-        Get id of previous active space for the focused display
-            kwmc query prev-space
+            kwmc query window-list

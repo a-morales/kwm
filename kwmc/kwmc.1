@@ -1,4 +1,4 @@
-.TH kwmc 1 "26 March 2016" "version 2.0.0"
+.TH kwmc 1 "26 March 2016" "version 3.0.0"
 .SH NAME
 kwmc - interact with the kwm window manager
 .SH SYNOPSIS
@@ -293,62 +293,67 @@ Terminate kwm
 .RE
 .IP query
 .RS 10
-.B focused
-            Get owner and title of focused window
+.B border <opt>
+            Get the state of borders
+            <opt>: focused | marked
 .LP
-.B tag
-            Get tag for current space
+.B window focused <opt>
+            Get property of focused window
+            <opt>: id | name | split | float
 .LP
-.B current
-            Get id of focused window (-1 == none)
+.B window focused <opt>
+            Get id of window in direction of focused window
+            <opt>: north | east | south | west
 .LP
-.B marked
-            Get id of marked window (-1 == none)
+.B window marked <opt>
+            Get property of marked window
+            <opt>: id | name | split | float
 .LP
-.B child window_id
-            Get child position of window from parent (left or right child)
+.B window parent window_id1 window_id2
+            Check if two windows have the same parent
 .LP
-.B dir <opt> <arg>
-            Get id of the window in direction of focused window
-            <opt>: south | north | east | west
-            <arg>: wrap | nowrap
+.B window child window_id
+            Get child position of window (left or right)
 .LP
-.B parent window_id
-            Check if the focused window and a window have the same parent node
+.B tiling mode
+            Get tilling mode to be used for new spaces
 .LP
-.B spawn
-            Get state of 'kwmc config spawn'
+.B tiling spawn
+            Get child position used by new windows
 .LP
-.B space
-            Get tilling mode used for new spaces
+.B tiling split-mode
+            Get the mode used for binary splits
+.LP
+.B tiling split-ratio
+            Get the ratio used for binary splits
+.LP
+.B space tag
+            Get tag of the active space
+.LP
+.B space active
+            Get id of the active space
+.LP
+.B space previous
+            Get id of the previously active space
 .LP
 .B cycle-focus
             Get active cycle-focus mode
 .LP
-.B focus
+.B float-non-resizable
+            Get state of float-non-resizable
+.LP
+.B lock-to-container
+            Get state of lock-to-container
+.LP
+.B standby-on-float
+            Get state of standby-on-float
+.LP
+.B focus-follows-mouse
             Get state of focus-follows-mouse
 .LP
-.B mouse-follows
+.B mouse-follows-focus
             Get state of mouse-follows-focus
 .LP
-.B split-mode window_id
-            Get the split-mode for the given window
-.LP
-.B split-mode global
-            Get the current mode used for binary splits
-.LP
-.B split-ratio
-            Get the current ratio used for binary splits
-.LP
-.B border <opt>
-            Check if a border is enabled
-            <opt>: focused | marked
-.LP
-.B windows
+.B window-list
             Get list of visible windows on active space
-.LP
-.B prev-space
-            Get id of previous active space for the focused display
 .RE
-.SH AUTHOR
-kwmc and kwm was written by koekeishiya <koekeishiya@hotmail.com>
