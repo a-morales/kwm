@@ -30,11 +30,12 @@ man kwmc
         If you wish to have a keybind that performs some action and still passes
         through to the target application, the below command can be used.
 
-            kwmc bind-passthrough mode+mod+mod+mod-key command [opt]
-            [opt]: {app,app,app} -e | {app,app,app} -i
+            kwmc bindsym-passthrough ..
+            kwmc bindcode-passthrough ..
 
         To remove a keybind, the unbind command can be used.
-            kwmc unbind mode+mod+mod+mod-key
+            kwmc unbindsym mode+mod+mod+mod-key
+            kwmc unbindcode mode+mod+mod+mod-hex
 
         Kwm does support multiple binding-modes. A binding-mode is a set of keybinds
         that will only be active when Kwm enters that state. The mode can be specified

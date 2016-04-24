@@ -124,16 +124,25 @@ window manager by sending simple text strings.
             The following allows Kwm to tile borderless iTerm2
                 kwmc config add-role AXDialog iTerm2
 .RE
-.IP bind
+.IP bindsym
 .RS 10
 .B mode+mod+mod+mod-key <opt>
-            Create a hotkey consumed by Kwm
+            Create a hotkey using symbol, consumed by Kwm
             <opt>: command | command <arg>
             <arg>: {app,app,app} -e | {app,app,app} -i
                 -e: not enabled for listed applications
                 -i: only enabled for listed applications
 .RE
-.IP bind-passthrough
+.IP bindcode
+.RS 10
+.B mode+mod+mod+mod-key <opt>
+            Create a hotkey using keycode in hexadecimal, consumed by Kwm
+            <opt>: command | command <arg>
+            <arg>: {app,app,app} -e | {app,app,app} -i
+                -e: not enabled for listed applications
+                -i: only enabled for listed applications
+.RE
+.IP bindsym-passthrough
 .RS 10
 .B mode+mod+mod+mod-key <opt>
             Create a hotkey not consumed by Kwm
@@ -142,10 +151,24 @@ window manager by sending simple text strings.
                 -e: not enabled for listed applications
                 -i: only enabled for listed applications
 .RE
-.IP unbind
+.IP bindcode-passthrough
+.RS 10
+.B mode+mod+mod+mod-key <opt>
+            Create a hotkey using keycode in hexadecimal, not consumed by Kwm
+            <opt>: command | command <arg>
+            <arg>: {app,app,app} -e | {app,app,app} -i
+                -e: not enabled for listed applications
+                -i: only enabled for listed applications
+.RE
+.IP unbindsym
 .RS 10
 .B mode+mod+mod+mod-key
-            Unbind a hotkey
+            Unbind a hotkey using symbol
+.RE
+.IP unbindcode
+.RS 10
+.B mode+mod+mod+mod-key
+            Unbind a hotkey using keycode, in hexadeciaml
 .RE
 .IP rule
 .RS 10
