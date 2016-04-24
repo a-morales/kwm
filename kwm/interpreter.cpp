@@ -14,6 +14,7 @@
 #include "serializer.h"
 #include "helpers.h"
 #include "rules.h"
+#include "query.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
@@ -290,202 +291,101 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
 
 void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 {
-    if(Tokens[1] == "focused")
+    if(Tokens[1] == "tiling")
     {
-        std::string Output;
-        GetTagForCurrentSpace(Output);
-
-        if(KWMFocus.Window)
-            Output += " " + KWMFocus.Window->Owner + (KWMFocus.Window->Name.empty() ? "" : " - " + KWMFocus.Window->Name);
-
-        KwmWriteToSocket(ClientSockFD, Output);
+        if(Tokens[2] == "mode")
+            KwmWriteToSocket(ClientSockFD, GetActiveTilingMode());
+        else if(Tokens[2] == "spawn")
+            KwmWriteToSocket(ClientSockFD, GetActiveSpawnPosition());
+        else if(Tokens[2] == "split-mode")
+            KwmWriteToSocket(ClientSockFD, GetActiveSplitMode());
+        else if(Tokens[1] == "split-ratio")
+            KwmWriteToSocket(ClientSockFD, GetActiveSplitRatio());
     }
-    else if(Tokens[1] == "current")
+    else if(Tokens[1] == "window")
     {
-        std::string Output = KWMFocus.Window ? std::to_string(KWMFocus.Window->WID) : "-1";
-        KwmWriteToSocket(ClientSockFD, Output);
-    }
-    else if(Tokens[1] == "marked")
-    {
-        std::string Output = std::to_string(KWMScreen.MarkedWindow);;
-        KwmWriteToSocket(ClientSockFD, Output);
-    }
-    else if(Tokens[1] == "tag")
-    {
-        std::string Output;
-        GetTagForCurrentSpace(Output);
-        KwmWriteToSocket(ClientSockFD, Output);
-    }
-    else if(Tokens[1] == "spawn")
-    {
-        std::string Output = KWMTiling.SpawnAsLeftChild ? "left" : "right";
-        KwmWriteToSocket(ClientSockFD, Output);
-    }
-    else if(Tokens[1] == "split-ratio")
-    {
-        std::string Output = std::to_string(KWMScreen.SplitRatio);
-        Output.erase(Output.find_last_not_of('0') + 1, std::string::npos);
-        KwmWriteToSocket(ClientSockFD, Output);
-    }
-    else if(Tokens[1] == "split-mode")
-    {
-        std::string Output;
-        if(Tokens[2] == "global")
+        if(Tokens[2] == "focused")
         {
-            if(KWMScreen.SplitMode == SPLIT_OPTIMAL)
-                Output = "Optimal";
-            else if(KWMScreen.SplitMode == SPLIT_VERTICAL)
-                Output = "Vertical";
-            else if(KWMScreen.SplitMode == SPLIT_HORIZONTAL)
-                Output = "Horizontal";
+            if(Tokens[3] == "id")
+                KwmWriteToSocket(ClientSockFD, GetIdOfFocusedWindow());
+            else if(Tokens[3] == "name")
+                KwmWriteToSocket(ClientSockFD, GetNameOfFocusedWindow());
+            else if(Tokens[3] == "split")
+                KwmWriteToSocket(ClientSockFD, GetSplitModeOfFocusedWindow());
+            else if(Tokens[3] == "float")
+                KwmWriteToSocket(ClientSockFD, GetFloatStatusOfFocusedWindow());
+            else
+                KwmWriteToSocket(ClientSockFD, GetWindowIdInDirectionOfFocusedWindow(Tokens[3]));
         }
-        else
+        else if(Tokens[2] == "marked")
         {
-            if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-            {
-                int WindowID = ConvertStringToInt(Tokens[2]);
-                space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-                tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
-                if(Node)
-                {
-                    if(Node->SplitMode == SPLIT_VERTICAL)
-                        Output = "Vertical";
-                    else if(Node->SplitMode == SPLIT_HORIZONTAL)
-                        Output = "Horizontal";
-                }
-            }
+            if(Tokens[3] == "id")
+                KwmWriteToSocket(ClientSockFD, GetIdOfMarkedWindow());
+            else if(Tokens[3] == "name")
+                KwmWriteToSocket(ClientSockFD, GetNameOfMarkedWindow());
+            else if(Tokens[3] == "split")
+                KwmWriteToSocket(ClientSockFD, GetSplitModeOfMarkedWindow());
+            else if(Tokens[3] == "float")
+                KwmWriteToSocket(ClientSockFD, GetFloatStatusOfMarkedWindow());
         }
-
-        KwmWriteToSocket(ClientSockFD, Output);
-    }
-    else if(Tokens[1] == "focus")
-    {
-        std::string Output;
-        if(KWMMode.Focus == FocusModeAutofocus)
-            Output = "autofocus";
-        else if(KWMMode.Focus == FocusModeAutoraise)
-            Output = "autoraise";
-        else if(KWMMode.Focus == FocusModeDisabled)
-            Output = "off";
-
-        KwmWriteToSocket(ClientSockFD, Output);
-    }
-    else if(Tokens[1] == "mouse-follows")
-    {
-        std::string Output;
-        if(KWMToggles.UseMouseFollowsFocus)
-            Output = "on";
-        else
-            Output = "off";
-
-        KwmWriteToSocket(ClientSockFD, Output);
+        else if(Tokens[2] == "parent")
+        {
+            int FirstID = ConvertStringToInt(Tokens[3]);
+            int SecondID = ConvertStringToInt(Tokens[4]);
+            KwmWriteToSocket(ClientSockFD, GetStateOfParentNode(FirstID, SecondID));
+        }
+        else if(Tokens[2] == "child")
+        {
+            int WindowID = ConvertStringToInt(Tokens[3]);
+            KwmWriteToSocket(ClientSockFD, GetPositionInNode(WindowID));
+        }
     }
     else if(Tokens[1] == "space")
     {
-        std::string Output;
-        if(KWMMode.Space == SpaceModeBSP)
-            Output = "bsp";
-        else if(KWMMode.Space == SpaceModeMonocle)
-            Output = "monocle";
-        else
-            Output = "float";
-
-        KwmWriteToSocket(ClientSockFD, Output);
-    }
-    else if(Tokens[1] == "cycle-focus")
-    {
-        std::string Output;
-        if(KWMMode.Cycle == CycleModeScreen)
-            Output = "screen";
-        else
-            Output = "off";
-
-        KwmWriteToSocket(ClientSockFD, Output);
+        if(Tokens[2] == "tag")
+            KwmWriteToSocket(ClientSockFD, GetTagOfCurrentSpace());
+        else if(Tokens[2] == "active")
+            KwmWriteToSocket(ClientSockFD, GetIdOfCurrentSpace());
+        else if(Tokens[2] == "previous")
+            KwmWriteToSocket(ClientSockFD, GetIdOfPreviousSpace());
     }
     else if(Tokens[1] == "border")
     {
-        std::string Output = "0";
         if(Tokens[2] == "focused")
-            Output = FocusedBorder.Enabled ? "1" : "0";
+            KwmWriteToSocket(ClientSockFD, GetStateOfFocusedBorder());
         else if(Tokens[2] == "marked")
-            Output = MarkedBorder.Enabled ? "1" : "0";
-
-        KwmWriteToSocket(ClientSockFD, Output);
+            KwmWriteToSocket(ClientSockFD, GetStateOfMarkedBorder());
     }
-    else if(Tokens[1] == "dir")
+    else if(Tokens[1] == "window-list")
     {
-        window_info Window = {};
-        std::string Output = "-1";
-        int Degrees = 0;
-
-        if(Tokens[2] == "north")
-            Degrees = 0;
-        else if(Tokens[2] == "east")
-            Degrees = 90;
-        else if(Tokens[2] == "south")
-            Degrees = 180;
-        else if(Tokens[2] == "west")
-            Degrees = 270;
-
-        bool Wrap = Tokens[3] == "wrap" ? true : false;
-        if(FindClosestWindow(Degrees, &Window, Wrap))
-            Output = std::to_string(Window.WID);
-
-        KwmWriteToSocket(ClientSockFD, Output);
+        KwmWriteToSocket(ClientSockFD, GetWindowList());
     }
-    else if(Tokens[1] == "parent")
+    else if(Tokens[1] == "cycle-focus")
     {
-        std::string Output = "0";
-        if(DoesSpaceExistInMapOfScreen(KWMScreen.Current) && KWMFocus.Window)
-        {
-            int WindowID = ConvertStringToInt(Tokens[2]);
-            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
-            tree_node *FocusedNode = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-
-            if(Node && FocusedNode)
-                Output = FocusedNode->Parent == Node->Parent ? "1" : "0";
-        }
-
-        KwmWriteToSocket(ClientSockFD, Output);
+        KwmWriteToSocket(ClientSockFD, GetStateOfCycleFocus());
     }
-    else if(Tokens[1] == "child")
+    else if(Tokens[1] == "float-non-resizable")
     {
-        std::string Output;
-        if(DoesSpaceExistInMapOfScreen(KWMScreen.Current) && KWMFocus.Window)
-        {
-            int WindowID = ConvertStringToInt(Tokens[2]);
-            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
-
-            if(Node)
-                Output = IsLeftChild(Node) ? "left" : "right";
-        }
-
-        KwmWriteToSocket(ClientSockFD, Output);
+        KwmWriteToSocket(ClientSockFD, GetStateOfFloatNonResizable());
     }
-    else if(Tokens[1] == "windows")
+    else if(Tokens[1] == "lock-to-container")
     {
-        std::string Output;
-        std::vector<window_info> Windows = FilterWindowListAllDisplays();
-        for(int Index = 0; Index < Windows.size(); ++Index)
-        {
-            Output += std::to_string(Windows[Index].WID) + ", " + Windows[Index].Owner + ", " + Windows[Index].Name;
-            if(Index < Windows.size() - 1)
-                Output += "\n";
-        }
-
-        KwmWriteToSocket(ClientSockFD, Output);
+        KwmWriteToSocket(ClientSockFD, GetStateOfLockToContainer());
     }
-    else if(Tokens[1] == "prev-space")
+    else if(Tokens[1] == "standby-on-float")
     {
-        std::string Output = "-1";
-        if(KWMScreen.Current && !KWMScreen.Current->History.empty())
-            Output = std::to_string(GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->History.top()));
-
-        KwmWriteToSocket(ClientSockFD, Output);
+        KwmWriteToSocket(ClientSockFD, GetStateOfStandbyOnFloat());
+    }
+    else if(Tokens[1] == "focus-follows-mouse")
+    {
+        KwmWriteToSocket(ClientSockFD, GetStateOfFocusFollowsMouse());
+    }
+    else if(Tokens[1] == "mouse-follows-focus")
+    {
+        KwmWriteToSocket(ClientSockFD, GetStateOfMouseFollowsFocus());
     }
 }
+
 void KwmModeCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "activate")
@@ -670,7 +570,7 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
         }
         else if(Tokens[2] == "mark")
         {
-            DetachAndReinsertWindow(KWMScreen.MarkedWindow, 0);
+            DetachAndReinsertWindow(KWMScreen.MarkedWindow.WID, 0);
         }
         else
         {
