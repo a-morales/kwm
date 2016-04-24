@@ -22,7 +22,6 @@ kwm_thread KWMThread = {};
 kwm_hotkeys KWMHotkeys = {};
 kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
-kwm_border PrefixBorder = {};
 kwm_callback KWMCallback =  {};
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
@@ -44,7 +43,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             {
                 hotkey Eventkey = {}, Hotkey = {};
                 CreateHotkeyFromCGEvent(Event, &Eventkey);
-                if(HotkeyExists(Eventkey.Mod, Eventkey.Key, &Hotkey))
+                if(HotkeyExists(Eventkey.Mod, Eventkey.Key, &Hotkey, KWMHotkeys.ActiveMode->Name))
                 {
                     KWMHotkeys.Queue.push(Hotkey);
                     if(!Hotkey.Passthrough)
@@ -94,7 +93,6 @@ void KwmQuit()
 {
     CloseBorder(&FocusedBorder);
     CloseBorder(&MarkedBorder);
-    CloseBorder(&PrefixBorder);
 
     exit(0);
 }
@@ -107,7 +105,6 @@ void * KwmWindowMonitor(void*)
         {
             pthread_mutex_lock(&KWMThread.Lock);
             CheckPrefixTimeout();
-
             if(!IsSpaceTransitionInProgress() &&
                IsActiveSpaceManaged())
             {
@@ -166,12 +163,12 @@ void KwmClearSettings()
         WindowRoles.clear();
     }
 
-    KWMHotkeys.List.clear();
+    KWMHotkeys.Modes.clear();
     KWMTiling.WindowRules.clear();
     KWMTiling.SpaceSettings.clear();
     KWMTiling.DisplaySettings.clear();
     KWMTiling.EnforcedWindows.clear();
-    KWMHotkeys.Prefix.Enabled = false;
+    KWMHotkeys.ActiveMode = GetBindingMode("default");
 }
 
 void KwmExecuteConfig()
@@ -300,18 +297,13 @@ void KwmInit()
     KWMMode.Focus = FocusModeAutoraise;
     KWMMode.Cycle = CycleModeScreen;
 
-    KWMHotkeys.Prefix.Enabled = false;
-    KWMHotkeys.Prefix.Global = false;
-    KWMHotkeys.Prefix.Active = false;
-    KWMHotkeys.Prefix.Timeout = 0.75;
-
     FocusedBorder.Radius = -1;
     MarkedBorder.Radius = -1;
-    PrefixBorder.Radius = -1;
 
     KWMPath.ConfigFile = "kwmrc";
     KWMPath.ConfigFolder = ".kwm";
     KWMPath.BSPLayouts = "layouts";
+    KWMHotkeys.ActiveMode = GetBindingMode("default");
 
     GetKwmFilePath();
     KwmExecuteConfig();
@@ -362,7 +354,6 @@ void SignalHandler(int Signum)
 {
     CloseBorder(&FocusedBorder);
     CloseBorder(&MarkedBorder);
-    CloseBorder(&PrefixBorder);
 
     signal(Signum, SIG_DFL);
     kill(getpid(), Signum);

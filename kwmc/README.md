@@ -19,40 +19,28 @@ man kwmc
             kwmc config spaces-key <opt>
             <opt>: mod+mod+mod
 
-        Set a prefix for Kwms hotkeys
-            kwmc config prefix-key <opt>
-            <opt>: mod+mod+mod-key
-
-        Make prefix global
-            kwmc config prefix-global <opt>
-            <opt>: on | off
-
-        Set prefix timeout in seconds
-            kwmc config prefix-timeout <opt>
-            <opt>: floating point number
-
         Override the optimal split-mode (golden ratio -> 1.618)
             kwmc config optimal-ratio <opt>
             <opt>: floating point number
 
         Enable window border
             kwmc config <opt>-border <arg>
-            <opt>: focused | marked | prefix
+            <opt>: focused | marked
             <arg>: on | off
 
         Set window border thickness
             kwmc config <opt>-border size <arg>
-            <opt>: focused | marked | prefix
+            <opt>: focused | marked
             <arg>: number
 
         Set window border color
             kwmc config <opt>-border color <arg>
-            <opt>: focused | marked | prefix
+            <opt>: focused | marked
             <arg>: aarrggbb
 
         Set window border radius
             kwmc config <opt>-border radius <arg>
-            <opt>: focused | marked | prefix
+            <opt>: focused | marked
             <arg>: number
 
         The container position to be occupied by new windows
@@ -128,18 +116,18 @@ man kwmc
             <opt>: 0 < floating point number < 1
 
         Create a hotkey consumed by Kwm
-            kwmc bind prefix+mod+mod+mod-key command [opt]
+            kwmc bind mode+mod+mod+mod-key command [opt]
             [opt]: {app,app,app} -e | {app,app,app} -i
                     -e: not enabled for listed applications
                     -i: only enabled for listed applications
 
         Create a hotkey not consumed by Kwm
-            kwmc bind-passthrough prefix+mod+mod+mod-key command [opt]
+            kwmc bind-passthrough mode+mod+mod+mod-key command [opt]
             [opt]: {app,app,app} -e | {app,app,app} -i
 
         Unbind a hotkey
             kwmc unbind <opt>
-            <opt>: mod+mod+mod-key
+            <opt>: mode+mod+mod+mod-key
 
         Add custom role for which windows Kwm should tile
             kwmc config add-role AXRole <opt>
@@ -305,9 +293,6 @@ man kwmc
         Get state of 'kwmc config spawn'
             kwmc query spawn
 
-        Get state of the prefix-key
-            kwmc query prefix
-
         Get tilling mode to use for new spaces
             kwmc query space
 
@@ -330,7 +315,7 @@ man kwmc
             kwmc query split-ratio
 
         Get the state of border->enable
-            kwmc query border focused|marked|prefix
+            kwmc query border focused|marked
 
         Get list of visible windows on active space
             kwmc query windows

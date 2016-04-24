@@ -1,5 +1,6 @@
 #include "border.h"
 #include "window.h"
+#include "keys.h"
 
 void UpdateBorder(std::string BorderType)
 {
@@ -8,15 +9,10 @@ void UpdateBorder(std::string BorderType)
     kwm_border *Border = &FocusedBorder;
     int WindowID = KWMFocus.Window ? KWMFocus.Window->WID : -1;
 
-    if(BorderType == "focused" &&
-       FocusedBorder.Enabled &&
-       PrefixBorder.Enabled &&
-       KWMHotkeys.Prefix.Active)
-    {
-        Border = &PrefixBorder;
-        Border->Handle = FocusedBorder.Handle;
-    }
-    else if(BorderType == "marked")
+    if(!KWMHotkeys.ActiveMode->Color.Format.empty())
+        Border->Color = KWMHotkeys.ActiveMode->Color;
+
+    if(BorderType == "marked")
     {
         WindowID = KWMScreen.MarkedWindow;
         Border = &MarkedBorder;
