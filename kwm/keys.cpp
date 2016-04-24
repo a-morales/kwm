@@ -168,7 +168,7 @@ void DetermineHotkeyState(hotkey *Hotkey, std::string &Command)
         Hotkey->State = HotkeyStateNone;
 }
 
-bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, bool Passthrough)
+bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, bool Passthrough, bool KeycodeInHex)
 {
     std::vector<std::string> KeyTokens = SplitString(KeySym, '-');
     if(KeyTokens.size() != 2)
@@ -196,9 +196,19 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, boo
     Hotkey->Command = Command;
 
     CGKeyCode Keycode;
-    bool Result = GetLayoutIndependentKeycode(KeyTokens[1], &Keycode);
-    if(!Result)
-        Result = KeycodeForChar(KeyTokens[1][0], &Keycode);
+    bool Result = false;
+    if(KeycodeInHex)
+    {
+        Result = true;
+        Keycode = ConvertHexStringToInt(KeyTokens[1]);
+        DEBUG("bindcode: " << Keycode);
+    }
+    else
+    {
+        Result = GetLayoutIndependentKeycode(KeyTokens[1], &Keycode);
+        if(!Result)
+            Result = KeycodeForChar(KeyTokens[1][0], &Keycode);
+    }
 
     Hotkey->Key = Keycode;
     return Result;
@@ -222,18 +232,18 @@ void KwmSetSpacesKey(std::string KeySym)
     KWMHotkeys.SpacesKey = Mod;
 }
 
-void KwmAddHotkey(std::string KeySym, std::string Command, bool Passthrough)
+void KwmAddHotkey(std::string KeySym, std::string Command, bool Passthrough, bool KeycodeInHex)
 {
     hotkey Hotkey = {};
-    if(KwmParseHotkey(KeySym, Command, &Hotkey, Passthrough) &&
+    if(KwmParseHotkey(KeySym, Command, &Hotkey, Passthrough, KeycodeInHex) &&
        !HotkeyExists(Hotkey.Mod, Hotkey.Key, NULL, Hotkey.Mode))
         KWMHotkeys.Modes[Hotkey.Mode].Hotkeys.push_back(Hotkey);
 }
 
-void KwmRemoveHotkey(std::string KeySym)
+void KwmRemoveHotkey(std::string KeySym, bool KeycodeInHex)
 {
     hotkey NewHotkey = {};
-    if(KwmParseHotkey(KeySym, "", &NewHotkey, false))
+    if(KwmParseHotkey(KeySym, "", &NewHotkey, false, KeycodeInHex))
     {
         mode *BindingMode = GetBindingMode(NewHotkey.Mode);
         for(std::size_t HotkeyIndex = 0; HotkeyIndex < BindingMode->Hotkeys.size(); ++HotkeyIndex)
