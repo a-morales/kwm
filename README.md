@@ -43,9 +43,7 @@ a window is specifically made floating.
 
 *System-Wide Hotkeys:*
 *Kwm* allows the user to bind and unbind hotkeys to commands through the *Kwmc* tool, using a bind and unbind option.
-These binds support the use of a single prefix, which may be bind-specific or global (apply to all binds).
-There are 3 types of hotkeys: global, global + blacklist applications, specified applications.
-Using hotkeys to change window focus will work even if focus-follows-mouse has been disabled.
+For more information, check out the *create keybinds* section [here](https://github.com/koekeishiya/kwm/tree/master/kwmc).
 
 *Multiple monitor support:*
 *Kwm* supports external monitors and have commands that allow for focusing screens, and moving windows.
