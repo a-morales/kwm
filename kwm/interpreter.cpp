@@ -419,10 +419,12 @@ void KwmModeCommand(std::vector<std::string> &Tokens)
 
 void KwmBindCommand(std::vector<std::string> &Tokens, bool Passthrough)
 {
+    bool BindCode = Tokens[0].find("bindcode") != std::string::npos;
+
     if(Tokens.size() > 2)
-        KwmAddHotkey(Tokens[1], CreateStringFromTokens(Tokens, 2), Passthrough, Tokens[0] == "bindcode" ? true : false);
+        KwmAddHotkey(Tokens[1], CreateStringFromTokens(Tokens, 2), Passthrough, BindCode);
     else
-        KwmAddHotkey(Tokens[1], "", Passthrough, Tokens[0] == "bindcode" ? true : false);
+        KwmAddHotkey(Tokens[1], "", Passthrough, BindCode);
 }
 
 void KwmWindowCommand(std::vector<std::string> &Tokens)
@@ -747,7 +749,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmModeCommand(Tokens);
     else if(Tokens[0] == "bindsym" || Tokens[0] == "bindcode")
         KwmBindCommand(Tokens, false);
-    else if(Tokens[0] == "bind-passthrough")
+    else if(Tokens[0] == "bindsym-passthrough" || Tokens[0] == "bindcode-passthrough")
         KwmBindCommand(Tokens, true);
     else if(Tokens[0] == "unbindsym" || Tokens[0] == "unbindcode")
         KwmRemoveHotkey(Tokens[1], Tokens[0] == "unbindcode");
