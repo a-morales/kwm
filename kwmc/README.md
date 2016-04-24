@@ -11,7 +11,8 @@ man kwmc
         A command with <opt> or <arg> means that an argument of that type is required
         A command with [opt] means that an argument is optional
 
-## Create Keybindings (My keybinds can be found [here](https://gist.githubusercontent.com/koekeishiya/8760be63d6171e150278/raw/2b5a6b37e5106570cf02d36ff4e3eed9b11ced9d/Kwm:%2520binds) as an example)
+## Create Keybindings
+(My keybinds can be found [here](https://gist.githubusercontent.com/koekeishiya/8760be63d6171e150278/raw/2b5a6b37e5106570cf02d36ff4e3eed9b11ced9d/Kwm:%2520binds) as an example)
 
 
         Kwm supports two different ways to create a keybind,
