@@ -4,9 +4,9 @@
 # local functions corresponding to the
 # kwmc syntax.
 
-# To run a system command, use the prefix
-# 'sys' and then the requested command
-# e.g 'sys mvim' would open macvim
+# To run an external program or command,
+# use the prefix 'exec' followed by command.
+# e.g 'exec mvim' would open macvim
 
 # Read file and execute commands as
 # if they were written inside kwmrc.
@@ -121,7 +121,7 @@ kwmc bindsym ctrl-s mode activate prefix
 kwmc bindsym cmd+alt+ctrl-q quit
 
 # Launch iTerm2
-kwmc bindsym cmd-return sys open -na /Applications/iTerm2.app
+kwmc bindsym cmd-return exec open -na /Applications/iTerm2.app
 
 # Set Space Tiling Mode To BSP
 kwmc bindsym cmd+ctrl-a space -t bsp
