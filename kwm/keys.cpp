@@ -191,7 +191,7 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, boo
     }
 
     DetermineHotkeyState(Hotkey, Command);
-    Hotkey->IsSystemCommand = IsPrefixOfString(Command, "sys");
+    Hotkey->IsSystemCommand = IsPrefixOfString(Command, "exec");
     Hotkey->Passthrough = Passthrough;
     Hotkey->Command = Command;
 
