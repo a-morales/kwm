@@ -43,6 +43,7 @@ struct screen_info;
 struct space_info;
 struct node_container;
 struct tree_node;
+struct scratchpad;
 
 struct kwm_mach;
 struct kwm_border;
@@ -295,6 +296,12 @@ struct window_role
 {
     CFTypeRef Role;
     CFTypeRef SubRole;
+};
+
+struct scratchpad
+{
+    std::map<int, window_info> Windows;
+    int LastFocus;
 };
 
 struct space_settings

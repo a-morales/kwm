@@ -23,6 +23,7 @@ kwm_hotkeys KWMHotkeys = {};
 kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
 kwm_callback KWMCallback =  {};
+scratchpad Scratchpad = {};
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {

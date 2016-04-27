@@ -15,6 +15,7 @@
 #include "helpers.h"
 #include "rules.h"
 #include "query.h"
+#include "scratchpad.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
@@ -723,6 +724,20 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
     }
 }
 
+void KwmScratchpadCommand(std::vector<std::string> &Tokens)
+{
+    if(Tokens[1] == "show")
+        ShowScratchpadWindow(ConvertStringToInt(Tokens[2]));
+    else if(Tokens[1] == "toggle")
+        ToggleScratchpadWindow(ConvertStringToInt(Tokens[2]));
+    else if(Tokens[1] == "hide")
+        HideScratchpadWindow(ConvertStringToInt(Tokens[2]));
+    else if(Tokens[1] == "add" && KWMFocus.Window)
+        AddWindowToScratchpad(KWMFocus.Window);
+    else if(Tokens[1] == "remove" && KWMFocus.Window)
+        RemoveWindowFromScratchpad(KWMFocus.Window);
+}
+
 void KwmInterpretCommand(std::string Message, int ClientSockFD)
 {
     std::vector<std::string> Tokens = SplitString(Message, ' ');
@@ -755,4 +770,6 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmRemoveHotkey(Tokens[1], Tokens[0] == "unbindcode");
     else if(Tokens[0] == "rule")
         KwmAddRule(CreateStringFromTokens(Tokens, 1));
+    else if(Tokens[0] == "scratchpad")
+        KwmScratchpadCommand(Tokens);
 }
