@@ -93,6 +93,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
 
 void KwmQuit()
 {
+    ShowAllScratchpadWindows();
     CloseBorder(&FocusedBorder);
     CloseBorder(&MarkedBorder);
 
@@ -295,6 +296,9 @@ void KwmInit()
     signal(SIGSEGV, SignalHandler);
     signal(SIGABRT, SignalHandler);
     signal(SIGTRAP, SignalHandler);
+    signal(SIGTERM, SignalHandler);
+    signal(SIGKILL, SignalHandler);
+    signal(SIGINT, SignalHandler);
 
     KWMScreen.SplitRatio = 0.5;
     KWMScreen.SplitMode = SPLIT_OPTIMAL;
