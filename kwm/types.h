@@ -385,8 +385,11 @@ struct kwm_path
 
 struct kwm_focus
 {
-    AXObserverRef Observer;
-    AXUIElementRef Application;
+    AXObserverRef FocusedObserver;
+    AXUIElementRef FocusedApplication;
+
+    AXObserverRef MarkedObserver;
+    AXUIElementRef MarkedApplication;
 
     ProcessSerialNumber PSN;
     window_info *Window;
@@ -401,7 +404,6 @@ struct kwm_screen
     bool Transitioning;
     double SplitRatio;
 
-    //int MarkedWindow;
     window_info MarkedWindow;
     split_type SplitMode;
     int PrevSpace;
