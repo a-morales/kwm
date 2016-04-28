@@ -1146,8 +1146,19 @@ void SwapFocusedWindowDirected(int Degrees)
     }
 }
 
-bool WindowIsInDirection(window_info *A, window_info *B, int Degrees, bool Wrap)
+bool WindowIsInDirection(window_info *WindowA, window_info *WindowB, int Degrees, bool Wrap)
 {
+    Assert(KWMScreen.Current);
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    tree_node *NodeA = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, WindowA->WID);
+    tree_node *NodeB = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, WindowB->WID);
+
+    if(!NodeA || !NodeB || NodeA == NodeB)
+        return false;
+
+    node_container *A = &NodeA->Container;
+    node_container *B = &NodeB->Container;
+
     if(Wrap)
     {
         if(Degrees == 0 || Degrees == 180)
@@ -1172,25 +1183,32 @@ bool WindowIsInDirection(window_info *A, window_info *B, int Degrees, bool Wrap)
 
 void GetCenterOfWindow(window_info *Window, int *X, int *Y)
 {
-    *X = Window->X + Window->Width / 2;
-    *Y = Window->Y + Window->Height / 2;
+    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, Window->WID);
+    if(Node)
+    {
+        *X = Node->Container.X + Node->Container.Width / 2;
+        *Y = Node->Container.Y + Node->Container.Height / 2;
+    }
+    else
+    {
+        *X = -1;
+        *Y = -1;
+    }
 }
 
 double GetWindowDistance(window_info *A, window_info *B)
 {
     double Dist = INT_MAX;
 
-    if(A && B)
-    {
-        int X1, Y1, X2, Y2;
-        GetCenterOfWindow(A, &X1, &Y1);
-        GetCenterOfWindow(B, &X2, &Y2);
+    int X1, Y1, X2, Y2;
+    GetCenterOfWindow(A, &X1, &Y1);
+    GetCenterOfWindow(B, &X2, &Y2);
 
-        int ScoreX = X1 >= X2 - 15 && X1 <= X2 + 15 ? 1 : 11;
-        int ScoreY = Y1 >= Y2 - 10 && Y1 <= Y2 + 10 ? 1 : 22;
-        int Weight = ScoreX * ScoreY;
-        Dist = std::sqrt(std::pow(X2-X1, 2) + std::pow(Y2-Y1, 2)) + Weight;
-    }
+    int ScoreX = X1 >= X2 - 15 && X1 <= X2 + 15 ? 1 : 11;
+    int ScoreY = Y1 >= Y2 - 10 && Y1 <= Y2 + 10 ? 1 : 22;
+    int Weight = ScoreX * ScoreY;
+    Dist = std::sqrt(std::pow(X2-X1, 2) + std::pow(Y2-Y1, 2)) + Weight;
 
     return Dist;
 }
