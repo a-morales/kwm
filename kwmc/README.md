@@ -12,7 +12,7 @@ man kwmc
         A command with [opt] means that an argument is optional
 
 ## Create Keybindings
-(My keybinds can be found [here](https://gist.githubusercontent.com/koekeishiya/8760be63d6171e150278/raw/2b5a6b37e5106570cf02d36ff4e3eed9b11ced9d/Kwm:%2520binds) as an example)
+(My keybinds can be found [here](https://gist.githubusercontent.com/koekeishiya/8760be63d6171e150278/raw/f6dfcf31506c340182583af6ab4255bc1a5e03cb/Kwm:%2520binds) as an example)
 
 
         Kwm supports two different ways to create a keybind,
@@ -38,6 +38,9 @@ man kwmc
         To remove a keybind, the unbind command can be used.
             kwmc unbindsym mode+mod+mod+mod-key
             kwmc unbindcode mode+mod+mod+mod-hex
+
+        To run an external command, the prefix 'exec' must be used.
+            kwmc bindsym mode+mod+mod+mod-key exec command [opt]
 
         Kwm does support multiple binding-modes. A binding-mode is a set of keybinds
         that will only be active when Kwm enters that state. The mode can be specified
