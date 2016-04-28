@@ -6,6 +6,7 @@
 extern kwm_tiling KWMTiling;
 extern kwm_screen KWMScreen;
 extern kwm_mode KWMMode;
+extern kwm_path KWMPath;
 extern kwm_focus KWMFocus;
 extern scratchpad Scratchpad;
 
@@ -147,6 +148,13 @@ void ResizeScratchpadWindow(screen_info *Screen, window_info *Window)
         int NewHeight = Screen->Height * 0.75;
         SetWindowDimensions(WindowRef, Window, NewX, NewY, NewWidth, NewHeight);
     }
+}
+
+void ShowAllScratchpadWindows()
+{
+    std::map<int, window_info>::iterator It;
+    for(It = Scratchpad.Windows.begin(); It != Scratchpad.Windows.end(); ++It)
+        ShowScratchpadWindow(It->first);
 }
 
 std::string GetWindowsOnScratchpad()

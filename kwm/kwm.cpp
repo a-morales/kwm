@@ -6,6 +6,7 @@
 #include "window.h"
 #include "keys.h"
 #include "interpreter.h"
+#include "scratchpad.h"
 #include "border.h"
 
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
@@ -368,11 +369,12 @@ bool CheckArguments(int argc, char **argv)
 
 void SignalHandler(int Signum)
 {
+    ShowAllScratchpadWindows();
+    DEBUG("SignalHandler() " << Signum);
+
     CloseBorder(&FocusedBorder);
     CloseBorder(&MarkedBorder);
-
-    signal(Signum, SIG_DFL);
-    kill(getpid(), Signum);
+    exit(Signum);
 }
 
 void Fatal(const std::string &Err)
