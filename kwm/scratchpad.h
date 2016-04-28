@@ -12,5 +12,6 @@ void RemoveWindowFromScratchpad(window_info *Window);
 void ToggleScratchpadWindow(int Index);
 void HideScratchpadWindow(int Index);
 void ShowScratchpadWindow(int Index);
+void ResizeScratchpadWindow(screen_info *Screen, window_info *Window);
 
 #endif

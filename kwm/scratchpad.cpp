@@ -130,8 +130,21 @@ void ShowScratchpadWindow(int Index)
 
         window_info *Window = &Scratchpad.Windows[Index];
         AddWindowToSpace(KWMScreen.Current->ActiveSpace, Window->WID);
-        CenterWindow(KWMScreen.Current, Window);
+        ResizeScratchpadWindow(KWMScreen.Current, Window);
         UpdateActiveWindowList(KWMScreen.Current);
         FocusWindowByID(Window->WID);
+    }
+}
+
+void ResizeScratchpadWindow(screen_info *Screen, window_info *Window)
+{
+    AXUIElementRef WindowRef;
+    if(GetWindowRef(Window, &WindowRef))
+    {
+        int NewX = Screen->X + Screen->Width * 0.125;
+        int NewY = Screen->Y + Screen->Height * 0.125;
+        int NewWidth = Screen->Width * 0.75;
+        int NewHeight = Screen->Height * 0.75;
+        SetWindowDimensions(WindowRef, Window, NewX, NewY, NewWidth, NewHeight);
     }
 }
