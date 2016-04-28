@@ -303,6 +303,19 @@ man kwmc
             kwmc tree restore <opt>
             <opt>: filename
 
+        Add the focused window to the first available scratchpad slot
+            kwmc scratchpad add
+
+        Remove the focused window from the scratchpad
+            kwmc scratchpad remove
+
+        List all occupied scratchpad slots and their associated window
+            kwmc scratchpad list
+
+        Toggle visibility of the window associated with the provided slot
+            kwmc scratchpad toggle <opt>
+            <opt>: number
+
 ### Query current state
 
         Get the state of borders
