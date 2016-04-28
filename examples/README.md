@@ -1,4 +1,6 @@
-## Default Binds:
+### Default Binds:
+Note: "Secure Keyboard Entry" must be disabled for binds to work while inside a terminal.
+
     - prefix-key: ctrl-s
 
     - cmd:
