@@ -148,3 +148,23 @@ void ResizeScratchpadWindow(screen_info *Screen, window_info *Window)
         SetWindowDimensions(WindowRef, Window, NewX, NewY, NewWidth, NewHeight);
     }
 }
+
+std::string GetWindowsOnScratchpad()
+{
+    std::string Result;
+
+    int Index = 0;
+    std::map<int, window_info>::iterator It;
+    for(It = Scratchpad.Windows.begin(); It != Scratchpad.Windows.end(); ++It)
+    {
+        Result += std::to_string(It->first) + ": " +
+                  std::to_string(It->second.WID) + ", " +
+                  It->second.Owner + ", " +
+                  It->second.Name;
+
+        if(Index++ < Scratchpad.Windows.size() - 1)
+            Result += "\n";
+    }
+
+    return Result;
+}

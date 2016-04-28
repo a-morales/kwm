@@ -724,7 +724,7 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmScratchpadCommand(std::vector<std::string> &Tokens)
+void KwmScratchpadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 {
     if(Tokens[1] == "show")
         ShowScratchpadWindow(ConvertStringToInt(Tokens[2]));
@@ -736,6 +736,8 @@ void KwmScratchpadCommand(std::vector<std::string> &Tokens)
         AddWindowToScratchpad(KWMFocus.Window);
     else if(Tokens[1] == "remove" && KWMFocus.Window)
         RemoveWindowFromScratchpad(KWMFocus.Window);
+    else if(Tokens[1] == "list")
+        KwmWriteToSocket(ClientSockFD, GetWindowsOnScratchpad());
 }
 
 void KwmInterpretCommand(std::string Message, int ClientSockFD)
@@ -771,5 +773,5 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
     else if(Tokens[0] == "rule")
         KwmAddRule(CreateStringFromTokens(Tokens, 1));
     else if(Tokens[0] == "scratchpad")
-        KwmScratchpadCommand(Tokens);
+        KwmScratchpadCommand(Tokens, ClientSockFD);
 }
