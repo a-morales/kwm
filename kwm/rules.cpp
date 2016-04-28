@@ -5,6 +5,7 @@
 #include "window.h"
 #include "tree.h"
 #include "helpers.h"
+#include <regex>
 
 extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
 extern void AddWindowToSpace(int CGSpaceID, int WindowID);
@@ -181,13 +182,22 @@ bool MatchWindowRule(window_rule *Rule, window_info *Window)
 {
     bool Match = true;
     if(!Rule->Owner.empty())
-        Match = Rule->Owner == Window->Owner;
+    {
+        std::regex Exp(Rule->Owner);
+        Match = std::regex_match(Window->Owner, Exp);
+    }
 
     if(!Rule->Name.empty())
-        Match = Match && Window->Name.find(Rule->Name) != std::string::npos;
+    {
+        std::regex Exp(Rule->Name);
+        Match = Match && std::regex_match(Window->Name, Exp);
+    }
 
     if(!Rule->Except.empty())
-        Match = Match && Window->Name.find(Rule->Except) == std::string::npos;
+    {
+        std::regex Exp(Rule->Except);
+        Match = Match && !std::regex_match(Window->Name, Exp);
+    }
 
     return Match;
 }
