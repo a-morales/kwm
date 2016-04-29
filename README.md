@@ -156,8 +156,7 @@ If a space is set to floating mode, *Kwm* will ignore this space.
 If a space is in monocle mode, every window will run fullscreen.
 
 If a window is not detected by *Kwm*, it is most likely due to a 'window role' mismatch.
-Use the command `kwmc config add-role role application` to fix this.
-See https://github.com/koekeishiya/kwm/issues/40 for information.
+Create window rules to fix this. See https://github.com/koekeishiya/kwm/issues/40 for information.
 
 ### Donate
 First of all, *Kwm* will always be free and open source, however some users have

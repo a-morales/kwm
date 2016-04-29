@@ -166,16 +166,12 @@ man kwmc
             kwmc config split-ratio <opt>
             <opt>: 0 < floating point number < 1
 
-        Add custom role for which windows Kwm should tile
-            kwmc config add-role AXRole <opt>
-            <opt>: name of application
-
-            The following allows Kwm to tile borderless iTerm2
-                kwmc config add-role AXDialog iTerm2
-
         Create rules that applies to specific applications or windows
         See (https://github.com/koekeishiya/kwm/issues/268) for details
-            kwmc rule owner="" name="" properties={float=""; display=""; space=""; scratchpad=""} except=""
+            kwmc rule owner="" name="" properties={float=""; display=""; space=""; scratchpad=""; role=""} except=""
+
+            The following allows Kwm to tile borderless iTerm2 windows
+                kwmc rule owner="iTerm2" properties={role="AXDialog"}
 
 ### Interact with Kwm
 

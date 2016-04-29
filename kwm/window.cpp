@@ -45,7 +45,7 @@ std::vector<window_info> FilterWindowListAllDisplays()
         if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
         {
             if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
-               IsAppSpecificWindowRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
+               IsWindowSpecificRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
                     FilteredWindowLst.push_back(KWMTiling.FocusLst[WindowIndex]);
         }
     }
@@ -84,7 +84,7 @@ bool FilterWindowList(screen_info *Screen)
             if(GetWindowRole(Window, &Role, &SubRole))
             {
                 if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
-                   IsAppSpecificWindowRole(Window, Role, SubRole))
+                   IsWindowSpecificRole(Window, Role, SubRole))
                     FilteredWindowLst.push_back(KWMTiling.WindowLst[WindowIndex]);
             }
         }
@@ -239,7 +239,7 @@ void FocusWindowBelowCursor()
             if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
             {
                 if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
-                   IsAppSpecificWindowRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
+                   IsWindowSpecificRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
                 {
                     if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
                         KWMFocus.Cache = KWMTiling.FocusLst[WindowIndex];

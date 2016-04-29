@@ -4,27 +4,23 @@
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
 
-void AllowRoleForApplication(std::string Application, std::string Role)
+void AllowRoleForWindow(window_info *Window, std::string Role)
 {
-    std::map<std::string, std::vector<CFTypeRef> >::iterator It = KWMTiling.AllowedWindowRoles.find(Application);
+    std::map<int, CFTypeRef>::iterator It = KWMTiling.AllowedWindowRoles.find(Window->WID);
     if(It == KWMTiling.AllowedWindowRoles.end())
-        KWMTiling.AllowedWindowRoles[Application] = std::vector<CFTypeRef>();
-
-    CFStringRef RoleRef = CFStringCreateWithCString(NULL, Role.c_str(), kCFStringEncodingMacRoman);
-    KWMTiling.AllowedWindowRoles[Application].push_back(RoleRef);
+    {
+        CFStringRef RoleRef = CFStringCreateWithCString(NULL, Role.c_str(), kCFStringEncodingMacRoman);
+        KWMTiling.AllowedWindowRoles[Window->WID] = RoleRef;
+    }
 }
 
-bool IsAppSpecificWindowRole(window_info *Window, CFTypeRef Role, CFTypeRef SubRole)
+bool IsWindowSpecificRole(window_info *Window, CFTypeRef Role, CFTypeRef SubRole)
 {
-    std::map<std::string, std::vector<CFTypeRef> >::iterator It = KWMTiling.AllowedWindowRoles.find(Window->Owner);
+    std::map<int, CFTypeRef>::iterator It = KWMTiling.AllowedWindowRoles.find(Window->WID);
     if(It != KWMTiling.AllowedWindowRoles.end())
     {
-        std::vector<CFTypeRef> &WindowRoles = It->second;
-        for(std::size_t RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
-        {
-            if(CFEqual(Role, WindowRoles[RoleIndex]) || CFEqual(SubRole, WindowRoles[RoleIndex]))
-                return true;
-        }
+        if(CFEqual(Role, It->second) || CFEqual(SubRole, It->second))
+            return true;
     }
 
     return false;

@@ -268,6 +268,7 @@ struct window_properties
     int Space;
     int Float;
     int Scratchpad;
+    std::string Role;
 };
 
 struct window_rule
@@ -359,7 +360,6 @@ struct kwm_hotkeys
     std::queue<hotkey> Queue;
     std::map<std::string, mode> Modes;
 
-    //std::string ActiveMode;
     mode *ActiveMode;
     modifiers SpacesKey;
 };
@@ -429,7 +429,7 @@ struct kwm_tiling
     std::vector<int> FloatingWindowLst;
 
 
-    std::map<std::string, std::vector<CFTypeRef> > AllowedWindowRoles;
+    std::map<int, CFTypeRef> AllowedWindowRoles;
     std::vector<window_rule> WindowRules;
     std::map<int, bool> EnforcedWindows;
 };

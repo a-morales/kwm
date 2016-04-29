@@ -156,16 +156,11 @@ void KwmReloadConfig()
 
 void KwmClearSettings()
 {
-    std::map<std::string, std::vector<CFTypeRef> >::iterator It;
+    std::map<int, CFTypeRef>::iterator It;
     for(It = KWMTiling.AllowedWindowRoles.begin(); It != KWMTiling.AllowedWindowRoles.end(); ++It)
-    {
-        std::vector<CFTypeRef> &WindowRoles = It->second;
-        for(std::size_t RoleIndex = 0; RoleIndex < WindowRoles.size(); ++RoleIndex)
-            CFRelease(WindowRoles[RoleIndex]);
+        CFRelease(It->second);
 
-        WindowRoles.clear();
-    }
-
+    KWMTiling.AllowedWindowRoles.clear();
     KWMHotkeys.Modes.clear();
     KWMTiling.WindowRules.clear();
     KWMTiling.SpaceSettings.clear();

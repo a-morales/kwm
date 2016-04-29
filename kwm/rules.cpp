@@ -6,6 +6,7 @@
 #include "tree.h"
 #include "helpers.h"
 #include "scratchpad.h"
+#include "application.h"
 #include <regex>
 
 extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
@@ -127,6 +128,12 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
                                     Properties->Scratchpad = 0;
                             }
                         }
+                        else if(TokenEquals(Token, "role"))
+                        {
+                            std::string Value;
+                            if(ParseIdentifier(Tokenizer, &Value))
+                                    Properties->Role = Value;
+                        }
                     } break;
                     default: { DEBUG("Expected token of type Token_Identifier"); } break;
                 }
@@ -241,6 +248,9 @@ void CheckWindowRules(window_info *Window)
 
             if(Rule->Properties.Scratchpad != -1)
                 Window->Properties.Scratchpad = Rule->Properties.Scratchpad;
+
+            if(!Rule->Properties.Role.empty())
+                AllowRoleForWindow(Window, Rule->Properties.Role);
         }
     }
 }

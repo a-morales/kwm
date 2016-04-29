@@ -256,10 +256,6 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "on")
             KWMToggles.UseBuiltinHotkeys = true;
     }
-    else if(Tokens[1] == "add-role")
-    {
-        AllowRoleForApplication(CreateStringFromTokens(Tokens, 3), Tokens[2]);
-    }
     else if(Tokens[1] == "padding")
     {
         container_offset Offset = { ConvertStringToDouble(Tokens[2]),
