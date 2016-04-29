@@ -80,7 +80,7 @@ kwmc config spawn left
 # does not get tiled by Kwm by default.
 # This is because some applications do not have the
 # AXWindowRole and AXStandardWindowSubRole
-kwmc config add-role AXDialog iTerm2
+kwmc rule owner="iTerm2" properties={role="AXDialog"}
 
 # The following commands create rules that
 # blacklists an application from Kwms tiling
