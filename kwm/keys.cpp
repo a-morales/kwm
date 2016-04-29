@@ -105,14 +105,23 @@ void KwmExecuteHotkey(hotkey *Hotkey)
     if(Hotkey->Command.empty())
         return;
 
-    DEBUG("KwmExecuteHotkey() " << Hotkey->Command);
-    if(Hotkey->IsSystemCommand)
-        KwmExecuteThreadedSystemCommand(Hotkey->Command);
-    else
-        KwmInterpretCommand(Hotkey->Command, 0);
+    std::vector<std::string> Commands = SplitString(Hotkey->Command, ':');
+    DEBUG("KwmExecuteHotkey: Number of commands " << Commands.size());
+    for(int CmdIndex = 0; CmdIndex < Commands.size(); ++CmdIndex)
+    {
+        std::string &Command = TrimString(Commands[CmdIndex]);
+        if(!Command.empty())
+        {
+            DEBUG("KwmExecuteHotkey() " << Command);
+            if(IsPrefixOfString(Command, "exec"))
+                KwmExecuteThreadedSystemCommand(Command);
+            else
+                KwmInterpretCommand(Command, 0);
 
-    if(KWMHotkeys.ActiveMode->Prefix)
-        KWMHotkeys.ActiveMode->Time = std::chrono::steady_clock::now();
+            if(KWMHotkeys.ActiveMode->Prefix)
+                KWMHotkeys.ActiveMode->Time = std::chrono::steady_clock::now();
+        }
+    }
 }
 
 bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string Mode)
@@ -191,7 +200,6 @@ bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, boo
     }
 
     DetermineHotkeyState(Hotkey, Command);
-    Hotkey->IsSystemCommand = IsPrefixOfString(Command, "exec");
     Hotkey->Passthrough = Passthrough;
     Hotkey->Command = Command;
 

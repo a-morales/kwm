@@ -68,6 +68,30 @@ SplitString(std::string Line, char Delim)
     return Elements;
 }
 
+inline std::string &LTrimString(std::string &Input)
+{
+    Input.erase(Input.begin(), std::find_if(Input.begin(),
+                Input.end(),
+                std::not1(std::ptr_fun<int, int>(std::isspace))));
+
+    return  Input;
+}
+
+inline std::string &RTrimString(std::string &Input)
+{
+    Input.erase(std::find_if(Input.rbegin(), Input.rend(),
+                std::not1(std::ptr_fun<int, int>(std::isspace))).base(),
+                Input.end());
+
+    return Input;
+}
+
+inline std::string &TrimString(std::string &Input)
+{
+    return LTrimString(RTrimString(Input));
+}
+
+
 inline void
 CreateColorFormat(color *Color)
 {

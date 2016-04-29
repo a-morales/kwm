@@ -191,7 +191,6 @@ struct modifiers
 struct hotkey
 {
     std::vector<std::string> List;
-    bool IsSystemCommand;
     hotkey_state State;
     bool Passthrough;
 
