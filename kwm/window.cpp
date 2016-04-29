@@ -1197,20 +1197,31 @@ void GetCenterOfWindow(window_info *Window, int *X, int *Y)
     }
 }
 
-double GetWindowDistance(window_info *A, window_info *B)
+double GetWindowDistance(window_info *A, window_info *B, int Degrees)
 {
-    double Dist = INT_MAX;
+    double Rank = INT_MAX;
 
     int X1, Y1, X2, Y2;
     GetCenterOfWindow(A, &X1, &Y1);
     GetCenterOfWindow(B, &X2, &Y2);
 
-    int ScoreX = X1 >= X2 - 15 && X1 <= X2 + 15 ? 1 : 11;
-    int ScoreY = Y1 >= Y2 - 10 && Y1 <= Y2 + 10 ? 1 : 22;
-    int Weight = ScoreX * ScoreY;
-    Dist = std::sqrt(std::pow(X2-X1, 2) + std::pow(Y2-Y1, 2)) + Weight;
+    double DeltaX = X2 - X1;
+    double DeltaY = Y2 - Y1;
+    double Angle = std::atan2(DeltaY, DeltaX);
+    double Distance = std::hypot(DeltaX, DeltaY);
+    double DeltaA = 0;
 
-    return Dist;
+    if(Degrees == 0)
+        DeltaA = -M_PI_2 - Angle;
+    else if(Degrees == 180)
+        DeltaA = M_PI_2 - Angle;
+    else if(Degrees == 90)
+        DeltaA = 0.0 - Angle;
+    else if(Degrees == 270)
+        DeltaA = M_PI - std::fabs(Angle);
+
+    Rank = Distance / std::cos(DeltaA / 2.0);
+    return Rank;
 }
 
 bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
@@ -1249,7 +1260,7 @@ bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
                 FocusWindow = WrappedWindow;
             }
 
-            double Dist = GetWindowDistance(Match, &FocusWindow);
+            double Dist = GetWindowDistance(Match, &FocusWindow, Degrees);
             if(Dist < MinDist)
             {
                 MinDist = Dist;
