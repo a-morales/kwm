@@ -268,6 +268,7 @@ struct window_properties
     int Display;
     int Space;
     int Float;
+    int Scratchpad;
 };
 
 struct window_rule
@@ -287,9 +288,7 @@ struct window_info
     int X, Y;
     int Width, Height;
 
-    bool Float;
-    unsigned int Space;
-    unsigned int Display;
+    window_properties Properties;
 };
 
 struct window_role

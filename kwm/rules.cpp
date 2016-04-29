@@ -5,6 +5,7 @@
 #include "window.h"
 #include "tree.h"
 #include "helpers.h"
+#include "scratchpad.h"
 #include <regex>
 
 extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
@@ -77,6 +78,7 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
     {
         if(RequireToken(Tokenizer, Token_OpenBrace))
         {
+            Properties->Scratchpad = -1;
             Properties->Display = -1;
             Properties->Space = -1;
             Properties->Float = -1;
@@ -113,6 +115,17 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
                             std::string Value;
                             if(ParseIdentifier(Tokenizer, &Value))
                                 Properties->Space = ConvertStringToInt(Value);
+                        }
+                        else if(TokenEquals(Token, "scratchpad"))
+                        {
+                            std::string Value;
+                            if(ParseIdentifier(Tokenizer, &Value))
+                            {
+                                if(Value == "visible")
+                                    Properties->Scratchpad = 1;
+                                else if(Value == "hidden")
+                                    Properties->Scratchpad = 0;
+                            }
                         }
                     } break;
                     default: { DEBUG("Expected token of type Token_Identifier"); } break;
@@ -207,9 +220,10 @@ void CheckWindowRules(window_info *Window)
     if(HasRuleBeenApplied(Window))
         return;
 
-    Window->Display = -1;
-    Window->Space = -1;
-    Window->Float = 0;
+    Window->Properties.Scratchpad = -1;
+    Window->Properties.Display = -1;
+    Window->Properties.Space = -1;
+    Window->Properties.Float = 0;
 
     for(int Index = 0; Index < KWMTiling.WindowRules.size(); ++Index)
     {
@@ -217,13 +231,16 @@ void CheckWindowRules(window_info *Window)
         if(MatchWindowRule(Rule, Window))
         {
             if(Rule->Properties.Float != -1)
-                Window->Float = Rule->Properties.Float == 1;
+                Window->Properties.Float = Rule->Properties.Float;
 
             if(Rule->Properties.Display != -1)
-                Window->Display = Rule->Properties.Display;
+                Window->Properties.Display = Rule->Properties.Display;
 
             if(Rule->Properties.Space != -1)
-                Window->Space = Rule->Properties.Space;
+                Window->Properties.Space = Rule->Properties.Space;
+
+            if(Rule->Properties.Scratchpad != -1)
+                Window->Properties.Scratchpad = Rule->Properties.Scratchpad;
         }
     }
 }
@@ -232,7 +249,7 @@ bool EnforceWindowRules(window_info *Window)
 {
     bool Result  = false;
 
-    if(Window->Float)
+    if(Window->Properties.Float == 1)
     {
         screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
         if(ScreenOfWindow)
@@ -247,32 +264,39 @@ bool EnforceWindowRules(window_info *Window)
         KWMTiling.FloatingWindowLst.push_back(Window->WID);
     }
 
-    if(Window->Display != -1)
+    if(Window->Properties.Display != -1)
     {
-        screen_info *Screen = GetDisplayFromScreenID(Window->Display);
+        screen_info *Screen = GetDisplayFromScreenID(Window->Properties.Display);
         if(Screen && Screen != GetDisplayOfWindow(Window))
         {
-            MoveWindowToDisplay(Window, Window->Display, false);
+            MoveWindowToDisplay(Window, Window->Properties.Display, false);
             Result = true;
         }
     }
 
-    if(Window->Space != -1)
+    if(Window->Properties.Space != -1)
     {
-        int Display = Window->Display == -1 ? 0 : Window->Display;
+        int Display = Window->Properties.Display == -1 ? 0 : Window->Properties.Display;
         screen_info *SourceScreen = GetDisplayOfWindow(Window);
         screen_info *DestinationScreen = GetDisplayFromScreenID(Display);
         int TotalSpaces = GetNumberOfSpacesOfDisplay(DestinationScreen);
-        if(Window->Space <= TotalSpaces && Window->Space >= 1)
+        if(Window->Properties.Space <= TotalSpaces && Window->Properties.Space >= 1)
         {
             int SourceCGSpaceID = SourceScreen->ActiveSpace;
-            int DestinationCGSpaceID = GetCGSpaceIDFromSpaceNumber(DestinationScreen, Window->Space);
+            int DestinationCGSpaceID = GetCGSpaceIDFromSpaceNumber(DestinationScreen, Window->Properties.Space);
             if(!IsWindowOnSpace(Window->WID, DestinationCGSpaceID))
             {
                 AddWindowToSpace(DestinationCGSpaceID, Window->WID);
                 RemoveWindowFromSpace(SourceCGSpaceID, Window->WID);
             }
         }
+    }
+
+    if(Window->Properties.Scratchpad != -1)
+    {
+        AddWindowToScratchpad(Window);
+        if(Window->Properties.Scratchpad == 0)
+            HideScratchpadWindow(GetScratchpadSlotOfWindow(Window));
     }
 
     KWMTiling.EnforcedWindows[Window->WID] = true;

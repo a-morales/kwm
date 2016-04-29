@@ -88,7 +88,7 @@ extern kwm_thread KWMThread;
                     space_info *OSXSpace = GetActiveSpaceOfScreen(OSXScreen);
                     tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(OSXSpace->RootNode, OSXWindow->WID);
 
-                    bool Floating = IsWindowFloating(OSXWindow->WID, NULL) || OSXWindow->Float;
+                    bool Floating = IsWindowFloating(OSXWindow->WID, NULL);
                     if(TreeNode || Floating)
                     {
                         bool SameScreen = OSXScreen == ScreenOfWindow;
