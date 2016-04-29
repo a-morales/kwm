@@ -105,7 +105,7 @@ void KwmExecuteHotkey(hotkey *Hotkey)
     if(Hotkey->Command.empty())
         return;
 
-    std::vector<std::string> Commands = SplitString(Hotkey->Command, ':');
+    std::vector<std::string> Commands = SplitString(Hotkey->Command, ';');
     DEBUG("KwmExecuteHotkey: Number of commands " << Commands.size());
     for(int CmdIndex = 0; CmdIndex < Commands.size(); ++CmdIndex)
     {

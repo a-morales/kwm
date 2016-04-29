@@ -26,7 +26,7 @@ man kwmc
 
             The ':' is interpreted as a separator and allows for Kwm to perform
             multiple commands in a single bind. For more advanced use, make shellscripts.
-                kwmc bindsym mode+mod+mod+mod-key cmd_1 : cmd_2 : cmd_n [opt]
+                kwmc bindsym mode+mod+mod+mod-key cmd_1 ; cmd_2 ; cmd_n [opt]
 
             [opt]: {app,app,app} -e | {app,app,app} -i
                     -e: not enabled for listed applications
