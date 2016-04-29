@@ -24,7 +24,7 @@ man kwmc
             kwmc bindsym mode+mod+mod+mod-key command [opt]
             kwmc bindcode mode+mod+mod+mod-hex command [opt]
 
-            The ':' is interpreted as a separator and allows for Kwm to perform
+            The ';' is interpreted as a separator and allows for Kwm to perform
             multiple commands in a single bind. For more advanced use, make shellscripts.
                 kwmc bindsym mode+mod+mod+mod-key cmd_1 ; cmd_2 ; cmd_n [opt]
 
