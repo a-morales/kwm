@@ -20,12 +20,10 @@ For in depth information, sample configurations, and useful scripts to implement
 *Kwm* requires access to the OSX accessibility API.
 Tested on El Capitan (10.11.1 - 10.11.4).
 
-![img](https://cloud.githubusercontent.com/assets/6175959/12651784/55c7debe-c5e8-11e5-836f-97f99f2b4529.png)
+![img](https://cloud.githubusercontent.com/assets/6175959/14930025/373c206a-0e61-11e6-9408-c26c7f9fd2a7.png)
 For more screenshots, [click here.](https://github.com/koekeishiya/kwm/issues/2)
 
-[herrbischoff](https://github.com/herrbischoff) has re-created my bar from the screenshots as a widget
-for [Übersicht](http://tracesof.net/uebersicht/) for those that would like to have a decent bar with their setup.
-This widget can be found here: https://github.com/herrbischoff/nerdbar.widget
+The bar seen in the above screenshot can be found [here](https://github.com/koekeishiya/nerdbar.widget).
 
 ## Extended Information:
 
