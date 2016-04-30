@@ -1191,6 +1191,18 @@ double GetWindowDistance(window_info *A, window_info *B, int Degrees, bool Wrap)
     GetCenterOfWindow(A, &X1, &Y1);
     GetCenterOfWindow(B, &X2, &Y2);
 
+    if(Wrap)
+    {
+        if(Degrees == 0 && Y1 < Y2)
+            Y2 -= KWMScreen.Current->Height;
+        else if(Degrees == 180 && Y1 > Y2)
+            Y2 += KWMScreen.Current->Height;
+        else if(Degrees == 90 && X1 > X2)
+            X2 += KWMScreen.Current->Width;
+        else if(Degrees == 270 && X1 < X2)
+            X2 -= KWMScreen.Current->Width;
+    }
+
     double DeltaX = X2 - X1;
     double DeltaY = Y2 - Y1;
     double Angle = std::atan2(DeltaY, DeltaX);
@@ -1232,27 +1244,7 @@ bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
            WindowIsInDirection(Match, &Windows[Index], Degrees) &&
            !IsWindowFloating(Windows[Index].WID, NULL))
         {
-            window_info FocusWindow = Windows[Index];
-
-            if(Wrap)
-            {
-                int WindowX, WindowY;
-                GetCenterOfWindow(&Windows[Index], &WindowX, &WindowY);
-
-                window_info WrappedWindow = Windows[Index];
-                if(Degrees == 0 && MatchY < WindowY)
-                    WrappedWindow.Y -= KWMScreen.Current->Height;
-                else if(Degrees == 180 && MatchY > WindowY)
-                    WrappedWindow.Y += KWMScreen.Current->Height;
-                else if(Degrees == 90 && MatchX > WindowX)
-                    WrappedWindow.X += KWMScreen.Current->Width;
-                else if(Degrees == 270 && MatchX < WindowX)
-                    WrappedWindow.X -= KWMScreen.Current->Width;
-
-                FocusWindow = WrappedWindow;
-            }
-
-            double Dist = GetWindowDistance(Match, &FocusWindow, Degrees, Wrap);
+            double Dist = GetWindowDistance(Match, &Windows[Index], Degrees, Wrap);
             if(Dist < MinDist)
             {
                 MinDist = Dist;
