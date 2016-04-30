@@ -308,6 +308,9 @@ void KwmInit()
     KWMTiling.OptimalRatio = 1.618;
     KWMTiling.LockToContainer = true;
     KWMTiling.MonitorWindows = true;
+    KWMTiling.KwmOverlay[0] = -1;
+    KWMTiling.KwmOverlay[1] = -1;
+    KWMTiling.OverlayCount = 0;
 
     KWMMode.Space = SpaceModeBSP;
     KWMMode.Focus = FocusModeAutoraise;

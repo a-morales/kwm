@@ -308,7 +308,16 @@ void UpdateActiveWindowList(screen_info *Screen)
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
         if(KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Owner == "kwm-overlay")
         {
-            KWMTiling.KwmOverlay = KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1];
+            if(KWMTiling.KwmOverlay[KWMTiling.OverlayCount] == -1)
+            {
+                int OverlayWID = KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].WID;
+                KWMTiling.KwmOverlay[KWMTiling.OverlayCount++] = OverlayWID;
+
+                if(KWMTiling.OverlayCount == 2 &&
+                   KWMTiling.KwmOverlay[0] == OverlayWID)
+                    KWMTiling.KwmOverlay[--KWMTiling.OverlayCount] = -1;
+            }
+
             KWMTiling.WindowLst.pop_back();
         }
     }

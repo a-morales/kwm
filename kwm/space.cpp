@@ -246,8 +246,10 @@ void UpdateActiveSpace()
     pthread_mutex_lock(&KWMThread.Lock);
     Assert(KWMScreen.Current);
 
-    if(FocusedBorder.Enabled)
-        RemoveWindowFromSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay.WID);
+    if(KWMTiling.KwmOverlay[0] != -1)
+        RemoveWindowFromSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[0]);
+    if(KWMTiling.KwmOverlay[1] != -1)
+        RemoveWindowFromSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[1]);
 
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
@@ -309,8 +311,10 @@ void UpdateActiveSpace()
         }
     }
 
-    if(FocusedBorder.Enabled)
-        AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay.WID);
+    if(KWMTiling.KwmOverlay[0] != -1)
+        AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[0]);
+    if(KWMTiling.KwmOverlay[1] != -1)
+        AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[1]);
 
     pthread_mutex_unlock(&KWMThread.Lock);
 }
