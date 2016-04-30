@@ -53,6 +53,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "off")
         {
             FocusedBorder.Enabled = false;
+            KWMTiling.KwmOverlay[0] = 0;
             UpdateBorder("focused");
         }
         else if(Tokens[2] == "size")
@@ -80,6 +81,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "off")
         {
             MarkedBorder.Enabled = false;
+            KWMTiling.KwmOverlay[1] = 0;
             UpdateBorder("marked");
         }
         else if(Tokens[2] == "size")

@@ -434,7 +434,6 @@ struct kwm_tiling
     std::map<int, bool> EnforcedWindows;
 
     int KwmOverlay[2];
-    int OverlayCount;
 };
 
 struct kwm_cache

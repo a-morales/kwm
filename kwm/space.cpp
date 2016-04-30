@@ -246,9 +246,9 @@ void UpdateActiveSpace()
     pthread_mutex_lock(&KWMThread.Lock);
     Assert(KWMScreen.Current);
 
-    if(KWMTiling.KwmOverlay[0] != -1)
+    if(KWMTiling.KwmOverlay[0] != 0)
         RemoveWindowFromSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[0]);
-    if(KWMTiling.KwmOverlay[1] != -1)
+    if(KWMTiling.KwmOverlay[1] != 0)
         RemoveWindowFromSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[1]);
 
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
@@ -311,9 +311,9 @@ void UpdateActiveSpace()
         }
     }
 
-    if(KWMTiling.KwmOverlay[0] != -1)
+    if(KWMTiling.KwmOverlay[0] != 0)
         AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[0]);
-    if(KWMTiling.KwmOverlay[1] != -1)
+    if(KWMTiling.KwmOverlay[1] != 0)
         AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[1]);
 
     pthread_mutex_unlock(&KWMThread.Lock);
