@@ -17,6 +17,9 @@ extern kwm_thread KWMThread;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
 
+extern void AddWindowToSpace(int CGSpaceID, int WindowID);
+extern void RemoveWindowFromSpace(int CGSpaceID, int WindowID);
+
 void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
 {
     tree_node *Node = Space->RootNode;
@@ -243,6 +246,9 @@ void UpdateActiveSpace()
     pthread_mutex_lock(&KWMThread.Lock);
     Assert(KWMScreen.Current);
 
+    if(FocusedBorder.Enabled)
+        RemoveWindowFromSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay.WID);
+
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
     ShouldActiveSpaceBeManaged();
@@ -302,6 +308,9 @@ void UpdateActiveSpace()
             }
         }
     }
+
+    if(FocusedBorder.Enabled)
+        AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay.WID);
 
     pthread_mutex_unlock(&KWMThread.Lock);
 }

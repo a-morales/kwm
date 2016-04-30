@@ -307,7 +307,10 @@ void UpdateActiveWindowList(screen_info *Screen)
         KWMTiling.WindowLst.push_back(window_info());
         CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
         if(KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Owner == "kwm-overlay")
+        {
+            KWMTiling.KwmOverlay = KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1];
             KWMTiling.WindowLst.pop_back();
+        }
     }
     CFRelease(OsxWindowLst);
 
