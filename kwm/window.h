@@ -59,9 +59,9 @@ void ShiftWindowFocus(int Shift);
 void ShiftSubTreeWindowFocus(int Shift);
 void ShiftWindowFocusDirected(int Degrees);
 bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap);
-double GetWindowDistance(window_info *A, window_info *B, int Degrees);
+double GetWindowDistance(window_info *A, window_info *B, int Degrees, bool Wrap);
 void GetCenterOfWindow(window_info *Window, int *X, int *Y);
-bool WindowIsInDirection(window_info *A, window_info *B, int Degrees, bool Wrap);
+bool WindowIsInDirection(window_info *A, window_info *B, int Degrees);
 
 void ClearMarkedWindow();
 void MarkWindowContainer(window_info *Window);

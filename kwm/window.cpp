@@ -1146,7 +1146,7 @@ void SwapFocusedWindowDirected(int Degrees)
     }
 }
 
-bool WindowIsInDirection(window_info *WindowA, window_info *WindowB, int Degrees, bool Wrap)
+bool WindowIsInDirection(window_info *WindowA, window_info *WindowB, int Degrees)
 {
     Assert(KWMScreen.Current);
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
@@ -1159,24 +1159,10 @@ bool WindowIsInDirection(window_info *WindowA, window_info *WindowB, int Degrees
     node_container *A = &NodeA->Container;
     node_container *B = &NodeB->Container;
 
-    if(Wrap)
-    {
-        if(Degrees == 0 || Degrees == 180)
-            return A->Y != B->Y && fmax(A->X, B->X) < fmin(B->X + B->Width, A->X + A->Width);
-        else if(Degrees == 90 || Degrees == 270)
-            return A->X != B->X && fmax(A->Y, B->Y) < fmin(B->Y + B->Height, A->Y + A->Height);
-    }
-    else
-    {
-        if(Degrees == 0)
-            return B->Y + B->Height < A->Y;
-        else if(Degrees == 90)
-            return B->X > A->X + A->Width;
-        else if(Degrees == 180)
-            return B->Y > A->Y + A->Height;
-        else if(Degrees == 270)
-            return B->X + B->Width < A->X;
-    }
+    if(Degrees == 0 || Degrees == 180)
+        return A->Y != B->Y && fmax(A->X, B->X) < fmin(B->X + B->Width, A->X + A->Width);
+    else if(Degrees == 90 || Degrees == 270)
+        return A->X != B->X && fmax(A->Y, B->Y) < fmin(B->Y + B->Height, A->Y + A->Height);
 
     return false;
 }
@@ -1197,7 +1183,7 @@ void GetCenterOfWindow(window_info *Window, int *X, int *Y)
     }
 }
 
-double GetWindowDistance(window_info *A, window_info *B, int Degrees)
+double GetWindowDistance(window_info *A, window_info *B, int Degrees, bool Wrap)
 {
     double Rank = INT_MAX;
 
@@ -1210,6 +1196,12 @@ double GetWindowDistance(window_info *A, window_info *B, int Degrees)
     double Angle = std::atan2(DeltaY, DeltaX);
     double Distance = std::hypot(DeltaX, DeltaY);
     double DeltaA = 0;
+
+    if((Degrees == 0 && DeltaY >= 0) ||
+       (Degrees == 90 && DeltaX <= 0) ||
+       (Degrees == 180 && DeltaY <= 0) ||
+       (Degrees == 270 && DeltaX >= 0))
+        return INT_MAX;
 
     if(Degrees == 0)
         DeltaA = -M_PI_2 - Angle;
@@ -1237,7 +1229,7 @@ bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
     for(int Index = 0; Index < Windows.size(); ++Index)
     {
         if(!WindowsAreEqual(Match, &Windows[Index]) &&
-           WindowIsInDirection(Match, &Windows[Index], Degrees, Wrap) &&
+           WindowIsInDirection(Match, &Windows[Index], Degrees) &&
            !IsWindowFloating(Windows[Index].WID, NULL))
         {
             window_info FocusWindow = Windows[Index];
@@ -1260,7 +1252,7 @@ bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap)
                 FocusWindow = WrappedWindow;
             }
 
-            double Dist = GetWindowDistance(Match, &FocusWindow, Degrees);
+            double Dist = GetWindowDistance(Match, &FocusWindow, Degrees, Wrap);
             if(Dist < MinDist)
             {
                 MinDist = Dist;
