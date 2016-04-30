@@ -197,7 +197,7 @@ class OverlayController: NSObject, NSApplicationDelegate
         window.ignoresMouseEvents = true
         window.level = Int(CGWindowLevelForKey(.FloatingWindowLevelKey))
         window.hasShadow = false
-        window.collectionBehavior = NSWindowCollectionBehavior.CanJoinAllSpaces
+        //window.collectionBehavior = NSWindowCollectionBehavior.CanJoinAllSpaces
         window.makeKeyAndOrderFront(self)
         self.listenToStdIn()
     }
