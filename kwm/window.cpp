@@ -75,6 +75,7 @@ bool FilterWindowList(screen_info *Screen)
             {
                 space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
                 if(!SpaceOfWindow->Initialized ||
+                   SpaceOfWindow->Settings.Mode == SpaceModeFloating ||
                    GetTreeNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID) ||
                    GetLinkNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID))
                     continue;
