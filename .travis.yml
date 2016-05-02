@@ -1,6 +1,6 @@
 language: objective-c
 osx_image: xcode7.3
-script: make
+script: make install
 notifications:
     irc:
         channels:
