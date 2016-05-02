@@ -121,6 +121,49 @@ GetWindowList()
 }
 
 inline std::string
+GetListOfSpaces()
+{
+    std::string Output;
+    std::map<int, space_info>::iterator It;
+    screen_info *Screen = KWMScreen.Current;
+
+    if(Screen)
+    {
+        int Count = 0;
+        for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
+        {
+            std::string Name = It->second.Settings.Name;
+            Output += std::to_string(Count+1) + ", " + (Name.empty() ? "[no tag]" : Name);
+            if(Count++ < Screen->Space.size() - 1)
+                Output += "\n";
+        }
+    }
+
+    return Output;
+}
+
+inline std::string
+GetNameOfCurrentSpace()
+{
+    std::string Output;
+
+    if(KWMScreen.Current && KWMScreen.Current->ActiveSpace != -1)
+        Output = GetNameOfSpace(KWMScreen.Current, KWMScreen.Current->ActiveSpace);
+
+    return Output;
+}
+
+inline std::string
+GetNameOfPreviousSpace()
+{
+    std::string Output;
+    if(KWMScreen.Current && !KWMScreen.Current->History.empty())
+        Output = GetNameOfSpace(KWMScreen.Current, KWMScreen.Current->History.top());
+
+    return Output;
+}
+
+inline std::string
 GetTagOfCurrentSpace()
 {
     std::string Output;

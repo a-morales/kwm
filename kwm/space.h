@@ -24,5 +24,8 @@ void UpdateActiveSpace();
 
 void GoToPreviousSpace(bool MoveFocusedWindow);
 space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID);
+int GetSpaceFromName(screen_info *Screen, std::string Name);
+void SetNameOfActiveSpace(screen_info *Screen, std::string Name);
+std::string GetNameOfSpace(screen_info *Screen, int CGSpaceID);
 
 #endif

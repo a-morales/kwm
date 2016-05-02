@@ -328,3 +328,38 @@ space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID)
     else
         return NULL;
 }
+
+int GetSpaceFromName(screen_info *Screen, std::string Name)
+{
+    Assert(Screen);
+    Assert(!Name.empty());
+
+    std::map<int, space_info>::iterator It;
+    for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
+    {
+        if(It->second.Settings.Name == Name)
+            return It->first;
+    }
+
+    return -1;
+}
+
+void SetNameOfActiveSpace(screen_info *Screen, std::string Name)
+{
+    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    if(Space) Space->Settings.Name = Name;
+}
+
+std::string GetNameOfSpace(screen_info *Screen, int CGSpaceID)
+{
+    std::map<int, space_info>::iterator It = Screen->Space.find(CGSpaceID);
+    std::string Result = "[no tag]";
+
+    if(It != Screen->Space.end())
+    {
+        if(!It->second.Settings.Name.empty())
+            Result = It->second.Settings.Name;
+    }
+
+    return Result;
+}

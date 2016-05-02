@@ -9,6 +9,7 @@
 #include "border.h"
 #include "helpers.h"
 #include "rules.h"
+#include "serializer.h"
 
 #include <cmath>
 
@@ -425,8 +426,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         space_settings *SpaceSettings = GetSpaceSettingsForDesktopID(Screen->ID, DesktopID);
         if(SpaceSettings)
         {
-            Space->Settings.Mode = SpaceSettings->Mode;
-            Space->Settings.Offset = SpaceSettings->Offset;
+            Space->Settings = *SpaceSettings;
         }
         else
         {
@@ -434,20 +434,29 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
             if(SpaceSettings)
                 Space->Settings = *SpaceSettings;
             else
-                Space->Settings.Offset = Screen->Settings.Offset;
-
-            if(Space->Settings.Mode == SpaceModeDefault)
-                Space->Settings.Mode = KWMMode.Space;
+                Space->Settings = Screen->Settings;
         }
+
+        if(Space->Settings.Mode == SpaceModeDefault)
+            Space->Settings.Mode = KWMMode.Space;
 
         Space->Initialized = true;
         Space->NeedsUpdate = false;
-        Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
+
+        if(Space->Settings.Layout.empty())
+            Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
+        else
+            LoadBSPTreeFromFile(Screen, Space->Settings.Layout);
     }
     else if(Space->Initialized)
     {
         Space->FocusedWindowID = -1;
-        Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
+
+        if(Space->Settings.Layout.empty())
+            Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
+        else
+            LoadBSPTreeFromFile(Screen, Space->Settings.Layout);
+
         if(Space->RootNode)
         {
             if(Space->Settings.Mode == SpaceModeBSP)

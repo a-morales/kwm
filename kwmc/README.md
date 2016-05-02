@@ -134,6 +134,14 @@ man kwmc
             kwmc config gap <opt>
             <opt>: vertical horizontal
 
+        Set default bsp-layout for space
+            kwmc config space display_id space_id tree <opt>
+            <opt>: layout_name
+
+        Set default name for space
+            kwmc config space display_id space_id name <opt>
+            <opt>: name
+
         Override default tiling mode for space
             kwmc config space display_id space_id mode <opt>
             <opt>: bsp | monocle | float
@@ -249,6 +257,9 @@ man kwmc
             <opt>: north | east | south | west
             <arg>: wrap | nowrap
 
+        Set name of active space
+            kwmc space -n name
+
         Change focus between spaces
             kwmc space -f <opt>
             <opt>: workspace_id | previous | left | right
@@ -256,9 +267,9 @@ man kwmc
         Change focus between spaces, skipping transitions animation
         (mission control does not update, requires `killall Dock`)
             kwmc space -fExperimental <opt>
-            <opt>: workspace_id | previous | left | right
+            <opt>: workspace_id | name | previous | left | right
 
-        Set tiling mode of space
+        Set tiling mode of active space
             kwmc space -t <opt>
             <opt>: bsp | monocle | float
 
@@ -266,12 +277,12 @@ man kwmc
             kwmc space -r <opt>
             <opt>: focused
 
-        Adjust padding
+        Adjust padding of active space
             kwmc space -p <opt> <arg>
             <opt>: increase | decrease
             <arg>: all | left | right | top | bottom
 
-        Adjust gaps
+        Adjust gaps of active space
             kwmc space -g <opt> <arg>
             <opt>: increase | decrease
             <arg>: all | vertical | horizontal
@@ -350,13 +361,22 @@ man kwmc
             kwmc query tiling split-ratio
 
         Get tag of the active space
-            kwmc query space tag
+            kwmc query space active tag
+
+        Get name of the active space
+            kwmc query space active name
 
         Get id of the active space
-            kwmc query space active
+            kwmc query space active id
+
+        Get name of the previously active space
+            kwmc query space previous name
 
         Get id of the previously active space
-            kwmc query space previous
+            kwmc query space previous id
+
+        Get list of all spaces on focused display
+            kwmc query space list
 
         Get active cycle-focus mode
             kwmc query cycle-focus

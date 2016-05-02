@@ -153,6 +153,8 @@ screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
 
     Screen.Settings.Offset = KWMScreen.DefaultOffset;
     Screen.Settings.Mode = SpaceModeDefault;
+    Screen.Settings.Layout = "";
+    Screen.Settings.Name = "";
 
     DEBUG("Creating screen info for display ID: " << DisplayIndex << " Resolution: " << Screen.Width << "x" << Screen.Height << " Origin: (" << Screen.X << "," << Screen.Y << ")");
 

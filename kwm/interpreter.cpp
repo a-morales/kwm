@@ -147,7 +147,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         if(!SpaceSettings)
         {
             space_identifier Lookup = { ScreenID, DesktopID };
-            space_settings NULLSpaceSettings = { KWMScreen.DefaultOffset, SpaceModeDefault };
+            space_settings NULLSpaceSettings = { KWMScreen.DefaultOffset, SpaceModeDefault, "", ""};
 
             space_settings *ScreenSettings = GetSpaceSettingsForDisplay(ScreenID);
             if(ScreenSettings)
@@ -178,6 +178,14 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
             SpaceSettings->Offset.VerticalGap = ConvertStringToDouble(Tokens[5]);
             SpaceSettings->Offset.HorizontalGap = ConvertStringToDouble(Tokens[6]);
         }
+        else if(Tokens[4] == "name")
+        {
+            SpaceSettings->Name = Tokens[5];
+        }
+        else if(Tokens[4] == "tree")
+        {
+            SpaceSettings->Layout = Tokens[5];
+        }
     }
     else if(Tokens[1] == "display")
     {
@@ -185,7 +193,7 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
         space_settings *DisplaySettings = GetSpaceSettingsForDisplay(ScreenID);
         if(!DisplaySettings)
         {
-            space_settings NULLSpaceSettings = { KWMScreen.DefaultOffset, SpaceModeDefault };
+            space_settings NULLSpaceSettings = { KWMScreen.DefaultOffset, SpaceModeDefault, "", "" };
             KWMTiling.DisplaySettings[ScreenID] = NULLSpaceSettings;
             DisplaySettings = &KWMTiling.DisplaySettings[ScreenID];
         }
@@ -341,12 +349,24 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     }
     else if(Tokens[1] == "space")
     {
-        if(Tokens[2] == "tag")
-            KwmWriteToSocket(ClientSockFD, GetTagOfCurrentSpace());
-        else if(Tokens[2] == "active")
-            KwmWriteToSocket(ClientSockFD, GetIdOfCurrentSpace());
+        if(Tokens[2] == "active")
+        {
+            if(Tokens[3] == "tag")
+                KwmWriteToSocket(ClientSockFD, GetTagOfCurrentSpace());
+            else if(Tokens[3] == "name")
+                KwmWriteToSocket(ClientSockFD, GetNameOfCurrentSpace());
+            else if(Tokens[3] == "id")
+                KwmWriteToSocket(ClientSockFD, GetIdOfCurrentSpace());
+        }
         else if(Tokens[2] == "previous")
-            KwmWriteToSocket(ClientSockFD, GetIdOfPreviousSpace());
+        {
+            if(Tokens[3] == "name")
+                KwmWriteToSocket(ClientSockFD, GetNameOfPreviousSpace());
+            else if(Tokens[3] == "id")
+                KwmWriteToSocket(ClientSockFD, GetIdOfPreviousSpace());
+        }
+        else if(Tokens[2] == "list")
+            KwmWriteToSocket(ClientSockFD, GetListOfSpaces());
     }
     else if(Tokens[1] == "border")
     {
@@ -665,6 +685,12 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
 
             ChangeGapOfDisplay(Tokens[3], Value);
         }
+    }
+    else if(Tokens[1] == "-n")
+    {
+        if(KWMScreen.Current &&
+           KWMScreen.Current->ActiveSpace != -1)
+            SetNameOfActiveSpace(KWMScreen.Current, Tokens[2]);
     }
 }
 

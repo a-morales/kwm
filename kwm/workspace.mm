@@ -16,6 +16,7 @@ extern bool IsFocusedWindowFloating();
 extern void ClearFocusedWindow();
 extern void ClearMarkedWindow();
 extern bool FocusWindowOfOSX();
+extern int GetSpaceFromName(screen_info *Screen, std::string Name);
 
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
@@ -256,11 +257,21 @@ void ActivateSpaceWithoutTransition(std::string SpaceID)
         int ActiveSpace = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->ActiveSpace);
         int DestinationSpaceID = ActiveSpace;
         if(SpaceID == "left")
+        {
             DestinationSpaceID = ActiveSpace > 1 ? ActiveSpace-1 : 1;
+        }
         else if(SpaceID == "right")
+        {
             DestinationSpaceID = ActiveSpace < TotalSpaces ? ActiveSpace+1 : TotalSpaces;
+        }
         else
-            DestinationSpaceID = std::atoi(SpaceID.c_str());
+        {
+            int LookupSpace = GetSpaceFromName(KWMScreen.Current, SpaceID);
+            if(LookupSpace != -1)
+                DestinationSpaceID = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, LookupSpace);
+            else
+                DestinationSpaceID = std::atoi(SpaceID.c_str());
+        }
 
         if(DestinationSpaceID != ActiveSpace &&
            DestinationSpaceID > 0 && DestinationSpaceID <= TotalSpaces)
@@ -308,11 +319,21 @@ void MoveFocusedWindowToSpace(std::string SpaceID)
         int ActiveSpace = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->ActiveSpace);
         int DestinationSpaceID = ActiveSpace;
         if(SpaceID == "left")
+        {
             DestinationSpaceID = ActiveSpace > 1 ? ActiveSpace-1 : 1;
+        }
         else if(SpaceID == "right")
+        {
             DestinationSpaceID = ActiveSpace < TotalSpaces ? ActiveSpace+1 : TotalSpaces;
+        }
         else
-            DestinationSpaceID = std::atoi(SpaceID.c_str());
+        {
+            int LookupSpace = GetSpaceFromName(KWMScreen.Current, SpaceID);
+            if(LookupSpace != -1)
+                DestinationSpaceID = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, LookupSpace);
+            else
+                DestinationSpaceID = std::atoi(SpaceID.c_str());
+        }
 
         MoveWindowBetweenSpaces(ActiveSpace, DestinationSpaceID, KWMFocus.Window->WID);
     }
