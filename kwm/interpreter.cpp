@@ -346,6 +346,10 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
             int WindowID = ConvertStringToInt(Tokens[3]);
             KwmWriteToSocket(ClientSockFD, GetPositionInNode(WindowID));
         }
+        else if(Tokens[2] == "list")
+        {
+            KwmWriteToSocket(ClientSockFD, GetWindowList());
+        }
     }
     else if(Tokens[1] == "space")
     {
@@ -374,10 +378,6 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
             KwmWriteToSocket(ClientSockFD, GetStateOfFocusedBorder());
         else if(Tokens[2] == "marked")
             KwmWriteToSocket(ClientSockFD, GetStateOfMarkedBorder());
-    }
-    else if(Tokens[1] == "window-list")
-    {
-        KwmWriteToSocket(ClientSockFD, GetWindowList());
     }
     else if(Tokens[1] == "cycle-focus")
     {

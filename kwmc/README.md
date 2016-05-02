@@ -348,6 +348,9 @@ man kwmc
         Get child position of window (left or right)
             kwmc query window child window_id
 
+        Get list of visible windows on active space
+            kwmc query window list
+
         Get tilling mode to be used for new spaces
             kwmc query tiling mode
 
@@ -395,6 +398,3 @@ man kwmc
 
         Get state of mouse-follows-focus
             kwmc query mouse-follows-focus
-
-        Get list of visible windows on active space
-            kwmc query window-list
