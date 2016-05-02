@@ -307,6 +307,8 @@ struct space_settings
 {
     container_offset Offset;
     space_tiling_option Mode;
+    std::string Layout;
+    std::string Name;
 };
 
 struct space_info
