@@ -132,11 +132,17 @@ GetListOfSpaces()
         int Count = 0;
         for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
         {
-            std::string Name = It->second.Settings.Name;
-            Output += std::to_string(Count+1) + ", " + (Name.empty() ? "[no tag]" : Name);
-            if(Count++ < Screen->Space.size() - 1)
+            if(It->second.Managed)
+            {
+                std::string Name = It->second.Settings.Name;
+                Output += std::to_string(Count+1) + ", " + (Name.empty() ? "[no tag]" : Name);
                 Output += "\n";
+            }
+
+            ++Count;
         }
+
+        Output.erase(Output.find_last_of("\n"));
     }
 
     return Output;
