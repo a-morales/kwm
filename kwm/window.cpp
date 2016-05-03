@@ -443,7 +443,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
         Space->Initialized = true;
         Space->NeedsUpdate = false;
 
-        if(Space->Settings.Layout.empty())
+        if(Space->Settings.Layout.empty() || Space->Settings.Mode != SpaceModeBSP)
             Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
         else
             LoadBSPTreeFromFile(Screen, Space->Settings.Layout);
@@ -452,7 +452,7 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
     {
         Space->FocusedWindowID = -1;
 
-        if(Space->Settings.Layout.empty())
+        if(Space->Settings.Layout.empty() || Space->Settings.Mode != SpaceModeBSP)
             Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
         else
             LoadBSPTreeFromFile(Screen, Space->Settings.Layout);
