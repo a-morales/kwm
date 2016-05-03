@@ -13,4 +13,5 @@ void CheckWindowRules(window_info *Window);
 bool EnforceWindowRules(window_info *Window);
 bool HasRuleBeenApplied(window_info *Window);
 
+
 #endif

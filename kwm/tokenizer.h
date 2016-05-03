@@ -2,6 +2,12 @@
 #define TOKENIZER_H
 
 #include "types.h"
+inline bool
+IsDot(char C)
+{
+    bool Result = ((C == '.') || (C == ','));
+    return Result;
+}
 
 inline bool
 IsEndOfLine(char C)
@@ -34,7 +40,7 @@ IsAlpha(char C)
 inline bool
 IsNumeric(char C)
 {
-    bool Result = ((C == '0') && (C <= '9'));
+    bool Result = ((C >= '0') && (C <= '9'));
     return Result;
 }
 
@@ -52,6 +58,7 @@ TokenEquals(token Token, const char *Match)
     return Result;
 }
 
+std::string GetTextTilEndOfLine(tokenizer *Tokenizer);
 token GetToken(tokenizer *Tokenizer);
 void EatAllWhiteSpace(tokenizer *Tokenizer);
 bool RequireToken(tokenizer *Tokenizer, token_type DesiredType);

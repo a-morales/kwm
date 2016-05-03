@@ -194,7 +194,7 @@ bool KwmParseRule(std::string RuleSym, window_rule *Rule)
 void KwmAddRule(std::string RuleSym)
 {
     window_rule Rule = {};
-    if(KwmParseRule(RuleSym, &Rule))
+    if(!RuleSym.empty() && KwmParseRule(RuleSym, &Rule))
         KWMTiling.WindowRules.push_back(Rule);
 }
 

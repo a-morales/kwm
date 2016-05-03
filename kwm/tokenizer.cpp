@@ -18,6 +18,22 @@ bool RequireToken(tokenizer *Tokenizer, token_type DesiredType)
     return Result;
 }
 
+std::string GetTextTilEndOfLine(tokenizer *Tokenizer)
+{
+    EatAllWhiteSpace(Tokenizer);
+
+    token Token = {};
+    Token.TextLength = 1;
+    Token.Text = Tokenizer->At;
+
+    while(Tokenizer->At[0] && !IsEndOfLine(Tokenizer->At[0]))
+        ++Tokenizer->At;
+
+    Token.Type = Token_String;
+    Token.TextLength = Tokenizer->At - Token.Text;
+
+    return std::string(Token.Text, Token.TextLength);
+}
 
 token GetToken(tokenizer *Tokenizer)
 {
@@ -56,18 +72,53 @@ token GetToken(tokenizer *Tokenizer)
                 ++Tokenizer->At;
         } break;
 
+        case '/':
+        {
+            if(Tokenizer->At[0] == '*')
+            {
+                ++Tokenizer->At;
+                Token.Text = Tokenizer->At;
+
+                while((Tokenizer->At[0] != '*') &&
+                      (Tokenizer->At[1] != '/'))
+                    ++Tokenizer->At;
+
+                Token.Type = Token_Comment;
+                Token.TextLength = Tokenizer->At - Token.Text;
+
+                if(Tokenizer->At[0] == '*')
+                    ++Tokenizer->At;
+                if(Tokenizer->At[0] == '/')
+                    ++Tokenizer->At;
+            }
+            else
+            {
+                Token.Type = Token_Unknown;
+            }
+        } break;
+
         default:
         {
             if(IsAlpha(C))
             {
                 while(IsAlpha(Tokenizer->At[0]) ||
                       IsNumeric(Tokenizer->At[0]) ||
+                      (Tokenizer->At[0] == '+') ||
                       (Tokenizer->At[0] == '_'))
                 {
                     ++Tokenizer->At;
                 }
 
                 Token.Type = Token_Identifier;
+                Token.TextLength = Tokenizer->At - Token.Text;
+            }
+            else if(IsNumeric(C))
+            {
+                while(IsNumeric(Tokenizer->At[0]) ||
+                      IsDot(Tokenizer->At[0]))
+                    ++Tokenizer->At;
+
+                Token.Type = Token_Digit;
                 Token.TextLength = Tokenizer->At - Token.Text;
             }
             else

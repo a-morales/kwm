@@ -43,59 +43,62 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         KWMTiling.OptimalRatio = ConvertStringToDouble(Tokens[2]);
     }
-    else if(Tokens[1] == "focused-border")
+    else if(Tokens[1] == "border")
     {
-        if(Tokens[2] == "on")
+        if(Tokens[2] == "focused")
         {
-            FocusedBorder.Enabled = true;
-            UpdateBorder("focused");
+            if(Tokens[3] == "on")
+            {
+                FocusedBorder.Enabled = true;
+                UpdateBorder("focused");
+            }
+            else if(Tokens[3] == "off")
+            {
+                FocusedBorder.Enabled = false;
+                KWMTiling.KwmOverlay[0] = 0;
+                UpdateBorder("focused");
+            }
+            else if(Tokens[3] == "size")
+            {
+                FocusedBorder.Width = ConvertStringToInt(Tokens[4]);
+            }
+            else if(Tokens[3] == "color")
+            {
+                FocusedBorder.Color = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[4]));
+                CreateColorFormat(&FocusedBorder.Color);
+                mode *BindingMode = GetBindingMode("default");
+                BindingMode->Color = FocusedBorder.Color;
+            }
+            else if(Tokens[3] == "radius")
+            {
+                FocusedBorder.Radius = ConvertStringToDouble(Tokens[4]);
+            }
         }
-        else if(Tokens[2] == "off")
+        else if(Tokens[2] == "marked")
         {
-            FocusedBorder.Enabled = false;
-            KWMTiling.KwmOverlay[0] = 0;
-            UpdateBorder("focused");
-        }
-        else if(Tokens[2] == "size")
-        {
-            FocusedBorder.Width = ConvertStringToInt(Tokens[3]);
-        }
-        else if(Tokens[2] == "color")
-        {
-            FocusedBorder.Color = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[3]));
-            CreateColorFormat(&FocusedBorder.Color);
-            mode *BindingMode = GetBindingMode("default");
-            BindingMode->Color = FocusedBorder.Color;
-        }
-        else if(Tokens[2] == "radius")
-        {
-            FocusedBorder.Radius = ConvertStringToDouble(Tokens[3]);
-        }
-    }
-    else if(Tokens[1] == "marked-border")
-    {
-        if(Tokens[2] == "on")
-        {
-            MarkedBorder.Enabled = true;
-        }
-        else if(Tokens[2] == "off")
-        {
-            MarkedBorder.Enabled = false;
-            KWMTiling.KwmOverlay[1] = 0;
-            UpdateBorder("marked");
-        }
-        else if(Tokens[2] == "size")
-        {
-            MarkedBorder.Width = ConvertStringToInt(Tokens[3]);
-        }
-        else if(Tokens[2] == "color")
-        {
-            MarkedBorder.Color = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[3]));
-            CreateColorFormat(&MarkedBorder.Color);
-        }
-        else if(Tokens[2] == "radius")
-        {
-            MarkedBorder.Radius = ConvertStringToDouble(Tokens[3]);
+            if(Tokens[3] == "on")
+            {
+                MarkedBorder.Enabled = true;
+            }
+            else if(Tokens[3] == "off")
+            {
+                MarkedBorder.Enabled = false;
+                KWMTiling.KwmOverlay[1] = 0;
+                UpdateBorder("marked");
+            }
+            else if(Tokens[3] == "size")
+            {
+                MarkedBorder.Width = ConvertStringToInt(Tokens[4]);
+            }
+            else if(Tokens[3] == "color")
+            {
+                MarkedBorder.Color = ConvertHexRGBAToColor(ConvertHexStringToInt(Tokens[4]));
+                CreateColorFormat(&MarkedBorder.Color);
+            }
+            else if(Tokens[3] == "radius")
+            {
+                MarkedBorder.Radius = ConvertStringToDouble(Tokens[4]);
+            }
         }
     }
     else if(Tokens[1] == "float-non-resizable")

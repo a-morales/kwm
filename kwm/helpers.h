@@ -146,4 +146,25 @@ GetUTF8String(CFStringRef Temp)
     return Result;
 }
 
+inline char*
+ReadFile(std::string File)
+{
+    char *Contents = NULL;
+    FILE *Descriptor = fopen(File.c_str(), "r");
+    unsigned int FileLen = 0;
+
+    if(Descriptor)
+    {
+        fseek(Descriptor, 0, SEEK_END);
+        FileLen = ftell(Descriptor);
+        fseek(Descriptor, 0, SEEK_SET);
+        Contents = (char*)malloc(FileLen+1);
+        fread(Contents, FileLen, 1, Descriptor);
+        Contents[FileLen] = '\0';
+        fclose(Descriptor);
+    }
+
+    return Contents;
+}
+
 #endif

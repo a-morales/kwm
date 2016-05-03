@@ -3,6 +3,7 @@
 #include "helpers.h"
 #include "interpreter.h"
 #include "border.h"
+#include "command.h"
 
 extern kwm_focus KWMFocus;
 extern kwm_hotkeys KWMHotkeys;

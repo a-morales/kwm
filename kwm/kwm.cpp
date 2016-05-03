@@ -8,6 +8,8 @@
 #include "interpreter.h"
 #include "scratchpad.h"
 #include "border.h"
+#include "config.h"
+#include "command.h"
 
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
 
@@ -124,30 +126,6 @@ void * KwmWindowMonitor(void*)
     }
 }
 
-void KwmDefineVariable(std::map<std::string, std::string> &Defines, std::string Line)
-{
-    std::vector<std::string> Tokens = SplitString(Line, ' ');
-    std::string Value = CreateStringFromTokens(Tokens, 1);
-    Defines[Tokens[0]] = Value;
-}
-
-void KwmSubstitueVariables(std::map<std::string, std::string> &Defines, std::string &Line)
-{
-    if(Line.substr(0, 6) == "define")
-        return;
-
-    std::map<std::string, std::string>::iterator It;
-    for(It = Defines.begin(); It != Defines.end(); ++It)
-    {
-        std::size_t Pos = Line.find(It->first);
-        if(Pos != std::string::npos)
-        {
-            DEBUG("Replacing " << It->first << " with " << It->second);
-            Line.replace(Pos, It->first.size(), It->second);
-        }
-    }
-}
-
 void KwmReloadConfig()
 {
     KwmClearSettings();
@@ -179,7 +157,7 @@ void KwmExecuteConfig()
     }
 
     KWMPath.EnvHome = HomeP;
-    KwmExecuteFile(KWMPath.ConfigFile);
+    KwmParseConfig(KWMPath.ConfigFile);
 }
 
 void KwmExecuteInitScript()
@@ -189,72 +167,6 @@ void KwmExecuteInitScript()
     struct stat Buffer;
     if(stat(InitFile.c_str(), &Buffer) == 0)
         KwmExecuteThreadedSystemCommand(InitFile);
-}
-
-void KwmExecuteFile(std::string File)
-{
-    std::ifstream FileHandle(KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + File);
-    if(FileHandle.fail())
-    {
-        DEBUG("Could not open " << KWMPath.EnvHome << "/" << KWMPath.ConfigFolder << "/" << File
-              << ", make sure the file exists." << std::endl);
-        return;
-    }
-
-    std::string Line;
-    std::map<std::string, std::string> Defines;
-    while(std::getline(FileHandle, Line))
-    {
-        if(!Line.empty() && Line[0] != '#')
-        {
-            KwmSubstitueVariables(Defines, Line);
-            if(IsPrefixOfString(Line, "kwmc"))
-                KwmInterpretCommand(Line, 0);
-            else if(IsPrefixOfString(Line, "exec"))
-                KwmExecuteThreadedSystemCommand(Line);
-            else if(IsPrefixOfString(Line, "include"))
-                KwmExecuteFile(Line);
-            else if(IsPrefixOfString(Line, "define"))
-                KwmDefineVariable(Defines, Line);
-        }
-    }
-
-    FileHandle.close();
-}
-
-void KwmExecuteSystemCommand(std::string Command)
-{
-    int ChildPID = fork();
-    if(ChildPID == 0)
-    {
-        DEBUG("Exec: FORK SUCCESS");
-        std::vector<std::string> Tokens = SplitString(Command, ' ');
-        const char **ExecArgs = new const char*[Tokens.size()+1];
-        for(int Index = 0; Index < Tokens.size(); ++Index)
-        {
-            ExecArgs[Index] = Tokens[Index].c_str();
-            DEBUG("Exec argument " << Index << ": " << ExecArgs[Index]);
-        }
-
-        ExecArgs[Tokens.size()] = NULL;
-        int StatusCode = execvp(ExecArgs[0], (char **)ExecArgs);
-        DEBUG("Exec failed with code: " << StatusCode);
-        exit(StatusCode);
-    }
-}
-
-void KwmExecuteThreadedSystemCommand(std::string Command)
-{
-    std::string *HCommand = new std::string(Command);
-    pthread_create(&KWMThread.SystemCommand, NULL, &KwmStartThreadedSystemCommand, HCommand);
-}
-
-void * KwmStartThreadedSystemCommand(void *Args)
-{
-    std::string Command = *((std::string*)Args);
-    KwmExecuteSystemCommand(Command);
-    delete (std::string*)Args;
-    return NULL;
 }
 
 bool GetKwmFilePath()
