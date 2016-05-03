@@ -75,22 +75,22 @@ man kwmc
             <opt>: floating point number
 
         Enable window border
-            kwmc config <opt>-border <arg>
+            kwmc config border <opt> <arg>
             <opt>: focused | marked
             <arg>: on | off
 
         Set window border thickness
-            kwmc config <opt>-border size <arg>
+            kwmc config border <opt> size <arg>
             <opt>: focused | marked
             <arg>: number
 
         Set window border color
-            kwmc config <opt>-border color <arg>
+            kwmc config border <opt> color <arg>
             <opt>: focused | marked
             <arg>: aarrggbb
 
         Set window border radius
-            kwmc config <opt>-border radius <arg>
+            kwmc config border <opt> radius <arg>
             <opt>: focused | marked
             <arg>: number
 
