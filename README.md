@@ -81,6 +81,8 @@ In addition to the above, the file `$HOME/.kwm/init` is a shell script that will
 *Kwm* has finished setting up the internal configuration.
 
 A sample config file can be found within the [examples](examples) directory.
+Any error that occur during parsing of the config file will be written to **stderr**.
+[Click here](https://github.com/koekeishiya/kwm/issues/285#issuecomment-216703278) for more information.
 
 **Note:** The sample configuration and information is updated to follow *Kwm* @ master. If you are running a release
 version, check the documentation provided at that particular tag.
