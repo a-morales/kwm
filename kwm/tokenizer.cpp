@@ -79,8 +79,10 @@ token GetToken(tokenizer *Tokenizer)
                 ++Tokenizer->At;
                 Token.Text = Tokenizer->At;
 
-                while((Tokenizer->At[0] != '*') &&
-                      (Tokenizer->At[1] != '/'))
+                while(Tokenizer->At[0] &&
+                      Tokenizer->At[1] &&
+                      !((Tokenizer->At[0] == '*') &&
+                        (Tokenizer->At[1] == '/')))
                     ++Tokenizer->At;
 
                 Token.Type = Token_Comment;
