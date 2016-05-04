@@ -5,7 +5,9 @@
 #include "window.h"
 #include "space.h"
 
+extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
 extern int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int SpaceID);
+extern int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID);
 
 extern kwm_mode KWMMode;
 extern kwm_toggles KWMToggles;
@@ -124,25 +126,34 @@ inline std::string
 GetListOfSpaces()
 {
     std::string Output;
-    std::map<int, space_info>::iterator It;
     screen_info *Screen = KWMScreen.Current;
 
     if(Screen)
     {
-        int Count = 0;
-        for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
+        int SubtractIndex = 0;
+        int TotalSpaces = GetNumberOfSpacesOfDisplay(Screen);
+        for(int SpaceID = 1; SpaceID <= TotalSpaces; ++SpaceID)
         {
-            if(It->second.Managed)
+            int CGSpaceID = GetCGSpaceIDFromSpaceNumber(Screen, SpaceID);
+            std::map<int, space_info>::iterator It = Screen->Space.find(CGSpaceID);
+            if(It != Screen->Space.end())
             {
-                std::string Name = It->second.Settings.Name;
-                Output += std::to_string(Count+1) + ", " + (Name.empty() ? "[no tag]" : Name);
-                Output += "\n";
+                if(It->second.Managed)
+                {
+                    std::string Name = GetNameOfSpace(Screen, CGSpaceID);
+                    Output += std::to_string(SpaceID - SubtractIndex) + ", " + Name;
+                    if(SpaceID < TotalSpaces && SpaceID < Screen->Space.size())
+                        Output += "\n";
+                }
+                else
+                {
+                    ++SubtractIndex;
+                }
             }
-
-            ++Count;
         }
 
-        Output.erase(Output.find_last_of("\n"));
+        if(Output[Output.size()-1] == '\n')
+            Output.erase(Output.begin() + Output.size()-1);
     }
 
     return Output;
