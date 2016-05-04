@@ -44,6 +44,12 @@ extern kwm_tiling KWMTiling;
  *          kwmc rule owner="iTunes" properties={space="1"; display="1"}
 */
 
+void ReportInvalidRule(std::string Command)
+{
+    std::cerr << "  Rule Parse error: " << Command << std::endl;
+}
+
+
 bool ParseIdentifier(tokenizer *Tokenizer, std::string *Member)
 {
     if(RequireToken(Tokenizer, Token_Equals))
@@ -61,13 +67,13 @@ bool ParseIdentifier(tokenizer *Tokenizer, std::string *Member)
             } break;
             default:
             {
-                DEBUG("Expected token of type Token_String");
+                ReportInvalidRule("Expected token of type Token_String: '" + std::string(Token.Text, Token.TextLength) + "'");
             } break;
         }
     }
     else
     {
-        DEBUG("Expected token '='\n");
+        ReportInvalidRule("Expected token: '='");
     }
 
     return false;
@@ -135,7 +141,7 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
                                     Properties->Role = Value;
                         }
                     } break;
-                    default: { DEBUG("Expected token of type Token_Identifier"); } break;
+                    default: { ReportInvalidRule("Expected token of type Token_Identifier: '" + std::string(Token.Text, Token.TextLength) + "'"); } break;
                 }
             }
 
@@ -143,12 +149,12 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
         }
         else
         {
-            DEBUG("Expected token '{'");
+            ReportInvalidRule("Expected token '{'");
         }
     }
     else
     {
-        DEBUG("Expected token '='");
+        ReportInvalidRule("Expected token '='");
     }
 
     return false;
