@@ -91,6 +91,17 @@ token GetToken(tokenizer *Tokenizer)
                 if(Tokenizer->At[0] == '/')
                     ++Tokenizer->At;
             }
+            else if(Tokenizer->At[0] == '/')
+            {
+                ++Tokenizer->At;
+                Token.Text = Tokenizer->At;
+
+                while(Tokenizer->At[0] && !IsEndOfLine(Tokenizer->At[0]))
+                    ++Tokenizer->At;
+
+                Token.Type = Token_Comment;
+                Token.TextLength = Tokenizer->At - Token.Text;
+            }
             else
             {
                 Token.Type = Token_Unknown;
