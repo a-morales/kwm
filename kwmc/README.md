@@ -57,7 +57,7 @@ man kwmc
             kwmc mode my_mode prefix on
             kwmc mode my_mode timeout 0.75
             kwmc mode my_mode restore mode_to_activate
-            kwmc mode my_mode color aarrggbb
+            kwmc mode my_mode color 0xaarrggbb
 
         To activate a certain binding-mode, the following command must be used.
             kwmc mode activate my_mode
@@ -87,7 +87,7 @@ man kwmc
         Set window border color
             kwmc config border <opt> color <arg>
             <opt>: focused | marked
-            <arg>: aarrggbb
+            <arg>: 0xaarrggbb
 
         Set window border radius
             kwmc config border <opt> radius <arg>

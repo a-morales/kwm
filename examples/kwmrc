@@ -99,20 +99,20 @@ kwmc rule owner="iTerm2" properties={role="AXDialog"}
 // Enable border for focused window
 kwmc config border focused on
 kwmc config border focused size 2
-kwmc config border focused color FFBDD322
+kwmc config border focused color 0xFFBDD322
 kwmc config border focused radius 6
 
 // Enable border for marked window
 kwmc config border marked on
 kwmc config border marked size 2
-kwmc config border marked color FFCC5577
+kwmc config border marked color 0xFFCC5577
 kwmc config border marked radius 6
 
 // Enable the prefix mode
 kwmc mode prefix prefix on
 kwmc mode prefix timeout 0.75
 kwmc mode prefix restore default
-kwmc mode prefix color FF458588
+kwmc mode prefix color 0xFF458588
 
 /*  Default Keybinds */
 // Activate prefix mode
