@@ -51,32 +51,26 @@ kwmc config lock-to-container on
 /* Set focus-follows-mouse-mode to autoraise */
 kwmc config focus-follows-mouse autoraise
 
-/*
-Focus-follows-mouse is temporarily disabled when
-a floating window has focus
-*/
+/* Focus-follows-mouse is temporarily disabled when
+   a floating window has focus */
 kwmc config standby-on-float on
 
-/*
-The mouse will automatically move to the center
-of the focused window
-*/
+/* The mouse will automatically move to the center
+   of the focused window */
 kwmc config mouse-follows-focus on
 
 /* Allow window focus to wrap-around */
 kwmc config cycle-focus screen
 
-/* Override default settings for space 1 on screen 0 */
-kwmc config space 0 1 mode monocle
-kwmc config space 0 1 padding 100 100 100 100
-kwmc config space 0 1 gap 40 40
+/* Override default settings for space 1 on screen 0
+   kwmc config space 0 1 mode monocle
+   kwmc config space 0 1 padding 100 100 100 100
+   kwmc config space 0 1 gap 40 40 */
 
-/*
-Override default settings for screen 1
-kwmc config display 1 mode bsp
-kwmc config display 1 padding 100 100 100 100
-kwmc config display 1 gap 40 40
-*/
+/* Override default settings for screen 1
+   kwmc config display 1 mode bsp
+   kwmc config display 1 padding 100 100 100 100
+   kwmc config display 1 gap 40 40 */
 
 /* Set default container split-ratio */
 kwmc config split-ratio 0.5
@@ -87,23 +81,20 @@ kwmc config spawn left
 /* Add custom tiling rules for applications that
    does not get tiled by Kwm by default.
    This is because some applications do not have the
-   AXWindowRole and AXStandardWindowSubRole
-   */
+   AXWindowRole and AXStandardWindowSubRole */
 kwmc rule owner="iTerm2" properties={role="AXDialog"}
 
 /* The following commands create rules that
    blacklists an application from Kwms tiling
 
    kwmc rule owner="Steam" properties={float="true"}
-   kwmc rule owner="Photoshop" properties={float="true"}
-*/
+   kwmc rule owner="Photoshop" properties={float="true"} */
 
 /* The following command creates a rule that
-  captures an application to the given screen,
-  if the screen exists.
+   captures an application to the given screen,
+   if the screen exists.
 
-  kwmc rule owner="iTunes" properties={display="1"}
-*/
+   kwmc rule owner="iTunes" properties={display="1"} */
 
 /* Enable border for focused window */
 kwmc config border focused on
