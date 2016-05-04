@@ -9,7 +9,7 @@ extern kwm_path KWMPath;
 
 void ReportInvalidCommand(std::string Command)
 {
-    std::cerr << "  Parse error: " << Command << std::endl;
+    std::cerr << "Parse error: " << Command << std::endl;
 }
 
 void KwmParseConfigOptionTiling(tokenizer *Tokenizer)
@@ -891,43 +891,31 @@ void KwmParseConfig(std::string File)
             switch(Token.Type)
             {
                 case Token_EndOfStream:
-                    {
-                        Parsing = false;
-                    } break;
+                {
+                    Parsing = false;
+                } break;
                 case Token_Comment:
-                    {
-                        // printf("%d Comment: %.*s\n", Token.Type, Token.TextLength, Token.Text);
-                    } break;
+                {
+                    // printf("%d Comment: %.*s\n", Token.Type, Token.TextLength, Token.Text);
+                } break;
                 case Token_Identifier:
-                    {
-                        if(TokenEquals(Token, "kwmc"))
-                        {
-                            KwmParseKwmc(&Tokenizer);
-                        }
-                        else if(TokenEquals(Token, "exec"))
-                        {
-                            KwmExecuteThreadedSystemCommand(GetTextTilEndOfLine(&Tokenizer));
-                        }
-                        else if(TokenEquals(Token, "include"))
-                        {
-                            KwmParseInclude(&Tokenizer);
-                        }
-                        else if(TokenEquals(Token, "define"))
-                        {
-                            GetToken(&Tokenizer);
-                            GetTextTilEndOfLine(&Tokenizer);
-                        }
-                        else
-                        {
-                            ReportInvalidCommand("Unknown token '" + std::string(Token.Text, Token.TextLength) + "'");
-                            // printf("Unknown identifier - %d: %.*s\n", Token.Type, Token.TextLength, Token.Text);
-                        }
-                    } break;
-                default:
-                    {
+                {
+                    if(TokenEquals(Token, "kwmc"))
+                        KwmParseKwmc(&Tokenizer);
+                    else if(TokenEquals(Token, "exec"))
+                        KwmExecuteThreadedSystemCommand(GetTextTilEndOfLine(&Tokenizer));
+                    else if(TokenEquals(Token, "include"))
+                        KwmParseInclude(&Tokenizer);
+                    else if(TokenEquals(Token, "define"))
+                        GetTextTilEndOfLine(&Tokenizer);
+                    else
                         ReportInvalidCommand("Unknown token '" + std::string(Token.Text, Token.TextLength) + "'");
-                        // printf("%d: %.*s\n", Token.Type, Token.TextLength, Token.Text);
-                    } break;
+                } break;
+                default:
+                {
+                    ReportInvalidCommand("Unknown token '" + std::string(Token.Text, Token.TextLength) + "'");
+                    // printf("%d: %.*s\n", Token.Type, Token.TextLength, Token.Text);
+                } break;
             }
         }
 
