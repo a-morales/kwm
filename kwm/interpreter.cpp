@@ -793,7 +793,7 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmModeCommand(Tokens);
     else if(Tokens[0] == "bindsym" || Tokens[0] == "bindcode")
         KwmBindCommand(Tokens, false);
-    else if(Tokens[0] == "bindsym-passthrough" || Tokens[0] == "bindcode-passthrough")
+    else if(Tokens[0] == "bindsym_passthrough" || Tokens[0] == "bindcode_passthrough")
         KwmBindCommand(Tokens, true);
     else if(Tokens[0] == "unbindsym" || Tokens[0] == "unbindcode")
         KwmRemoveHotkey(Tokens[1], Tokens[0] == "unbindcode");

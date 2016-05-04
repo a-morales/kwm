@@ -795,8 +795,8 @@ void KwmParseKwmc(tokenizer *Tokenizer)
                 KwmParseModeOption(Tokenizer);
             else if(TokenEquals(Token, "bindsym") ||
                     TokenEquals(Token, "bindcode") ||
-                    TokenEquals(Token, "bindsym-passthrough") ||
-                    TokenEquals(Token, "bindcode-passthrough") ||
+                    TokenEquals(Token, "bindsym_passthrough") ||
+                    TokenEquals(Token, "bindcode_passthrough") ||
                     TokenEquals(Token, "rule"))
                 KwmInterpretCommand(std::string(Token.Text, Token.TextLength) + " " + GetTextTilEndOfLine(Tokenizer), 0);
             else

@@ -36,8 +36,8 @@ man kwmc
         If you wish to have a keybind that performs some action and still passes
         through to the target application, the below command can be used.
 
-            kwmc bindsym-passthrough ..
-            kwmc bindcode-passthrough ..
+            kwmc bindsym_passthrough ..
+            kwmc bindcode_passthrough ..
 
         To remove a keybind, the unbind command can be used.
             kwmc unbindsym mode+mod+mod+mod-key
