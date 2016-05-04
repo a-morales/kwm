@@ -118,21 +118,31 @@ token GetToken(tokenizer *Tokenizer)
                       IsNumeric(Tokenizer->At[0]) ||
                       (Tokenizer->At[0] == '+') ||
                       (Tokenizer->At[0] == '_'))
-                {
                     ++Tokenizer->At;
-                }
 
                 Token.Type = Token_Identifier;
                 Token.TextLength = Tokenizer->At - Token.Text;
             }
             else if(IsNumeric(C))
             {
-                while(IsNumeric(Tokenizer->At[0]) ||
-                      IsDot(Tokenizer->At[0]))
+                if(C == '0' && (Tokenizer->At[0] == 'x' || Tokenizer->At[0] == 'X'))
+                {
                     ++Tokenizer->At;
+                    while(IsHexadecimal(Tokenizer->At[0]))
+                        ++Tokenizer->At;
 
-                Token.Type = Token_Digit;
-                Token.TextLength = Tokenizer->At - Token.Text;
+                    Token.Type = Token_Hex;
+                    Token.TextLength = Tokenizer->At - Token.Text;
+                }
+                else
+                {
+                    while(IsNumeric(Tokenizer->At[0]) ||
+                          IsDot(Tokenizer->At[0]))
+                        ++Tokenizer->At;
+
+                    Token.Type = Token_Digit;
+                    Token.TextLength = Tokenizer->At - Token.Text;
+                }
             }
             else
             {

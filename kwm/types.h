@@ -152,6 +152,7 @@ enum token_type
     Token_String,
     Token_Digit,
     Token_Comment,
+    Token_Hex,
 
     Token_EndOfStream,
     Token_Unknown,

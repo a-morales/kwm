@@ -45,6 +45,15 @@ IsNumeric(char C)
 }
 
 inline bool
+IsHexadecimal(char C)
+{
+    bool Result = (((C >= 'a') && (C <= 'f')) ||
+                   ((C >= 'A') && (C <= 'F')) ||
+                   (IsNumeric(C)));
+    return Result;
+}
+
+inline bool
 TokenEquals(token Token, const char *Match)
 {
     const char *At = Match;
