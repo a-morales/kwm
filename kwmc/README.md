@@ -12,7 +12,7 @@ man kwmc
         A command with [opt] means that an argument is optional
 
 ## Create Keybindings
-(My keybinds can be found [here](https://gist.githubusercontent.com/koekeishiya/8760be63d6171e150278/raw/f6dfcf31506c340182583af6ab4255bc1a5e03cb/Kwm:%2520binds) as an example)
+(My keybinds can be found [here](https://gist.githubusercontent.com/koekeishiya/8760be63d6171e150278/raw/9ad1816abd2daf14a90068a8f0d45dcca373611b/Kwm:%2520binds) as an example)
 
         Kwm supports two different ways to create a keybind,
         either through the key-symbol or the key-code.
