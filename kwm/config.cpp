@@ -741,7 +741,7 @@ void KwmParseConfigOption(tokenizer *Tokenizer)
             else if(TokenEquals(Token, "space"))
                 KwmParseConfigOptionSpace(Tokenizer);
             else if(TokenEquals(Token, "display"))
-                KwmParseConfigOptionSpace(Tokenizer);
+                KwmParseConfigOptionDisplay(Tokenizer);
             else
                 ReportInvalidCommand("Unknown command 'config " + std::string(Token.Text, Token.TextLength) + "'");
         } break;
