@@ -372,6 +372,9 @@ man kwmc
         Get id of the active space
             kwmc query space active id
 
+        Get tiling mode of the active space
+            kwmc query space active mode
+
         Get name of the previously active space
             kwmc query space previous name
 

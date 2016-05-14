@@ -181,6 +181,14 @@ GetNameOfPreviousSpace()
 }
 
 inline std::string
+GetModeOfCurrentSpace()
+{
+    std::string Output;
+    GetTagForCurrentSpace(Output);
+    return Output;
+}
+
+inline std::string
 GetTagOfCurrentSpace()
 {
     std::string Output;

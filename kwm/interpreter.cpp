@@ -364,6 +364,8 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
                 KwmWriteToSocket(ClientSockFD, GetNameOfCurrentSpace());
             else if(Tokens[3] == "id")
                 KwmWriteToSocket(ClientSockFD, GetIdOfCurrentSpace());
+            else if(Tokens[3] == "mode")
+                KwmWriteToSocket(ClientSockFD, GetModeOfCurrentSpace());
         }
         else if(Tokens[2] == "previous")
         {
@@ -801,4 +803,13 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmAddRule(CreateStringFromTokens(Tokens, 1));
     else if(Tokens[0] == "scratchpad")
         KwmScratchpadCommand(Tokens, ClientSockFD);
+    else if(Tokens[0] == "dev")
+    {
+        color Color = {};
+        Color.Red = 255;
+        Color.Green = 0;
+        Color.Blue = 0;
+        unsigned int Hex = ConvertRGBAToHex(&Color);
+        std::cout << std::hex << Hex << std::endl;
+    }
 }
