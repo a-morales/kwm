@@ -114,6 +114,16 @@ ConvertHexRGBAToColor(unsigned int Color)
     return Result;
 }
 
+inline unsigned int
+ConvertRGBAToHex(color *Color)
+{
+    unsigned int Hex = 0;
+    Hex = ((int)Color->Red & 0xff) << 16;
+    Hex += ((int)Color->Green & 0xff) << 8;
+    Hex += ((int)Color->Blue & 0xff) << 0;
+    return Hex;
+}
+
 inline CGPoint
 GetCursorPos()
 {
