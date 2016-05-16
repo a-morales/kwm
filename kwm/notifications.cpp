@@ -53,8 +53,9 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
             }
         }
     }
-    else if(CFEqual(Notification, kAXWindowResizedNotification) ||
-            CFEqual(Notification, kAXWindowMovedNotification))
+    else if(Window &&
+           (CFEqual(Notification, kAXWindowResizedNotification) ||
+            CFEqual(Notification, kAXWindowMovedNotification)))
     {
         if(KWMTiling.LockToContainer)
             LockWindowToContainerSize(Window);
@@ -130,8 +131,6 @@ void DestroyMarkedWindowNotifications()
 
 void CreateFocusedWindowNotifications()
 {
-    DestroyFocusedWindowNotifications();
-
     if(KWMFocus.Window)
     {
         KWMFocus.FocusedApplication = AXUIElementCreateApplication(KWMFocus.Window->PID);
@@ -154,7 +153,7 @@ void CreateFocusedWindowNotifications()
 
 void DestroyFocusedWindowNotifications()
 {
-    if(!KWMFocus.FocusedObserver)
+    if(!KWMFocus.FocusedObserver || !KWMFocus.FocusedApplication)
         return;
 
     AXObserverRemoveNotification(KWMFocus.FocusedObserver, KWMFocus.FocusedApplication, kAXWindowMiniaturizedNotification);
