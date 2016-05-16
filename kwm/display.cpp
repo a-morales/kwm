@@ -12,24 +12,25 @@ extern kwm_tiling KWMTiling;
 extern kwm_thread KWMThread;
 extern kwm_toggles KWMToggles;
 
-int GetDisplayIDFromIdentifier(CFStringRef Identifier)
+unsigned int GetDisplayIDFromIdentifier(CFStringRef Identifier)
 {
-    for(auto it = KWMTiling.DisplayMap.begin(); it != KWMTiling.DisplayMap.end(); it++)
+    std::map<unsigned int, screen_info>::iterator It;
+    for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
     {
-        CFStringRef activeID = it->second.Identifier;
-        CFComparisonResult result = CFStringCompare(Identifier, activeID, 0);
-        if (result == kCFCompareEqualTo)
-            return it->first;
+        CFStringRef ActiveID = It->second.Identifier;
+        CFComparisonResult Result = CFStringCompare(Identifier, ActiveID, 0);
+        if(Result == kCFCompareEqualTo)
+            return It->first;
     }
     return 0;
 }
 
-void UpdateDisplayIDForDisplay(int oldDisplayIdx, int newDisplayIdx)
+void UpdateDisplayIDForDisplay(int OldDisplayIndex, int NewDisplayIndex)
 {
-    auto it = KWMTiling.DisplayMap.find(oldDisplayIdx);
-    screen_info Screen = it->second;
-    KWMTiling.DisplayMap.erase(it);
-    KWMTiling.DisplayMap[newDisplayIdx] = Screen;
+    std::map<unsigned int, screen_info>::iterator It = KWMTiling.DisplayMap.find(OldDisplayIndex);
+    screen_info Screen = It->second;
+    KWMTiling.DisplayMap.erase(It);
+    KWMTiling.DisplayMap[NewDisplayIndex] = Screen;
 }
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
