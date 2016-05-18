@@ -6,8 +6,10 @@
 ax_observer AXLibConstructObserver(int PID, ObserverCallback Callback)
 {
     ax_observer Observer = {};
+
     AXObserverCreate(PID, Callback, &Observer.Ref);
     Observer.AppRef = AXUIElementCreateApplication(PID);
+
     return Observer;
 }
 
@@ -26,8 +28,10 @@ void AXLibRemoveObserverNotification(ax_observer *Observer, CFStringRef Notifica
 ax_observer AXLibConstructObserver(ax_application *Application, ObserverCallback Callback)
 {
     ax_observer Observer = {};
+
     AXObserverCreate(Application->PID, Callback, &Observer.Ref);
     Observer.Application = Application;
+
     return Observer;
 }
 
