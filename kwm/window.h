@@ -74,21 +74,15 @@ void SetWindowFocusByNode(link_node *Link);
 
 bool IsWindowTilable(window_info *Window);
 bool IsWindowTilable(AXUIElementRef WindowRef);
-bool IsWindowResizable(AXUIElementRef WindowRef);
-bool IsWindowMovable(AXUIElementRef WindowRef);
 void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Yptr, int *Wptr, int *Hptr);
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
 void CenterWindow(screen_info *Screen, window_info *Window);
 void MoveFloatingWindow(int X, int Y);
 
-int GetWindowIDFromRef(AXUIElementRef WindowRef);
 window_info GetWindowByRef(AXUIElementRef WindowRef);
 window_info *GetWindowByID(int WindowID);
-std::string GetWindowTitle(AXUIElementRef WindowRef);
-CGSize GetWindowSize(AXUIElementRef WindowRef);
 CGPoint GetWindowPos(window_info *Window);
-CGPoint GetWindowPos(AXUIElementRef WindowRef);
 void GetWindowInfo(const void *Key, const void *Value, void *Context);
 bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole);
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef);
