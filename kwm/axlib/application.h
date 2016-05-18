@@ -21,6 +21,6 @@ ax_application AXLibConstructApplication(int PID);
 void AXLibDestroyApplication(ax_application *Application);
 
 void AXLibAddApplicationWindows(ax_application *Application);
-void AXLibRemoveApplicationWindows(ax_application *Application)
+void AXLibRemoveApplicationWindows(ax_application *Application);
 
 #endif

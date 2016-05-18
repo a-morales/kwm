@@ -23,19 +23,17 @@ void AXLibAddApplicationWindows(ax_application *Application)
         for(CFIndex Index = 0; Index < Count; ++Index)
         {
             AXUIElementRef Ref = (AXUIElementRef) CFArrayGetValueAtIndex(Windows, Index);
-            Application->Windows.add(AXLibConstructWindow(Ref));
+            Application->Windows.push_back(AXLibConstructWindow(Ref));
         }
     }
-
-    return false;
 }
 
 void AXLibRemoveApplicationWindows(ax_application *Application)
 {
     for(int Index = 0; Index < Application->Windows.size(); ++Index)
-        AXLibDestroyWindow(Application->Windows[Index]);
+        AXLibDestroyWindow(&Application->Windows[Index]);
 
-    Application.Windows.clear();
+    Application->Windows.clear();
 }
 
 void AXLibDestroyApplication(ax_application *Application)
