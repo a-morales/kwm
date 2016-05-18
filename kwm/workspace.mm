@@ -1,14 +1,13 @@
 #import "Cocoa/Cocoa.h"
 #import "types.h"
 #include "notifications.h"
+#include "axlib/element.h"
 
 extern void UpdateActiveSpace();
 extern screen_info *GetDisplayOfWindow(window_info *Window);
-extern bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef);
 extern void SetKwmFocus(AXUIElementRef WindowRef);
 extern void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *Focus, bool Mouse, bool UpdateFocus);
 extern window_info *GetWindowByID(int WindowID);
-extern int GetWindowIDFromRef(AXUIElementRef WindowRef);
 extern space_info *GetActiveSpaceOfScreen(screen_info *Screen);
 extern tree_node *GetTreeNodeFromWindowIDOrLinkNode(tree_node *RootNode, int WindowID);
 extern bool IsWindowFloating(int WindowID, int *Index);
@@ -79,9 +78,9 @@ extern kwm_thread KWMThread;
         if((Window && Window->PID != ProcessID) || !Window)
         {
             AXUIElementRef OSXWindowRef;
-            if(GetWindowFocusedByOSX(&OSXWindowRef))
+            if(AXLibGetFocusedWindow(&OSXWindowRef))
             {
-                int OSXWindowID = GetWindowIDFromRef(OSXWindowRef);
+                int OSXWindowID = AXLibGetWindowID(OSXWindowRef);
                 window_info *OSXWindow = GetWindowByID(OSXWindowID);
                 screen_info *OSXScreen = GetDisplayOfWindow(OSXWindow);
                 if(OSXWindow && OSXScreen)

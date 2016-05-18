@@ -1,6 +1,7 @@
 #ifndef BORDER_H
 #define BORDER_H
 
+#include "axlib/element.h"
 #include "types.h"
 #include "window.h"
 
@@ -54,8 +55,8 @@ RefreshBorder(kwm_border *Border, int WindowID)
     window_info *Window = GetWindowByID(WindowID);
     if(Window && GetWindowRef(Window, &WindowRef))
     {
-        CGPoint WindowPos = GetWindowPos(WindowRef);
-        CGSize WindowSize = GetWindowSize(WindowRef);
+        CGPoint WindowPos = AXLibGetWindowPosition(WindowRef);
+        CGSize WindowSize = AXLibGetWindowSize(WindowRef);
         std::string Command = "x:" + std::to_string(WindowPos.x) + \
                               " y:" + std::to_string(WindowPos.y) + \
                               " w:" + std::to_string(WindowSize.width) + \

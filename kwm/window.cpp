@@ -11,6 +11,8 @@
 #include "rules.h"
 #include "serializer.h"
 
+#include "axlib/element.h"
+
 #include <cmath>
 
 extern kwm_screen KWMScreen;
@@ -166,50 +168,18 @@ void ClearFocusedWindow()
     KWMFocus.Cache = KWMFocus.NULLWindowInfo;
 }
 
-bool GetWindowFocusedByOSX(AXUIElementRef *WindowRef)
-{
-    static AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
-
-    AXUIElementRef App;
-    AXUIElementCopyAttributeValue(SystemWideElement, kAXFocusedApplicationAttribute, (CFTypeRef*)&App);
-    if(App)
-    {
-        AXUIElementRef AppWindowRef;
-        AXError Error = AXUIElementCopyAttributeValue(App, kAXFocusedWindowAttribute, (CFTypeRef*)&AppWindowRef);
-        CFRelease(App);
-
-        if(Error == kAXErrorSuccess)
-        {
-            *WindowRef = AppWindowRef;
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool FocusWindowOfOSX()
 {
     if(IsSpaceTransitionInProgress() ||
        !IsActiveSpaceManaged())
         return false;
 
-    static AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
-
-    AXUIElementRef App;
-    AXUIElementCopyAttributeValue(SystemWideElement, kAXFocusedApplicationAttribute, (CFTypeRef*)&App);
-    if(App)
+    AXUIElementRef WindowRef;
+    if(AXLibGetFocusedWindow(&WindowRef))
     {
-        AXUIElementRef WindowRef;
-        AXError Error = AXUIElementCopyAttributeValue(App, kAXFocusedWindowAttribute, (CFTypeRef*)&WindowRef);
-        CFRelease(App);
-
-        if (Error == kAXErrorSuccess)
-        {
-            SetKwmFocus(WindowRef);
-            CFRelease(WindowRef);
-            return true;
-        }
+        SetKwmFocus(WindowRef);
+        CFRelease(WindowRef);
+        return true;
     }
 
     ClearFocusedWindow();
@@ -1447,8 +1417,8 @@ void MoveCursorToCenterOfWindow(window_info *Window)
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
     {
-        CGPoint WindowPos = GetWindowPos(WindowRef);
-        CGSize WindowSize = GetWindowSize(WindowRef);
+        CGPoint WindowPos = AXLibGetWindowPosition(WindowRef);
+        CGSize WindowSize = AXLibGetWindowSize(WindowRef);
         CGWarpMouseCursorPosition(CGPointMake(WindowPos.x + WindowSize.width / 2, WindowPos.y + WindowSize.height / 2));
     }
 }
@@ -1611,8 +1581,8 @@ void SetWindowFocusByNode(link_node *Link)
 
 void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Yptr, int *Wptr, int *Hptr)
 {
-    CGPoint WindowOrigin = GetWindowPos(WindowRef);
-    CGSize WindowOGSize = GetWindowSize(WindowRef);
+    CGPoint WindowOrigin = AXLibGetWindowPosition(WindowRef);
+    CGSize WindowOGSize = AXLibGetWindowSize(WindowRef);
 
     int &X = *Xptr, &Y = *Yptr, &Width = *Wptr, &Height = *Hptr;
     int XDiff = (X + Width) - (WindowOrigin.x + WindowOGSize.width);
@@ -1628,23 +1598,8 @@ void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Y
         Y += YOff > 0 ? YOff : 0;
         Height -= YOff > 0 ? YOff : 0;
 
-        CGPoint WindowPos = CGPointMake(X, Y);
-        CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
-
-        CGSize WindowSize = CGSizeMake(Width, Height);
-        CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
-
-        if(NewWindowPos)
-        {
-            AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-            CFRelease(NewWindowPos);
-        }
-
-        if(NewWindowSize)
-        {
-            AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
-            CFRelease(NewWindowSize);
-        }
+        AXLibSetWindowPosition(WindowRef, X, Y);
+        AXLibSetWindowSize(WindowRef, Width, Height);
     }
 }
 
@@ -1653,17 +1608,8 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     Assert(WindowRef);
     Assert(Window);
 
-    CGPoint WindowPos = CGPointMake(X, Y);
-    CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
-
-    CGSize WindowSize = CGSizeMake(Width, Height);
-    CFTypeRef NewWindowSize = (CFTypeRef)AXValueCreate(kAXValueCGSizeType, (void*)&WindowSize);
-
-    if(!NewWindowPos || !NewWindowSize)
-        return;
-
-    AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-    AXUIElementSetAttributeValue(WindowRef, kAXSizeAttribute, NewWindowSize);
+    AXLibSetWindowPosition(WindowRef, X, Y);
+    AXLibSetWindowSize(WindowRef, Width, Height);
     CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
 
     Window->X = X;
@@ -1674,8 +1620,6 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     DEBUG("SetWindowDimensions() " << Window->Name <<
           " pos: " << Window->X << "," << Window->Y <<
           " size: " << Window->Width << "," << Window->Height);
-    CFRelease(NewWindowPos);
-    CFRelease(NewWindowSize);
 }
 
 void CenterWindow(screen_info *Screen, window_info *Window)
@@ -1699,16 +1643,10 @@ void MoveFloatingWindow(int X, int Y)
     AXUIElementRef WindowRef;
     if(GetWindowRef(KWMFocus.Window, &WindowRef))
     {
-        CGPoint WindowPos = GetWindowPos(WindowRef);
+        CGPoint WindowPos = AXLibGetWindowPosition(WindowRef);
         WindowPos.x += X;
         WindowPos.y += Y;
-
-        CFTypeRef NewWindowPos = (CFTypeRef)AXValueCreate(kAXValueCGPointType, (const void*)&WindowPos);
-        if(NewWindowPos)
-        {
-            AXUIElementSetAttributeValue(WindowRef, kAXPositionAttribute, NewWindowPos);
-            CFRelease(NewWindowPos);
-        }
+        AXLibSetWindowPosition(WindowRef, WindowPos.x, WindowPos.y);
     }
 }
 
@@ -1731,60 +1669,7 @@ bool IsWindowTilable(window_info *Window)
 bool IsWindowTilable(AXUIElementRef WindowRef)
 {
 
-    return IsWindowResizable(WindowRef) && IsWindowMovable(WindowRef);
-}
-
-bool IsWindowResizable(AXUIElementRef WindowRef)
-{
-    bool Result = false;
-    AXError Error = AXUIElementIsAttributeSettable(WindowRef, kAXSizeAttribute, (Boolean*)&Result);
-    if(Error != kAXErrorSuccess)
-        Result = false;
-
-    return Result;
-}
-
-bool IsWindowMovable(AXUIElementRef WindowRef)
-{
-    bool Result = false;
-    AXError Error = AXUIElementIsAttributeSettable(WindowRef, kAXPositionAttribute, (Boolean*)&Result);
-    if(Error != kAXErrorSuccess)
-        Result = false;
-
-    return Result;
-}
-
-std::string GetWindowTitle(AXUIElementRef WindowRef)
-{
-    CFStringRef Temp;
-    std::string WindowTitle;
-    AXUIElementCopyAttributeValue(WindowRef, kAXTitleAttribute, (CFTypeRef*)&Temp);
-
-    if(Temp)
-    {
-        WindowTitle = GetUTF8String(Temp);
-        if(WindowTitle.empty())
-            WindowTitle = CFStringGetCStringPtr(Temp, kCFStringEncodingMacRoman);
-
-        CFRelease(Temp);
-    }
-
-    return WindowTitle;
-}
-
-CGSize GetWindowSize(AXUIElementRef WindowRef)
-{
-    CGSize WindowSize = {};
-    AXValueRef Temp;
-
-    AXUIElementCopyAttributeValue(WindowRef, kAXSizeAttribute, (CFTypeRef*)&Temp);
-    if(Temp)
-    {
-        AXValueGetValue(Temp, kAXValueCGSizeType, &WindowSize);
-        CFRelease(Temp);
-    }
-
-    return WindowSize;
+    return AXLibIsWindowResizable(WindowRef) && AXLibIsWindowMovable(WindowRef);
 }
 
 CGPoint GetWindowPos(window_info *Window)
@@ -1792,38 +1677,16 @@ CGPoint GetWindowPos(window_info *Window)
     CGPoint Result = {};
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
-        Result = GetWindowPos(WindowRef);
+        Result = AXLibGetWindowPosition(WindowRef);
 
     return Result;
-}
-
-CGPoint GetWindowPos(AXUIElementRef WindowRef)
-{
-    CGPoint WindowPos = {};
-    AXValueRef Temp;
-
-    AXUIElementCopyAttributeValue(WindowRef, kAXPositionAttribute, (CFTypeRef*)&Temp);
-    if(Temp)
-    {
-        AXValueGetValue(Temp, kAXValueCGPointType, &WindowPos);
-        CFRelease(Temp);
-    }
-
-    return WindowPos;
 }
 
 window_info GetWindowByRef(AXUIElementRef WindowRef)
 {
     Assert(WindowRef);
-    window_info *Window = GetWindowByID(GetWindowIDFromRef(WindowRef));
+    window_info *Window = GetWindowByID(AXLibGetWindowID(WindowRef));
     return Window ? *Window : KWMFocus.NULLWindowInfo;
-}
-
-int GetWindowIDFromRef(AXUIElementRef WindowRef)
-{
-    int WindowRefWID = -1;
-    _AXUIElementGetWindow(WindowRef, &WindowRefWID);
-    return WindowRefWID;
 }
 
 window_info *GetWindowByID(int WindowID)
@@ -1853,8 +1716,8 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole)
         AXUIElementRef WindowRef;
         if(GetWindowRef(Window, &WindowRef))
         {
-            AXUIElementCopyAttributeValue(WindowRef, kAXRoleAttribute, (CFTypeRef *)Role);
-            AXUIElementCopyAttributeValue(WindowRef, kAXSubroleAttribute, (CFTypeRef *)SubRole);
+            AXLibGetWindowRole(WindowRef, Role);
+            AXLibGetWindowSubrole(WindowRef, SubRole);
             window_role RoleEntry = { *Role, *SubRole };
             KWMCache.WindowRole[Window->WID] = RoleEntry;
             Result = true;
@@ -1898,7 +1761,7 @@ bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
             KWMCache.WindowRefs[Window->PID].push_back(AppWindowRef);
             if(!Found)
             {
-                if(GetWindowIDFromRef(AppWindowRef) == Window->WID)
+                if(AXLibGetWindowID(AppWindowRef) == Window->WID)
                 {
                     *WindowRef = AppWindowRef;
                     Found = true;

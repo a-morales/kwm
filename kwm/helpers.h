@@ -134,28 +134,6 @@ GetCursorPos()
     return Cursor;
 }
 
-inline std::string
-GetUTF8String(CFStringRef Temp)
-{
-    std::string Result;
-
-    if(!CFStringGetCStringPtr(Temp, kCFStringEncodingUTF8))
-    {
-        CFIndex Length = CFStringGetLength(Temp);
-        CFIndex Bytes = 4 * Length + 1;
-        char *TempUTF8StringPtr = (char*) malloc(Bytes);
-
-        CFStringGetCString(Temp, TempUTF8StringPtr, Bytes, kCFStringEncodingUTF8);
-        if(TempUTF8StringPtr)
-        {
-            Result = TempUTF8StringPtr;
-            free(TempUTF8StringPtr);
-        }
-    }
-
-    return Result;
-}
-
 inline char*
 ReadFile(std::string File)
 {

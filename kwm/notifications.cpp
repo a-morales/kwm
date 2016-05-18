@@ -3,6 +3,7 @@
 #include "space.h"
 #include "window.h"
 #include "border.h"
+#include "axlib/element.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
@@ -17,12 +18,12 @@ void FocusedAXObserverCallback(AXObserverRef Observer, AXUIElementRef Element, C
 
     window_info *Window = KWMFocus.Window;
     if(Window && CFEqual(Notification, kAXTitleChangedNotification))
-        Window->Name = GetWindowTitle(Element);
+        Window->Name = AXLibGetWindowTitle(Element);
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
     {
-        if(!Window || Window->WID != GetWindowIDFromRef(Element))
+        if(!Window || Window->WID != AXLibGetWindowID(Element))
         {
-            window_info *OSXWindow = GetWindowByID(GetWindowIDFromRef(Element));
+            window_info *OSXWindow = GetWindowByID(AXLibGetWindowID(Element));
             screen_info *OSXScreen = GetDisplayOfWindow(OSXWindow);
             if(OSXWindow && OSXScreen)
             {

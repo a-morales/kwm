@@ -1,5 +1,6 @@
 #include "application.h"
 #include "window.h"
+#include "axlib/element.h"
 
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
@@ -49,7 +50,7 @@ bool GetWindowRefFromCache(window_info *Window, AXUIElementRef *WindowRef)
     {
         for(std::size_t ElementIndex = 0; ElementIndex < Elements.size(); ++ElementIndex)
         {
-            if(GetWindowIDFromRef(Elements[ElementIndex]) == Window->WID)
+            if(AXLibGetWindowID(Elements[ElementIndex]) == Window->WID)
             {
                 *WindowRef = Elements[ElementIndex];
                 return true;
