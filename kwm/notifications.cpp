@@ -115,11 +115,11 @@ void DestroyMarkedWindowNotifications()
 {
     if(KWMFocus.MarkedObserver.Ref && KWMFocus.MarkedObserver.AppRef)
     {
+        AXLibStopObserver(&KWMFocus.MarkedObserver);
         AXLibRemoveObserverNotification(&KWMFocus.MarkedObserver, kAXWindowMiniaturizedNotification);
         AXLibRemoveObserverNotification(&KWMFocus.MarkedObserver, kAXWindowMovedNotification);
         AXLibRemoveObserverNotification(&KWMFocus.MarkedObserver, kAXWindowResizedNotification);
         AXLibRemoveObserverNotification(&KWMFocus.MarkedObserver, kAXUIElementDestroyedNotification);
-        AXLibStopObserver(&KWMFocus.MarkedObserver);
         AXLibDestroyObserver(&KWMFocus.MarkedObserver);
     }
 }
@@ -148,13 +148,13 @@ void DestroyFocusedWindowNotifications()
 {
     if(KWMFocus.FocusedObserver.Ref && KWMFocus.FocusedObserver.AppRef)
     {
+        AXLibStopObserver(&KWMFocus.FocusedObserver);
         AXLibRemoveObserverNotification(&KWMFocus.FocusedObserver, kAXWindowMiniaturizedNotification);
         AXLibRemoveObserverNotification(&KWMFocus.FocusedObserver, kAXWindowMovedNotification);
         AXLibRemoveObserverNotification(&KWMFocus.FocusedObserver, kAXWindowResizedNotification);
         AXLibRemoveObserverNotification(&KWMFocus.FocusedObserver, kAXTitleChangedNotification);
         AXLibRemoveObserverNotification(&KWMFocus.FocusedObserver, kAXFocusedWindowChangedNotification);
         AXLibRemoveObserverNotification(&KWMFocus.FocusedObserver, kAXUIElementDestroyedNotification);
-        AXLibStopObserver(&KWMFocus.FocusedObserver);
         AXLibDestroyObserver(&KWMFocus.FocusedObserver);
     }
 }
