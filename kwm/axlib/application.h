@@ -1,8 +1,10 @@
 #ifndef AXLIB_APPLICATION_H
 #define AXLIB_APPLICATION_H
 
-#include "window.h"
+#include <Carbon/Carbon.h>
 #include <vector>
+
+#include "window.h"
 
 struct ax_application
 {
@@ -15,7 +17,7 @@ struct ax_application
     ax_window *Focus;
 };
 
-ax_application AXLibConstructApplication();
+ax_application AXLibConstructApplication(int PID);
 void AXLibDestroyApplication(ax_application *Application);
 
 void AXLibAddApplicationWindows(ax_application *Application);

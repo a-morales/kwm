@@ -1,6 +1,8 @@
 #ifndef AXLIB_OBSERVER_H
 #define AXLIB_OBSERVER_H
 
+#include <Carbon/Carbon.h>
+
 #include "application.h"
 
 #define OBSERVER_CALLBACK(name) void name(AXObserverRef Observer,\
