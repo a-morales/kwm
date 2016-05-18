@@ -2,9 +2,9 @@
 
 void EatAllWhiteSpace(tokenizer *Tokenizer)
 {
-    for(;;)
+    while(Tokenizer->At[0])
     {
-        if(Tokenizer->At[0] && IsWhiteSpace(Tokenizer->At[0]))
+        if(IsWhiteSpace(Tokenizer->At[0]))
             ++Tokenizer->At;
         else
             break;
@@ -42,6 +42,7 @@ token GetToken(tokenizer *Tokenizer)
     token Token = {};
     Token.TextLength = 1;
     Token.Text = Tokenizer->At;
+
     char C = Tokenizer->At[0];
     ++Tokenizer->At;
 
@@ -58,7 +59,6 @@ token GetToken(tokenizer *Tokenizer)
         case ']': { Token.Type = Token_CloseBracket; } break;
         case '{': { Token.Type = Token_OpenBrace; } break;
         case '}': { Token.Type = Token_CloseBrace; } break;
-
         case '"':
         {
             Token.Text = Tokenizer->At;
@@ -71,7 +71,6 @@ token GetToken(tokenizer *Tokenizer)
             if(Tokenizer->At[0] == '"')
                 ++Tokenizer->At;
         } break;
-
         case '/':
         {
             if(Tokenizer->At[0] == '*')
@@ -109,7 +108,6 @@ token GetToken(tokenizer *Tokenizer)
                 Token.Type = Token_Unknown;
             }
         } break;
-
         default:
         {
             if(IsAlpha(C))

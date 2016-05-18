@@ -2,6 +2,7 @@
 #define TOKENIZER_H
 
 #include "types.h"
+
 inline bool
 IsDot(char C)
 {
