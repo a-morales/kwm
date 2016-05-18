@@ -1480,7 +1480,7 @@ void SetKwmFocus(AXUIElementRef WindowRef)
     if(!IsActiveSpaceFloating())
     {
         if(OldProcessPID != KWMFocus.Window->PID ||
-           !KWMFocus.FocusedObserver)
+           !KWMFocus.FocusedObserver.Ref)
             CreateFocusedWindowNotifications();
 
         UpdateBorder("focused");
@@ -1527,7 +1527,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
     if(!IsActiveSpaceFloating())
     {
         if(OldProcessPID != KWMFocus.Window->PID ||
-           !KWMFocus.FocusedObserver)
+           !KWMFocus.FocusedObserver.Ref)
             CreateFocusedWindowNotifications();
 
         UpdateBorder("focused");

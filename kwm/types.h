@@ -25,6 +25,8 @@
 #include <sys/types.h>
 #include <time.h>
 
+#include "axlib/observer.h"
+
 struct token;
 struct tokenizer;
 struct space_identifier;
@@ -388,11 +390,8 @@ struct kwm_path
 
 struct kwm_focus
 {
-    AXObserverRef FocusedObserver;
-    AXUIElementRef FocusedApplication;
-
-    AXObserverRef MarkedObserver;
-    AXUIElementRef MarkedApplication;
+    ax_observer FocusedObserver;
+    ax_observer MarkedObserver;
 
     ProcessSerialNumber PSN;
     window_info *Window;
