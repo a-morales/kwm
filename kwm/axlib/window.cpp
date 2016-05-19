@@ -17,14 +17,14 @@ ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef Windo
     return Window;
 }
 
-void AXLibDestroyWindow(ax_window *AXWindow)
+void AXLibDestroyWindow(ax_window *Window)
 {
-    if(AXWindow->Ref)
-        CFRelease(AXWindow->Ref);
+    if(Window->Ref)
+        CFRelease(Window->Ref);
 
-    if(AXWindow->Type.Role)
-        CFRelease(AXWindow->Type.Role);
+    if(Window->Type.Role)
+        CFRelease(Window->Type.Role);
 
-    if(AXWindow->Type.Subrole)
-        CFRelease(AXWindow->Type.Subrole);
+    if(Window->Type.Subrole)
+        CFRelease(Window->Type.Subrole);
 }

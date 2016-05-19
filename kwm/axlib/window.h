@@ -28,6 +28,6 @@ struct ax_window
 };
 
 ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef);
-void AXLibDestroyWindow(ax_window *AXWindow);
+void AXLibDestroyWindow(ax_window *Window);
 
 #endif
