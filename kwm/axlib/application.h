@@ -26,7 +26,6 @@ struct ax_application
     bool Float;
 };
 
-void AXLibRunningApplications(std::map<pid_t, ax_application> *AXApplications);
 ax_application AXLibConstructApplication(pid_t PID, std::string Name);
 void AXLibDestroyApplication(ax_application *Application);
 

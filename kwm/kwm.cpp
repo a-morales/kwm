@@ -11,8 +11,7 @@
 #include "config.h"
 #include "command.h"
 
-#include "axlib/application.h"
-#include "axlib/sharedworkspace.h"
+#include "axlib/axlib.h"
 
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
 
@@ -322,7 +321,6 @@ int main(int argc, char **argv)
 
     /*
     AXLibRunningApplications(&AXApplications);
-    SharedWorkspaceSetApplicationsPointer(&AXApplications);
 
     std::map<pid_t, ax_application>::iterator It;
     for(It = AXApplications.begin(); It != AXApplications.end(); ++It)

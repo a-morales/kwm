@@ -43,22 +43,6 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     }
 }
 
-void AXLibRunningApplications(std::map<pid_t, ax_application> *AXApplications)
-{
-    std::map<pid_t, std::string> List = SharedWorkspaceRunningApplications();
-
-    std::map<pid_t, std::string>::iterator It;
-    for(It = List.begin(); It != List.end(); ++It)
-    {
-        pid_t PID = It->first;
-        std::string Name = It->second;
-        if(Name == "kwm-overlay") continue;
-        (*AXApplications)[PID] = AXLibConstructApplication(PID, Name);
-        AXLibAddApplicationWindows(&(*AXApplications)[PID]);
-        AXLibAddApplicationObserver(&(*AXApplications)[PID]);
-    }
-}
-
 ax_application AXLibConstructApplication(int PID, std::string Name)
 {
     ax_application Application = {};
