@@ -25,6 +25,10 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     {
         printf("%s: kAXWindowMiniaturizedNotification\n", Application->Name.c_str());
     }
+    else if(CFEqual(Notification, kAXWindowDeminiaturizedNotification))
+    {
+        printf("%s: kAXWindowDeminiaturizedNotification\n", Application->Name.c_str());
+    }
     else if(CFEqual(Notification, kAXWindowMovedNotification))
     {
         printf("%s: kAXWindowMovedNotification\n", Application->Name.c_str());
@@ -65,6 +69,7 @@ void AXLibAddApplicationObserver(ax_application *Application)
         AXLibAddObserverNotification(&Application->Observer, kAXFocusedWindowChangedNotification, Application);
 
         AXLibAddObserverNotification(&Application->Observer, kAXWindowMiniaturizedNotification, Application);
+        AXLibAddObserverNotification(&Application->Observer, kAXWindowDeminiaturizedNotification, Application);
         AXLibAddObserverNotification(&Application->Observer, kAXWindowMovedNotification, Application);
         AXLibAddObserverNotification(&Application->Observer, kAXWindowResizedNotification, Application);
         AXLibAddObserverNotification(&Application->Observer, kAXTitleChangedNotification, Application);
@@ -84,6 +89,7 @@ void AXLibRemoveApplicationObserver(ax_application *Application)
         AXLibRemoveObserverNotification(&Application->Observer, kAXFocusedWindowChangedNotification);
 
         AXLibRemoveObserverNotification(&Application->Observer, kAXWindowMiniaturizedNotification);
+        AXLibRemoveObserverNotification(&Application->Observer, kAXWindowDeminiaturizedNotification);
         AXLibRemoveObserverNotification(&Application->Observer, kAXWindowMovedNotification);
         AXLibRemoveObserverNotification(&Application->Observer, kAXWindowResizedNotification);
         AXLibRemoveObserverNotification(&Application->Observer, kAXTitleChangedNotification);
