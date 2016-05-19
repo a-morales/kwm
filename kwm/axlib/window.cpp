@@ -7,6 +7,7 @@ ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef Windo
 
     Window.Ref = WindowRef;
     Window.Application = Application;
+    Window.Name = AXLibGetWindowTitle(WindowRef);
     Window.ID = AXLibGetWindowID(WindowRef);
     Window.Movable = AXLibIsWindowMovable(WindowRef);
     Window.Resizable = AXLibIsWindowResizable(WindowRef);

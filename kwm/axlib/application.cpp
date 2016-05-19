@@ -31,6 +31,10 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     else if(CFEqual(Notification, kAXTitleChangedNotification))
     {
         printf("%s: kAXTitleChangedNotification\n", Application->Name.c_str());
+        int ID = AXLibGetWindowID(Element);
+        ax_window *Window = AXLibFindApplicationWindow(Application, ID);
+        if(Window)
+            Window->Name = AXLibGetWindowTitle(Element);
     }
     else if(CFEqual(Notification, kAXUIElementDestroyedNotification))
     {

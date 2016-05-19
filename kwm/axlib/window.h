@@ -2,6 +2,8 @@
 #define AXLIB_WINDOW_H
 
 #include <Carbon/Carbon.h>
+#include <string>
+
 #include "types.h"
 
 struct ax_window_role
@@ -18,8 +20,8 @@ struct ax_window
     int ID;
     bool Movable;
     bool Resizable;
+    std::string Name;
     AXUIElementRef Ref;
-
 };
 
 ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef);
