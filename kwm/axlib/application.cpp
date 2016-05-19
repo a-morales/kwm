@@ -111,17 +111,14 @@ void AXLibRemoveApplicationObserver(ax_application *Application)
 
 void AXLibAddApplicationWindows(ax_application *Application)
 {
-    CFArrayRef Windows = (CFArrayRef) AXLibGetWindowProperty(Application->Ref,
-                                                             kAXWindowsAttribute);
-
+    CFArrayRef Windows = (CFArrayRef) AXLibGetWindowProperty(Application->Ref, kAXWindowsAttribute);
     if(Windows)
     {
         CFIndex Count = CFArrayGetCount(Windows);
         for(CFIndex Index = 0; Index < Count; ++Index)
         {
             AXUIElementRef Ref = (AXUIElementRef) CFArrayGetValueAtIndex(Windows, Index);
-            ax_window Window = AXLibConstructWindow(Application, Ref);
-            Application->Windows[Window.ID] = Window;
+            AXLibAddApplicationWindow(Application, AXLibConstructWindow(Application, Ref));
         }
     }
 }
