@@ -21,9 +21,10 @@ struct ax_application
     ProcessSerialNumber PSN;
     ax_observer Observer;
 
-    std::map<int, ax_window> Windows;
-    ax_window *Focus;
     bool Float;
+    ax_window *Focus;
+    std::map<int, ax_window> Windows;
+    std::map<int, ax_window*> VisibleWindows;
 };
 
 ax_application AXLibConstructApplication(pid_t PID, std::string Name);

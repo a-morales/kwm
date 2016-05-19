@@ -8,6 +8,15 @@
 #include "application.h"
 #include "sharedworkspace.h"
 
+#define internal static
+
+internal inline bool
+AXLibIsApplicationCached(std::map<pid_t, ax_application> *AXApplications, pid_t PID)
+{
+    std::map<pid_t, ax_application>::iterator It = AXApplications->find(PID);
+    return It != AXApplications->end();
+}
+
 inline void
 AXLibRunningApplications(std::map<pid_t, ax_application> *AXApplications)
 {
@@ -19,10 +28,13 @@ AXLibRunningApplications(std::map<pid_t, ax_application> *AXApplications)
     {
         pid_t PID = It->first;
         std::string Name = It->second;
-        if(Name == "kwm-overlay") continue;
-        (*AXApplications)[PID] = AXLibConstructApplication(PID, Name);
+        if(!AXLibIsApplicationCached(AXApplications, PID))
+        {
+            (*AXApplications)[PID] = AXLibConstructApplication(PID, Name);
+            AXLibAddApplicationObserver(&(*AXApplications)[PID]);
+        }
+
         AXLibAddApplicationWindows(&(*AXApplications)[PID]);
-        AXLibAddApplicationObserver(&(*AXApplications)[PID]);
     }
 }
 

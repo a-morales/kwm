@@ -134,7 +134,8 @@ ax_window *AXLibFindApplicationWindow(ax_application *Application, int WID)
 
 void AXLibAddApplicationWindow(ax_application *Application, ax_window Window)
 {
-    Application->Windows[Window.ID] = Window;
+    if(!AXLibFindApplicationWindow(Application, Window.ID))
+        Application->Windows[Window.ID] = Window;
 }
 
 void AXLibRemoveApplicationWindow(ax_application *Application, int WID)
