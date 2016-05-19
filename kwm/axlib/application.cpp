@@ -92,18 +92,21 @@ void AXLibAddApplicationObserver(ax_application *Application)
 
 void AXLibRemoveApplicationObserver(ax_application *Application)
 {
-    AXLibStopObserver(&Application->Observer);
+    if(Application->Observer.Valid)
+    {
+        AXLibStopObserver(&Application->Observer);
 
-    AXLibRemoveObserverNotification(&Application->Observer, kAXWindowCreatedNotification);
-    AXLibRemoveObserverNotification(&Application->Observer, kAXFocusedWindowChangedNotification);
+        AXLibRemoveObserverNotification(&Application->Observer, kAXWindowCreatedNotification);
+        AXLibRemoveObserverNotification(&Application->Observer, kAXFocusedWindowChangedNotification);
 
-    AXLibRemoveObserverNotification(&Application->Observer, kAXWindowMiniaturizedNotification);
-    AXLibRemoveObserverNotification(&Application->Observer, kAXWindowMovedNotification);
-    AXLibRemoveObserverNotification(&Application->Observer, kAXWindowResizedNotification);
-    AXLibRemoveObserverNotification(&Application->Observer, kAXTitleChangedNotification);
-    AXLibRemoveObserverNotification(&Application->Observer, kAXUIElementDestroyedNotification);
+        AXLibRemoveObserverNotification(&Application->Observer, kAXWindowMiniaturizedNotification);
+        AXLibRemoveObserverNotification(&Application->Observer, kAXWindowMovedNotification);
+        AXLibRemoveObserverNotification(&Application->Observer, kAXWindowResizedNotification);
+        AXLibRemoveObserverNotification(&Application->Observer, kAXTitleChangedNotification);
+        AXLibRemoveObserverNotification(&Application->Observer, kAXUIElementDestroyedNotification);
 
-    AXLibDestroyObserver(&Application->Observer);
+        AXLibDestroyObserver(&Application->Observer);
+    }
 }
 
 void AXLibAddApplicationWindows(ax_application *Application)
@@ -159,9 +162,7 @@ void AXLibRemoveApplicationWindow(ax_application *Application, int WID)
 
 void AXLibDestroyApplication(ax_application *Application)
 {
-    if(Application->Observer.Valid)
-        AXLibRemoveApplicationObserver(Application);
-
+    AXLibRemoveApplicationObserver(Application);
     AXLibRemoveApplicationWindows(Application);
     CFRelease(Application->Ref);
     Application->Ref = NULL;
