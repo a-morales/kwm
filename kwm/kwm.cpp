@@ -11,6 +11,9 @@
 #include "config.h"
 #include "command.h"
 
+#include "axlib/application.h"
+#include "axlib/sharedworkspace.h"
+
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
 
 kwm_mach KWMMach = {};
@@ -27,6 +30,8 @@ kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
 kwm_callback KWMCallback =  {};
 scratchpad Scratchpad = {};
+
+std::map<pid_t, ax_application> AXApplications;
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
@@ -314,6 +319,7 @@ int main(int argc, char **argv)
 
     CGEventTapEnable(KWMMach.EventTap, true);
     CreateWorkspaceWatcher(KWMMach.WorkspaceWatcher);
+    SharedWorkspaceSetApplicationsPointer(&AXApplications);
 
     NSApplicationLoad();
     CFRunLoopRun();
