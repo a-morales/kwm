@@ -6,7 +6,7 @@ SDK_ROOT      = $(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX
 KWM_SRCS      = kwm/kwm.cpp kwm/container.cpp kwm/node.cpp kwm/tree.cpp kwm/window.cpp kwm/application.cpp kwm/display.cpp \
 				kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp kwm/space.cpp kwm/border.cpp kwm/notifications.cpp kwm/workspace.mm \
 				kwm/serializer.cpp kwm/tokenizer.cpp kwm/rules.cpp kwm/scratchpad.cpp kwm/command.cpp kwm/config.cpp \
-				kwm/axlib/element.cpp kwm/axlib/window.cpp kwm/axlib/application.cpp kwm/axlib/observer.cpp kwm/axlib/sharedworkspace.mm
+				kwm/axlib/axlib.cpp kwm/axlib/element.cpp kwm/axlib/window.cpp kwm/axlib/application.cpp kwm/axlib/observer.cpp kwm/axlib/sharedworkspace.mm
 KWM_OBJS_TMP  = $(KWM_SRCS:.cpp=.o)
 KWM_OBJS      = $(KWM_OBJS_TMP:.mm=.o)
 KWMC_SRCS     = kwmc/kwmc.cpp
