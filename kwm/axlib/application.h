@@ -8,7 +8,9 @@
 #include <vector>
 #include <map>
 
+#include "types.h"
 #include "window.h"
+#include "observer.h"
 
 struct ax_application
 {
@@ -16,6 +18,7 @@ struct ax_application
     int PID;
 
     ProcessSerialNumber PSN;
+    ax_observer Observer;
 
     std::vector<ax_window> Windows;
     ax_window *Focus;

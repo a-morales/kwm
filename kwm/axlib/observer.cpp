@@ -1,4 +1,5 @@
 #include "observer.h"
+#include "application.h"
 
 /* NOTE(koekeishiya): For compatibility with current Kwm code
  * TODO: Remove.
@@ -13,9 +14,9 @@ ax_observer AXLibConstructObserver(int PID, ObserverCallback Callback)
     return Observer;
 }
 
-void AXLibAddObserverNotification(ax_observer *Observer, CFStringRef Notification)
+void AXLibAddObserverNotification(ax_observer *Observer, CFStringRef Notification, void *Reference)
 {
-    AXObserverAddNotification(Observer->Ref, Observer->AppRef, Notification, NULL);
+    AXObserverAddNotification(Observer->Ref, Observer->AppRef, Notification, Reference);
 }
 
 void AXLibRemoveObserverNotification(ax_observer *Observer, CFStringRef Notification)

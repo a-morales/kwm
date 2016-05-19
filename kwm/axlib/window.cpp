@@ -1,11 +1,12 @@
 #include "window.h"
 #include "element.h"
 
-ax_window AXLibConstructWindow(AXUIElementRef WindowRef)
+ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef)
 {
     ax_window Window = {};
 
     Window.Ref = WindowRef;
+    Window.Application = Application;
     Window.ID = AXLibGetWindowID(WindowRef);
     Window.Movable = AXLibIsWindowMovable(WindowRef);
     Window.Resizable = AXLibIsWindowResizable(WindowRef);
