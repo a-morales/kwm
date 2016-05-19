@@ -165,31 +165,6 @@ bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole)
 }
 
 /*
-bool AXLibGetWindowRef(ax_application *Application, AXUIElementRef *WindowRef)
-{
-    AXUIElementRef ApplicationRef = Application->Ref;
-    CFArrayRef WindowLst = (CFArrayRef) AXLibGetWindowProperty(ApplicationRef, kAXWindowsAttribute);
-
-    if(WindowLst)
-    {
-        CFIndex WindowCount = CFArrayGetCount(WindowLst);
-        for(CFIndex WindowIndex = 0; WindowIndex < WindowCount; ++WindowIndex)
-        {
-            AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(WindowLst, WindowIndex);
-            if(AppWindowRef)
-            {
-                if(AXLibGetWindowID(AppWindowRef) == Application->Focus.ID)
-                {
-                    *WindowRef = AppWindowRef;
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
 void AXLibParseWindowInfo(const void *Key, const void *Value, void *Context)
 {
     CFStringRef K = (CFStringRef)Key;

@@ -25,7 +25,6 @@ CGSize AXLibGetWindowSize(AXUIElementRef WindowRef);
 
 bool AXLibGetWindowRole(AXUIElementRef WindowRef, CFTypeRef *Role);
 bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole);
-// bool AXLibGetWindowRef(AXUIElementRef ApplicationRef, AXUIElementRef *WindowRef);
 // void AXLibParseWindowInfo(const void *Key, const void *Value, void *Context);
 std::string GetUTF8String(CFStringRef Temp);
 
