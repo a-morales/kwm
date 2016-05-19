@@ -69,15 +69,20 @@ extern kwm_thread KWMThread;
 
 - (void)didLaunchApplication:(NSNotification *)notification
 {
+    /* NOTE(koekeishiya): Enable after transitioning to ax_application system
     pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
-    SharedWorkspaceDidLaunchApplication(PID);
+    std::string Name = [[[notification.userInfo objectForKey:NSWorkspaceApplicationKey] localizedName] UTF8String];
+    SharedWorkspaceDidLaunchApplication(PID, Name);
+    */
     FocusWindowOfOSX();
 }
 
 - (void)didTerminateApplication:(NSNotification *)notification
 {
+    /* NOTE(koekeishiya): Enable after transitioning to ax_application system
     pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
     SharedWorkspaceDidTerminateApplication(PID);
+    */
 }
 
 - (void)didActivateApplication:(NSNotification *)notification

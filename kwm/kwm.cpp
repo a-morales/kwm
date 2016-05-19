@@ -319,7 +319,15 @@ int main(int argc, char **argv)
 
     CGEventTapEnable(KWMMach.EventTap, true);
     CreateWorkspaceWatcher(KWMMach.WorkspaceWatcher);
+
+    /*
+    AXLibRunningApplications(&AXApplications);
     SharedWorkspaceSetApplicationsPointer(&AXApplications);
+
+    std::map<pid_t, ax_application>::iterator It;
+    for(It = AXApplications.begin(); It != AXApplications.end(); ++It)
+        printf("%d: %s\n", It->first, It->second.Name.c_str());
+    */
 
     NSApplicationLoad();
     CFRunLoopRun();
