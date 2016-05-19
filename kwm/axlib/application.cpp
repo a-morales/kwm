@@ -9,8 +9,13 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     if(CFEqual(Notification, kAXWindowCreatedNotification))
     {
         printf("%s: kAXWindowCreatedNotification\n", Application->Name.c_str());
-        ax_window Window = AXLibConstructWindow(Application, Element);
-        Application->Windows[Window.ID] = Window;
+        AXLibAddApplicationWindow(Application, AXLibConstructWindow(Application, Element));
+    }
+    else if(CFEqual(Notification, kAXUIElementDestroyedNotification))
+    {
+        printf("%s: kAXUIElementDestroyedNotification\n", Application->Name.c_str());
+        int WID = AXLibGetWindowID(Element);
+        AXLibRemoveApplicationWindow(Application, WID);
     }
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
     {
@@ -35,17 +40,6 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = AXLibFindApplicationWindow(Application, ID);
         if(Window)
             Window->Name = AXLibGetWindowTitle(Element);
-    }
-    else if(CFEqual(Notification, kAXUIElementDestroyedNotification))
-    {
-        printf("%s: kAXUIElementDestroyedNotification\n", Application->Name.c_str());
-        int ID = AXLibGetWindowID(Element);
-        ax_window *Window = AXLibFindApplicationWindow(Application, ID);
-        if(Window)
-        {
-            AXLibDestroyWindow(Window);
-            Application->Windows.erase(ID);
-        }
     }
 }
 
@@ -146,6 +140,21 @@ ax_window *AXLibFindApplicationWindow(ax_application *Application, int WID)
         return &It->second;
     else
         return NULL;
+}
+
+void AXLibAddApplicationWindow(ax_application *Application, ax_window Window)
+{
+    Application->Windows[Window.ID] = Window;
+}
+
+void AXLibRemoveApplicationWindow(ax_application *Application, int WID)
+{
+    ax_window *Window = AXLibFindApplicationWindow(Application, WID);
+    if(Window)
+    {
+        AXLibDestroyWindow(Window);
+        Application->Windows.erase(WID);
+    }
 }
 
 void AXLibDestroyApplication(ax_application *Application)

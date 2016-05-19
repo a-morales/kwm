@@ -33,6 +33,8 @@ void AXLibAddApplicationWindows(ax_application *Application);
 void AXLibRemoveApplicationWindows(ax_application *Application);
 
 ax_window *AXLibFindApplicationWindow(ax_application *Application, int WID);
+void AXLibAddApplicationWindow(ax_application *Application, ax_window Window);
+void AXLibRemoveApplicationWindow(ax_application *Application, int WID);
 
 void AXLibAddApplicationObserver(ax_application *Application);
 void AXLibRemoveApplicationObserver(ax_application *Application);
