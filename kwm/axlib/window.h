@@ -16,6 +16,8 @@ struct ax_window
 {
     ax_application *Application;
     ax_window_role Type;
+    CGPoint Position;
+    CGSize Size;
 
     int ID;
     bool Float;
