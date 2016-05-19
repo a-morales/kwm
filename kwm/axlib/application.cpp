@@ -1,5 +1,20 @@
 #include "application.h"
 #include "element.h"
+#include "sharedworkspace.h"
+
+std::map<pid_t, ax_application> AXLibRunningApplications()
+{
+    std::vector<pid_t> List = SharedWorkspaceRunningApplications();
+    std::map<pid_t, ax_application> Applications;
+
+    for(int Index = 0; Index < List.size(); ++Index)
+    {
+        pid_t PID = List[Index];
+        Applications[PID] = AXLibConstructApplication(PID);
+    }
+
+    return Applications;
+}
 
 ax_application AXLibConstructApplication(int PID)
 {

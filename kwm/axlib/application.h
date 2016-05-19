@@ -2,7 +2,11 @@
 #define AXLIB_APPLICATION_H
 
 #include <Carbon/Carbon.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <vector>
+#include <map>
 
 #include "window.h"
 
@@ -17,6 +21,7 @@ struct ax_application
     ax_window *Focus;
 };
 
+std::map<pid_t, ax_application> AXLibRunningApplications();
 ax_application AXLibConstructApplication(int PID);
 void AXLibDestroyApplication(ax_application *Application);
 
