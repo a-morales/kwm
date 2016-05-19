@@ -320,7 +320,8 @@ int main(int argc, char **argv)
     CreateWorkspaceWatcher(KWMMach.WorkspaceWatcher);
 
     // NOTE(koekeishiya): Initialize AXLIB
-    // AXLibRunningApplications(&AXApplications);
+    // AXLibInit(&AXApplications);
+    // AXLibRunningApplications();
 
     NSApplicationLoad();
     CFRunLoopRun();

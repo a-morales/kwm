@@ -25,4 +25,7 @@ bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole);
 // void AXLibParseWindowInfo(const void *Key, const void *Value, void *Context);
 std::string GetUTF8String(CFStringRef Temp);
 
+/* TODO(koekeishiya): Required for compatibility with current Kwm code */
+bool AXLibGetFocusedWindow(AXUIElementRef *WindowRef);
+
 #endif

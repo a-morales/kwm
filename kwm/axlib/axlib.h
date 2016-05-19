@@ -8,14 +8,30 @@
 #include "application.h"
 #include "sharedworkspace.h"
 
+/*
+ * NOTE(koekeishiya):
+ *        The following functions use the AXLibApplications pointer
+ *        to access known ax_application instances.
+ *
+ *        Before any of these functions can be called, the AXLibApplications
+ *        pointer must be set by calling 'AXLibInit(..)'
+ *
+ *        To populate the ax_application map, the function 'AXLibRunningApplications()'
+ *        must be used. This function will query the OSX API and store information about
+ *        new applications and their respective windows, in ax_application and ax_window
+ *        structs. This function can only retrieve information for the active space!
+ * */
+
 #define internal static
 #define local_persist static
 
+internal std::map<pid_t, ax_application> *AXLibApplications;
+
 internal inline bool
-AXLibIsApplicationCached(std::map<pid_t, ax_application> *AXApplications, pid_t PID)
+AXLibIsApplicationCached(pid_t PID)
 {
-    std::map<pid_t, ax_application>::iterator It = AXApplications->find(PID);
-    return It != AXApplications->end();
+    std::map<pid_t, ax_application>::iterator It = AXLibApplications->find(PID);
+    return It != AXLibApplications->end();
 }
 
 inline ax_application *
@@ -30,8 +46,8 @@ AXLibGetFocusedApplication()
         AXUIElementGetPid(Ref, &PID);
         CFRelease(Ref);
 
-        if(AXLibIsApplicationCached(AXApplications, PID))
-            return &(*AXApplications)[PID];
+        if(AXLibIsApplicationCached(PID))
+            return &(*AXLibApplications)[PID];
     }
 
     return NULL;
@@ -72,24 +88,30 @@ AXLibSetFocusedWindow(ax_window *Window)
 }
 
 inline void
-AXLibRunningApplications(std::map<pid_t, ax_application> *AXApplications)
+AXLibRunningApplications()
 {
     std::map<pid_t, std::string> List = SharedWorkspaceRunningApplications();
-    SharedWorkspaceSetApplicationsPointer(AXApplications);
 
     std::map<pid_t, std::string>::iterator It;
     for(It = List.begin(); It != List.end(); ++It)
     {
         pid_t PID = It->first;
         std::string Name = It->second;
-        if(!AXLibIsApplicationCached(AXApplications, PID))
+        if(!AXLibIsApplicationCached(PID))
         {
-            (*AXApplications)[PID] = AXLibConstructApplication(PID, Name);
-            AXLibAddApplicationObserver(&(*AXApplications)[PID]);
+            (*AXLibApplications)[PID] = AXLibConstructApplication(PID, Name);
+            AXLibAddApplicationObserver(&(*AXLibApplications)[PID]);
         }
 
-        AXLibAddApplicationWindows(&(*AXApplications)[PID]);
+        AXLibAddApplicationWindows(&(*AXLibApplications)[PID]);
     }
+}
+
+inline void
+AXLibInit(std::map<pid_t, ax_application> *AXApplications)
+{
+    AXLibApplications = AXApplications;
+    SharedWorkspaceSetApplicationsPointer(AXApplications);
 }
 
 #endif
