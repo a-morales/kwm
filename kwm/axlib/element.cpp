@@ -16,36 +16,6 @@ AXError AXLibSetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property, C
     return AXUIElementSetAttributeValue(WindowRef, Property, Value);
 }
 
-bool AXLibGetFocusedWindow(AXUIElementRef *WindowRef)
-{
-    local_persist AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
-    AXUIElementRef Application = (AXUIElementRef) AXLibGetWindowProperty(SystemWideElement, kAXFocusedApplicationAttribute);
-
-    if(Application)
-    {
-        AXUIElementRef AppWindowRef = (AXUIElementRef) AXLibGetWindowProperty(Application, kAXFocusedWindowAttribute);
-        CFRelease(Application);
-
-        if(AppWindowRef)
-        {
-            *WindowRef = AppWindowRef;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void AXLibSetFocusedWindow(AXUIElementRef WindowRef)
-{
-    AXUIElementSetAttributeValue(WindowRef, kAXMainAttribute, kCFBooleanTrue);
-    AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
-    AXUIElementPerformAction(WindowRef, kAXRaiseAction);
-
-    // if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
-    // SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
-}
-
 bool AXLibIsWindowMovable(AXUIElementRef WindowRef)
 {
     bool Result = false;

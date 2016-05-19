@@ -6,9 +6,6 @@
 
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);
 
-bool AXLibGetFocusedWindow(AXUIElementRef *WindowRef);
-void AXLIbSetFocusedWindow(AXUIElementRef WindowRef);
-
 bool AXLibIsWindowResizable(AXUIElementRef WindowRef);
 bool AXLibIsWindowMovable(AXUIElementRef WindowRef);
 
