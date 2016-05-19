@@ -2,6 +2,7 @@
 #import "types.h"
 #include "notifications.h"
 #include "axlib/element.h"
+#include "axlib/sharedworkspace.h"
 
 extern void UpdateActiveSpace();
 extern screen_info *GetDisplayOfWindow(window_info *Window);
@@ -45,6 +46,11 @@ extern kwm_thread KWMThread;
                 selector:@selector(didLaunchApplication:)
                 name:NSWorkspaceDidLaunchApplicationNotification
                 object:nil];
+
+       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                selector:@selector(didTerminateApplication:)
+                name:NSWorkspaceDidTerminateApplicationNotification
+                object:nil];
     }
 
     return self;
@@ -63,7 +69,15 @@ extern kwm_thread KWMThread;
 
 - (void)didLaunchApplication:(NSNotification *)notification
 {
+    pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
+    SharedWorkspaceDidLaunchApplication(PID);
     FocusWindowOfOSX();
+}
+
+- (void)didTerminateApplication:(NSNotification *)notification
+{
+    pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
+    SharedWorkspaceDidTerminateApplication(PID);
 }
 
 - (void)didActivateApplication:(NSNotification *)notification
