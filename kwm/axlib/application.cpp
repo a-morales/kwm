@@ -157,6 +157,16 @@ void AXLibRemoveApplicationWindow(ax_application *Application, int WID)
     }
 }
 
+void AXLibActivateApplication(ax_application *Application)
+{
+    SharedWorkspaceActivateApplication(Application->PID);
+}
+
+bool AXLibIsApplicationActive(ax_application *Application)
+{
+    return SharedWorkspaceIsApplicationActive(Application->PID);
+}
+
 void AXLibDestroyApplication(ax_application *Application)
 {
     AXLibRemoveApplicationObserver(Application);
