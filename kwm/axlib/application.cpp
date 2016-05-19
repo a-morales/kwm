@@ -80,7 +80,7 @@ ax_application AXLibConstructApplication(int PID, std::string Name)
 void AXLibAddApplicationObserver(ax_application *Application)
 {
     AXLibConstructObserver(Application, AXApplicationCallback);
-    if(Application->Observer.Ref)
+    if(Application->Observer.Valid)
     {
         printf("AXLIB Create observer: %s\n", Application->Name.c_str());
         AXLibAddObserverNotification(&Application->Observer, kAXWindowCreatedNotification, Application);
@@ -150,7 +150,7 @@ ax_window *AXLibFindApplicationWindow(ax_application *Application, int WID)
 
 void AXLibDestroyApplication(ax_application *Application)
 {
-    if(Application->Observer.Ref)
+    if(Application->Observer.Valid)
         AXLibRemoveApplicationObserver(Application);
 
     AXLibRemoveApplicationWindows(Application);

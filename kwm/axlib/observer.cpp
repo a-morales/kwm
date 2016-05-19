@@ -28,7 +28,8 @@ void AXLibRemoveObserverNotificationOLD(ax_observer *Observer, CFStringRef Notif
 
 void AXLibConstructObserver(ax_application *Application, ObserverCallback Callback)
 {
-    AXObserverCreate(Application->PID, Callback, &Application->Observer.Ref);
+    AXError Result = AXObserverCreate(Application->PID, Callback, &Application->Observer.Ref);
+    Application->Observer.Valid = (Result == kAXErrorSuccess);
     Application->Observer.Application = Application;
 }
 
@@ -55,6 +56,7 @@ void AXLibStopObserver(ax_observer *Observer)
 void AXLibDestroyObserver(ax_observer *Observer)
 {
     CFRelease(Observer->Ref);
+    Observer->Valid = false;
     Observer->Ref = NULL;
     Observer->Application = NULL;
 }

@@ -13,8 +13,9 @@ typedef OBSERVER_CALLBACK(ObserverCallback);
 
 struct ax_observer
 {
-    AXObserverRef Ref;
     ax_application *Application;
+    AXObserverRef Ref;
+    bool Valid;
 
     // Note(koekeishiya): Remove after implementing ax_application
     AXUIElementRef AppRef;
