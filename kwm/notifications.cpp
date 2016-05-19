@@ -101,10 +101,10 @@ void CreateMarkedWindowNotifications()
         KWMFocus.MarkedObserver = AXLibConstructObserver(KWMScreen.MarkedWindow.PID, MarkedAXObserverCallback);
         if(KWMFocus.MarkedObserver.Ref && KWMFocus.MarkedObserver.AppRef)
         {
-            AXLibAddObserverNotification(&KWMFocus.MarkedObserver, kAXWindowMiniaturizedNotification);
-            AXLibAddObserverNotification(&KWMFocus.MarkedObserver, kAXWindowMovedNotification);
-            AXLibAddObserverNotification(&KWMFocus.MarkedObserver, kAXWindowResizedNotification);
-            AXLibAddObserverNotification(&KWMFocus.MarkedObserver, kAXUIElementDestroyedNotification);
+            AXLibAddObserverNotification(&KWMFocus.MarkedObserver, kAXWindowMiniaturizedNotification, NULL);
+            AXLibAddObserverNotification(&KWMFocus.MarkedObserver, kAXWindowMovedNotification, NULL);
+            AXLibAddObserverNotification(&KWMFocus.MarkedObserver, kAXWindowResizedNotification, NULL);
+            AXLibAddObserverNotification(&KWMFocus.MarkedObserver, kAXUIElementDestroyedNotification, NULL);
             AXLibStartObserver(&KWMFocus.MarkedObserver);
         }
 
@@ -133,12 +133,12 @@ void CreateFocusedWindowNotifications()
         KWMFocus.FocusedObserver = AXLibConstructObserver(KWMFocus.Window->PID, FocusedAXObserverCallback);
         if(KWMFocus.FocusedObserver.Ref && KWMFocus.FocusedObserver.AppRef)
         {
-            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXWindowMiniaturizedNotification);
-            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXWindowMovedNotification);
-            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXWindowResizedNotification);
-            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXTitleChangedNotification);
-            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXFocusedWindowChangedNotification);
-            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXUIElementDestroyedNotification);
+            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXWindowMiniaturizedNotification, NULL);
+            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXWindowMovedNotification, NULL);
+            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXWindowResizedNotification, NULL);
+            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXTitleChangedNotification, NULL);
+            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXFocusedWindowChangedNotification, NULL);
+            AXLibAddObserverNotification(&KWMFocus.FocusedObserver, kAXUIElementDestroyedNotification, NULL);
             AXLibStartObserver(&KWMFocus.FocusedObserver);
         }
     }
