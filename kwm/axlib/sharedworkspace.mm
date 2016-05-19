@@ -9,19 +9,28 @@ void SharedWorkspaceSetApplicationsPointer(std::map<pid_t, ax_application> *Apps
     Applications = Apps;
 }
 
-std::vector<pid_t> SharedWorkspaceRunningApplications()
+std::map<pid_t, std::string> SharedWorkspaceRunningApplications()
 {
-    std::vector<pid_t> List;
+    std::map<pid_t, std::string> List;
 
     for(NSRunningApplication *Application in [[NSWorkspace sharedWorkspace] runningApplications])
-        List.push_back(Application.processIdentifier);
+    {
+        pid_t PID = Application.processIdentifier;
+
+        std::string Name = "[Unknown]";
+        const char *NamePtr = [[Application localizedName] UTF8String];
+        if(NamePtr)
+            Name = NamePtr;
+
+        List[PID] = Name;
+    }
 
     return List;
 }
 
-void SharedWorkspaceDidLaunchApplication(pid_t PID)
+void SharedWorkspaceDidLaunchApplication(pid_t PID, std::string Name)
 {
-    (*Applications)[PID] = AXLibConstructApplication(PID);
+    (*Applications)[PID] = AXLibConstructApplication(PID, Name);
 }
 
 void SharedWorkspaceDidTerminateApplication(pid_t PID)

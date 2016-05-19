@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <vector>
+#include <string>
 #include <map>
 
 #include "types.h"
@@ -15,20 +15,26 @@
 struct ax_application
 {
     AXUIElementRef Ref;
-    int PID;
+    std::string Name;
+    pid_t PID;
 
     ProcessSerialNumber PSN;
     ax_observer Observer;
 
-    std::vector<ax_window> Windows;
+    std::map<int, ax_window> Windows;
     ax_window *Focus;
 };
 
-std::map<pid_t, ax_application> AXLibRunningApplications();
-ax_application AXLibConstructApplication(int PID);
+void AXLibRunningApplications(std::map<pid_t, ax_application> *AXApplications);
+ax_application AXLibConstructApplication(pid_t PID, std::string Name);
 void AXLibDestroyApplication(ax_application *Application);
 
 void AXLibAddApplicationWindows(ax_application *Application);
 void AXLibRemoveApplicationWindows(ax_application *Application);
+
+ax_window *AXLibFindApplicationWindow(ax_application *Application, int WID);
+
+void AXLibAddApplicationObserver(ax_application *Application);
+void AXLibRemoveApplicationObserver(ax_application *Application);
 
 #endif

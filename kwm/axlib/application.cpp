@@ -8,33 +8,66 @@ OBSERVER_CALLBACK(AXApplicationCallback)
 
     if(CFEqual(Notification, kAXWindowCreatedNotification))
     {
-        Application->Windows.push_back(AXLibConstructWindow(Application, Element));
+        printf("%s: kAXWindowCreatedNotification\n", Application->Name.c_str());
+        ax_window Window = AXLibConstructWindow(Application, Element);
+        Application->Windows[Window.ID] = Window;
     }
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
     {
+        printf("%s: kAXFocusedWindowChangedNotification\n", Application->Name.c_str());
     }
-}
-
-std::map<pid_t, ax_application> AXLibRunningApplications()
-{
-    std::vector<pid_t> List = SharedWorkspaceRunningApplications();
-    std::map<pid_t, ax_application> Applications;
-
-    for(int Index = 0; Index < List.size(); ++Index)
+    else if(CFEqual(Notification, kAXWindowMiniaturizedNotification))
     {
-        pid_t PID = List[Index];
-        Applications[PID] = AXLibConstructApplication(PID);
+        printf("%s: kAXWindowMiniaturizedNotification\n", Application->Name.c_str());
     }
-
-    return Applications;
+    else if(CFEqual(Notification, kAXWindowMovedNotification))
+    {
+        printf("%s: kAXWindowMovedNotification\n", Application->Name.c_str());
+    }
+    else if(CFEqual(Notification, kAXWindowResizedNotification))
+    {
+        printf("%s: kAXWindowResizedNotification\n", Application->Name.c_str());
+    }
+    else if(CFEqual(Notification, kAXTitleChangedNotification))
+    {
+        printf("%s: kAXTitleChangedNotification\n", Application->Name.c_str());
+    }
+    else if(CFEqual(Notification, kAXUIElementDestroyedNotification))
+    {
+        printf("%s: kAXUIElementDestroyedNotification\n", Application->Name.c_str());
+        int ID = AXLibGetWindowID(Element);
+        ax_window *Window = AXLibFindApplicationWindow(Application, ID);
+        if(Window)
+        {
+            AXLibDestroyWindow(Window);
+            Application->Windows.erase(ID);
+        }
+    }
 }
 
-ax_application AXLibConstructApplication(int PID)
+void AXLibRunningApplications(std::map<pid_t, ax_application> *AXApplications)
+{
+    std::map<pid_t, std::string> List = SharedWorkspaceRunningApplications();
+
+    std::map<pid_t, std::string>::iterator It;
+    for(It = List.begin(); It != List.end(); ++It)
+    {
+        pid_t PID = It->first;
+        std::string Name = It->second;
+        if(Name == "kwm-overlay") continue;
+        (*AXApplications)[PID] = AXLibConstructApplication(PID, Name);
+        AXLibAddApplicationWindows(&(*AXApplications)[PID]);
+        AXLibAddApplicationObserver(&(*AXApplications)[PID]);
+    }
+}
+
+ax_application AXLibConstructApplication(int PID, std::string Name)
 {
     ax_application Application = {};
 
     Application.Ref = AXUIElementCreateApplication(PID);
     GetProcessForPID(PID, &Application.PSN);
+    Application.Name = Name;
     Application.PID = PID;
 
     return Application;
@@ -43,17 +76,20 @@ ax_application AXLibConstructApplication(int PID)
 void AXLibAddApplicationObserver(ax_application *Application)
 {
     AXLibConstructObserver(Application, AXApplicationCallback);
+    if(Application->Observer.Ref)
+    {
+        printf("AXLIB Create observer: %s\n", Application->Name.c_str());
+        AXLibAddObserverNotification(&Application->Observer, kAXWindowCreatedNotification, Application);
+        AXLibAddObserverNotification(&Application->Observer, kAXFocusedWindowChangedNotification, Application);
 
-    AXLibAddObserverNotification(&Application->Observer, kAXWindowCreatedNotification, Application);
-    AXLibAddObserverNotification(&Application->Observer, kAXFocusedWindowChangedNotification, Application);
+        AXLibAddObserverNotification(&Application->Observer, kAXWindowMiniaturizedNotification, Application);
+        AXLibAddObserverNotification(&Application->Observer, kAXWindowMovedNotification, Application);
+        AXLibAddObserverNotification(&Application->Observer, kAXWindowResizedNotification, Application);
+        AXLibAddObserverNotification(&Application->Observer, kAXTitleChangedNotification, Application);
+        AXLibAddObserverNotification(&Application->Observer, kAXUIElementDestroyedNotification, Application);
 
-    AXLibAddObserverNotification(&Application->Observer, kAXWindowMiniaturizedNotification, Application);
-    AXLibAddObserverNotification(&Application->Observer, kAXWindowMovedNotification, Application);
-    AXLibAddObserverNotification(&Application->Observer, kAXWindowResizedNotification, Application);
-    AXLibAddObserverNotification(&Application->Observer, kAXTitleChangedNotification, Application);
-    AXLibAddObserverNotification(&Application->Observer, kAXUIElementDestroyedNotification, Application);
-
-    AXLibStartObserver(&Application->Observer);
+        AXLibStartObserver(&Application->Observer);
+    }
 }
 
 void AXLibRemoveApplicationObserver(ax_application *Application)
@@ -83,24 +119,37 @@ void AXLibAddApplicationWindows(ax_application *Application)
         for(CFIndex Index = 0; Index < Count; ++Index)
         {
             AXUIElementRef Ref = (AXUIElementRef) CFArrayGetValueAtIndex(Windows, Index);
-            Application->Windows.push_back(AXLibConstructWindow(Application, Ref));
+            ax_window Window = AXLibConstructWindow(Application, Ref);
+            Application->Windows[Window.ID] = Window;
         }
     }
 }
 
 void AXLibRemoveApplicationWindows(ax_application *Application)
 {
-    for(int Index = 0; Index < Application->Windows.size(); ++Index)
-        AXLibDestroyWindow(&Application->Windows[Index]);
+    std::map<int, ax_window>::iterator It;
+    for(It = Application->Windows.begin(); It != Application->Windows.end(); ++It)
+        AXLibDestroyWindow(&It->second);
 
     Application->Windows.clear();
 }
 
+ax_window *AXLibFindApplicationWindow(ax_application *Application, int WID)
+{
+    std::map<int, ax_window>::iterator It;
+    It = Application->Windows.find(WID);
+    if(It != Application->Windows.end())
+        return &It->second;
+    else
+        return NULL;
+}
+
 void AXLibDestroyApplication(ax_application *Application)
 {
-    AXLibRemoveApplicationObserver(Application);
-    AXLibRemoveApplicationWindows(Application);
+    if(Application->Observer.Ref)
+        AXLibRemoveApplicationObserver(Application);
 
+    AXLibRemoveApplicationWindows(Application);
     CFRelease(Application->Ref);
     Application->Ref = NULL;
 }

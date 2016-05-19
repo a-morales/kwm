@@ -3,14 +3,14 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include <vector>
+#include <string>
 #include <map>
 
 #include "application.h"
 
 void SharedWorkspaceSetApplicationsPointer(std::map<pid_t, ax_application> *Apps);
-std::vector<pid_t> SharedWorkspaceRunningApplications();
-void SharedWorkspaceDidLaunchApplication(pid_t PID);
+std::map<pid_t, std::string> SharedWorkspaceRunningApplications();
+void SharedWorkspaceDidLaunchApplication(pid_t PID, std::string Name);
 void SharedWorkspaceDidTerminateApplication(pid_t PID);
 
 #endif

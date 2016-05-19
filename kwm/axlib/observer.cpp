@@ -14,26 +14,22 @@ ax_observer AXLibConstructObserver(int PID, ObserverCallback Callback)
     return Observer;
 }
 
-void AXLibAddObserverNotification(ax_observer *Observer, CFStringRef Notification, void *Reference)
+void AXLibAddObserverNotificationOLD(ax_observer *Observer, CFStringRef Notification, void *Reference)
 {
     AXObserverAddNotification(Observer->Ref, Observer->AppRef, Notification, Reference);
 }
 
-void AXLibRemoveObserverNotification(ax_observer *Observer, CFStringRef Notification)
+void AXLibRemoveObserverNotificationOLD(ax_observer *Observer, CFStringRef Notification)
 {
     AXObserverRemoveNotification(Observer->Ref, Observer->AppRef, Notification);
 }
 
 /* END */
 
-ax_observer AXLibConstructObserver(ax_application *Application, ObserverCallback Callback)
+void AXLibConstructObserver(ax_application *Application, ObserverCallback Callback)
 {
-    ax_observer Observer = {};
-
-    AXObserverCreate(Application->PID, Callback, &Observer.Ref);
-    Observer.Application = Application;
-
-    return Observer;
+    AXObserverCreate(Application->PID, Callback, &Application->Observer.Ref);
+    Application->Observer.Application = Application;
 }
 
 void AXLibStartObserver(ax_observer *Observer)
@@ -41,17 +37,15 @@ void AXLibStartObserver(ax_observer *Observer)
     CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
 }
 
-/* NOTE(koekeishiya): These functions will replace the temporary code above
-void AXLibAddObserverNotification(ax_observer *Observer, CFStringRef Notification)
+void AXLibAddObserverNotification(ax_observer *Observer, CFStringRef Notification, void *Reference)
 {
-    AXObserverAddNotification(Observer->Ref, Observer->Application->Ref, Notification, NULL);
+    AXObserverAddNotification(Observer->Ref, Observer->Application->Ref, Notification, Reference);
 }
 
 void AXLibRemoveObserverNotification(ax_observer *Observer, CFStringRef Notification)
 {
     AXObserverRemoveNotification(Observer->Ref, Observer->Application->Ref, Notification);
 }
-*/
 
 void AXLibStopObserver(ax_observer *Observer)
 {

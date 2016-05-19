@@ -18,7 +18,12 @@ ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef Windo
 
 void AXLibDestroyWindow(ax_window *AXWindow)
 {
-    CFRelease(AXWindow->Ref);
-    CFRelease(AXWindow->Type.Role);
-    CFRelease(AXWindow->Type.Subrole);
+    if(AXWindow->Ref)
+        CFRelease(AXWindow->Ref);
+
+    if(AXWindow->Type.Role)
+        CFRelease(AXWindow->Type.Role);
+
+    if(AXWindow->Type.Subrole)
+        CFRelease(AXWindow->Type.Subrole);
 }
