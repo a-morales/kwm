@@ -23,6 +23,7 @@ struct ax_application
 
     std::map<int, ax_window> Windows;
     ax_window *Focus;
+    bool Float;
 };
 
 void AXLibRunningApplications(std::map<pid_t, ax_application> *AXApplications);

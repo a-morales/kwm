@@ -18,6 +18,7 @@ struct ax_window
     ax_window_role Type;
 
     int ID;
+    bool Float;
     bool Movable;
     bool Resizable;
     std::string Name;
