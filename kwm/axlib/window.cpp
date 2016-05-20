@@ -34,4 +34,9 @@ void AXLibDestroyWindow(ax_window *Window)
 
     if(Window->Type.Subrole)
         CFRelease(Window->Type.Subrole);
+
+    Window->Ref = NULL;
+    Window->Type.Role = NULL;
+    Window->Type.Subrole = NULL;
+    Window->Application = NULL;
 }
