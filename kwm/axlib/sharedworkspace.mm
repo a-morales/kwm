@@ -2,6 +2,8 @@
 #import "sharedworkspace.h"
 
 #define internal static
+#define local_persist static
+
 internal std::map<pid_t, ax_application> *Applications;
 
 void SharedWorkspaceSetApplicationsPointer(std::map<pid_t, ax_application> *Apps)

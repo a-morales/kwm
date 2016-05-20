@@ -2,6 +2,7 @@
 #include "element.h"
 #include "sharedworkspace.h"
 
+#define internal static
 #define local_persist static
 
 OBSERVER_CALLBACK(AXApplicationCallback)

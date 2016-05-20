@@ -4,7 +4,7 @@
 #include <Carbon/Carbon.h>
 #include <string>
 
-extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);
+extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *WID);
 
 bool AXLibIsWindowResizable(AXUIElementRef WindowRef);
 bool AXLibIsWindowMovable(AXUIElementRef WindowRef);
@@ -22,8 +22,12 @@ CGSize AXLibGetWindowSize(AXUIElementRef WindowRef);
 
 bool AXLibGetWindowRole(AXUIElementRef WindowRef, CFTypeRef *Role);
 bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole);
-// void AXLibParseWindowInfo(const void *Key, const void *Value, void *Context);
+
+/* TODO(koekeishiya): Used by AXLibGetWindowTitle.  Return CFStringRef instead(?) */
 std::string GetUTF8String(CFStringRef Temp);
+
+/* TODO(koekeishiya): This function should not be a part of AXLIB(?) */
+void AXLibParseWindowInfo(const void *Key, const void *Value, void *Context);
 
 /* TODO(koekeishiya): Required for compatibility with current Kwm code */
 bool AXLibGetFocusedWindow(AXUIElementRef *WindowRef);

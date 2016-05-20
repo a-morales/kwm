@@ -1,6 +1,9 @@
 #include "observer.h"
 #include "application.h"
 
+#define internal static
+#define local_persist static
+
 /* NOTE(koekeishiya): For compatibility with current Kwm code
  * TODO: Remove.
  */

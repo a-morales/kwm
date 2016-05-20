@@ -22,8 +22,6 @@
  *        structs. This function can only retrieve information for the active space!
  * */
 
-static bool AXLibIsApplicationCached(pid_t PID);
-
 ax_application * AXLibGetFocusedApplication();
 ax_window *AXLibGetFocusedWindow(ax_application *Application);
 void AXLibSetFocusedWindow(ax_window *Window);

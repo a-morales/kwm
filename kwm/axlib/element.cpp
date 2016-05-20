@@ -2,8 +2,6 @@
 
 #define internal static
 #define local_persist static
-#define global_variable static
-
 
 /* TODO(koekeishiya): Required for compatibility with current Kwm code */
 bool AXLibGetFocusedWindow(AXUIElementRef *WindowRef)
