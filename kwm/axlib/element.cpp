@@ -28,8 +28,8 @@ bool AXLibGetFocusedWindow(AXUIElementRef *WindowRef)
 CFTypeRef AXLibGetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property)
 {
     CFTypeRef TypeRef;
-    AXUIElementCopyAttributeValue(WindowRef, Property, &TypeRef);
-    return TypeRef;
+    AXError Error = AXUIElementCopyAttributeValue(WindowRef, Property, &TypeRef);
+    return (Error == kAXErrorSuccess) ? TypeRef : NULL;
 }
 
 AXError AXLibSetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property, CFTypeRef Value)
@@ -39,7 +39,7 @@ AXError AXLibSetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property, C
 
 bool AXLibIsWindowMovable(AXUIElementRef WindowRef)
 {
-    bool Result = false;
+    bool Result;
 
     AXError Error = AXUIElementIsAttributeSettable(WindowRef, kAXPositionAttribute, (Boolean*)&Result);
     if(Error != kAXErrorSuccess)
@@ -50,7 +50,7 @@ bool AXLibIsWindowMovable(AXUIElementRef WindowRef)
 
 bool AXLibIsWindowResizable(AXUIElementRef WindowRef)
 {
-    bool Result = false;
+    bool Result;
 
     AXError Error = AXUIElementIsAttributeSettable(WindowRef, kAXSizeAttribute, (Boolean*)&Result);
     if(Error != kAXErrorSuccess)
@@ -143,16 +143,14 @@ CGSize AXLibGetWindowSize(AXUIElementRef WindowRef)
 
 bool AXLibGetWindowRole(AXUIElementRef WindowRef, CFTypeRef *Role)
 {
-    bool Result = false;
     *Role = AXLibGetWindowProperty(WindowRef, kAXRoleAttribute);
-    return Result;
+    return *Role != NULL;
 }
 
 bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole)
 {
-    bool Result = false;
     *Subrole = AXLibGetWindowProperty(WindowRef, kAXSubroleAttribute);
-    return Result;
+    return *Subrole != NULL;
 }
 
 /*
