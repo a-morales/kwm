@@ -5,6 +5,24 @@
 #define internal static
 #define local_persist static
 
+internal void
+AXLibUpdateApplicationFocus(ax_application *Application, AXUIElementRef WindowRef)
+{
+    int WID = AXLibGetWindowID(WindowRef);
+    ax_window *Window = AXLibFindApplicationWindow(Application, WID);
+    if(Window)
+        Application->Focus = Window;
+}
+
+internal void
+AXLibUpdateApplicationWindowTitle(ax_application *Application, AXUIElementRef WindowRef)
+{
+    int WID = AXLibGetWindowID(WindowRef);
+    ax_window *Window = AXLibFindApplicationWindow(Application, WID);
+    if(Window)
+        Window->Name = AXLibGetWindowTitle(WindowRef);
+}
+
 OBSERVER_CALLBACK(AXApplicationCallback)
 {
     ax_application *Application = (ax_application*)Reference;
@@ -23,30 +41,32 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
     {
         printf("%s: kAXFocusedWindowChangedNotification\n", Application->Name.c_str());
+        AXLibUpdateApplicationFocus(Application, Element);
     }
     else if(CFEqual(Notification, kAXWindowMiniaturizedNotification))
     {
         printf("%s: kAXWindowMiniaturizedNotification\n", Application->Name.c_str());
+        /* TODO(koekeishiya): NYI */
     }
     else if(CFEqual(Notification, kAXWindowDeminiaturizedNotification))
     {
         printf("%s: kAXWindowDeminiaturizedNotification\n", Application->Name.c_str());
+        /* TODO(koekeishiya): NYI */
     }
     else if(CFEqual(Notification, kAXWindowMovedNotification))
     {
         printf("%s: kAXWindowMovedNotification\n", Application->Name.c_str());
+        /* TODO(koekeishiya): NYI */
     }
     else if(CFEqual(Notification, kAXWindowResizedNotification))
     {
         printf("%s: kAXWindowResizedNotification\n", Application->Name.c_str());
+        /* TODO(koekeishiya): NYI */
     }
     else if(CFEqual(Notification, kAXTitleChangedNotification))
     {
         printf("%s: kAXTitleChangedNotification\n", Application->Name.c_str());
-        int ID = AXLibGetWindowID(Element);
-        ax_window *Window = AXLibFindApplicationWindow(Application, ID);
-        if(Window)
-            Window->Name = AXLibGetWindowTitle(Element);
+        AXLibUpdateApplicationWindowTitle(Application, Element);
     }
 }
 
