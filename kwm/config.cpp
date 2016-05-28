@@ -5,14 +5,18 @@
 #include "helpers.h"
 #include "command.h"
 
+#define internal static
+
 extern kwm_path KWMPath;
 
-void ReportInvalidCommand(std::string Command)
+internal void
+ReportInvalidCommand(std::string Command)
 {
     std::cerr << "Parse error: " << Command << std::endl;
 }
 
-void KwmParseConfigOptionTiling(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionTiling(tokenizer *Tokenizer)
 {
     token Token = GetToken(Tokenizer);
     if(TokenEquals(Token, "bsp"))
@@ -27,7 +31,8 @@ void KwmParseConfigOptionTiling(tokenizer *Tokenizer)
         ReportInvalidCommand("Unknown command 'config tiling " + std::string(Token.Text, Token.TextLength) + "'");
 }
 
-void KwmParseConfigOptionHotkeys(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionHotkeys(tokenizer *Tokenizer)
 {
     token Token = GetToken(Tokenizer);
     if(TokenEquals(Token, "on"))
@@ -38,7 +43,8 @@ void KwmParseConfigOptionHotkeys(tokenizer *Tokenizer)
         ReportInvalidCommand("Unknown command 'config hotkeys " + std::string(Token.Text, Token.TextLength) + "'");
 }
 
-void KwmParseConfigOptionPadding(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionPadding(tokenizer *Tokenizer)
 {
     bool IsValid = true;
     token TokenTop = GetToken(Tokenizer);
@@ -76,7 +82,8 @@ void KwmParseConfigOptionPadding(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionGap(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionGap(tokenizer *Tokenizer)
 {
     bool IsValid = true;
     token TokenVertical = GetToken(Tokenizer);
@@ -100,7 +107,8 @@ void KwmParseConfigOptionGap(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionSpacesKey(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionSpacesKey(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
     {
@@ -121,7 +129,8 @@ void KwmParseConfigOptionSpacesKey(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionFocusFollowsMouse(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionFocusFollowsMouse(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
     {
@@ -158,7 +167,8 @@ void KwmParseConfigOptionFocusFollowsMouse(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionMouseFollowsFocus(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionMouseFollowsFocus(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
     {
@@ -193,7 +203,8 @@ void KwmParseConfigOptionMouseFollowsFocus(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionStandbyOnFloat(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionStandbyOnFloat(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
     {
@@ -228,7 +239,8 @@ void KwmParseConfigOptionStandbyOnFloat(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionFloatNonResizable(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionFloatNonResizable(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
     {
@@ -263,7 +275,8 @@ void KwmParseConfigOptionFloatNonResizable(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionLockToContainer(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionLockToContainer(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
     {
@@ -298,7 +311,8 @@ void KwmParseConfigOptionLockToContainer(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionCycleFocus(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionCycleFocus(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
     {
@@ -322,7 +336,8 @@ void KwmParseConfigOptionCycleFocus(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionSplitRatio(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionSplitRatio(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
     {
@@ -351,7 +366,8 @@ void KwmParseConfigOptionSplitRatio(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionOptimalRatio(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionOptimalRatio(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
     {
@@ -380,7 +396,8 @@ void KwmParseConfigOptionOptimalRatio(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionSpawn(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionSpawn(tokenizer *Tokenizer)
 {
     token Token = GetToken(Tokenizer);
     if(TokenEquals(Token, "left"))
@@ -391,7 +408,8 @@ void KwmParseConfigOptionSpawn(tokenizer *Tokenizer)
         ReportInvalidCommand("Unknown command 'config spawn " + std::string(Token.Text, Token.TextLength) + "'");
 }
 
-void KwmParseConfigOptionBorder(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionBorder(tokenizer *Tokenizer)
 {
     token TokenBorder = GetToken(Tokenizer);
     if((TokenEquals(TokenBorder, "focused")) ||
@@ -450,7 +468,8 @@ void KwmParseConfigOptionBorder(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionSpace(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionSpace(tokenizer *Tokenizer)
 {
     token TokenDisplay = GetToken(Tokenizer);
     std::string Display(TokenDisplay.Text, TokenDisplay.TextLength);
@@ -556,7 +575,8 @@ void KwmParseConfigOptionSpace(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOptionDisplay(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOptionDisplay(tokenizer *Tokenizer)
 {
     token TokenDisplay = GetToken(Tokenizer);
     std::string Display(TokenDisplay.Text, TokenDisplay.TextLength);
@@ -644,14 +664,16 @@ void KwmParseConfigOptionDisplay(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseModeOptionActivate(tokenizer *Tokenizer)
+internal void
+KwmParseModeOptionActivate(tokenizer *Tokenizer)
 {
     token TokenMode = GetToken(Tokenizer);
     std::string Mode(TokenMode.Text, TokenMode.TextLength);
     KwmInterpretCommand("mode activate " + Mode, 0);
 }
 
-void KwmParseModeOptionProperties(token *TokenMode, tokenizer *Tokenizer)
+internal void
+KwmParseModeOptionProperties(token *TokenMode, tokenizer *Tokenizer)
 {
     std::string Mode(TokenMode->Text, TokenMode->TextLength);
     token Token = GetToken(Tokenizer);
@@ -696,7 +718,8 @@ void KwmParseModeOptionProperties(token *TokenMode, tokenizer *Tokenizer)
     }
 }
 
-void KwmParseConfigOption(tokenizer *Tokenizer)
+internal void
+KwmParseConfigOption(tokenizer *Tokenizer)
 {
     token Token = GetToken(Tokenizer);
     switch(Token.Type)
@@ -753,7 +776,8 @@ void KwmParseConfigOption(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseModeOption(tokenizer *Tokenizer)
+internal void
+KwmParseModeOption(tokenizer *Tokenizer)
 {
     token Token = GetToken(Tokenizer);
     switch(Token.Type)
@@ -778,7 +802,8 @@ void KwmParseModeOption(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseKwmc(tokenizer *Tokenizer)
+internal void
+KwmParseKwmc(tokenizer *Tokenizer)
 {
     token Token = GetToken(Tokenizer);
     switch(Token.Type)
@@ -810,13 +835,15 @@ void KwmParseKwmc(tokenizer *Tokenizer)
     }
 }
 
-void KwmParseInclude(tokenizer *Tokenizer)
+internal void
+KwmParseInclude(tokenizer *Tokenizer)
 {
     token Token = GetToken(Tokenizer);
     KwmParseConfig(std::string(Token.Text, Token.TextLength));
 }
 
-void KwmParseDefine(tokenizer *Tokenizer, std::map<std::string, std::string> &Defines)
+internal void
+KwmParseDefine(tokenizer *Tokenizer, std::map<std::string, std::string> &Defines)
 {
     token Token = GetToken(Tokenizer);
     std::string Variable(Token.Text, Token.TextLength);
@@ -824,7 +851,8 @@ void KwmParseDefine(tokenizer *Tokenizer, std::map<std::string, std::string> &De
     Defines[Variable] = Value;
 }
 
-void KwmExpandVariables(std::map<std::string, std::string> &Defines, std::string &Text)
+internal void
+KwmExpandVariables(std::map<std::string, std::string> &Defines, std::string &Text)
 {
     std::map<std::string, std::string>::iterator It;
     for(It = Defines.begin(); It != Defines.end(); ++It)
@@ -838,7 +866,8 @@ void KwmExpandVariables(std::map<std::string, std::string> &Defines, std::string
     }
 }
 
-void KwmPreprocessConfig(std::string &Text)
+internal void
+KwmPreprocessConfig(std::string &Text)
 {
     std::map<std::string, std::string> Defines;
     tokenizer Tokenizer = {};

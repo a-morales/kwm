@@ -2,9 +2,12 @@
 #include "node.h"
 #include "space.h"
 
+#define internal static
+
 extern kwm_screen KWMScreen;
 
-node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
+internal node_container
+LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
     Assert(Node);
     space_info *Space = GetActiveSpaceOfScreen(Screen);
@@ -18,7 +21,8 @@ node_container LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
     return LeftContainer;
 }
 
-node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
+internal node_container
+RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
 {
     Assert(Node);
     space_info *Space = GetActiveSpaceOfScreen(Screen);
@@ -32,7 +36,8 @@ node_container RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
     return RightContainer;
 }
 
-node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
+internal node_container
+UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
 {
     Assert(Node);
     space_info *Space = GetActiveSpaceOfScreen(Screen);
@@ -46,7 +51,8 @@ node_container UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Nod
     return UpperContainer;
 }
 
-node_container LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
+internal node_container
+LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
 {
     Assert(Node);
     space_info *Space = GetActiveSpaceOfScreen(Screen);

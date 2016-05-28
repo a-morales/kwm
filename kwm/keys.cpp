@@ -5,300 +5,89 @@
 #include "border.h"
 #include "command.h"
 
+#define internal static
+
 extern kwm_focus KWMFocus;
 extern kwm_hotkeys KWMHotkeys;
 extern kwm_thread KWMThread;
 
-bool HotkeysAreEqual(hotkey *A, hotkey *B)
+internal CFStringRef
+KeycodeToString(CGKeyCode Keycode)
 {
-    if(A && B)
+    TISInputSourceRef Keyboard = TISCopyCurrentASCIICapableKeyboardLayoutInputSource();
+    CFDataRef Uchr = (CFDataRef)TISGetInputSourceProperty(Keyboard, kTISPropertyUnicodeKeyLayoutData);
+    const UCKeyboardLayout *KeyboardLayout = (const UCKeyboardLayout*)CFDataGetBytePtr(Uchr);
+
+    if(KeyboardLayout)
     {
-        if(A->Mod.CmdKey == B->Mod.CmdKey &&
-           A->Mod.CtrlKey == B->Mod.CtrlKey &&
-           A->Mod.AltKey == B->Mod.AltKey &&
-           A->Mod.ShiftKey == B->Mod.ShiftKey &&
-           A->Key == B->Key)
-            return true;
-    }
+        UInt32 DeadKeyState = 0;
+        UniCharCount MaxStringLength = 255;
+        UniCharCount ActualStringLength = 0;
+        UniChar UnicodeString[MaxStringLength];
 
-    return false;
-}
+        OSStatus Status = UCKeyTranslate(KeyboardLayout, Keycode,
+                                         kUCKeyActionDown, 0,
+                                         LMGetKbdType(), 0,
+                                         &DeadKeyState,
+                                         MaxStringLength,
+                                         &ActualStringLength,
+                                         UnicodeString);
 
-void CreateHotkeyFromCGEvent(CGEventRef Event, hotkey *Hotkey)
-{
-    CGEventFlags Flags = CGEventGetFlags(Event);
-    Hotkey->Mod.CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
-    Hotkey->Mod.AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
-    Hotkey->Mod.CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
-    Hotkey->Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
-    Hotkey->Key = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
-}
-
-void *KwmMainHotkeyTrigger(void *HotkeyPtr)
-{
-    while(true)
-    {
-        while(!KWMHotkeys.Queue.empty())
+        if (ActualStringLength == 0 && DeadKeyState)
         {
-            hotkey Hotkey = KWMHotkeys.Queue.front();
-            KWMHotkeys.Queue.pop();
-
-            pthread_mutex_lock(&KWMThread.Lock);
-            if(ShouldKeyBeProcessed(&Hotkey))
-                KwmExecuteHotkey(&Hotkey);
-            pthread_mutex_unlock(&KWMThread.Lock);
+            Status = UCKeyTranslate(KeyboardLayout, kVK_Space,
+                                    kUCKeyActionDown, 0,
+                                    LMGetKbdType(), 0,
+                                    &DeadKeyState,
+                                    MaxStringLength,
+                                    &ActualStringLength,
+                                    UnicodeString);
         }
 
-        usleep(10000);
+        if(ActualStringLength > 0 && Status == noErr)
+            return CFStringCreateWithCharacters(NULL, UnicodeString, ActualStringLength);
     }
 
     return NULL;
 }
 
-void CheckPrefixTimeout()
+internal bool
+KeycodeForChar(char Key, CGKeyCode *Keycode)
 {
-    if(KWMHotkeys.ActiveMode->Prefix)
+    static CFMutableDictionaryRef CharToCodeDict = NULL;
+
+    bool Result = true;
+    UniChar Character = Key;
+    CFStringRef CharStr;
+
+    if (!CharToCodeDict)
     {
-        kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
-        std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.ActiveMode->Time;
-        if(Diff.count() > KWMHotkeys.ActiveMode->Timeout)
+        CharToCodeDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 128,
+                                                   &kCFCopyStringDictionaryKeyCallBacks, NULL);
+        if (!CharToCodeDict)
+            return false;
+
+        for(std::size_t KeyIndex = 0; KeyIndex < 128; ++KeyIndex)
         {
-            DEBUG("Prefix timeout expired. Switching to mode " << KWMHotkeys.ActiveMode->Restore);
-            KwmActivateBindingMode(KWMHotkeys.ActiveMode->Restore);
-        }
-    }
-}
-
-bool IsHotkeyStateReqFulfilled(hotkey *Hotkey)
-{
-    if(Hotkey->State == HotkeyStateInclude && KWMFocus.Window)
-    {
-        for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
-        {
-            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
-                return true;
-        }
-
-        return false;
-    }
-    else if(Hotkey->State == HotkeyStateExclude && KWMFocus.Window)
-    {
-        for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
-        {
-            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
-                return false;
-        }
-    }
-
-    return true;
-}
-
-bool ShouldKeyBeProcessed(hotkey *Hotkey)
-{
-    if(!IsHotkeyStateReqFulfilled(Hotkey))
-        return false;
-
-    return true;
-}
-
-void KwmExecuteHotkey(hotkey *Hotkey)
-{
-    if(Hotkey->Command.empty())
-        return;
-
-    std::vector<std::string> Commands = SplitString(Hotkey->Command, ';');
-    DEBUG("KwmExecuteHotkey: Number of commands " << Commands.size());
-    for(int CmdIndex = 0; CmdIndex < Commands.size(); ++CmdIndex)
-    {
-        std::string &Command = TrimString(Commands[CmdIndex]);
-        if(!Command.empty())
-        {
-            DEBUG("KwmExecuteHotkey() " << Command);
-            if(IsPrefixOfString(Command, "exec"))
-                KwmExecuteThreadedSystemCommand(Command);
-            else
-                KwmInterpretCommand(Command, 0);
-
-            if(KWMHotkeys.ActiveMode->Prefix)
-                KWMHotkeys.ActiveMode->Time = std::chrono::steady_clock::now();
-        }
-    }
-}
-
-bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string Mode)
-{
-    hotkey TempHotkey = {};
-    TempHotkey.Mod = Mod;
-    TempHotkey.Key = Keycode;
-
-    mode *BindingMode = GetBindingMode(Mode);
-    for(std::size_t HotkeyIndex = 0; HotkeyIndex < BindingMode->Hotkeys.size(); ++HotkeyIndex)
-    {
-        hotkey *CheckHotkey = &BindingMode->Hotkeys[HotkeyIndex];
-        if(HotkeysAreEqual(CheckHotkey, &TempHotkey))
-        {
-            if(Hotkey)
-                *Hotkey = *CheckHotkey;
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void DetermineHotkeyState(hotkey *Hotkey, std::string &Command)
-{
-    std::size_t StartOfList = Command.find("{");
-    std::size_t EndOfList = Command.find("}");
-
-    bool Valid = !Command.empty() &&
-                 StartOfList != std::string::npos &&
-                 EndOfList != std::string::npos;
-
-    if(Valid)
-    {
-        std::string Applications = Command.substr(StartOfList + 1, EndOfList - (StartOfList + 1));
-        Hotkey->List = SplitString(Applications, ',');
-
-        if(Command[Command.size()-2] == '-')
-        {
-            if(Command[Command.size()-1] == 'e')
-                Hotkey->State = HotkeyStateExclude;
-            else if(Command[Command.size()-1] == 'i')
-                Hotkey->State = HotkeyStateInclude;
-            else
-                Hotkey->State = HotkeyStateNone;
-
-            Command = Command.substr(0, StartOfList - 1);
-        }
-    }
-
-    if(!Valid)
-        Hotkey->State = HotkeyStateNone;
-}
-
-bool KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, bool Passthrough, bool KeycodeInHex)
-{
-    std::vector<std::string> KeyTokens = SplitString(KeySym, '-');
-    if(KeyTokens.size() != 2)
-        return false;
-
-    Hotkey->Mode = "default";
-    std::vector<std::string> Modifiers = SplitString(KeyTokens[0], '+');
-    for(std::size_t ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
-    {
-        if(Modifiers[ModIndex] == "cmd")
-            Hotkey->Mod.CmdKey = true;
-        else if(Modifiers[ModIndex] == "alt")
-            Hotkey->Mod.AltKey = true;
-        else if(Modifiers[ModIndex] == "ctrl")
-            Hotkey->Mod.CtrlKey = true;
-        else if(Modifiers[ModIndex] == "shift")
-            Hotkey->Mod.ShiftKey = true;
-        else
-            Hotkey->Mode = Modifiers[ModIndex];
-    }
-
-    DetermineHotkeyState(Hotkey, Command);
-    Hotkey->Passthrough = Passthrough;
-    Hotkey->Command = Command;
-
-    CGKeyCode Keycode;
-    bool Result = false;
-    if(KeycodeInHex)
-    {
-        Result = true;
-        Keycode = ConvertHexStringToInt(KeyTokens[1]);
-        DEBUG("bindcode: " << Keycode);
-    }
-    else
-    {
-        Result = GetLayoutIndependentKeycode(KeyTokens[1], &Keycode);
-        if(!Result)
-            Result = KeycodeForChar(KeyTokens[1][0], &Keycode);
-    }
-
-    Hotkey->Key = Keycode;
-    return Result;
-}
-
-void KwmSetSpacesKey(std::string KeySym)
-{
-    modifiers Mod = {};
-    std::vector<std::string> Modifiers = SplitString(KeySym, '+');
-    for(std::size_t ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
-    {
-        if(Modifiers[ModIndex] == "cmd")
-            Mod.CmdKey = true;
-        else if(Modifiers[ModIndex] == "alt")
-            Mod.AltKey = true;
-        else if(Modifiers[ModIndex] == "ctrl")
-            Mod.CtrlKey = true;
-        else if(Modifiers[ModIndex] == "shift")
-            Mod.ShiftKey = true;
-    }
-    KWMHotkeys.SpacesKey = Mod;
-}
-
-void KwmAddHotkey(std::string KeySym, std::string Command, bool Passthrough, bool KeycodeInHex)
-{
-    hotkey Hotkey = {};
-    if(KwmParseHotkey(KeySym, Command, &Hotkey, Passthrough, KeycodeInHex) &&
-       !HotkeyExists(Hotkey.Mod, Hotkey.Key, NULL, Hotkey.Mode))
-        KWMHotkeys.Modes[Hotkey.Mode].Hotkeys.push_back(Hotkey);
-}
-
-void KwmRemoveHotkey(std::string KeySym, bool KeycodeInHex)
-{
-    hotkey NewHotkey = {};
-    if(KwmParseHotkey(KeySym, "", &NewHotkey, false, KeycodeInHex))
-    {
-        mode *BindingMode = GetBindingMode(NewHotkey.Mode);
-        for(std::size_t HotkeyIndex = 0; HotkeyIndex < BindingMode->Hotkeys.size(); ++HotkeyIndex)
-        {
-            hotkey *CurrentHotkey = &BindingMode->Hotkeys[HotkeyIndex];
-            if(HotkeysAreEqual(CurrentHotkey, &NewHotkey))
+            CFStringRef KeyString = KeycodeToString((CGKeyCode)KeyIndex);
+            if (KeyString != NULL)
             {
-                BindingMode->Hotkeys.erase(BindingMode->Hotkeys.begin() + HotkeyIndex);
-                break;
+                CFDictionaryAddValue(CharToCodeDict, KeyString, (const void *)KeyIndex);
+                CFRelease(KeyString);
             }
         }
     }
+
+    CharStr = CFStringCreateWithCharacters(kCFAllocatorDefault, &Character, 1);
+    if (!CFDictionaryGetValueIfPresent(CharToCodeDict, CharStr, (const void **)Keycode))
+        Result = false;
+
+    CFRelease(CharStr);
+    return Result;
 }
 
-mode *GetBindingMode(std::string Mode)
-{
-    std::map<std::string, mode>::iterator It = KWMHotkeys.Modes.find(Mode);
-    if(It == KWMHotkeys.Modes.end())
-    {
-        mode NewMode = {};
-        NewMode.Name = Mode;
-        KWMHotkeys.Modes[Mode] = NewMode;
-    }
-
-    return &KWMHotkeys.Modes[Mode];
-}
-
-bool DoesBindingModeExist(std::string Mode)
-{
-    std::map<std::string, mode>::iterator It = KWMHotkeys.Modes.find(Mode);
-    return !Mode.empty() && It != KWMHotkeys.Modes.end();
-}
-
-void KwmActivateBindingMode(std::string Mode)
-{
-    mode *BindingMode = GetBindingMode(Mode);
-    if(!DoesBindingModeExist(Mode))
-        BindingMode = GetBindingMode("default");
-
-    KWMHotkeys.ActiveMode = BindingMode;
-    UpdateBorder("focused");
-    if(BindingMode->Prefix)
-        BindingMode->Time = std::chrono::steady_clock::now();
-}
-
-bool GetLayoutIndependentKeycode(std::string Key, CGKeyCode *Keycode)
+internal bool
+GetLayoutIndependentKeycode(std::string Key, CGKeyCode *Keycode)
 {
     bool Result = true;
 
@@ -368,77 +157,292 @@ bool GetLayoutIndependentKeycode(std::string Key, CGKeyCode *Keycode)
     return Result;
 }
 
-CFStringRef KeycodeToString(CGKeyCode Keycode)
+internal bool
+DoesBindingModeExist(std::string Mode)
 {
-    TISInputSourceRef Keyboard = TISCopyCurrentASCIICapableKeyboardLayoutInputSource();
-    CFDataRef Uchr = (CFDataRef)TISGetInputSourceProperty(Keyboard, kTISPropertyUnicodeKeyLayoutData);
-    const UCKeyboardLayout *KeyboardLayout = (const UCKeyboardLayout*)CFDataGetBytePtr(Uchr);
-
-    if(KeyboardLayout)
-    {
-        UInt32 DeadKeyState = 0;
-        UniCharCount MaxStringLength = 255;
-        UniCharCount ActualStringLength = 0;
-        UniChar UnicodeString[MaxStringLength];
-
-        OSStatus Status = UCKeyTranslate(KeyboardLayout, Keycode,
-                                         kUCKeyActionDown, 0,
-                                         LMGetKbdType(), 0,
-                                         &DeadKeyState,
-                                         MaxStringLength,
-                                         &ActualStringLength,
-                                         UnicodeString);
-
-        if (ActualStringLength == 0 && DeadKeyState)
-        {
-            Status = UCKeyTranslate(KeyboardLayout, kVK_Space,
-                                    kUCKeyActionDown, 0,
-                                    LMGetKbdType(), 0,
-                                    &DeadKeyState,
-                                    MaxStringLength,
-                                    &ActualStringLength,
-                                    UnicodeString);
-        }
-
-        if(ActualStringLength > 0 && Status == noErr)
-            return CFStringCreateWithCharacters(NULL, UnicodeString, ActualStringLength);
-    }
-
-    return NULL;
+    std::map<std::string, mode>::iterator It = KWMHotkeys.Modes.find(Mode);
+    return !Mode.empty() && It != KWMHotkeys.Modes.end();
 }
 
-bool KeycodeForChar(char Key, CGKeyCode *Keycode)
+
+internal bool
+HotkeysAreEqual(hotkey *A, hotkey *B)
 {
-    static CFMutableDictionaryRef CharToCodeDict = NULL;
-
-    bool Result = true;
-    UniChar Character = Key;
-    CFStringRef CharStr;
-
-    if (!CharToCodeDict)
+    if(A && B)
     {
-        CharToCodeDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 128,
-                                                   &kCFCopyStringDictionaryKeyCallBacks, NULL);
-        if (!CharToCodeDict)
-            return false;
+        if(A->Mod.CmdKey == B->Mod.CmdKey &&
+           A->Mod.CtrlKey == B->Mod.CtrlKey &&
+           A->Mod.AltKey == B->Mod.AltKey &&
+           A->Mod.ShiftKey == B->Mod.ShiftKey &&
+           A->Key == B->Key)
+            return true;
+    }
 
-        for(std::size_t KeyIndex = 0; KeyIndex < 128; ++KeyIndex)
+    return false;
+}
+
+internal bool
+IsHotkeyStateReqFulfilled(hotkey *Hotkey)
+{
+    if(Hotkey->State == HotkeyStateInclude && KWMFocus.Window)
+    {
+        for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
         {
-            CFStringRef KeyString = KeycodeToString((CGKeyCode)KeyIndex);
-            if (KeyString != NULL)
+            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
+                return true;
+        }
+
+        return false;
+    }
+    else if(Hotkey->State == HotkeyStateExclude && KWMFocus.Window)
+    {
+        for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
+        {
+            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
+                return false;
+        }
+    }
+
+    return true;
+}
+
+internal void
+KwmExecuteHotkey(hotkey *Hotkey)
+{
+    if(Hotkey->Command.empty())
+        return;
+
+    std::vector<std::string> Commands = SplitString(Hotkey->Command, ';');
+    DEBUG("KwmExecuteHotkey: Number of commands " << Commands.size());
+    for(int CmdIndex = 0; CmdIndex < Commands.size(); ++CmdIndex)
+    {
+        std::string &Command = TrimString(Commands[CmdIndex]);
+        if(!Command.empty())
+        {
+            DEBUG("KwmExecuteHotkey() " << Command);
+            if(IsPrefixOfString(Command, "exec"))
+                KwmExecuteThreadedSystemCommand(Command);
+            else
+                KwmInterpretCommand(Command, 0);
+
+            if(KWMHotkeys.ActiveMode->Prefix)
+                KWMHotkeys.ActiveMode->Time = std::chrono::steady_clock::now();
+        }
+    }
+}
+
+internal void
+DetermineHotkeyState(hotkey *Hotkey, std::string &Command)
+{
+    std::size_t StartOfList = Command.find("{");
+    std::size_t EndOfList = Command.find("}");
+
+    bool Valid = !Command.empty() &&
+                 StartOfList != std::string::npos &&
+                 EndOfList != std::string::npos;
+
+    if(Valid)
+    {
+        std::string Applications = Command.substr(StartOfList + 1, EndOfList - (StartOfList + 1));
+        Hotkey->List = SplitString(Applications, ',');
+
+        if(Command[Command.size()-2] == '-')
+        {
+            if(Command[Command.size()-1] == 'e')
+                Hotkey->State = HotkeyStateExclude;
+            else if(Command[Command.size()-1] == 'i')
+                Hotkey->State = HotkeyStateInclude;
+            else
+                Hotkey->State = HotkeyStateNone;
+
+            Command = Command.substr(0, StartOfList - 1);
+        }
+    }
+
+    if(!Valid)
+        Hotkey->State = HotkeyStateNone;
+}
+
+internal bool
+KwmParseHotkey(std::string KeySym, std::string Command, hotkey *Hotkey, bool Passthrough, bool KeycodeInHex)
+{
+    std::vector<std::string> KeyTokens = SplitString(KeySym, '-');
+    if(KeyTokens.size() != 2)
+        return false;
+
+    Hotkey->Mode = "default";
+    std::vector<std::string> Modifiers = SplitString(KeyTokens[0], '+');
+    for(std::size_t ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
+    {
+        if(Modifiers[ModIndex] == "cmd")
+            Hotkey->Mod.CmdKey = true;
+        else if(Modifiers[ModIndex] == "alt")
+            Hotkey->Mod.AltKey = true;
+        else if(Modifiers[ModIndex] == "ctrl")
+            Hotkey->Mod.CtrlKey = true;
+        else if(Modifiers[ModIndex] == "shift")
+            Hotkey->Mod.ShiftKey = true;
+        else
+            Hotkey->Mode = Modifiers[ModIndex];
+    }
+
+    DetermineHotkeyState(Hotkey, Command);
+    Hotkey->Passthrough = Passthrough;
+    Hotkey->Command = Command;
+
+    CGKeyCode Keycode;
+    bool Result = false;
+    if(KeycodeInHex)
+    {
+        Result = true;
+        Keycode = ConvertHexStringToInt(KeyTokens[1]);
+        DEBUG("bindcode: " << Keycode);
+    }
+    else
+    {
+        Result = GetLayoutIndependentKeycode(KeyTokens[1], &Keycode);
+        if(!Result)
+            Result = KeycodeForChar(KeyTokens[1][0], &Keycode);
+    }
+
+    Hotkey->Key = Keycode;
+    return Result;
+}
+
+void KwmAddHotkey(std::string KeySym, std::string Command, bool Passthrough, bool KeycodeInHex)
+{
+    hotkey Hotkey = {};
+    if(KwmParseHotkey(KeySym, Command, &Hotkey, Passthrough, KeycodeInHex) &&
+       !HotkeyExists(Hotkey.Mod, Hotkey.Key, NULL, Hotkey.Mode))
+        KWMHotkeys.Modes[Hotkey.Mode].Hotkeys.push_back(Hotkey);
+}
+
+void KwmRemoveHotkey(std::string KeySym, bool KeycodeInHex)
+{
+    hotkey NewHotkey = {};
+    if(KwmParseHotkey(KeySym, "", &NewHotkey, false, KeycodeInHex))
+    {
+        mode *BindingMode = GetBindingMode(NewHotkey.Mode);
+        for(std::size_t HotkeyIndex = 0; HotkeyIndex < BindingMode->Hotkeys.size(); ++HotkeyIndex)
+        {
+            hotkey *CurrentHotkey = &BindingMode->Hotkeys[HotkeyIndex];
+            if(HotkeysAreEqual(CurrentHotkey, &NewHotkey))
             {
-                CFDictionaryAddValue(CharToCodeDict, KeyString, (const void *)KeyIndex);
-                CFRelease(KeyString);
+                BindingMode->Hotkeys.erase(BindingMode->Hotkeys.begin() + HotkeyIndex);
+                break;
             }
         }
     }
+}
 
-    CharStr = CFStringCreateWithCharacters(kCFAllocatorDefault, &Character, 1);
-    if (!CFDictionaryGetValueIfPresent(CharToCodeDict, CharStr, (const void **)Keycode))
-        Result = false;
+mode *GetBindingMode(std::string Mode)
+{
+    std::map<std::string, mode>::iterator It = KWMHotkeys.Modes.find(Mode);
+    if(It == KWMHotkeys.Modes.end())
+    {
+        mode NewMode = {};
+        NewMode.Name = Mode;
+        KWMHotkeys.Modes[Mode] = NewMode;
+    }
 
-    CFRelease(CharStr);
-    return Result;
+    return &KWMHotkeys.Modes[Mode];
+}
+
+void KwmActivateBindingMode(std::string Mode)
+{
+    mode *BindingMode = GetBindingMode(Mode);
+    if(!DoesBindingModeExist(Mode))
+        BindingMode = GetBindingMode("default");
+
+    KWMHotkeys.ActiveMode = BindingMode;
+    UpdateBorder("focused");
+    if(BindingMode->Prefix)
+        BindingMode->Time = std::chrono::steady_clock::now();
+}
+
+void KwmSetSpacesKey(std::string KeySym)
+{
+    modifiers Mod = {};
+    std::vector<std::string> Modifiers = SplitString(KeySym, '+');
+    for(std::size_t ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
+    {
+        if(Modifiers[ModIndex] == "cmd")
+            Mod.CmdKey = true;
+        else if(Modifiers[ModIndex] == "alt")
+            Mod.AltKey = true;
+        else if(Modifiers[ModIndex] == "ctrl")
+            Mod.CtrlKey = true;
+        else if(Modifiers[ModIndex] == "shift")
+            Mod.ShiftKey = true;
+    }
+    KWMHotkeys.SpacesKey = Mod;
+}
+
+void CheckPrefixTimeout()
+{
+    if(KWMHotkeys.ActiveMode->Prefix)
+    {
+        kwm_time_point NewPrefixTime = std::chrono::steady_clock::now();
+        std::chrono::duration<double> Diff = NewPrefixTime - KWMHotkeys.ActiveMode->Time;
+        if(Diff.count() > KWMHotkeys.ActiveMode->Timeout)
+        {
+            DEBUG("Prefix timeout expired. Switching to mode " << KWMHotkeys.ActiveMode->Restore);
+            KwmActivateBindingMode(KWMHotkeys.ActiveMode->Restore);
+        }
+    }
+}
+
+void CreateHotkeyFromCGEvent(CGEventRef Event, hotkey *Hotkey)
+{
+    CGEventFlags Flags = CGEventGetFlags(Event);
+    Hotkey->Mod.CmdKey = (Flags & kCGEventFlagMaskCommand) == kCGEventFlagMaskCommand;
+    Hotkey->Mod.AltKey = (Flags & kCGEventFlagMaskAlternate) == kCGEventFlagMaskAlternate;
+    Hotkey->Mod.CtrlKey = (Flags & kCGEventFlagMaskControl) == kCGEventFlagMaskControl;
+    Hotkey->Mod.ShiftKey = (Flags & kCGEventFlagMaskShift) == kCGEventFlagMaskShift;
+    Hotkey->Key = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
+}
+
+bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string Mode)
+{
+    hotkey TempHotkey = {};
+    TempHotkey.Mod = Mod;
+    TempHotkey.Key = Keycode;
+
+    mode *BindingMode = GetBindingMode(Mode);
+    for(std::size_t HotkeyIndex = 0; HotkeyIndex < BindingMode->Hotkeys.size(); ++HotkeyIndex)
+    {
+        hotkey *CheckHotkey = &BindingMode->Hotkeys[HotkeyIndex];
+        if(HotkeysAreEqual(CheckHotkey, &TempHotkey))
+        {
+            if(Hotkey)
+                *Hotkey = *CheckHotkey;
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void *KwmMainHotkeyTrigger(void *HotkeyPtr)
+{
+    while(true)
+    {
+        while(!KWMHotkeys.Queue.empty())
+        {
+            hotkey Hotkey = KWMHotkeys.Queue.front();
+            KWMHotkeys.Queue.pop();
+
+            pthread_mutex_lock(&KWMThread.Lock);
+            if(IsHotkeyStateReqFulfilled(&Hotkey))
+                KwmExecuteHotkey(&Hotkey);
+            pthread_mutex_unlock(&KWMThread.Lock);
+        }
+
+        usleep(10000);
+    }
+
+    return NULL;
 }
 
 void KwmEmitKeystrokes(std::string Text)

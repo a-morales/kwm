@@ -6,7 +6,16 @@
 #include "border.h"
 #include "helpers.h"
 
-void SerializeParentNode(tree_node *Parent, std::string Role, std::vector<std::string> &Serialized)
+#define internal static
+
+internal void SerializeParentNode(tree_node *Parent, std::string Role, std::vector<std::string> &Serialized);
+internal unsigned int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index);
+internal tree_node * DeserializeNodeTree(std::vector<std::string> &Serialized);
+internal unsigned int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index);
+internal unsigned int DeserializeChildNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index);
+
+internal void
+SerializeParentNode(tree_node *Parent, std::string Role, std::vector<std::string> &Serialized)
 {
     Serialized.push_back("kwmc tree root create " + Role);
     Serialized.push_back("kwmc tree split-mode " + std::to_string(Parent->SplitMode));
@@ -35,7 +44,8 @@ void SerializeParentNode(tree_node *Parent, std::string Role, std::vector<std::s
     }
 }
 
-unsigned int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index)
+internal unsigned int
+DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index)
 {
     unsigned int LineNumber = Index;
     for(;LineNumber < Serialized.size(); ++LineNumber)
@@ -67,7 +77,8 @@ unsigned int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &
     return LineNumber;
 }
 
-unsigned int DeserializeChildNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index)
+internal unsigned int
+DeserializeChildNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index)
 {
     unsigned int LineNumber = Index;
     for(;LineNumber < Serialized.size(); ++LineNumber)
@@ -108,7 +119,8 @@ unsigned int DeserializeChildNode(tree_node *Parent, std::vector<std::string> &S
     return LineNumber;
 }
 
-tree_node *DeserializeNodeTree(std::vector<std::string> &Serialized)
+internal tree_node *
+DeserializeNodeTree(std::vector<std::string> &Serialized)
 {
     if(Serialized.empty() || Serialized[0] != "kwmc tree root create parent")
         return NULL;

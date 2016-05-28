@@ -12,6 +12,7 @@
 #include "command.h"
 
 #include "axlib/axlib.h"
+#define internal static
 
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
 
@@ -97,16 +98,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
     return Event;
 }
 
-void KwmQuit()
-{
-    ShowAllScratchpadWindows();
-    CloseBorder(&FocusedBorder);
-    CloseBorder(&MarkedBorder);
-
-    exit(0);
-}
-
-void * KwmWindowMonitor(void*)
+internal void *
+KwmWindowMonitor(void*)
 {
     while(1)
     {
@@ -130,50 +123,45 @@ void * KwmWindowMonitor(void*)
     }
 }
 
-void KwmReloadConfig()
+internal bool
+CheckPrivileges()
 {
-    KwmClearSettings();
-    KwmExecuteConfig();
+    bool Result = false;
+    const void * Keys[] = { kAXTrustedCheckOptionPrompt };
+    const void * Values[] = { kCFBooleanTrue };
+
+    CFDictionaryRef Options;
+    Options = CFDictionaryCreate(kCFAllocatorDefault,
+                                 Keys, Values, sizeof(Keys) / sizeof(*Keys),
+                                 &kCFCopyStringDictionaryKeyCallBacks,
+                                 &kCFTypeDictionaryValueCallBacks);
+
+    Result = AXIsProcessTrustedWithOptions(Options);
+    CFRelease(Options);
+
+    return Result;
 }
 
-void KwmClearSettings()
+internal bool
+CheckArguments(int argc, char **argv)
 {
-    std::map<int, CFTypeRef>::iterator It;
-    for(It = KWMTiling.AllowedWindowRoles.begin(); It != KWMTiling.AllowedWindowRoles.end(); ++It)
-        CFRelease(It->second);
+    bool Result = false;
 
-    KWMTiling.AllowedWindowRoles.clear();
-    KWMHotkeys.Modes.clear();
-    KWMTiling.WindowRules.clear();
-    KWMTiling.SpaceSettings.clear();
-    KWMTiling.DisplaySettings.clear();
-    KWMTiling.EnforcedWindows.clear();
-    KWMHotkeys.ActiveMode = GetBindingMode("default");
-}
-
-void KwmExecuteConfig()
-{
-    char *HomeP = std::getenv("HOME");
-    if(!HomeP)
+    if(argc == 2)
     {
-        DEBUG("Failed to get environment variable 'HOME'");
-        return;
+        std::string Arg = argv[1];
+        if(Arg == "--version")
+        {
+            std::cout << KwmCurrentVersion << std::endl;
+            Result = true;
+        }
     }
 
-    KWMPath.EnvHome = HomeP;
-    KwmParseConfig(KWMPath.ConfigFile);
+    return Result;
 }
 
-void KwmExecuteInitScript()
-{
-    std::string InitFile = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/init";
-
-    struct stat Buffer;
-    if(stat(InitFile.c_str(), &Buffer) == 0)
-        KwmExecuteThreadedSystemCommand(InitFile);
-}
-
-bool GetKwmFilePath()
+internal bool
+GetKwmFilePath()
 {
     bool Result = false;
     char PathBuf[PROC_PIDPATHINFO_MAXSIZE];
@@ -191,7 +179,66 @@ bool GetKwmFilePath()
     return Result;
 }
 
-void KwmInit()
+internal void
+KwmClearSettings()
+{
+    std::map<int, CFTypeRef>::iterator It;
+    for(It = KWMTiling.AllowedWindowRoles.begin(); It != KWMTiling.AllowedWindowRoles.end(); ++It)
+        CFRelease(It->second);
+
+    KWMTiling.AllowedWindowRoles.clear();
+    KWMHotkeys.Modes.clear();
+    KWMTiling.WindowRules.clear();
+    KWMTiling.SpaceSettings.clear();
+    KWMTiling.DisplaySettings.clear();
+    KWMTiling.EnforcedWindows.clear();
+    KWMHotkeys.ActiveMode = GetBindingMode("default");
+}
+
+internal void
+KwmExecuteConfig()
+{
+    char *HomeP = std::getenv("HOME");
+    if(!HomeP)
+    {
+        DEBUG("Failed to get environment variable 'HOME'");
+        return;
+    }
+
+    KWMPath.EnvHome = HomeP;
+    KwmParseConfig(KWMPath.ConfigFile);
+}
+
+internal void
+KwmExecuteInitScript()
+{
+    std::string InitFile = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/init";
+
+    struct stat Buffer;
+    if(stat(InitFile.c_str(), &Buffer) == 0)
+        KwmExecuteThreadedSystemCommand(InitFile);
+}
+
+internal void
+SignalHandler(int Signum)
+{
+    ShowAllScratchpadWindows();
+    DEBUG("SignalHandler() " << Signum);
+
+    CloseBorder(&FocusedBorder);
+    CloseBorder(&MarkedBorder);
+    exit(Signum);
+}
+
+internal void
+Fatal(const std::string &Err)
+{
+    std::cout << Err << std::endl;
+    exit(1);
+}
+
+internal void
+KwmInit()
 {
     if(!CheckPrivileges())
         Fatal("Could not access OSX Accessibility!");
@@ -247,56 +294,21 @@ void KwmInit()
     FocusWindowOfOSX();
 }
 
-bool CheckPrivileges()
-{
-    bool Result = false;
-    const void * Keys[] = { kAXTrustedCheckOptionPrompt };
-    const void * Values[] = { kCFBooleanTrue };
-
-    CFDictionaryRef Options;
-    Options = CFDictionaryCreate(kCFAllocatorDefault,
-                                 Keys, Values, sizeof(Keys) / sizeof(*Keys),
-                                 &kCFCopyStringDictionaryKeyCallBacks,
-                                 &kCFTypeDictionaryValueCallBacks);
-
-    Result = AXIsProcessTrustedWithOptions(Options);
-    CFRelease(Options);
-
-    return Result;
-}
-
-bool CheckArguments(int argc, char **argv)
-{
-    bool Result = false;
-
-    if(argc == 2)
-    {
-        std::string Arg = argv[1];
-        if(Arg == "--version")
-        {
-            std::cout << KwmCurrentVersion << std::endl;
-            Result = true;
-        }
-    }
-
-    return Result;
-}
-
-void SignalHandler(int Signum)
+void KwmQuit()
 {
     ShowAllScratchpadWindows();
-    DEBUG("SignalHandler() " << Signum);
-
     CloseBorder(&FocusedBorder);
     CloseBorder(&MarkedBorder);
-    exit(Signum);
+
+    exit(0);
 }
 
-void Fatal(const std::string &Err)
+void KwmReloadConfig()
 {
-    std::cout << Err << std::endl;
-    exit(1);
+    KwmClearSettings();
+    KwmExecuteConfig();
 }
+
 
 int main(int argc, char **argv)
 {

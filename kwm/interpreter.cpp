@@ -17,6 +17,8 @@
 #include "query.h"
 #include "scratchpad.h"
 
+#define internal static
+
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
 extern kwm_focus KWMFocus;
@@ -29,7 +31,8 @@ extern kwm_hotkeys KWMHotkeys;
 void MoveFocusedWindowToSpace(std::string SpaceID);
 void ActivateSpaceWithoutTransition(std::string SpaceID);
 
-void KwmConfigCommand(std::vector<std::string> &Tokens)
+internal void
+KwmConfigCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "reload")
     {
@@ -299,7 +302,8 @@ void KwmConfigCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
+internal void
+KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 {
     if(Tokens[1] == "tiling")
     {
@@ -410,7 +414,8 @@ void KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
     }
 }
 
-void KwmModeCommand(std::vector<std::string> &Tokens)
+internal void
+KwmModeCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "activate")
         KwmActivateBindingMode(Tokens[2]);
@@ -441,7 +446,8 @@ void KwmModeCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmBindCommand(std::vector<std::string> &Tokens, bool Passthrough)
+internal void
+KwmBindCommand(std::vector<std::string> &Tokens, bool Passthrough)
 {
     bool BindCode = Tokens[0].find("bindcode") != std::string::npos;
 
@@ -451,7 +457,8 @@ void KwmBindCommand(std::vector<std::string> &Tokens, bool Passthrough)
         KwmAddHotkey(Tokens[1], "", Passthrough, BindCode);
 }
 
-void KwmWindowCommand(std::vector<std::string> &Tokens)
+internal void
+KwmWindowCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "-f")
     {
@@ -632,7 +639,8 @@ void KwmWindowCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmSpaceCommand(std::vector<std::string> &Tokens)
+internal void
+KwmSpaceCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "-f")
     {
@@ -699,7 +707,8 @@ void KwmSpaceCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmDisplayCommand(std::vector<std::string> &Tokens)
+internal void
+KwmDisplayCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "-f")
     {
@@ -721,7 +730,8 @@ void KwmDisplayCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmTreeCommand(std::vector<std::string> &Tokens)
+internal void
+KwmTreeCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "-pseudo")
     {
@@ -753,7 +763,8 @@ void KwmTreeCommand(std::vector<std::string> &Tokens)
     }
 }
 
-void KwmScratchpadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
+internal void
+KwmScratchpadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 {
     if(Tokens[1] == "show")
         ShowScratchpadWindow(ConvertStringToInt(Tokens[2]));
@@ -803,13 +814,4 @@ void KwmInterpretCommand(std::string Message, int ClientSockFD)
         KwmAddRule(CreateStringFromTokens(Tokens, 1));
     else if(Tokens[0] == "scratchpad")
         KwmScratchpadCommand(Tokens, ClientSockFD);
-    else if(Tokens[0] == "dev")
-    {
-        color Color = {};
-        Color.Red = 255;
-        Color.Green = 0;
-        Color.Blue = 0;
-        unsigned int Hex = ConvertRGBAToHex(&Color);
-        std::cout << std::hex << Hex << std::endl;
-    }
 }

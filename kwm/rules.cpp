@@ -9,6 +9,8 @@
 #include "application.h"
 #include <regex>
 
+#define internal static
+
 extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
 extern void AddWindowToSpace(int CGSpaceID, int WindowID);
 extern void RemoveWindowFromSpace(int CGSpaceID, int WindowID);
@@ -44,13 +46,15 @@ extern kwm_tiling KWMTiling;
  *          kwmc rule owner="iTunes" properties={space="1"; display="1"}
 */
 
-void ReportInvalidRule(std::string Command)
+internal void
+ReportInvalidRule(std::string Command)
 {
     std::cerr << "  Rule Parse error: " << Command << std::endl;
 }
 
 
-bool ParseIdentifier(tokenizer *Tokenizer, std::string *Member)
+internal bool
+ParseIdentifier(tokenizer *Tokenizer, std::string *Member)
 {
     if(RequireToken(Tokenizer, Token_Equals))
     {
@@ -79,7 +83,8 @@ bool ParseIdentifier(tokenizer *Tokenizer, std::string *Member)
     return false;
 }
 
-bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
+internal bool
+ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
 {
     if(RequireToken(Tokenizer, Token_Equals))
     {
@@ -160,7 +165,8 @@ bool ParseProperties(tokenizer *Tokenizer, window_properties *Properties)
     return false;
 }
 
-bool KwmParseRule(std::string RuleSym, window_rule *Rule)
+internal bool
+KwmParseRule(std::string RuleSym, window_rule *Rule)
 {
     tokenizer Tokenizer = {};
     Tokenizer.At = const_cast<char*>(RuleSym.c_str());
@@ -197,14 +203,15 @@ bool KwmParseRule(std::string RuleSym, window_rule *Rule)
     return Result;
 }
 
-void KwmAddRule(std::string RuleSym)
+internal bool
+HasRuleBeenApplied(window_info *Window)
 {
-    window_rule Rule = {};
-    if(!RuleSym.empty() && KwmParseRule(RuleSym, &Rule))
-        KWMTiling.WindowRules.push_back(Rule);
+    std::map<int, bool>::iterator It = KWMTiling.EnforcedWindows.find(Window->WID);
+    return It != KWMTiling.EnforcedWindows.end();
 }
 
-bool MatchWindowRule(window_rule *Rule, window_info *Window)
+internal bool
+MatchWindowRule(window_rule *Rule, window_info *Window)
 {
     bool Match = true;
     if(!Rule->Owner.empty())
@@ -226,6 +233,13 @@ bool MatchWindowRule(window_rule *Rule, window_info *Window)
     }
 
     return Match;
+}
+
+void KwmAddRule(std::string RuleSym)
+{
+    window_rule Rule = {};
+    if(!RuleSym.empty() && KwmParseRule(RuleSym, &Rule))
+        KWMTiling.WindowRules.push_back(Rule);
 }
 
 void CheckWindowRules(window_info *Window)
@@ -263,8 +277,10 @@ void CheckWindowRules(window_info *Window)
 
 bool EnforceWindowRules(window_info *Window)
 {
-    bool Result  = false;
+    if(HasRuleBeenApplied(Window))
+        return false;
 
+    bool Result  = false;
     if(Window->Properties.Float == 1)
     {
         screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
@@ -317,10 +333,4 @@ bool EnforceWindowRules(window_info *Window)
 
     KWMTiling.EnforcedWindows[Window->WID] = true;
     return Result;
-}
-
-bool HasRuleBeenApplied(window_info *Window)
-{
-    std::map<int, bool>::iterator It = KWMTiling.EnforcedWindows.find(Window->WID);
-    return It != KWMTiling.EnforcedWindows.end();
 }
