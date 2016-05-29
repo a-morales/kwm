@@ -15,8 +15,12 @@ ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef Windo
 
     Window.Position = AXLibGetWindowPosition(WindowRef);
     Window.Size = AXLibGetWindowSize(WindowRef);
-    Window.Movable = AXLibIsWindowMovable(WindowRef);
-    Window.Resizable = AXLibIsWindowResizable(WindowRef);
+
+    if(AXLibIsWindowMovable(WindowRef))
+        AXLibAddFlags(&Window, AXWindow_Movable);
+
+    if(AXLibIsWindowResizable(WindowRef))
+        AXLibAddFlags(&Window, AXWindow_Resizable);
 
     AXLibGetWindowRole(WindowRef, &Window.Type.Role);
     AXLibGetWindowSubrole(WindowRef, &Window.Type.Subrole);
