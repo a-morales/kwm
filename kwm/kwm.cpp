@@ -11,8 +11,12 @@
 #include "config.h"
 #include "command.h"
 
-#include "axlib/axlib.h"
 #define internal static
+
+#if 0
+#include "axlib/axlib.h"
+std::map<pid_t, ax_application> AXApplications;
+#endif
 
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
 
@@ -30,8 +34,6 @@ kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
 kwm_callback KWMCallback =  {};
 scratchpad Scratchpad = {};
-
-std::map<pid_t, ax_application> AXApplications;
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
