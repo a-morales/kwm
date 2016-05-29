@@ -28,7 +28,7 @@ void AXLibAddObserverNotification(ax_observer *Observer, CFStringRef Notificatio
 void AXLibRemoveObserverNotification(ax_observer *Observer, CFStringRef Notification);
 
 /* TODO(koekeishiya): Remove after implementing ax_application */
-ax_observer AXLibConstructObserver(int PID, ObserverCallback Callback);
+ax_observer AXLibConstructObserver(pid_t PID, ObserverCallback Callback);
 void AXLibAddObserverNotificationOLD(ax_observer *Observer, CFStringRef Notification, void *Reference);
 void AXLibRemoveObserverNotificationOLD(ax_observer *Observer, CFStringRef Notification);
 

@@ -8,7 +8,7 @@
 internal void
 AXLibUpdateApplicationFocus(ax_application *Application, AXUIElementRef WindowRef)
 {
-    int WID = AXLibGetWindowID(WindowRef);
+    uint32_t WID = AXLibGetWindowID(WindowRef);
     ax_window *Window = AXLibFindApplicationWindow(Application, WID);
     if(Window)
         Application->Focus = Window;
@@ -17,7 +17,7 @@ AXLibUpdateApplicationFocus(ax_application *Application, AXUIElementRef WindowRe
 internal void
 AXLibUpdateApplicationWindowTitle(ax_application *Application, AXUIElementRef WindowRef)
 {
-    int WID = AXLibGetWindowID(WindowRef);
+    uint32_t WID = AXLibGetWindowID(WindowRef);
     ax_window *Window = AXLibFindApplicationWindow(Application, WID);
     if(Window)
         Window->Name = AXLibGetWindowTitle(WindowRef);
@@ -35,7 +35,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     else if(CFEqual(Notification, kAXUIElementDestroyedNotification))
     {
         printf("%s: kAXUIElementDestroyedNotification\n", Application->Name.c_str());
-        int WID = AXLibGetWindowID(Element);
+        uint32_t WID = AXLibGetWindowID(Element);
         AXLibRemoveApplicationWindow(Application, WID);
     }
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
@@ -70,7 +70,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     }
 }
 
-ax_application AXLibConstructApplication(int PID, std::string Name)
+ax_application AXLibConstructApplication(pid_t PID, std::string Name)
 {
     ax_application Application = {};
 
@@ -138,16 +138,16 @@ void AXLibAddApplicationWindows(ax_application *Application)
 
 void AXLibRemoveApplicationWindows(ax_application *Application)
 {
-    std::map<int, ax_window>::iterator It;
+    std::map<uint32_t, ax_window>::iterator It;
     for(It = Application->Windows.begin(); It != Application->Windows.end(); ++It)
         AXLibDestroyWindow(&It->second);
 
     Application->Windows.clear();
 }
 
-ax_window *AXLibFindApplicationWindow(ax_application *Application, int WID)
+ax_window *AXLibFindApplicationWindow(ax_application *Application, uint32_t WID)
 {
-    std::map<int, ax_window>::iterator It;
+    std::map<uint32_t, ax_window>::iterator It;
     It = Application->Windows.find(WID);
     if(It != Application->Windows.end())
         return &It->second;
@@ -161,7 +161,7 @@ void AXLibAddApplicationWindow(ax_application *Application, ax_window Window)
         Application->Windows[Window.ID] = Window;
 }
 
-void AXLibRemoveApplicationWindow(ax_application *Application, int WID)
+void AXLibRemoveApplicationWindow(ax_application *Application, uint32_t WID)
 {
     ax_window *Window = AXLibFindApplicationWindow(Application, WID);
     if(Window)

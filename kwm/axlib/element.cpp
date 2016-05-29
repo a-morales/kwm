@@ -89,9 +89,9 @@ bool AXLibSetWindowSize(AXUIElementRef WindowRef, int Width, int Height)
     return Result;
 }
 
-int AXLibGetWindowID(AXUIElementRef WindowRef)
+uint32_t AXLibGetWindowID(AXUIElementRef WindowRef)
 {
-    int WindowID = -1;
+    uint32_t WindowID = -1;
     _AXUIElementGetWindow(WindowRef, &WindowID);
     return WindowID;
 }

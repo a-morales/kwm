@@ -92,7 +92,7 @@ extern "C" CFArrayRef CGSCopySpacesForWindows(int cid, int type, CFArrayRef wind
 #define CGSDefaultConnection _CGSDefaultConnection()
 extern "C" int _CGSDefaultConnection(void);
 
-extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *);
+extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, uint32_t *);
 
 enum focus_option
 {

@@ -35,7 +35,7 @@ ax_window *AXLibGetFocusedWindow(ax_application *Application)
     AXUIElementRef Ref = (AXUIElementRef) AXLibGetWindowProperty(Application->Ref, kAXFocusedWindowAttribute);
     if(Ref)
     {
-        int WID = AXLibGetWindowID(Ref);
+        uint32_t WID = AXLibGetWindowID(Ref);
         CFRelease(Ref);
 
         ax_window *Window = AXLibFindApplicationWindow(Application, WID);

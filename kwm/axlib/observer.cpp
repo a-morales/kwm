@@ -7,7 +7,7 @@
 /* NOTE(koekeishiya): For compatibility with current Kwm code
  * TODO: Remove.
  */
-ax_observer AXLibConstructObserver(int PID, ObserverCallback Callback)
+ax_observer AXLibConstructObserver(pid_t PID, ObserverCallback Callback)
 {
     ax_observer Observer = {};
 

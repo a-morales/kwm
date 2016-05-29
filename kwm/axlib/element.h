@@ -4,14 +4,14 @@
 #include <Carbon/Carbon.h>
 #include <string>
 
-extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, int *WID);
+extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, uint32_t *WID);
 
 bool AXLibIsWindowResizable(AXUIElementRef WindowRef);
 bool AXLibIsWindowMovable(AXUIElementRef WindowRef);
 
 bool AXLibSetWindowPosition(AXUIElementRef WindowRef, int X, int Y);
 bool AXLibSetWindowSize(AXUIElementRef WindowRef, int Width, int Height);
-int AXLibGetWindowID(AXUIElementRef WindowRef);
+uint32_t AXLibGetWindowID(AXUIElementRef WindowRef);
 
 CFTypeRef AXLibGetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property);
 AXError AXLibSetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property, CFTypeRef Value);
