@@ -2,12 +2,12 @@
 #define AXLIB_OBSERVER_H
 
 #include <Carbon/Carbon.h>
-#include "types.h"
 
 #define OBSERVER_CALLBACK(name) void name(AXObserverRef Observer, AXUIElementRef Element,\
                                           CFStringRef Notification, void *Reference)
 typedef OBSERVER_CALLBACK(ObserverCallback);
 
+struct ax_application;
 struct ax_observer
 {
     ax_application *Application;

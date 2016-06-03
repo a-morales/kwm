@@ -4,8 +4,6 @@
 #include <Carbon/Carbon.h>
 #include <string>
 
-#include "types.h"
-
 enum ax_window_flags
 {
     AXWindow_Movable = (1 << 0),
@@ -19,6 +17,7 @@ struct ax_window_role
     CFTypeRef Subrole;
 };
 
+struct ax_application;
 struct ax_window
 {
     ax_application *Application;

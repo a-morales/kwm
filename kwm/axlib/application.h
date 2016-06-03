@@ -7,7 +7,6 @@
 #include <string>
 #include <map>
 
-#include "types.h"
 #include "window.h"
 #include "observer.h"
 

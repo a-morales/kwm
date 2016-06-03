@@ -1,7 +1,6 @@
 #ifndef AXLIB_MAIN_H
 #define AXLIB_MAIN_H
 
-#include "types.h"
 #include "observer.h"
 #include "element.h"
 #include "window.h"
