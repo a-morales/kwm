@@ -1,6 +1,9 @@
 #ifndef AXLIB_EVENT_H
 #define AXLIB_EVENT_H
 
+#include <pthread.h>
+#include <queue>
+
 struct ax_event;
 
 #define EVENT_CALLBACK(name) void name(ax_event *Event)
@@ -38,8 +41,16 @@ struct ax_event
     void *Context;
 };
 
+struct ax_event_loop
+{
+    bool Running;
+    pthread_t Worker;
+    std::queue<ax_event> Queue;
+};
+
+void AXLibStartEventLoop();
+void AXLibStopEventLoop();
 void AXLibAddEvent(ax_event Event);
-void AXLibProcessEventQueue();
 
 /* NOTE(koekeishiya): Construct an ax_event with the appropriate callback through macro expansion. */
 #define AXLibConstructEvent(EventType, EventContext) \

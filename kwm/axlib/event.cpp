@@ -1,21 +1,19 @@
 #include "event.h"
-#include <queue>
 #include <unistd.h>
 #include <stdlib.h>
 
 #define internal static
 
-/* NOTE(koekeishiya): Replace with linked list (?) */
-internal std::queue<ax_event> AXEventQueue;
+internal ax_event_loop EventLoop = {};
 
 /* TODO(koekeishiya): Must be thread-safe. Called through AXLibConstructEvent macro */
 void AXLibAddEvent(ax_event Event)
 {
     if(Event.Handle)
-        AXEventQueue.push(Event);
+        EventLoop.Queue.push(Event);
 }
 
-/* NOTE(koekeishiya): Free event context after processing. */
+/* TODO(koekeishiya): Should event context be freed (?) */
 internal void
 AXLibDestroyEvent(ax_event *Event)
 {
@@ -26,21 +24,46 @@ AXLibDestroyEvent(ax_event *Event)
     Event->Context = NULL;
 }
 
-/* TODO(koekeishiya): Uses dynamic dispatch to process events of any type.
-                      Should this run on a separate thread by default (?) */
-void AXLibProcessEventQueue()
+/* NOTE(koekeishiya): Uses dynamic dispatch to process events of any type. */
+internal void *
+AXLibProcessEventQueue(void *)
 {
-    for(;;)
+    while(EventLoop.Running)
     {
-        while(!AXEventQueue.empty())
+        while(!EventLoop.Queue.empty())
         {
-            ax_event Event = AXEventQueue.front();
-            AXEventQueue.pop();
+            ax_event Event = EventLoop.Queue.front();
+            EventLoop.Queue.pop();
 
             (*Event.Handle)(&Event);
             AXLibDestroyEvent(&Event);
         }
 
         usleep(100000);
+    }
+
+    return NULL;
+}
+
+void AXLibStartEventLoop()
+{
+    if(!EventLoop.Running)
+    {
+        while(!EventLoop.Queue.empty())
+            EventLoop.Queue.pop();
+
+        EventLoop.Running = true;
+        pthread_create(&EventLoop.Worker, NULL, &AXLibProcessEventQueue, NULL);
+    }
+}
+
+void AXLibStopEventLoop()
+{
+    if(EventLoop.Running)
+    {
+        EventLoop.Running = false;
+
+        void *Unused;
+        pthread_join(EventLoop.Worker, &Unused);
     }
 }
