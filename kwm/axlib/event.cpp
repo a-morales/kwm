@@ -37,10 +37,11 @@ void AXLibAddEvent(ax_event Event)
 internal void
 AXLibDestroyEvent(ax_event *Event)
 {
-    free(Event->Context);
+    if(Event->Context)
+        free(Event->Context);
+
     Event->Handle = NULL;
     Event->Context = NULL;
-    Event->Type = AXEvent_None;
 }
 
 /* TODO(koekeishiya): Uses dynamic dispatch to process events of any type.

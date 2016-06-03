@@ -15,12 +15,8 @@ extern EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized);
 extern EVENT_CALLBACK(Callback_AXEvent_KeyDown);
 extern EVENT_CALLBACK(Callback_AXEvent_MouseMoved);
 
-
 enum ax_event_type
 {
-    AXEvent_None,
-    AXEvent_Unknown,
-
     AXEvent_WindowCreated,
     AXEvent_WindowDestroyed,
 
@@ -30,9 +26,7 @@ enum ax_event_type
     AXEvent_WindowDeminimized,
 
     AXEvent_KeyDown,
-    AXEvent_MouseMoved,
-
-    AXEvent_Count
+    AXEvent_MouseMoved
 };
 
 struct ax_event
@@ -49,12 +43,8 @@ void AXLibProcessEventQueue();
     do { ax_event Event = {}; \
          Event.Type = EventType; \
          Event.Context = EventContext; \
-         if((EventType != AXEvent_None) && \
-            (EventType != AXEvent_Unknown)) \
-         { \
-             Event.Handle = &Callback_##EventType; \
-             AXLibAddEvent(Event); \
-         } \
+         Event.Handle = &Callback_##EventType; \
+         AXLibAddEvent(Event); \
        } while(0)
 
 #endif
