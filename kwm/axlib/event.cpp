@@ -1,80 +1,33 @@
 #include "event.h"
 #include <queue>
 #include <unistd.h>
+#include <stdlib.h>
 
 #define internal static
 
 /* NOTE(koekeishiya): Replace with linked list (?) */
 std::queue<ax_event> AXEventQueue;
 
-EVENT_CALLBACK(AXEventWindowCreated);
-EVENT_CALLBACK(AXEventWindowDestroyed);
-
-EVENT_CALLBACK(AXEventWindowMoved);
-EVENT_CALLBACK(AXEventWindowResized);
-EVENT_CALLBACK(AXEventWindowMinimized);
-EVENT_CALLBACK(AXEventWindowDeminimized);
-
-EVENT_CALLBACK(AXEventKeyDown);
-
-/* TODO(koekeishiya): Must be thread-safe */
-void AXLibConstructEvent(ax_event_type Type, void *Context)
+/* TODO(koekeishiya): Construct an ax_event with the appropriate callback
+ *                    through macro expansion.
+ *
+ *                    Remove me. */
+internal void
+TestEventMacro()
 {
-    ax_event Event = {};
-    Event.Type = Type;
-    Event.Context = Context;
+    AXLibConstructEvent(AXEvent_WindowCreated, NULL);
+}
 
-    switch(Type)
-    {
-        case AXEvent_None:
-        {
-            printf("%d: This should not happen!\n", Type);
-        } break;
-        case AXEvent_Unknown:
-        {
-            printf("%d: Unknown\n", Type);
-        } break;
-        case AXEvent_WindowCreated:
-        {
-            printf("%d: WindowCreated\n", Type);
-            Event.Handle = &AXEventWindowCreated;
-        } break;
-        case AXEvent_WindowDestroyed:
-        {
-            printf("%d: WindowDestroyed\n", Type);
-            Event.Handle = &AXEventWindowDestroyed;
-        } break;
-        case AXEvent_WindowMoved:
-        {
-            printf("%d: WindowMoved\n", Type);
-            Event.Handle = &AXEventWindowMoved;
-        } break;
-        case AXEvent_WindowResized:
-        {
-            printf("%d: WindowResized\n", Type);
-            Event.Handle = &AXEventWindowResized;
-        } break;
-        case AXEvent_WindowMinimized:
-        {
-            printf("%d: WindowMinimized\n", Type);
-            Event.Handle = &AXEventWindowMinimized;
-        } break;
-        case AXEvent_WindowDeminimized:
-        {
-            printf("%d: WindowDeminimized\n", Type);
-            Event.Handle = &AXEventWindowDeminimized;
-        } break;
-        case AXEvent_KeyDown
-        {
-            printf("%d: KeyDown\n", Type);
-            Event.Handle = &AXEventKeyDown;
-        } break;
-        default:
-        {
-            printf("%d: NYI\n", Type);
-        } break;
-    }
+/* TODO(koekeishiya): Defines the callback for event_type AXEvent_WindowCreated.
+ *                    These callbacks should be defined in user-code and has been
+ *                    marked as external inside axlib/event.h */
+EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
+{
+}
 
+/* TODO(koekeishiya): Must be thread-safe. Called through AXLibConstructEvent macro */
+void AXLibAddEvent(ax_event Event)
+{
     if(Event.Handle)
         AXEventQueue.push(Event);
 }
