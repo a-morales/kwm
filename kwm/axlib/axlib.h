@@ -7,6 +7,7 @@
 #include "window.h"
 #include "application.h"
 #include "sharedworkspace.h"
+#include "event.h"
 
 /*
  * NOTE(koekeishiya):
