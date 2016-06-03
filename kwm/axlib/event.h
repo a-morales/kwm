@@ -1,11 +1,13 @@
-#ifndef AX_EVENT_H
-#define AX_EVENT_H
+#ifndef AXLIB_EVENT_H
+#define AXLIB_EVENT_H
 
 struct ax_event;
 
 #define EVENT_CALLBACK(name) void name(ax_event *Event)
 typedef EVENT_CALLBACK(EventCallback);
 
+/* NOTE(koekeishiya): Declare ax_event_type callbacks as external functions.
+ *                    These callbacks should be defined in user-code as necessary. */
 extern EVENT_CALLBACK(Callback_AXEvent_WindowCreated);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowMoved);
@@ -39,6 +41,7 @@ struct ax_event
 void AXLibAddEvent(ax_event Event);
 void AXLibProcessEventQueue();
 
+/* NOTE(koekeishiya): Construct an ax_event with the appropriate callback through macro expansion. */
 #define AXLibConstructEvent(EventType, EventContext) \
     do { ax_event Event = {}; \
          Event.Type = EventType; \

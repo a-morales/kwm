@@ -8,23 +8,6 @@
 /* NOTE(koekeishiya): Replace with linked list (?) */
 std::queue<ax_event> AXEventQueue;
 
-/* TODO(koekeishiya): Construct an ax_event with the appropriate callback
- *                    through macro expansion.
- *
- *                    Remove me. */
-internal void
-TestEventMacro()
-{
-    AXLibConstructEvent(AXEvent_WindowCreated, NULL);
-}
-
-/* TODO(koekeishiya): Defines the callback for event_type AXEvent_WindowCreated.
- *                    These callbacks should be defined in user-code and has been
- *                    marked as external inside axlib/event.h */
-EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
-{
-}
-
 /* TODO(koekeishiya): Must be thread-safe. Called through AXLibConstructEvent macro */
 void AXLibAddEvent(ax_event Event)
 {
@@ -32,8 +15,7 @@ void AXLibAddEvent(ax_event Event)
         AXEventQueue.push(Event);
 }
 
-/* TODO(koekeishiya): Free event context after processing. Should the
- *                    callback function be responsible for this (?) */
+/* NOTE(koekeishiya): Free event context after processing. */
 internal void
 AXLibDestroyEvent(ax_event *Event)
 {
