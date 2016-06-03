@@ -333,9 +333,11 @@ int main(int argc, char **argv)
     CGEventTapEnable(KWMMach.EventTap, true);
     CreateWorkspaceWatcher(KWMMach.WorkspaceWatcher);
 
+#if 0
     // NOTE(koekeishiya): Initialize AXLIB
-    // AXLibInit(&AXApplications);
-    // AXLibRunningApplications();
+    AXLibInit(&AXApplications);
+    AXLibRunningApplications();
+#endif
 
     NSApplicationLoad();
     CFRunLoopRun();
