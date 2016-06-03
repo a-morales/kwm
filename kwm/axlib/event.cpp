@@ -6,7 +6,7 @@
 #define internal static
 
 /* NOTE(koekeishiya): Replace with linked list (?) */
-std::queue<ax_event> AXEventQueue;
+internal std::queue<ax_event> AXEventQueue;
 
 /* TODO(koekeishiya): Must be thread-safe. Called through AXLibConstructEvent macro */
 void AXLibAddEvent(ax_event Event)
