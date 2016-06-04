@@ -49,9 +49,6 @@ void AXLibStartEventLoop()
 {
     if(!EventLoop.Running)
     {
-        while(!EventLoop.Queue.empty())
-            EventLoop.Queue.pop();
-
         EventLoop.Running = true;
         pthread_create(&EventLoop.Worker, NULL, &AXLibProcessEventQueue, NULL);
     }
@@ -62,8 +59,6 @@ void AXLibStopEventLoop()
     if(EventLoop.Running)
     {
         EventLoop.Running = false;
-
-        void *Unused;
-        pthread_join(EventLoop.Worker, &Unused);
+        pthread_join(EventLoop.Worker, NULL);
     }
 }
