@@ -48,7 +48,7 @@ AXLibProcessEventQueue(void *)
             (*Event.Handle)(&Event);
         }
 
-        while(EventLoop.Queue.empty())
+        while(EventLoop.Queue.empty() && EventLoop.Running)
             pthread_cond_wait(&EventLoop.State, &EventLoop.StateLock);
 
         pthread_mutex_unlock(&EventLoop.StateLock);
