@@ -36,6 +36,23 @@ kwm_border MarkedBorder = {};
 kwm_callback KWMCallback =  {};
 scratchpad Scratchpad = {};
 
+/* TODO(koekeishiya): Should probably be moved to a 'cursor.cpp' or similar in the future,
+                      along with other cursor-related functionality we might want */
+EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
+{
+    pthread_mutex_lock(&KWMThread.Lock);
+    if(!IsSpaceTransitionInProgress())
+    {
+        UpdateActiveScreen();
+
+        if(KWMMode.Focus != FocusModeDisabled &&
+           KWMMode.Focus != FocusModeStandby &&
+           !IsActiveSpaceFloating())
+            FocusWindowBelowCursor();
+    }
+    pthread_mutex_unlock(&KWMThread.Lock);
+}
+
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
     switch(Type)
@@ -93,18 +110,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
-            /* TODO(koekeishiya): Should trigger an AXEvent_MouseMoved instead */
-            pthread_mutex_lock(&KWMThread.Lock);
-            if(!IsSpaceTransitionInProgress())
-            {
-                UpdateActiveScreen();
-
-                if(KWMMode.Focus != FocusModeDisabled &&
-                   KWMMode.Focus != FocusModeStandby &&
-                   !IsActiveSpaceFloating())
-                    FocusWindowBelowCursor();
-            }
-            pthread_mutex_unlock(&KWMThread.Lock);
+            AXLibConstructEvent(AXEvent_MouseMoved, NULL);
         } break;
         default: {} break;
     }
