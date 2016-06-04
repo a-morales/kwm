@@ -17,7 +17,7 @@ extern EVENT_CALLBACK(Callback_AXEvent_WindowMoved);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowResized);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowMinimized);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized);
-extern EVENT_CALLBACK(Callback_AXEvent_KeyDown);
+extern EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed);
 extern EVENT_CALLBACK(Callback_AXEvent_MouseMoved);
 
 enum ax_event_type

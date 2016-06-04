@@ -2,10 +2,8 @@
 #define KEYS_H
 
 #include "types.h"
-#include "axlib/event.h"
 
 void CreateHotkeyFromCGEvent(CGEventRef Event, hotkey *Hotkey);
-EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed);
 
 void KwmAddHotkey(std::string KeySym, std::string Command, bool Passthrough, bool KeycodeInHex);
 void KwmRemoveHotkey(std::string KeySym, bool KeycodeInHex);
