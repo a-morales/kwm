@@ -5,6 +5,8 @@
 #include "border.h"
 #include "command.h"
 
+#include "axlib/event.h"
+
 #define internal static
 
 extern kwm_focus KWMFocus;
@@ -424,25 +426,25 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string 
     return false;
 }
 
-void *KwmMainHotkeyTrigger(void *HotkeyPtr)
+EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed)
 {
-    while(true)
+    DEBUG("AXEvent_HotkeyPressed: Hotkey activated");
+    if(Event->Context)
     {
-        while(!KWMHotkeys.Queue.empty())
-        {
-            hotkey Hotkey = KWMHotkeys.Queue.front();
-            KWMHotkeys.Queue.pop();
+        hotkey *Hotkey = (hotkey *) Event->Context;
 
-            pthread_mutex_lock(&KWMThread.Lock);
-            if(IsHotkeyStateReqFulfilled(&Hotkey))
-                KwmExecuteHotkey(&Hotkey);
-            pthread_mutex_unlock(&KWMThread.Lock);
-        }
+        pthread_mutex_lock(&KWMThread.Lock);
+        if(IsHotkeyStateReqFulfilled(Hotkey))
+            KwmExecuteHotkey(Hotkey);
+        pthread_mutex_unlock(&KWMThread.Lock);
 
-        usleep(10000);
+        free(Hotkey);
+    }
+    else
+    {
+        DEBUG("AXEvent_HotkeyPressed: Invalid Event Context!");
     }
 
-    return NULL;
 }
 
 void KwmEmitKeystrokes(std::string Text)

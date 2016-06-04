@@ -11,11 +11,12 @@
 #include "config.h"
 #include "command.h"
 
+#include "axlib/axlib.h"
+
 #define internal static
 
 #if 0
-#include "axlib/axlib.h"
-std::map<pid_t, ax_application> AXApplications;
+    std::map<pid_t, ax_application> AXApplications;
 #endif
 
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
@@ -50,18 +51,26 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyDown:
         {
+            /* TODO(koekeishiya): Is there a better way to decide whether
+                                  we should eat the CGEventRef or not (?) */
             if(KWMToggles.UseBuiltinHotkeys)
             {
-                hotkey Eventkey = {}, Hotkey = {};
-                CreateHotkeyFromCGEvent(Event, &Eventkey);
-                if(HotkeyExists(Eventkey.Mod, Eventkey.Key, &Hotkey, KWMHotkeys.ActiveMode->Name))
+                hotkey Eventkey = {}, *Hotkey = NULL;
+                Hotkey = (hotkey *) calloc(1, sizeof(hotkey));
+                if(Hotkey)
                 {
-                    KWMHotkeys.Queue.push(Hotkey);
-                    if(!Hotkey.Passthrough)
-                        return NULL;
+                    CreateHotkeyFromCGEvent(Event, &Eventkey);
+                    if(HotkeyExists(Eventkey.Mod, Eventkey.Key, Hotkey, KWMHotkeys.ActiveMode->Name))
+                    {
+                        AXLibConstructEvent(AXEvent_HotkeyPressed, Hotkey);
+                        if(!Hotkey->Passthrough)
+                            return NULL;
+                    }
                 }
             }
 
+            /* TODO(koekeishiya): Used for autofocus only, consider removing this feature
+                                  if behaviour cannot be improved (?) */
             if(KWMMode.Focus == FocusModeAutofocus &&
                !IsActiveSpaceFloating())
             {
@@ -72,6 +81,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventKeyUp:
         {
+            /* TODO(koekeishiya): Used for autofocus only, consider removing this feature
+                                  if behaviour cannot be improved (?) */
             if(KWMMode.Focus == FocusModeAutofocus &&
                !IsActiveSpaceFloating())
             {
@@ -82,6 +93,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
+            /* TODO(koekeishiya): Should trigger an AXEvent_MouseMoved instead */
             pthread_mutex_lock(&KWMThread.Lock);
             if(!IsSpaceTransitionInProgress())
             {
@@ -292,7 +304,6 @@ KwmInit()
     KwmExecuteInitScript();
 
     pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
-    pthread_create(&KWMThread.Hotkey, NULL, &KwmMainHotkeyTrigger, NULL);
     FocusWindowOfOSX();
 }
 
@@ -338,6 +349,9 @@ int main(int argc, char **argv)
     AXLibInit(&AXApplications);
     AXLibRunningApplications();
 #endif
+
+
+    AXLibStartEventLoop();
 
     NSApplicationLoad();
     CFRunLoopRun();

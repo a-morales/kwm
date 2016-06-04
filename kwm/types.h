@@ -364,7 +364,6 @@ struct kwm_border
 
 struct kwm_hotkeys
 {
-    std::queue<hotkey> Queue;
     std::map<std::string, mode> Modes;
 
     mode *ActiveMode;
@@ -457,7 +456,6 @@ struct kwm_thread
 {
     pthread_t WindowMonitor;
     pthread_t SystemCommand;
-    pthread_t Hotkey;
     pthread_t Daemon;
     pthread_mutex_t Lock;
 };
