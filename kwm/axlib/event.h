@@ -30,7 +30,7 @@ enum ax_event_type
     AXEvent_WindowMinimized,
     AXEvent_WindowDeminimized,
 
-    AXEvent_KeyDown,
+    AXEvent_HotkeyPressed,
     AXEvent_MouseMoved
 };
 
@@ -43,8 +43,11 @@ struct ax_event
 
 struct ax_event_loop
 {
-    bool Running;
+    pthread_cond_t State;
+    pthread_mutex_t StateLock;
+    pthread_mutex_t WorkerLock;
     pthread_t Worker;
+    bool Running;
     std::queue<ax_event> Queue;
 };
 
