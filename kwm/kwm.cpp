@@ -36,21 +36,49 @@ kwm_border MarkedBorder = {};
 kwm_callback KWMCallback =  {};
 scratchpad Scratchpad = {};
 
+/* TODO(koekeishiya): Need to keep track of windows on the currently active space using 'CGCopyWindowList..' to get
+                      z-ordering used for focus-follows-mouse. There are also cases in which applications doesn't seem
+                      to trigger a kAXWindowCreated notification, so we probably have to pick these up from this list. */
+EVENT_CALLBACK(Callback_AXEvent_WindowList)
+{
+    if(KWMTiling.MonitorWindows)
+    {
+        CheckPrefixTimeout();
+        if(!IsSpaceTransitionInProgress() &&
+           IsActiveSpaceManaged())
+        {
+            // DEBUG("AXEvent_WindowList: Refresh window list");
+            pthread_mutex_lock(&KWMThread.Lock);
+
+            if(KWMScreen.Transitioning)
+                KWMScreen.Transitioning = false;
+            else
+                UpdateWindowTree();
+
+            pthread_mutex_unlock(&KWMThread.Lock);
+        }
+    }
+
+}
+
 /* TODO(koekeishiya): Should probably be moved to a 'cursor.cpp' or similar in the future,
                       along with other cursor-related functionality we might want */
 EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
 {
-    pthread_mutex_lock(&KWMThread.Lock);
     if(!IsSpaceTransitionInProgress())
     {
+        // DEBUG("AXEvent_MouseMoved: Mouse moved");
+        pthread_mutex_lock(&KWMThread.Lock);
+
         UpdateActiveScreen();
 
         if(KWMMode.Focus != FocusModeDisabled &&
            KWMMode.Focus != FocusModeStandby &&
            !IsActiveSpaceFloating())
             FocusWindowBelowCursor();
+
+        pthread_mutex_unlock(&KWMThread.Lock);
     }
-    pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
@@ -123,22 +151,7 @@ KwmWindowMonitor(void*)
 {
     while(1)
     {
-        if(KWMTiling.MonitorWindows)
-        {
-            pthread_mutex_lock(&KWMThread.Lock);
-            CheckPrefixTimeout();
-            if(!IsSpaceTransitionInProgress() &&
-               IsActiveSpaceManaged())
-            {
-                if(KWMScreen.Transitioning)
-                    KWMScreen.Transitioning = false;
-                else
-                    UpdateWindowTree();
-            }
-
-            pthread_mutex_unlock(&KWMThread.Lock);
-        }
-
+        AXLibConstructEvent(AXEvent_WindowList, NULL);
         usleep(200000);
     }
 }
