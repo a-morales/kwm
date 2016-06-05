@@ -11,17 +11,29 @@ typedef EVENT_CALLBACK(EventCallback);
 
 /* NOTE(koekeishiya): Declare ax_event_type callbacks as external functions.
  *                    These callbacks should be defined in user-code as necessary. */
+extern EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched);
+extern EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated);
+extern EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated);
+
 extern EVENT_CALLBACK(Callback_AXEvent_WindowCreated);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowMoved);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowResized);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowMinimized);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized);
+
+extern EVENT_CALLBACK(Callback_AXEvent_SpaceChanged);
+
+extern EVENT_CALLBACK(Callback_AXEvent_WindowList);
 extern EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed);
 extern EVENT_CALLBACK(Callback_AXEvent_MouseMoved);
 
 enum ax_event_type
 {
+    AXEvent_ApplicationLaunched,
+    AXEvent_ApplicationTerminated,
+    AXEvent_ApplicationActivated,
+
     AXEvent_WindowCreated,
     AXEvent_WindowDestroyed,
 
@@ -30,8 +42,11 @@ enum ax_event_type
     AXEvent_WindowMinimized,
     AXEvent_WindowDeminimized,
 
+    AXEvent_SpaceChanged,
+
+    AXEvent_WindowList,
     AXEvent_HotkeyPressed,
-    AXEvent_MouseMoved
+    AXEvent_MouseMoved,
 };
 
 struct ax_event
