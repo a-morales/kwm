@@ -66,7 +66,7 @@ struct ax_event_loop
     std::queue<ax_event> Queue;
 };
 
-void AXLibStartEventLoop();
+bool AXLibStartEventLoop();
 void AXLibStopEventLoop();
 void AXLibAddEvent(ax_event Event);
 
