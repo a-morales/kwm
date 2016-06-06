@@ -15,11 +15,9 @@
 
 #define internal static
 
-#if 0
-    std::map<pid_t, ax_application> AXApplications;
-#endif
 
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
+std::map<pid_t, ax_application> AXApplications;
 
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
@@ -361,16 +359,14 @@ int main(int argc, char **argv)
                        kCFRunLoopCommonModes);
 
     CGEventTapEnable(KWMMach.EventTap, true);
-    CreateWorkspaceWatcher(KWMMach.WorkspaceWatcher);
+    // CreateWorkspaceWatcher(KWMMach.WorkspaceWatcher);
 
-#if 0
     // NOTE(koekeishiya): Initialize AXLIB
     AXLibInit(&AXApplications);
+    AXLibStartEventLoop();
+#if 0
     AXLibRunningApplications();
 #endif
-
-
-    AXLibStartEventLoop();
 
     NSApplicationLoad();
     CFRunLoopRun();

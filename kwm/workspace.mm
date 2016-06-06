@@ -3,6 +3,7 @@
 #include "notifications.h"
 #include "axlib/element.h"
 #include "axlib/sharedworkspace.h"
+#include "axlib/event.h"
 
 extern void UpdateActiveSpace();
 extern screen_info *GetDisplayOfWindow(window_info *Window);
@@ -22,79 +23,26 @@ extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
 extern kwm_thread KWMThread;
 
-@interface WorkspaceWatcher : NSObject {
-}
-- (id)init;
-@end
-
-@implementation WorkspaceWatcher
-- (id)init
-{
-    if ((self = [super init]))
-    {
-       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
-                selector:@selector(activeSpaceDidChange:)
-                name:NSWorkspaceActiveSpaceDidChangeNotification
-                object:nil];
-
-       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
-                selector:@selector(didActivateApplication:)
-                name:NSWorkspaceDidActivateApplicationNotification
-                object:nil];
-
-       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
-                selector:@selector(didLaunchApplication:)
-                name:NSWorkspaceDidLaunchApplicationNotification
-                object:nil];
-
-       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
-                selector:@selector(didTerminateApplication:)
-                name:NSWorkspaceDidTerminateApplicationNotification
-                object:nil];
-    }
-
-    return self;
-}
-
-- (void)dealloc
-{
-    [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
-    [super dealloc];
-}
-
-- (void)activeSpaceDidChange:(NSNotification *)notification
+EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
     UpdateActiveSpace();
 }
 
-- (void)didLaunchApplication:(NSNotification *)notification
+EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
 {
-    /* NOTE(koekeishiya): Enable after transitioning to ax_application system
-    pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
-    std::string Name = [[[notification.userInfo objectForKey:NSWorkspaceApplicationKey] localizedName] UTF8String];
-    SharedWorkspaceDidLaunchApplication(PID, Name);
-    */
     FocusWindowOfOSX();
 }
 
-- (void)didTerminateApplication:(NSNotification *)notification
-{
-    /* NOTE(koekeishiya): Enable after transitioning to ax_application system
-    pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
-    SharedWorkspaceDidTerminateApplication(PID);
-    */
-}
-
-- (void)didActivateApplication:(NSNotification *)notification
+EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
 {
     pthread_mutex_lock(&KWMThread.Lock);
 
-    pid_t ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
-    if(ProcessID != -1)
+    pid_t *ProcessID = (pid_t *) Event->Context;
+    if(*ProcessID != -1)
     {
         window_info *Window = KWMFocus.Window;
         screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-        if((Window && Window->PID != ProcessID) || !Window)
+        if((Window && Window->PID != *ProcessID) || !Window)
         {
             AXUIElementRef OSXWindowRef;
             if(AXLibGetFocusedWindow(&OSXWindowRef))
@@ -149,15 +97,8 @@ extern kwm_thread KWMThread;
         }
     }
 
+    free(ProcessID);
     pthread_mutex_unlock(&KWMThread.Lock);
-}
-
-@end
-
-void CreateWorkspaceWatcher(void *Watcher)
-{
-    WorkspaceWatcher *WSWatcher = [[WorkspaceWatcher alloc] init];
-    Watcher = (void*)WSWatcher;
 }
 
 int GetActiveSpaceOfDisplay(screen_info *Screen)

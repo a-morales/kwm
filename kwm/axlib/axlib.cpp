@@ -84,5 +84,5 @@ void AXLibRunningApplications()
 void AXLibInit(std::map<pid_t, ax_application> *Apps)
 {
     AXApplications = Apps;
-    SharedWorkspaceSetApplicationsPointer(AXApplications);
+    SharedWorkspaceInitialize(AXApplications);
 }

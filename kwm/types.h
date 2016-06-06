@@ -345,7 +345,6 @@ struct screen_info
 
 struct kwm_mach
 {
-    void *WorkspaceWatcher;
     CFRunLoopSourceRef RunLoopSource;
     CFMachPortRef EventTap;
     CGEventMask EventMask;
