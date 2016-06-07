@@ -888,7 +888,7 @@ void ToggleWindowFloating(int WindowID, bool Center)
             else if(Space->Settings.Mode == SpaceModeMonocle)
                 AddWindowToMonocleTree(KWMScreen.Current, WindowID);
 
-            if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
+            if(KWMMode.Focus != FocusModeDisabled && KWMToggles.StandbyOnFloat)
                 KWMMode.Focus = FocusModeAutoraise;
         }
         else
@@ -899,7 +899,7 @@ void ToggleWindowFloating(int WindowID, bool Center)
             else if(Space->Settings.Mode == SpaceModeMonocle)
                 RemoveWindowFromMonocleTree(KWMScreen.Current, WindowID, Center, false);
 
-            if(KWMMode.Focus != FocusModeDisabled && KWMMode.Focus != FocusModeAutofocus && KWMToggles.StandbyOnFloat)
+            if(KWMMode.Focus != FocusModeDisabled && KWMToggles.StandbyOnFloat)
                 KWMMode.Focus = FocusModeStandby;
         }
     }
@@ -1487,7 +1487,6 @@ void SetKwmFocus(AXUIElementRef WindowRef)
     }
 
     if(KWMMode.Focus != FocusModeDisabled &&
-       KWMMode.Focus != FocusModeAutofocus &&
        KWMToggles.StandbyOnFloat)
         KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
 }
@@ -1513,7 +1512,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
     AXUIElementSetAttributeValue(WindowRef, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(WindowRef, kAXRaiseAction);
 
-    if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
+    if(KWMMode.Focus != FocusModeStandby)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
     UpdateBorder("focused");
@@ -1525,7 +1524,6 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
 
     DEBUG("SetWindowRefFocus() Focused Window: " << KWMFocus.Window->Name << " " << KWMFocus.Window->X << "," << KWMFocus.Window->Y);
     if(KWMMode.Focus != FocusModeDisabled &&
-       KWMMode.Focus != FocusModeAutofocus &&
        KWMToggles.StandbyOnFloat)
         KWMMode.Focus = IsFocusedWindowFloating() ? FocusModeStandby : FocusModeAutoraise;
 }

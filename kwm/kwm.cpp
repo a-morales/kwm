@@ -102,28 +102,6 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                     }
                 }
             }
-
-            /* TODO(koekeishiya): Used for autofocus only, consider removing this feature
-                                  if behaviour cannot be improved (?) */
-            if(KWMMode.Focus == FocusModeAutofocus &&
-               !IsActiveSpaceFloating())
-            {
-                CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
-                CGEventPostToPSN(&KWMFocus.PSN, Event);
-                return NULL;
-            }
-        } break;
-        case kCGEventKeyUp:
-        {
-            /* TODO(koekeishiya): Used for autofocus only, consider removing this feature
-                                  if behaviour cannot be improved (?) */
-            if(KWMMode.Focus == FocusModeAutofocus &&
-               !IsActiveSpaceFloating())
-            {
-                CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
-                CGEventPostToPSN(&KWMFocus.PSN, Event);
-                return NULL;
-            }
         } break;
         case kCGEventMouseMoved:
         {
@@ -332,7 +310,6 @@ int main(int argc, char **argv)
 
     KwmInit();
     KWMMach.EventMask = ((1 << kCGEventKeyDown) |
-                         (1 << kCGEventKeyUp) |
                          (1 << kCGEventMouseMoved));
 
     KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, kCGEventTapOptionDefault, KWMMach.EventMask, CGEventCallback, NULL);
@@ -342,9 +319,7 @@ int main(int argc, char **argv)
     CFRunLoopAddSource(CFRunLoopGetMain(),
                        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, KWMMach.EventTap, 0),
                        kCFRunLoopCommonModes);
-
     CGEventTapEnable(KWMMach.EventTap, true);
-    // CreateWorkspaceWatcher(KWMMach.WorkspaceWatcher);
 
     // NOTE(koekeishiya): Initialize AXLIB
     AXLibInit(&AXApplications);

@@ -231,14 +231,10 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
         if(Tokens[2] == "toggle")
         {
             if(KWMMode.Focus == FocusModeDisabled)
-                KWMMode.Focus = FocusModeAutofocus;
-            else if(KWMMode.Focus == FocusModeAutofocus)
                 KWMMode.Focus = FocusModeAutoraise;
             else if(KWMMode.Focus == FocusModeAutoraise)
                 KWMMode.Focus = FocusModeDisabled;
         }
-        else if(Tokens[2] == "autofocus")
-            KWMMode.Focus = FocusModeAutofocus;
         else if(Tokens[2] == "autoraise")
             KWMMode.Focus = FocusModeAutoraise;
         else if(Tokens[2] == "off")

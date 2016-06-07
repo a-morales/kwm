@@ -66,9 +66,7 @@ GetStateOfFocusFollowsMouse()
 {
     std::string Output;
 
-    if(KWMMode.Focus == FocusModeAutofocus)
-        Output = "autofocus";
-    else if(KWMMode.Focus == FocusModeAutoraise)
+    if(KWMMode.Focus == FocusModeAutoraise)
         Output = "autoraise";
     else if(KWMMode.Focus == FocusModeDisabled)
         Output = "off";

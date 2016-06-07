@@ -92,7 +92,6 @@ extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, uint32_t *);
 
 enum focus_option
 {
-    FocusModeAutofocus,
     FocusModeAutoraise,
     FocusModeStandby,
     FocusModeDisabled
