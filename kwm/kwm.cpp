@@ -31,7 +31,6 @@ kwm_thread KWMThread = {};
 kwm_hotkeys KWMHotkeys = {};
 kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
-kwm_callback KWMCallback =  {};
 scratchpad Scratchpad = {};
 
 /* TODO(koekeishiya): Need to keep track of windows on the currently active space using 'CGCopyWindowList..' to get
