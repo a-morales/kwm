@@ -1,6 +1,7 @@
 #include "application.h"
 #include "element.h"
 #include "sharedworkspace.h"
+#include "event.h"
 
 #define internal static
 #define local_persist static
@@ -42,6 +43,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     {
         printf("%s: kAXFocusedWindowChangedNotification\n", Application->Name.c_str());
         AXLibUpdateApplicationFocus(Application, Element);
+        AXLibConstructEvent(AXEvent_WindowFocused, NULL);
     }
     else if(CFEqual(Notification, kAXWindowMiniaturizedNotification))
     {
@@ -56,11 +58,13 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     else if(CFEqual(Notification, kAXWindowMovedNotification))
     {
         printf("%s: kAXWindowMovedNotification\n", Application->Name.c_str());
+        AXLibConstructEvent(AXEvent_WindowMoved, NULL);
         /* TODO(koekeishiya): NYI */
     }
     else if(CFEqual(Notification, kAXWindowResizedNotification))
     {
         printf("%s: kAXWindowResizedNotification\n", Application->Name.c_str());
+        AXLibConstructEvent(AXEvent_WindowResized, NULL);
         /* TODO(koekeishiya): NYI */
     }
     else if(CFEqual(Notification, kAXTitleChangedNotification))
