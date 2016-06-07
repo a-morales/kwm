@@ -74,10 +74,12 @@ void AXLibRunningApplications()
         {
             std::string Name = It->second;
             (*AXApplications)[PID] = AXLibConstructApplication(PID, Name);
-            AXLibAddApplicationObserver(&(*AXApplications)[PID]);
+            AXLibInitializeApplication(&(*AXApplications)[PID]);
         }
-
-        AXLibAddApplicationWindows(&(*AXApplications)[PID]);
+        else
+        {
+            AXLibAddApplicationWindows(&(*AXApplications)[PID]);
+        }
     }
 }
 

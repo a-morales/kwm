@@ -2,6 +2,7 @@
 #include "element.h"
 #include "sharedworkspace.h"
 #include "event.h"
+#include "axlib.h"
 
 #define internal static
 #define local_persist static
@@ -84,6 +85,13 @@ ax_application AXLibConstructApplication(pid_t PID, std::string Name)
     Application.PID = PID;
 
     return Application;
+}
+
+void AXLibInitializeApplication(ax_application *Application)
+{
+    AXLibAddApplicationObserver(Application);
+    AXLibAddApplicationWindows(Application);
+    Application->Focus = AXLibGetFocusedWindow(Application);
 }
 
 void AXLibAddApplicationObserver(ax_application *Application)

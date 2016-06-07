@@ -56,20 +56,21 @@ bool SharedWorkspaceIsApplicationActive(pid_t PID)
     return Result == YES;
 }
 
-/* TODO(koekeishiya): Can probably be removed */
-void SharedWorkspaceDidLaunchApplication(pid_t PID, std::string Name)
+internal void
+SharedWorkspaceDidActivateApplication(pid_t PID)
 {
-    (*Applications)[PID] = AXLibConstructApplication(PID, Name);
-}
-
-/* TODO(koekeishiya): Can probably be removed */
-void SharedWorkspaceDidTerminateApplication(pid_t PID)
-{
-    std::map<pid_t, ax_application>::iterator It = Applications->find(PID);
-    if(It != Applications->end())
+    pid_t *ProcessID = (pid_t *) malloc(sizeof(pid_t));
+    if(ProcessID)
     {
-        AXLibDestroyApplication(&It->second);
-        Applications->erase(PID);
+        *ProcessID = PID;
+        if(Applications->find(*ProcessID) != Applications->end())
+        {
+            AXLibConstructEvent(AXEvent_ApplicationActivated, ProcessID);
+        }
+        else
+        {
+            free(ProcessID);
+        }
     }
 }
 
@@ -85,11 +86,6 @@ void SharedWorkspaceDidTerminateApplication(pid_t PID)
                 object:nil];
 
        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
-                selector:@selector(didActivateApplication:)
-                name:NSWorkspaceDidActivateApplicationNotification
-                object:nil];
-
-       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(didLaunchApplication:)
                 name:NSWorkspaceDidLaunchApplicationNotification
                 object:nil];
@@ -97,6 +93,11 @@ void SharedWorkspaceDidTerminateApplication(pid_t PID)
        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(didTerminateApplication:)
                 name:NSWorkspaceDidTerminateApplicationNotification
+                object:nil];
+
+       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                selector:@selector(didActivateApplication:)
+                name:NSWorkspaceDidActivateApplicationNotification
                 object:nil];
     }
 
@@ -116,29 +117,34 @@ void SharedWorkspaceDidTerminateApplication(pid_t PID)
 
 - (void)didLaunchApplication:(NSNotification *)notification
 {
-    /* NOTE(koekeishiya): Enable after transitioning to ax_application system
     pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
     std::string Name = [[[notification.userInfo objectForKey:NSWorkspaceApplicationKey] localizedName] UTF8String];
-    SharedWorkspaceDidLaunchApplication(PID, Name);
-    */
+    (*Applications)[PID] = AXLibConstructApplication(PID, Name);
+    AXLibInitializeApplication(&(*Applications)[PID]);
+    AXLibConstructEvent(AXEvent_ApplicationLaunched, NULL);
+
+    /* NOTE(koekeishiya): When an application is launched for the first time, the 'didActivateApplication' notification
+                          is triggered first for some reason. Restore consistency by calling the appropriate function manually,
+                          when the notification can be processed properly. */
+    SharedWorkspaceDidActivateApplication(PID);
 }
 
 - (void)didTerminateApplication:(NSNotification *)notification
 {
-    /* NOTE(koekeishiya): Enable after transitioning to ax_application system
     pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
-    SharedWorkspaceDidTerminateApplication(PID);
-    */
+    std::map<pid_t, ax_application>::iterator It = Applications->find(PID);
+    if(It != Applications->end())
+    {
+        AXLibDestroyApplication(&It->second);
+        Applications->erase(PID);
+        // AXLibConstructEvent(AXEvent_ApplicationTerminated, NULL);
+    }
 }
 
 - (void)didActivateApplication:(NSNotification *)notification
 {
-    pid_t *ProcessID = (pid_t *) malloc(sizeof(pid_t));
-    if(ProcessID)
-    {
-        *ProcessID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
-        AXLibConstructEvent(AXEvent_ApplicationActivated, ProcessID);
-    }
+    pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
+    SharedWorkspaceDidActivateApplication(PID);
 }
 
 @end

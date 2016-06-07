@@ -26,6 +26,7 @@ struct ax_application
 };
 
 ax_application AXLibConstructApplication(pid_t PID, std::string Name);
+void AXLibInitializeApplication(ax_application *Application);
 void AXLibDestroyApplication(ax_application *Application);
 
 void AXLibAddApplicationWindows(ax_application *Application);
