@@ -13,9 +13,6 @@ struct ax_observer
     ax_application *Application;
     AXObserverRef Ref;
     bool Valid;
-
-    /* TODO(koekeishiya): Remove after implementing ax_application */
-    AXUIElementRef AppRef;
 };
 
 void AXLibConstructObserver(ax_application *Application, ObserverCallback Callback);
@@ -26,10 +23,5 @@ void AXLibStopObserver(ax_observer *Observer);
 
 void AXLibAddObserverNotification(ax_observer *Observer, CFStringRef Notification, void *Reference);
 void AXLibRemoveObserverNotification(ax_observer *Observer, CFStringRef Notification);
-
-/* TODO(koekeishiya): Remove after implementing ax_application */
-ax_observer AXLibConstructObserver(pid_t PID, ObserverCallback Callback);
-void AXLibAddObserverNotificationOLD(ax_observer *Observer, CFStringRef Notification, void *Reference);
-void AXLibRemoveObserverNotificationOLD(ax_observer *Observer, CFStringRef Notification);
 
 #endif

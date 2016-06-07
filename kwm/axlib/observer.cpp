@@ -4,31 +4,6 @@
 #define internal static
 #define local_persist static
 
-/* NOTE(koekeishiya): For compatibility with current Kwm code
- * TODO: Remove.
- */
-ax_observer AXLibConstructObserver(pid_t PID, ObserverCallback Callback)
-{
-    ax_observer Observer = {};
-
-    AXObserverCreate(PID, Callback, &Observer.Ref);
-    Observer.AppRef = AXUIElementCreateApplication(PID);
-
-    return Observer;
-}
-
-void AXLibAddObserverNotificationOLD(ax_observer *Observer, CFStringRef Notification, void *Reference)
-{
-    AXObserverAddNotification(Observer->Ref, Observer->AppRef, Notification, Reference);
-}
-
-void AXLibRemoveObserverNotificationOLD(ax_observer *Observer, CFStringRef Notification)
-{
-    AXObserverRemoveNotification(Observer->Ref, Observer->AppRef, Notification);
-}
-
-/* END */
-
 void AXLibConstructObserver(ax_application *Application, ObserverCallback Callback)
 {
     AXError Result = AXObserverCreate(Application->PID, Callback, &Application->Observer.Ref);
