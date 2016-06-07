@@ -433,10 +433,8 @@ EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed)
     {
         hotkey *Hotkey = (hotkey *) Event->Context;
 
-        pthread_mutex_lock(&KWMThread.Lock);
         if(IsHotkeyStateReqFulfilled(Hotkey))
             KwmExecuteHotkey(Hotkey);
-        pthread_mutex_unlock(&KWMThread.Lock);
 
         free(Hotkey);
     }

@@ -1,6 +1,5 @@
 #import "Cocoa/Cocoa.h"
 #import "types.h"
-#include "notifications.h"
 #include "axlib/element.h"
 #include "axlib/sharedworkspace.h"
 #include "axlib/event.h"
@@ -35,8 +34,6 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
 {
-    pthread_mutex_lock(&KWMThread.Lock);
-
     pid_t *ProcessID = (pid_t *) Event->Context;
     if(*ProcessID != -1)
     {
@@ -98,7 +95,6 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
     }
 
     free(ProcessID);
-    pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 int GetActiveSpaceOfDisplay(screen_info *Screen)

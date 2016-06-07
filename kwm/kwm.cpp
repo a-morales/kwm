@@ -45,14 +45,10 @@ EVENT_CALLBACK(Callback_AXEvent_WindowList)
            IsActiveSpaceManaged())
         {
             // DEBUG("AXEvent_WindowList: Refresh window list");
-            pthread_mutex_lock(&KWMThread.Lock);
-
             if(KWMScreen.Transitioning)
                 KWMScreen.Transitioning = false;
             else
                 UpdateWindowTree();
-
-            pthread_mutex_unlock(&KWMThread.Lock);
         }
     }
 
@@ -65,16 +61,12 @@ EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
     if(!IsSpaceTransitionInProgress())
     {
         // DEBUG("AXEvent_MouseMoved: Mouse moved");
-        pthread_mutex_lock(&KWMThread.Lock);
-
         UpdateActiveScreen();
 
         if(KWMMode.Focus != FocusModeDisabled &&
            KWMMode.Focus != FocusModeStandby &&
            !IsActiveSpaceFloating())
             FocusWindowBelowCursor();
-
-        pthread_mutex_unlock(&KWMThread.Lock);
     }
 }
 
@@ -273,9 +265,6 @@ KwmInit()
     if(!CheckPrivileges())
         Fatal("Could not access OSX Accessibility!");
 
-    if (pthread_mutex_init(&KWMThread.Lock, NULL) != 0)
-        Fatal("Could not create mutex!");
-
     if(KwmStartDaemon())
         pthread_create(&KWMThread.Daemon, NULL, &KwmDaemonHandleConnectionBG, NULL);
     else
@@ -318,9 +307,6 @@ KwmInit()
     KwmExecuteConfig();
     GetActiveDisplays();
     KwmExecuteInitScript();
-
-    pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
-    FocusWindowOfOSX();
 }
 
 void KwmQuit()
@@ -363,9 +349,10 @@ int main(int argc, char **argv)
     // NOTE(koekeishiya): Initialize AXLIB
     AXLibInit(&AXApplications);
     AXLibStartEventLoop();
-#if 0
     AXLibRunningApplications();
-#endif
+
+    pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
+    FocusWindowOfOSX();
 
     NSApplicationLoad();
     CFRunLoopRun();

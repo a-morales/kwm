@@ -384,9 +384,6 @@ struct kwm_path
 
 struct kwm_focus
 {
-    ax_observer FocusedObserver;
-    ax_observer MarkedObserver;
-
     ProcessSerialNumber PSN;
     window_info *Window;
     window_info Cache;
@@ -452,7 +449,6 @@ struct kwm_thread
     pthread_t WindowMonitor;
     pthread_t SystemCommand;
     pthread_t Daemon;
-    pthread_mutex_t Lock;
 };
 
 #endif

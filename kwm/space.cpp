@@ -4,8 +4,9 @@
 #include "tree.h"
 #include "border.h"
 #include "keys.h"
-#include "notifications.h"
 #include "helpers.h"
+
+#include "axlib/axlib.h"
 
 extern kwm_mach KWMMach;
 extern kwm_tiling KWMTiling;
@@ -243,7 +244,6 @@ void UpdateActiveSpace()
     ClearFocusedWindow();
     ClearMarkedWindow();
 
-    pthread_mutex_lock(&KWMThread.Lock);
     Assert(KWMScreen.Current);
 
     if(KWMTiling.KwmOverlay[0] != 0)
@@ -254,6 +254,7 @@ void UpdateActiveSpace()
     KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
     KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
     ShouldActiveSpaceBeManaged();
+    AXLibRunningApplications();
 
     space_info *Space = NULL;
     if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
@@ -316,7 +317,6 @@ void UpdateActiveSpace()
     if(KWMTiling.KwmOverlay[1] != 0)
         AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[1]);
 
-    pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID)

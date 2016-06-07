@@ -5,13 +5,12 @@
 #include "space.h"
 #include "tree.h"
 #include "application.h"
-#include "notifications.h"
 #include "border.h"
 #include "helpers.h"
 #include "rules.h"
 #include "serializer.h"
 
-#include "axlib/element.h"
+#include "axlib/axlib.h"
 
 #include <cmath>
 
@@ -25,6 +24,25 @@ extern kwm_path KWMPath;
 extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
+
+EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
+{
+    FocusWindowOfOSX();
+    UpdateBorder("focused");
+    UpdateBorder("marked");
+}
+
+EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
+{
+    UpdateBorder("focused");
+    UpdateBorder("marked");
+}
+
+EVENT_CALLBACK(Callback_AXEvent_WindowResized)
+{
+    UpdateBorder("focused");
+    UpdateBorder("marked");
+}
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)
 {
@@ -162,7 +180,6 @@ bool IsWindowOnActiveSpace(int WindowID)
 
 void ClearFocusedWindow()
 {
-    DestroyFocusedWindowNotifications();
     ClearBorder(&FocusedBorder);
     KWMFocus.Window = NULL;
     KWMFocus.Cache = KWMFocus.NULLWindowInfo;
@@ -906,9 +923,6 @@ void ToggleFocusedWindowParentContainer()
     tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
     if(Node && Node->Parent)
     {
-        if(KWMTiling.LockToContainer)
-            DestroyFocusedWindowNotifications();
-
         if(IsLeafNode(Node) && Node->Parent->WindowID == -1)
         {
             DEBUG("ToggleFocusedWindowParentContainer() Set Parent Container");
@@ -925,7 +939,6 @@ void ToggleFocusedWindowParentContainer()
         if(KWMTiling.LockToContainer)
         {
             UpdateBorder("focused");
-            CreateFocusedWindowNotifications();
         }
     }
 }
@@ -938,9 +951,6 @@ void ToggleFocusedWindowFullscreen()
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
     if(Space->Settings.Mode == SpaceModeBSP && !IsLeafNode(Space->RootNode))
     {
-        if(KWMTiling.LockToContainer)
-            DestroyFocusedWindowNotifications();
-
         tree_node *Node = NULL;
         if(Space->RootNode->WindowID == -1)
         {
@@ -967,7 +977,6 @@ void ToggleFocusedWindowFullscreen()
         if(KWMTiling.LockToContainer)
         {
             UpdateBorder("focused");
-            CreateFocusedWindowNotifications();
         }
     }
 }
@@ -989,7 +998,6 @@ void LockWindowToContainerSize(window_info *Window)
 {
     if(Window)
     {
-        DestroyFocusedWindowNotifications();
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
 
@@ -999,8 +1007,6 @@ void LockWindowToContainerSize(window_info *Window)
             ResizeWindowToContainerSize(Node->Parent);
         else
             ResizeWindowToContainerSize();
-
-        CreateFocusedWindowNotifications();
     }
 }
 
@@ -1431,7 +1437,6 @@ void MoveCursorToCenterOfFocusedWindow()
 
 void ClearMarkedWindow()
 {
-    DestroyMarkedWindowNotifications();
     std::memset(&KWMScreen.MarkedWindow, 0, sizeof(window_info));
     ClearBorder(&MarkedBorder);
 }
@@ -1450,7 +1455,6 @@ void MarkWindowContainer(window_info *Window)
             DEBUG("MarkWindowContainer() Marked " << Window->Name);
             KWMScreen.MarkedWindow = *Window;
             UpdateBorder("marked");
-            CreateMarkedWindowNotifications();
         }
     }
 }
@@ -1462,8 +1466,6 @@ void MarkFocusedWindowContainer()
 
 void SetKwmFocus(AXUIElementRef WindowRef)
 {
-    int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
-
     KWMFocus.Cache = GetWindowByRef(WindowRef);
     if(WindowsAreEqual(&KWMFocus.Cache, &KWMFocus.NULLWindowInfo))
     {
@@ -1477,15 +1479,7 @@ void SetKwmFocus(AXUIElementRef WindowRef)
     GetProcessForPID(KWMFocus.Window->PID, &NewPSN);
     KWMFocus.PSN = NewPSN;
 
-    if(!IsActiveSpaceFloating())
-    {
-        if(OldProcessPID != KWMFocus.Window->PID ||
-           !KWMFocus.FocusedObserver.Ref)
-            CreateFocusedWindowNotifications();
-
-        UpdateBorder("focused");
-    }
-
+    UpdateBorder("focused");
     if(KWMToggles.EnableTilingMode)
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
@@ -1500,8 +1494,6 @@ void SetKwmFocus(AXUIElementRef WindowRef)
 
 void SetWindowRefFocus(AXUIElementRef WindowRef)
 {
-    int OldProcessPID = KWMFocus.Window ? KWMFocus.Window->PID : -1;
-
     KWMFocus.Cache = GetWindowByRef(WindowRef);
     if(WindowsAreEqual(&KWMFocus.Cache, &KWMFocus.NULLWindowInfo))
     {
@@ -1524,15 +1516,7 @@ void SetWindowRefFocus(AXUIElementRef WindowRef)
     if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
         SetFrontProcessWithOptions(&KWMFocus.PSN, kSetFrontProcessFrontWindowOnly);
 
-    if(!IsActiveSpaceFloating())
-    {
-        if(OldProcessPID != KWMFocus.Window->PID ||
-           !KWMFocus.FocusedObserver.Ref)
-            CreateFocusedWindowNotifications();
-
-        UpdateBorder("focused");
-    }
-
+    UpdateBorder("focused");
     if(KWMToggles.EnableTilingMode)
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);

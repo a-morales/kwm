@@ -35,7 +35,6 @@ void UpdateDisplayIDForDisplay(int OldDisplayIndex, int NewDisplayIndex)
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
-    pthread_mutex_lock(&KWMThread.Lock);
     static int idx = 0;
     DEBUG("\n[" << idx << "] BEGIN DISPLAY CONFIGURATION CALLBACK");
 
@@ -134,7 +133,6 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
 
     DEBUG("[" << idx << "] END DISPLAY CONFIGURATION CALLBACK\n");
     idx++;
-    pthread_mutex_unlock(&KWMThread.Lock);
 }
 
 screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
