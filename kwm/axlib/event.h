@@ -17,6 +17,7 @@ extern EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated);
 
 extern EVENT_CALLBACK(Callback_AXEvent_WindowCreated);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed);
+extern EVENT_CALLBACK(Callback_AXEvent_WindowFocused);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowMoved);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowResized);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowMinimized);
@@ -37,6 +38,7 @@ enum ax_event_type
     AXEvent_WindowCreated,
     AXEvent_WindowDestroyed,
 
+    AXEvent_WindowFocused,
     AXEvent_WindowMoved,
     AXEvent_WindowResized,
     AXEvent_WindowMinimized,
