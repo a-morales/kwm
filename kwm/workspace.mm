@@ -1,8 +1,7 @@
 #import "Cocoa/Cocoa.h"
 #import "types.h"
-#include "axlib/element.h"
-#include "axlib/sharedworkspace.h"
-#include "axlib/event.h"
+#include "axlib/axlib.h"
+#include "border.h"
 
 extern void UpdateActiveSpace();
 extern screen_info *GetDisplayOfWindow(window_info *Window);
@@ -21,6 +20,7 @@ extern int GetSpaceFromName(screen_info *Screen, std::string Name);
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
 extern kwm_thread KWMThread;
+extern ax_application *FocusedApplication;
 
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
@@ -29,72 +29,20 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
 {
-    FocusWindowOfOSX();
+    ax_application *Application = (ax_application *) Event->Context;
+    DEBUG("AXEvent_ApplicationLaunched: " << Application->Name);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
 {
-    pid_t *ProcessID = (pid_t *) Event->Context;
-    if(*ProcessID != -1)
-    {
-        window_info *Window = KWMFocus.Window;
-        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-        if((Window && Window->PID != *ProcessID) || !Window)
-        {
-            AXUIElementRef OSXWindowRef;
-            if(AXLibGetFocusedWindow(&OSXWindowRef))
-            {
-                int OSXWindowID = AXLibGetWindowID(OSXWindowRef);
-                window_info *OSXWindow = GetWindowByID(OSXWindowID);
-                screen_info *OSXScreen = GetDisplayOfWindow(OSXWindow);
-                if(OSXWindow && OSXScreen)
-                {
-                    space_info *OSXSpace = GetActiveSpaceOfScreen(OSXScreen);
-                    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(OSXSpace->RootNode, OSXWindow->WID);
+    ax_application *Application = (ax_application *) Event->Context;
 
-                    bool Floating = IsWindowFloating(OSXWindow->WID, NULL);
-                    if(TreeNode || Floating)
-                    {
-                        bool SameScreen = OSXScreen == ScreenOfWindow;
-                        if(!SameScreen)
-                            GiveFocusToScreen(OSXScreen->ID, NULL, false, false);
+    // TODO(koekeishiya): Should not be necessary when we stop relying on KWMTiling.WindowLst
+    UpdateActiveWindowList(KWMScreen.Current);
 
-                        if(OSXSpace->Managed)
-                        {
-                            SetKwmFocus(OSXWindowRef);
-                            if(SameScreen && !Floating)
-                                KWMFocus.InsertionPoint = KWMFocus.Cache;
-                        }
-                    }
-                    else
-                    {
-                        ClearFocusedWindow();
-                        ClearMarkedWindow();
-                    }
-                }
-                else
-                {
-                    NSArray *NSArrayWindow = @[ @(OSXWindowID) ];
-                    CFArrayRef Spaces = CGSCopySpacesForWindows(CGSDefaultConnection, 5, (__bridge CFArrayRef)NSArrayWindow);
-                    int NumberOfSpaces = CFArrayGetCount(Spaces);
-                    if(NumberOfSpaces == 0)
-                    {
-                        ClearFocusedWindow();
-                        ClearMarkedWindow();
-                        DEBUG("Application was activated through cmd+tab or the dock!");
-                        KWMScreen.Current->RestoreFocus = false;
-                    }
-                }
-            }
-            else
-            {
-                ClearFocusedWindow();
-                ClearMarkedWindow();
-            }
-        }
-    }
-
-    free(ProcessID);
+    FocusedApplication = Application;
+    DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name);
+    UpdateBorder("focused");
 }
 
 int GetActiveSpaceOfDisplay(screen_info *Screen)

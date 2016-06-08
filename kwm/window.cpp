@@ -14,6 +14,8 @@
 
 #include <cmath>
 
+extern ax_application *FocusedApplication;
+
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
@@ -25,21 +27,31 @@ extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
+EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
+{
+    ax_window *Window = (ax_window *) Event->Context;
+    DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
+}
+
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 {
-    FocusWindowOfOSX();
+    DEBUG("AXEvent_WindowFocused: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
     UpdateBorder("focused");
     UpdateBorder("marked");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
 {
+    ax_window *Window = (ax_window *) Event->Context;
+    DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
     UpdateBorder("focused");
     UpdateBorder("marked");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowResized)
 {
+    ax_window *Window = (ax_window *) Event->Context;
+    DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
     UpdateBorder("focused");
     UpdateBorder("marked");
 }
