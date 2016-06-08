@@ -13,7 +13,8 @@ void AXLibConstructObserver(ax_application *Application, ObserverCallback Callba
 
 void AXLibStartObserver(ax_observer *Observer)
 {
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
+    if(!CFRunLoopContainsSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode))
+        CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
 }
 
 AXError AXLibAddObserverNotification(ax_observer *Observer, AXUIElementRef Ref, CFStringRef Notification, void *Reference)
@@ -28,7 +29,9 @@ void AXLibRemoveObserverNotification(ax_observer *Observer, AXUIElementRef Ref, 
 
 void AXLibStopObserver(ax_observer *Observer)
 {
-    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
+    /* NOTE(koekeishiya): CFRunLoopSourceInvalidate removes the source from all run-loops, ignoring run-loops that no longer exist.
+                          Replaces CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode); */
+    CFRunLoopSourceInvalidate(AXObserverGetRunLoopSource(Observer->Ref));
 }
 
 void AXLibDestroyObserver(ax_observer *Observer)
