@@ -56,21 +56,12 @@ bool SharedWorkspaceIsApplicationActive(pid_t PID)
     return Result == YES;
 }
 
-internal void
+internal inline void
 SharedWorkspaceDidActivateApplication(pid_t PID)
 {
-    pid_t *ProcessID = (pid_t *) malloc(sizeof(pid_t));
-    if(ProcessID)
+    if(Applications->find(PID) != Applications->end())
     {
-        *ProcessID = PID;
-        if(Applications->find(*ProcessID) != Applications->end())
-        {
-            AXLibConstructEvent(AXEvent_ApplicationActivated, ProcessID);
-        }
-        else
-        {
-            free(ProcessID);
-        }
+        AXLibConstructEvent(AXEvent_ApplicationActivated, &(*Applications)[PID]);
     }
 }
 
@@ -121,11 +112,10 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
     std::string Name = [[[notification.userInfo objectForKey:NSWorkspaceApplicationKey] localizedName] UTF8String];
     (*Applications)[PID] = AXLibConstructApplication(PID, Name);
     AXLibInitializeApplication(&(*Applications)[PID]);
-    AXLibConstructEvent(AXEvent_ApplicationLaunched, NULL);
+    AXLibConstructEvent(AXEvent_ApplicationLaunched, &(*Applications)[PID]);
 
-    /* NOTE(koekeishiya): When an application is launched for the first time, the 'didActivateApplication' notification
-                          is triggered first for some reason. Restore consistency by calling the appropriate function manually,
-                          when the notification can be processed properly. */
+    /* NOTE(koekeishiya): When a new application is launched, we incorrectly receive the didActivateApplication notification
+                          first, for some reason. We discard that notification and restore it when we have the application to work with. */
     SharedWorkspaceDidActivateApplication(PID);
 }
 
@@ -137,7 +127,7 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
     {
         AXLibDestroyApplication(&It->second);
         Applications->erase(PID);
-        // AXLibConstructEvent(AXEvent_ApplicationTerminated, NULL);
+        // TODO(koekeishiya): Should we create an AXEvent_ApplicationTerminated */
     }
 }
 

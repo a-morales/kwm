@@ -7,20 +7,17 @@
 #define internal static
 #define local_persist static
 
-internal void
-AXLibUpdateApplicationFocus(ax_application *Application, AXUIElementRef WindowRef)
+internal inline ax_window *
+AXLibGetWindowByRef(ax_application *Application, AXUIElementRef WindowRef)
 {
     uint32_t WID = AXLibGetWindowID(WindowRef);
-    ax_window *Window = AXLibFindApplicationWindow(Application, WID);
-    if(Window)
-        Application->Focus = Window;
+    return AXLibFindApplicationWindow(Application, WID);
 }
 
-internal void
+internal inline void
 AXLibUpdateApplicationWindowTitle(ax_application *Application, AXUIElementRef WindowRef)
 {
-    uint32_t WID = AXLibGetWindowID(WindowRef);
-    ax_window *Window = AXLibFindApplicationWindow(Application, WID);
+    ax_window *Window = AXLibGetWindowByRef(Application, WindowRef);
     if(Window)
         Window->Name = AXLibGetWindowTitle(WindowRef);
 }
@@ -31,46 +28,71 @@ OBSERVER_CALLBACK(AXApplicationCallback)
 
     if(CFEqual(Notification, kAXWindowCreatedNotification))
     {
-        printf("%s: kAXWindowCreatedNotification\n", Application->Name.c_str());
-        AXLibAddApplicationWindow(Application, AXLibConstructWindow(Application, Element));
+        // printf("%s: kAXWindowCreatedNotification\n", Application->Name.c_str());
+
+        /* NOTE(koekeishiya): Construct ax_window struct for the newly created window */
+        ax_window Window = AXLibConstructWindow(Application, Element);
+        AXLibAddApplicationWindow(Application, Window);
+
+        /* NOTE(koekeishiya): Triggers an AXEvent_WindowCreated and passes a pointer to the new ax_window */
+        ax_window *WindowPtr = AXLibFindApplicationWindow(Application, Window.ID);
+        AXLibConstructEvent(AXEvent_WindowCreated, WindowPtr);
+
+        /* NOTE(koekeishiya): When a new window is created, we incorrectly receive the kAXFocusedWindowChangedNotification
+                              first, for some reason. We discard that notification and restore it when we have the window to work with. */
+        Application->Focus = WindowPtr;
+        AXLibConstructEvent(AXEvent_WindowFocused, WindowPtr);
     }
     else if(CFEqual(Notification, kAXUIElementDestroyedNotification))
     {
-        printf("%s: kAXUIElementDestroyedNotification\n", Application->Name.c_str());
+        // printf("%s: kAXUIElementDestroyedNotification\n", Application->Name.c_str());
+
+        /* NOTE(koekeishiya): If the destroyed UIElement is a window, remove it from the application window list. */
         uint32_t WID = AXLibGetWindowID(Element);
         AXLibRemoveApplicationWindow(Application, WID);
     }
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
     {
-        printf("%s: kAXFocusedWindowChangedNotification\n", Application->Name.c_str());
-        AXLibUpdateApplicationFocus(Application, Element);
-        AXLibConstructEvent(AXEvent_WindowFocused, NULL);
+        // printf("%s: kAXFocusedWindowChangedNotification\n", Application->Name.c_str());
+
+        /* NOTE(koekeishiya): This notification could be received before the window itself is created.
+                              Make sure that the window actually exists before we notify our callback. */
+        ax_window *Window = AXLibGetWindowByRef(Application, Element);
+        if(Window)
+        {
+            Application->Focus = Window;
+            AXLibConstructEvent(AXEvent_WindowFocused, Window);
+        }
     }
     else if(CFEqual(Notification, kAXWindowMiniaturizedNotification))
     {
-        printf("%s: kAXWindowMiniaturizedNotification\n", Application->Name.c_str());
+        // printf("%s: kAXWindowMiniaturizedNotification\n", Application->Name.c_str());
         /* TODO(koekeishiya): NYI */
     }
     else if(CFEqual(Notification, kAXWindowDeminiaturizedNotification))
     {
-        printf("%s: kAXWindowDeminiaturizedNotification\n", Application->Name.c_str());
+        // printf("%s: kAXWindowDeminiaturizedNotification\n", Application->Name.c_str());
         /* TODO(koekeishiya): NYI */
     }
     else if(CFEqual(Notification, kAXWindowMovedNotification))
     {
-        printf("%s: kAXWindowMovedNotification\n", Application->Name.c_str());
-        AXLibConstructEvent(AXEvent_WindowMoved, NULL);
-        /* TODO(koekeishiya): NYI */
+        // printf("%s: kAXWindowMovedNotification\n", Application->Name.c_str());
+
+        /* NOTE(koekeishiya): Triggers an AXEvent_WindowMoved and passes a pointer to the ax_window */
+        ax_window *Window = AXLibGetWindowByRef(Application, Element);
+        AXLibConstructEvent(AXEvent_WindowMoved, Window);
     }
     else if(CFEqual(Notification, kAXWindowResizedNotification))
     {
-        printf("%s: kAXWindowResizedNotification\n", Application->Name.c_str());
-        AXLibConstructEvent(AXEvent_WindowResized, NULL);
-        /* TODO(koekeishiya): NYI */
+        // printf("%s: kAXWindowResizedNotification\n", Application->Name.c_str());
+
+        /* NOTE(koekeishiya): Triggers an AXEvent_WindowResized and passes a pointer to the ax_window */
+        ax_window *Window = AXLibGetWindowByRef(Application, Element);
+        AXLibConstructEvent(AXEvent_WindowResized, Window);
     }
     else if(CFEqual(Notification, kAXTitleChangedNotification))
     {
-        printf("%s: kAXTitleChangedNotification\n", Application->Name.c_str());
+        // printf("%s: kAXTitleChangedNotification\n", Application->Name.c_str());
         AXLibUpdateApplicationWindowTitle(Application, Element);
     }
 }
