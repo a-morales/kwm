@@ -45,9 +45,10 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     }
     else if(CFEqual(Notification, kAXUIElementDestroyedNotification))
     {
-        // printf("%s: kAXUIElementDestroyedNotification\n", Application->Name.c_str());
+        printf("%s: kAXUIElementDestroyedNotification\n", Application->Name.c_str());
 
         /* NOTE(koekeishiya): If the destroyed UIElement is a window, remove it from the application window list. */
+        /* TODO(koekeishiya): Why does WID equal 0, even for AXUIElementRefs that are a valid window (?) */
         uint32_t WID = AXLibGetWindowID(Element);
         AXLibRemoveApplicationWindow(Application, WID);
     }
