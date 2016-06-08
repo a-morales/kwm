@@ -72,6 +72,11 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
     if ((self = [super init]))
     {
        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                selector:@selector(activeDisplayDidChange:)
+                name:@"NSWorkspaceActiveDisplayDidChangeNotification"
+                object:nil];
+
+       [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(activeSpaceDidChange:)
                 name:NSWorkspaceActiveSpaceDidChangeNotification
                 object:nil];
@@ -101,6 +106,11 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
     [super dealloc];
 }
 
+- (void)activeDisplayDidChange:(NSNotification *)notification
+{
+    AXLibConstructEvent(AXEvent_DisplayChanged, NULL);
+}
+
 - (void)activeSpaceDidChange:(NSNotification *)notification
 {
     AXLibConstructEvent(AXEvent_SpaceChanged, NULL);
@@ -127,7 +137,7 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
     {
         AXLibDestroyApplication(&It->second);
         Applications->erase(PID);
-        // TODO(koekeishiya): Should we create an AXEvent_ApplicationTerminated */
+        AXLibConstructEvent(AXEvent_ApplicationTerminated, NULL);
     }
 }
 

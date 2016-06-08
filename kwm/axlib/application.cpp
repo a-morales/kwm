@@ -61,6 +61,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
             printf("%d:%s:%s: kAXUIElementDestroyedNotification\n", Window->ID, Window->Application->Name.c_str(), Window->Name.c_str());
             AXLibRemoveObserverNotification(&Window->Application->Observer, Element, kAXUIElementDestroyedNotification);
             AXLibRemoveApplicationWindow(Window->Application, Window->ID);
+            AXLibConstructEvent(AXEvent_WindowDestroyed, NULL);
         }
     }
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
