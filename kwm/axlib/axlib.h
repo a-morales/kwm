@@ -5,9 +5,9 @@
 #include "element.h"
 #include "window.h"
 #include "application.h"
+#include "display.h"
 #include "sharedworkspace.h"
 #include "event.h"
-#include "screen.h"
 
 /*
  * NOTE(koekeishiya):

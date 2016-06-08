@@ -1,5 +1,5 @@
-#ifndef AXLIB_SCREEN_H
-#define AXLIB_SCREEN_H
+#ifndef AXLIB_DISPLAY_H
+#define AXLIB_DISPLAY_H
 
 #include <Carbon/Carbon.h>
 #include <string>
@@ -24,7 +24,7 @@ struct ax_space
     CGSSpaceType Type;
 };
 
-struct ax_screen
+struct ax_display
 {
     CFStringRef Identifier;
     CGDirectDisplayID ID;
@@ -34,7 +34,7 @@ struct ax_screen
     std::map<CGSSpaceID, ax_space> Spaces;
 };
 
-void AXLibActiveScreens();
-ax_screen *AXLibMainScreen();
+void AXLibActiveDisplays();
+ax_display *AXLibMainDisplay();
 
 #endif
