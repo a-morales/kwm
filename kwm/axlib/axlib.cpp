@@ -12,6 +12,11 @@ AXLibIsApplicationCached(pid_t PID)
     return It != AXApplications->end();
 }
 
+ax_application *AXLibGetApplicationByPID(pid_t PID)
+{
+    return AXLibIsApplicationCached(PID) ? &(*AXApplications)[PID] : NULL;
+}
+
 ax_application *AXLibGetFocusedApplication()
 {
     local_persist AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
@@ -23,8 +28,7 @@ ax_application *AXLibGetFocusedApplication()
         AXUIElementGetPid(Ref, &PID);
         CFRelease(Ref);
 
-        if(AXLibIsApplicationCached(PID))
-            return &(*AXApplications)[PID];
+        return AXLibGetApplicationByPID(PID);
     }
 
     return NULL;
