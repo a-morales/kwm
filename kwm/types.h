@@ -445,7 +445,6 @@ struct kwm_mode
 
 struct kwm_thread
 {
-    pthread_t WindowMonitor;
     pthread_t SystemCommand;
     pthread_t Daemon;
 };
