@@ -27,33 +27,108 @@ extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
+EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
+{
+    DEBUG("AXEvent_DisplayChanged");
+}
+
+EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
+{
+    UpdateActiveSpace();
+    UpdateWindowTree();
+
+    FocusedApplication = AXLibGetFocusedApplication();
+    FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
+
+    UpdateBorder("focused");
+}
+
+EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
+{
+    ax_application *Application = (ax_application *) Event->Context;
+    DEBUG("AXEvent_ApplicationLaunched: " << Application->Name);
+    UpdateWindowTree();
+}
+
+EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
+{
+    UpdateWindowTree();
+}
+
+EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
+{
+    ax_application *Application = (ax_application *) Event->Context;
+
+    // TODO(koekeishiya): Should not be necessary when we stop relying on KWMTiling.WindowLst
+    UpdateActiveScreen();
+    UpdateActiveSpace();
+    UpdateActiveWindowList(KWMScreen.Current);
+
+    FocusedApplication = Application;
+    FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
+
+    DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name);
+    UpdateBorder("focused");
+}
+
 EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
 {
     ax_window *Window = (ax_window *) Event->Context;
-    DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
+    if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
+    {
+        DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
+        UpdateWindowTree();
+    }
+}
+
+EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
+{
+    UpdateWindowTree();
+    UpdateBorder("focused");
+    UpdateBorder("marked");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 {
-    DEBUG("AXEvent_WindowFocused: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
-    UpdateBorder("focused");
-    UpdateBorder("marked");
+    if(!FocusedApplication)
+        FocusedApplication = AXLibGetFocusedApplication();
+
+    if(FocusedApplication && !FocusedApplication->Focus)
+        FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
+
+    if(FocusedApplication && FocusedApplication->Focus)
+    {
+        DEBUG("AXEvent_WindowFocused: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
+        UpdateBorder("focused");
+        UpdateBorder("marked");
+    }
+    else
+    {
+        ClearBorder(&FocusedBorder);
+        ClearBorder(&MarkedBorder);
+    }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
 {
     ax_window *Window = (ax_window *) Event->Context;
-    DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
-    UpdateBorder("focused");
-    UpdateBorder("marked");
+    if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
+    {
+        DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
+        UpdateBorder("focused");
+        UpdateBorder("marked");
+    }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowResized)
 {
     ax_window *Window = (ax_window *) Event->Context;
-    DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
-    UpdateBorder("focused");
-    UpdateBorder("marked");
+    if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
+    {
+        DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
+        UpdateBorder("focused");
+        UpdateBorder("marked");
+    }
 }
 
 bool WindowsAreEqual(window_info *Window, window_info *Match)

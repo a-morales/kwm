@@ -64,6 +64,7 @@ EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
     {
         // DEBUG("AXEvent_MouseMoved: Mouse moved");
         UpdateActiveScreen();
+        UpdateActiveWindowList(KWMScreen.Current);
 
         if(KWMMode.Focus != FocusModeDisabled &&
            KWMMode.Focus != FocusModeStandby &&
@@ -107,7 +108,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
-            // AXLibConstructEvent(AXEvent_MouseMoved, NULL);
+            AXLibConstructEvent(AXEvent_MouseMoved, NULL);
         } break;
         default: {} break;
     }
@@ -294,7 +295,6 @@ void KwmReloadConfig()
     KwmExecuteConfig();
 }
 
-
 int main(int argc, char **argv)
 {
     if(CheckArguments(argc, argv))
@@ -313,12 +313,12 @@ int main(int argc, char **argv)
                        kCFRunLoopCommonModes);
     CGEventTapEnable(KWMMach.EventTap, true);
 
-    UpdateActiveWindowList(KWMScreen.Current);
     // NOTE(koekeishiya): Initialize AXLIB
     AXLibInit(&AXApplications);
     AXLibStartEventLoop();
     AXLibRunningApplications();
     FocusedApplication = AXLibGetFocusedApplication();
+    UpdateWindowTree();
     UpdateBorder("focused");
 
     NSApplicationLoad();

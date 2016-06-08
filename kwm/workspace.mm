@@ -20,30 +20,6 @@ extern int GetSpaceFromName(screen_info *Screen, std::string Name);
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
 extern kwm_thread KWMThread;
-extern ax_application *FocusedApplication;
-
-EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
-{
-    UpdateActiveSpace();
-}
-
-EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
-{
-    ax_application *Application = (ax_application *) Event->Context;
-    DEBUG("AXEvent_ApplicationLaunched: " << Application->Name);
-}
-
-EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
-{
-    ax_application *Application = (ax_application *) Event->Context;
-
-    // TODO(koekeishiya): Should not be necessary when we stop relying on KWMTiling.WindowLst
-    UpdateActiveWindowList(KWMScreen.Current);
-
-    FocusedApplication = Application;
-    DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name);
-    UpdateBorder("focused");
-}
 
 int GetActiveSpaceOfDisplay(screen_info *Screen)
 {

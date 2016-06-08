@@ -316,7 +316,6 @@ void UpdateActiveSpace()
         AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[0]);
     if(KWMTiling.KwmOverlay[1] != 0)
         AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[1]);
-
 }
 
 space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID)
