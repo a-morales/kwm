@@ -21,7 +21,7 @@ void AXLibDestroyObserver(ax_observer *Observer);
 void AXLibStartObserver(ax_observer *Observer);
 void AXLibStopObserver(ax_observer *Observer);
 
-void AXLibAddObserverNotification(ax_observer *Observer, CFStringRef Notification, void *Reference);
-void AXLibRemoveObserverNotification(ax_observer *Observer, CFStringRef Notification);
+AXError AXLibAddObserverNotification(ax_observer *Observer, AXUIElementRef Ref, CFStringRef Notification, void *Reference);
+void AXLibRemoveObserverNotification(ax_observer *Observer, AXUIElementRef Ref, CFStringRef Notification);
 
 #endif

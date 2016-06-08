@@ -13,22 +13,22 @@ void AXLibConstructObserver(ax_application *Application, ObserverCallback Callba
 
 void AXLibStartObserver(ax_observer *Observer)
 {
-    CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
 }
 
-void AXLibAddObserverNotification(ax_observer *Observer, CFStringRef Notification, void *Reference)
+AXError AXLibAddObserverNotification(ax_observer *Observer, AXUIElementRef Ref, CFStringRef Notification, void *Reference)
 {
-    AXObserverAddNotification(Observer->Ref, Observer->Application->Ref, Notification, Reference);
+    return AXObserverAddNotification(Observer->Ref, Ref, Notification, Reference);
 }
 
-void AXLibRemoveObserverNotification(ax_observer *Observer, CFStringRef Notification)
+void AXLibRemoveObserverNotification(ax_observer *Observer, AXUIElementRef Ref, CFStringRef Notification)
 {
-    AXObserverRemoveNotification(Observer->Ref, Observer->Application->Ref, Notification);
+    AXObserverRemoveNotification(Observer->Ref, Ref, Notification);
 }
 
 void AXLibStopObserver(ax_observer *Observer)
 {
-    CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
+    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
 }
 
 void AXLibDestroyObserver(ax_observer *Observer)
