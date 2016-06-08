@@ -5,6 +5,19 @@
 
 internal std::map<pid_t, ax_application> *AXApplications;
 
+internal inline AXUIElementRef
+AXLibSystemWideElement()
+{
+    local_persist AXUIElementRef AXLibSystemWideElement;
+    local_persist dispatch_once_t OnceToken;
+
+    dispatch_once(&OnceToken, ^{
+        AXLibSystemWideElement = AXUIElementCreateSystemWide();
+    });
+
+    return AXLibSystemWideElement;
+}
+
 internal bool
 AXLibIsApplicationCached(pid_t PID)
 {
@@ -19,8 +32,7 @@ ax_application *AXLibGetApplicationByPID(pid_t PID)
 
 ax_application *AXLibGetFocusedApplication()
 {
-    local_persist AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
-    AXUIElementRef Ref = (AXUIElementRef) AXLibGetWindowProperty(SystemWideElement, kAXFocusedApplicationAttribute);
+    AXUIElementRef Ref = (AXUIElementRef) AXLibGetWindowProperty(AXLibSystemWideElement(), kAXFocusedApplicationAttribute);
 
     if(Ref)
     {
@@ -90,5 +102,6 @@ void AXLibRunningApplications()
 void AXLibInit(std::map<pid_t, ax_application> *Apps)
 {
     AXApplications = Apps;
+    AXUIElementSetMessagingTimeout(AXLibSystemWideElement(), 1.0);
     SharedWorkspaceInitialize(AXApplications);
 }
