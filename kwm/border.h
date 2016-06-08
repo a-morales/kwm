@@ -1,9 +1,10 @@
 #ifndef BORDER_H
 #define BORDER_H
 
-#include "axlib/element.h"
 #include "types.h"
 #include "window.h"
+
+#include "axlib/axlib.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;

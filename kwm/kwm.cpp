@@ -19,6 +19,8 @@
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
 std::map<pid_t, ax_application> AXApplications;
 
+ax_application *FocusedApplication;
+
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
 kwm_screen KWMScreen = {};
@@ -105,22 +107,12 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
-            AXLibConstructEvent(AXEvent_MouseMoved, NULL);
+            // AXLibConstructEvent(AXEvent_MouseMoved, NULL);
         } break;
         default: {} break;
     }
 
     return Event;
-}
-
-internal void *
-KwmWindowMonitor(void*)
-{
-    while(1)
-    {
-        AXLibConstructEvent(AXEvent_WindowList, NULL);
-        usleep(200000);
-    }
 }
 
 internal bool
@@ -321,13 +313,13 @@ int main(int argc, char **argv)
                        kCFRunLoopCommonModes);
     CGEventTapEnable(KWMMach.EventTap, true);
 
+    UpdateActiveWindowList(KWMScreen.Current);
     // NOTE(koekeishiya): Initialize AXLIB
     AXLibInit(&AXApplications);
     AXLibStartEventLoop();
     AXLibRunningApplications();
-
-    pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
-    FocusWindowOfOSX();
+    FocusedApplication = AXLibGetFocusedApplication();
+    UpdateBorder("focused");
 
     NSApplicationLoad();
     CFRunLoopRun();
