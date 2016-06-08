@@ -321,6 +321,10 @@ int main(int argc, char **argv)
     UpdateWindowTree();
     UpdateBorder("focused");
 
+    /* NOTE(koekeishiya): Find connected screens and their associated spaces
+    AXLibActiveScreens();
+    */
+
     NSApplicationLoad();
     CFRunLoopRun();
     return 0;
