@@ -31,7 +31,6 @@ extern EVENT_CALLBACK(Callback_AXEvent_DisplayResized);
 extern EVENT_CALLBACK(Callback_AXEvent_DisplayChanged);
 extern EVENT_CALLBACK(Callback_AXEvent_SpaceChanged);
 
-extern EVENT_CALLBACK(Callback_AXEvent_WindowList);
 extern EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed);
 extern EVENT_CALLBACK(Callback_AXEvent_MouseMoved);
 
@@ -58,7 +57,6 @@ enum ax_event_type
     AXEvent_DisplayChanged,
     AXEvent_SpaceChanged,
 
-    AXEvent_WindowList,
     AXEvent_HotkeyPressed,
     AXEvent_MouseMoved,
 };
