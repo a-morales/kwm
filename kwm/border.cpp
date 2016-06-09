@@ -27,5 +27,5 @@ void UpdateBorder(std::string BorderType)
     if(WindowID == -1)
         ClearBorder(Border);
     else if(Border->Enabled)
-        RefreshBorder(Border, WindowID);
+        RefreshBorder(Border, FocusedApplication->Focus);
 }

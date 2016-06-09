@@ -50,6 +50,22 @@ ClearBorder(kwm_border *Border)
 }
 
 inline void
+RefreshBorder(kwm_border *Border, ax_window *Window)
+{
+    std::string Command = "x:" + std::to_string(Window->Position.x) + \
+                          " y:" + std::to_string(Window->Position.y) + \
+                          " w:" + std::to_string(Window->Size.width) + \
+                          " h:" + std::to_string(Window->Size.height) + \
+                          " " + Border->Color.Format + \
+                          " s:" + std::to_string(Border->Width);
+
+    Command += (Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "") + "\n";
+    fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
+    fflush(Border->Handle);
+}
+
+/* NOTE(koekeishiya): Old code to refresh border around a given window
+inline void
 RefreshBorder(kwm_border *Border, int WindowID)
 {
     AXUIElementRef WindowRef;
@@ -78,6 +94,7 @@ RefreshBorder(kwm_border *Border, int WindowID)
     else
         ClearBorder(Border);
 }
+*/
 
 void UpdateBorder(std::string BorderType);
 
