@@ -60,6 +60,13 @@ AXLibGetDisplayIdentifier(CGDirectDisplayID DisplayID)
     return NULL;
 }
 
+internal inline bool
+AXLibDisplayHasSpace(ax_display *Display, CGSSpaceID SpaceID)
+{
+    bool Result = Display->Spaces.find(SpaceID) != Display->Spaces.end();
+    return Result;
+}
+
 /* NOTE(koekeishiya): Find the UUID of the active space for a given ax_display. */
 internal CFStringRef
 AXLibGetActiveSpaceIdentifier(ax_display *Display)
@@ -104,13 +111,6 @@ AXLibGetActiveSpaceID(ax_display *Display)
     return ActiveSpace;
 }
 
-/* NOTE(koekeishiya): Find the active ax_space for a given ax_display. */
-ax_space * AXLibGetActiveSpace(ax_display *Display)
-{
-    CGSSpaceID ActiveSpace = AXLibGetActiveSpaceID(Display);
-    return &Display->Spaces[ActiveSpace];
-}
-
 internal ax_space
 AXLibConstructSpace(CFStringRef Identifier, CGSSpaceID SpaceID, CGSSpaceType SpaceType)
 {
@@ -121,6 +121,23 @@ AXLibConstructSpace(CFStringRef Identifier, CGSSpaceID SpaceID, CGSSpaceType Spa
     Space.Type = SpaceType;
 
     return Space;
+}
+
+/* NOTE(koekeishiya): Find the active ax_space for a given ax_display. */
+ax_space * AXLibGetActiveSpace(ax_display *Display)
+{
+    CGSSpaceID SpaceID = AXLibGetActiveSpaceID(Display);
+
+    /* NOTE(koekeishiya): This is the first time we see this space. It was most likely created after
+                          AXLib was initialized. Create ax_space struct and add to the displays space list. */
+    if(!AXLibDisplayHasSpace(Display, SpaceID))
+    {
+        CFStringRef SpaceUUID = AXLibGetActiveSpaceIdentifier(Display);
+        CGSSpaceType SpaceType = CGSSpaceGetType(CGSDefaultConnection, SpaceID);
+        Display->Spaces[SpaceID] = AXLibConstructSpace(SpaceUUID, SpaceID, SpaceType);
+    }
+
+    return &Display->Spaces[SpaceID];
 }
 
 /* NOTE(koekeishiya): Constructs ax_space structs for every space of a given ax_display. */
