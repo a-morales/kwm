@@ -54,43 +54,34 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
 
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
-    UpdateActiveSpace();
-    UpdateWindowTree();
+    DEBUG("AXEvent_SpaceChanged");
 
+    AXLibRunningApplications();
     FocusedApplication = AXLibGetFocusedApplication();
     FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
-
     UpdateBorder("focused");
 
     /* NOTE(koekeishiya): Print the name and application of all windows currently visible. */
-    /*
     std::vector<ax_window *> VisibleWindows = AXLibGetAllVisibleWindows();
     printf("VISIBLE WINDOWS: %zd\n", VisibleWindows.size());
     for(int Index = 0; Index < VisibleWindows.size(); ++Index)
         printf("%s - %s\n", VisibleWindows[Index]->Application->Name.c_str(), VisibleWindows[Index]->Name.c_str());
-    */
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
 {
     ax_application *Application = (ax_application *) Event->Context;
     DEBUG("AXEvent_ApplicationLaunched: " << Application->Name);
-    UpdateWindowTree();
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
 {
-    UpdateWindowTree();
+    DEBUG("AXEvent_ApplicationTerminated");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
 {
     ax_application *Application = (ax_application *) Event->Context;
-
-    // TODO(koekeishiya): Should not be necessary when we stop relying on KWMTiling.WindowLst
-    UpdateActiveScreen();
-    UpdateActiveSpace();
-    UpdateActiveWindowList(KWMScreen.Current);
 
     FocusedApplication = Application;
     FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
@@ -105,15 +96,13 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
     if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
     {
         DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
-        UpdateWindowTree();
     }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
 {
-    UpdateWindowTree();
-    UpdateBorder("focused");
-    UpdateBorder("marked");
+    // DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
+    DEBUG("AXEvent_WindowDestroyed");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)

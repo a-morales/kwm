@@ -19,6 +19,7 @@
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
 ax_state AXState = {};
 ax_application *FocusedApplication;
+ax_display *FocusedDisplay;
 
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
@@ -34,42 +35,16 @@ kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
 scratchpad Scratchpad = {};
 
-/* TODO(koekeishiya): Need to keep track of windows on the currently active space using 'CGCopyWindowList..' to get
+/* TODO(koekeishiya): focus-follows-mouse
+
+                      Need to keep track of windows on the currently active space using 'CGCopyWindowList..' to get
                       z-ordering used for focus-follows-mouse. There are also cases in which applications doesn't seem
                       to trigger a kAXWindowCreated notification, so we probably have to pick these up from this list. */
-EVENT_CALLBACK(Callback_AXEvent_WindowList)
-{
-    if(KWMTiling.MonitorWindows)
-    {
-        CheckPrefixTimeout();
-        if(!IsSpaceTransitionInProgress() &&
-           IsActiveSpaceManaged())
-        {
-            // DEBUG("AXEvent_WindowList: Refresh window list");
-            if(KWMScreen.Transitioning)
-                KWMScreen.Transitioning = false;
-            else
-                UpdateWindowTree();
-        }
-    }
-
-}
 
 /* TODO(koekeishiya): Should probably be moved to a 'cursor.cpp' or similar in the future,
                       along with other cursor-related functionality we might want */
 EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
 {
-    if(!IsSpaceTransitionInProgress())
-    {
-        // DEBUG("AXEvent_MouseMoved: Mouse moved");
-        UpdateActiveScreen();
-        UpdateActiveWindowList(KWMScreen.Current);
-
-        if(KWMMode.Focus != FocusModeDisabled &&
-           KWMMode.Focus != FocusModeStandby &&
-           !IsActiveSpaceFloating())
-            FocusWindowBelowCursor();
-    }
 }
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
@@ -107,7 +82,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
-            AXLibConstructEvent(AXEvent_MouseMoved, NULL);
+            // TODO(koekeishiya): Reimplement focus-follows-mouse support
+            // AXLibConstructEvent(AXEvent_MouseMoved, NULL);
         } break;
         default: {} break;
     }
@@ -275,8 +251,7 @@ KwmInit()
 
     GetKwmFilePath();
     KwmExecuteConfig();
-    GetActiveDisplays();
-    KwmExecuteInitScript();
+    // KwmExecuteInitScript();
 }
 
 void KwmQuit()
@@ -315,14 +290,10 @@ int main(int argc, char **argv)
     // NOTE(koekeishiya): Initialize AXLIB
     AXLibInit(&AXState);
     AXLibStartEventLoop();
-    AXLibRunningApplications();
-    FocusedApplication = AXLibGetFocusedApplication();
-    UpdateWindowTree();
-    UpdateBorder("focused");
-
-    /* NOTE(koekeishiya): Find connected displays and their associated spaces
     AXLibActiveDisplays();
-    */
+    AXLibRunningApplications();
+    FocusedDisplay = AXLibMainDisplay();
+    FocusedApplication = AXLibGetFocusedApplication();
 
     NSApplicationLoad();
     CFRunLoopRun();
