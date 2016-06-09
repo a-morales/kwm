@@ -14,6 +14,7 @@
 
 #include <cmath>
 
+extern ax_display *FocusedDisplay;
 extern ax_application *FocusedApplication;
 
 extern kwm_screen KWMScreen;
@@ -39,17 +40,18 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayRemoved)
 
 EVENT_CALLBACK(Callback_AXEvent_DisplayResized)
 {
-    DEBUG("AXEvent_DisplayRemoved");
+    DEBUG("AXEvent_DisplayResized");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_DisplayMoved)
 {
-    DEBUG("AXEvent_DisplayRemoved");
+    DEBUG("AXEvent_DisplayMoved");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
 {
-    DEBUG("AXEvent_DisplayChanged");
+    FocusedDisplay = AXLibMainDisplay();
+    printf("%d: AXEvent_DisplayChanged\n", FocusedDisplay->ArrangementID);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
@@ -57,15 +59,26 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
     DEBUG("AXEvent_SpaceChanged");
 
     AXLibRunningApplications();
-    FocusedApplication = AXLibGetFocusedApplication();
-    FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
-    UpdateBorder("focused");
+    ax_display *Display  = AXLibMainDisplay();
+    if(Display)
+    {
+        FocusedDisplay = Display;
+        FocusedDisplay->Space = AXLibGetActiveSpace(FocusedDisplay);
+        printf("Display: CGDirectDisplayID %d, Arrangement %d\n", FocusedDisplay->ID, FocusedDisplay->ArrangementID);
+        printf("Space: CGSSpaceID %d\n", FocusedDisplay->Space->ID);
+    }
+    else
+    {
+        printf("What the fuck.. Display was null (?)");
+    }
 
     /* NOTE(koekeishiya): Print the name and application of all windows currently visible. */
-    std::vector<ax_window *> VisibleWindows = AXLibGetAllVisibleWindows();
-    printf("VISIBLE WINDOWS: %zd\n", VisibleWindows.size());
-    for(int Index = 0; Index < VisibleWindows.size(); ++Index)
-        printf("%s - %s\n", VisibleWindows[Index]->Application->Name.c_str(), VisibleWindows[Index]->Name.c_str());
+    /*
+       std::vector<ax_window *> VisibleWindows = AXLibGetAllVisibleWindows();
+       printf("VISIBLE WINDOWS: %zd\n", VisibleWindows.size());
+       for(int Index = 0; Index < VisibleWindows.size(); ++Index)
+       printf("%s - %s\n", VisibleWindows[Index]->Application->Name.c_str(), VisibleWindows[Index]->Name.c_str());
+   */
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
@@ -101,29 +114,19 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
 
 EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
 {
-    // DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
     DEBUG("AXEvent_WindowDestroyed");
+    UpdateBorder("focused");
+    UpdateBorder("marked");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 {
-    if(!FocusedApplication)
-        FocusedApplication = AXLibGetFocusedApplication();
+    Assert(FocusedApplication != NULL);
+    Assert(FocusedApplication->Focus != NULL);
 
-    if(FocusedApplication && !FocusedApplication->Focus)
-        FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
-
-    if(FocusedApplication && FocusedApplication->Focus)
-    {
-        DEBUG("AXEvent_WindowFocused: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
-        UpdateBorder("focused");
-        UpdateBorder("marked");
-    }
-    else
-    {
-        ClearBorder(&FocusedBorder);
-        ClearBorder(&MarkedBorder);
-    }
+    DEBUG("AXEvent_WindowFocused: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
+    UpdateBorder("focused");
+    UpdateBorder("marked");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
