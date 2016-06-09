@@ -336,20 +336,6 @@ void AXLibActiveDisplays()
 
     free(CGDirectDisplayList);
     CGDisplayRegisterReconfigurationCallback(AXDisplayReconfigurationCallBack, NULL);
-
-    /* NOTE(koekeishiya): Print the recorded ax_display information. */
-    std::map<CGDirectDisplayID, ax_display>::iterator DisplayIt;
-    std::map<CGSSpaceID, ax_space>::iterator SpaceIt;
-    for(DisplayIt = Displays->begin(); DisplayIt != Displays->end(); ++DisplayIt)
-    {
-        ax_display *Display = &DisplayIt->second;
-        printf("ActiveCGSSpaceID: %d\n", Display->Space->ID);
-        for(SpaceIt = Display->Spaces.begin(); SpaceIt != Display->Spaces.end(); ++SpaceIt)
-        {
-            printf("CGSSpaceID: %d, CGSSpaceType: %d\n", SpaceIt->second.ID, SpaceIt->second.Type);
-            CFShow(SpaceIt->second.Identifier);
-        }
-    }
 }
 
 /* NOTE(koekeishiya): The main display is the display which currently holds the window that accepts key-input. */
@@ -357,6 +343,34 @@ ax_display *AXLibMainDisplay()
 {
     CGDirectDisplayID MainDisplay = CGSMainDisplayID();
     return &(*Displays)[MainDisplay];
+}
+
+ax_display *AXLibNextDisplay(ax_display *Display)
+{
+    unsigned int NextDisplayID = Display->ArrangementID + 1 >= ActiveDisplayCount ? 0 : Display->ArrangementID + 1;
+    std::map<CGDirectDisplayID, ax_display>::iterator DisplayIt;
+    for(DisplayIt = Displays->begin(); DisplayIt != Displays->end(); ++DisplayIt)
+    {
+        ax_display *CurrentDisplay = &DisplayIt->second;
+        if(CurrentDisplay->ArrangementID == NextDisplayID)
+            return CurrentDisplay;
+    }
+
+    return NULL;
+}
+
+ax_display *AXLibPreviousDisplay(ax_display *Display)
+{
+    unsigned int PrevDisplayID = Display->ArrangementID == 0 ? ActiveDisplayCount - 1 : Display->ArrangementID - 1;
+    std::map<CGDirectDisplayID, ax_display>::iterator DisplayIt;
+    for(DisplayIt = Displays->begin(); DisplayIt != Displays->end(); ++DisplayIt)
+    {
+        ax_display *CurrentDisplay = &DisplayIt->second;
+        if(CurrentDisplay->ArrangementID == PrevDisplayID)
+            return CurrentDisplay;
+    }
+
+    return NULL;
 }
 
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays)
