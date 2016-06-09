@@ -23,6 +23,11 @@ extern EVENT_CALLBACK(Callback_AXEvent_WindowResized);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowMinimized);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized);
 
+extern EVENT_CALLBACK(Callback_AXEvent_DisplayAdded);
+extern EVENT_CALLBACK(Callback_AXEvent_DisplayRemoved);
+extern EVENT_CALLBACK(Callback_AXEvent_DisplayMoved);
+extern EVENT_CALLBACK(Callback_AXEvent_DisplayResized);
+
 extern EVENT_CALLBACK(Callback_AXEvent_DisplayChanged);
 extern EVENT_CALLBACK(Callback_AXEvent_SpaceChanged);
 
@@ -44,6 +49,11 @@ enum ax_event_type
     AXEvent_WindowResized,
     AXEvent_WindowMinimized,
     AXEvent_WindowDeminimized,
+
+    AXEvent_DisplayAdded,
+    AXEvent_DisplayRemoved,
+    AXEvent_DisplayMoved,
+    AXEvent_DisplayResized,
 
     AXEvent_DisplayChanged,
     AXEvent_SpaceChanged,

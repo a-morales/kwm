@@ -27,6 +27,26 @@ extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
+EVENT_CALLBACK(Callback_AXEvent_DisplayAdded)
+{
+    DEBUG("AXEvent_DisplayAdded");
+}
+
+EVENT_CALLBACK(Callback_AXEvent_DisplayRemoved)
+{
+    DEBUG("AXEvent_DisplayRemoved");
+}
+
+EVENT_CALLBACK(Callback_AXEvent_DisplayResized)
+{
+    DEBUG("AXEvent_DisplayRemoved");
+}
+
+EVENT_CALLBACK(Callback_AXEvent_DisplayMoved)
+{
+    DEBUG("AXEvent_DisplayRemoved");
+}
+
 EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
 {
     DEBUG("AXEvent_DisplayChanged");
