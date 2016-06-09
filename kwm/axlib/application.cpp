@@ -62,7 +62,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
             Window->Application->Focus = AXLibGetFocusedWindow(Window->Application);
             AXLibConstructEvent(AXEvent_WindowDestroyed, Window);
 
-            AXLibRemoveObserverNotification(&Window->Application->Observer, Element, kAXUIElementDestroyedNotification);
+            AXLibRemoveObserverNotification(&Window->Application->Observer, Window->Ref, kAXUIElementDestroyedNotification);
             AXLibRemoveApplicationWindow(Window->Application, Window->ID);
         }
     }
@@ -97,6 +97,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = AXLibGetWindowByRef(Application, Element);
         if(Window)
         {
+            Window->Position = AXLibGetWindowPosition(Window->Ref);
             AXLibConstructEvent(AXEvent_WindowMoved, Window);
         }
     }
@@ -108,6 +109,8 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = AXLibGetWindowByRef(Application, Element);
         if(Window)
         {
+            Window->Position = AXLibGetWindowPosition(Window->Ref);
+            Window->Size = AXLibGetWindowSize(Window->Ref);
             AXLibConstructEvent(AXEvent_WindowResized, Window);
         }
     }
@@ -219,10 +222,7 @@ void AXLibRemoveApplicationWindow(ax_application *Application, uint32_t WID)
     ax_window *Window = AXLibFindApplicationWindow(Application, WID);
     if(Window)
     {
-        /* TODO(koekeishiya): Calling this results in a segfault.
-                              Allocate all ax_windows on the heap to make sure the
-                              reference count is not affected by stack variables (?)
-         * AXLibDestroyWindow(Window); */
+        AXLibDestroyWindow(Window);
         Application->Windows.erase(WID);
     }
 }
