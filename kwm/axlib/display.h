@@ -37,5 +37,6 @@ struct ax_display
 
 void AXLibActiveDisplays();
 ax_display *AXLibMainDisplay();
+void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays);
 
 #endif

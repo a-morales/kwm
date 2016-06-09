@@ -10,7 +10,7 @@ extern "C" CGSSpaceType CGSSpaceGetType(CGSConnectionID CID, CGSSpaceID SID);
 extern "C" CFArrayRef CGSCopyManagedDisplaySpaces(const CGSConnectionID CID);
 extern "C" CGDirectDisplayID CGSMainDisplayID(void);
 
-internal std::map<CGDirectDisplayID, ax_display> Displays;
+internal std::map<CGDirectDisplayID, ax_display> *Displays;
 internal unsigned int MaxDisplayCount = 5;
 internal unsigned int ActiveDisplayCount = 0;
 
@@ -20,7 +20,7 @@ internal CGDirectDisplayID
 AXLibContainsDisplay(CFStringRef DisplayIdentifier)
 {
     std::map<CGDirectDisplayID, ax_display>::iterator It;
-    for(It = Displays.begin(); It != Displays.end(); ++It)
+    for(It = Displays->begin(); It != Displays->end(); ++It)
     {
         CFStringRef ActiveIdentifier = It->second.Identifier;
         if(CFStringCompare(DisplayIdentifier, ActiveIdentifier, 0) == kCFCompareEqualTo)
@@ -35,10 +35,10 @@ AXLibContainsDisplay(CFStringRef DisplayIdentifier)
 internal inline void
 AXLibChangeDisplayID(CGDirectDisplayID OldDisplayID, CGDirectDisplayID NewDisplayID)
 {
-    ax_display Display = Displays[OldDisplayID];
-    Displays[NewDisplayID] = Display;
-    Displays[NewDisplayID].ID = NewDisplayID;
-    Displays.erase(OldDisplayID);
+    ax_display Display = (*Displays)[OldDisplayID];
+    (*Displays)[NewDisplayID] = Display;
+    (*Displays)[NewDisplayID].ID = NewDisplayID;
+    Displays->erase(OldDisplayID);
 }
 
 /* NOTE(koekeishiya): Find the UUID for a given CGDirectDisplayID. */
@@ -188,13 +188,13 @@ AXLibRefreshDisplays()
     for(std::size_t Index = 0; Index < ActiveDisplayCount; ++Index)
     {
         CGDirectDisplayID ID = CGDirectDisplayList[Index];
-        if(Displays.find(ID) == Displays.end())
+        if(Displays->find(ID) == Displays->end())
         {
-            Displays[ID] = AXLibConstructDisplay(ID, Index);
+            (*Displays)[ID] = AXLibConstructDisplay(ID, Index);
         }
         else
         {
-            AXLibRefreshDisplay(&Displays[ID], ID, Index);
+            AXLibRefreshDisplay(&(*Displays)[ID], ID, Index);
         }
     }
 
@@ -241,10 +241,10 @@ AXLibRemoveDisplay(CGDirectDisplayID DisplayID)
         if(!CGDisplayIsAsleep(StoredDisplayID))
         {
             /* NOTE(koekeishiya): Display has been removed. Reset state. */
-            if(Displays[StoredDisplayID].Identifier)
-                CFRelease(Displays[StoredDisplayID].Identifier);
+            if((*Displays)[StoredDisplayID].Identifier)
+                CFRelease((*Displays)[StoredDisplayID].Identifier);
 
-            Displays.erase(StoredDisplayID);
+            Displays->erase(StoredDisplayID);
         }
     }
 
@@ -331,7 +331,7 @@ void AXLibActiveDisplays()
     for(std::size_t Index = 0; Index < ActiveDisplayCount; ++Index)
     {
         CGDirectDisplayID ID = CGDirectDisplayList[Index];
-        Displays[ID] = AXLibConstructDisplay(ID, Index);
+        (*Displays)[ID] = AXLibConstructDisplay(ID, Index);
     }
 
     free(CGDirectDisplayList);
@@ -340,7 +340,7 @@ void AXLibActiveDisplays()
     /* NOTE(koekeishiya): Print the recorded ax_display information. */
     std::map<CGDirectDisplayID, ax_display>::iterator DisplayIt;
     std::map<CGSSpaceID, ax_space>::iterator SpaceIt;
-    for(DisplayIt = Displays.begin(); DisplayIt != Displays.end(); ++DisplayIt)
+    for(DisplayIt = Displays->begin(); DisplayIt != Displays->end(); ++DisplayIt)
     {
         ax_display *Display = &DisplayIt->second;
         printf("ActiveCGSSpaceID: %d\n", Display->Space->ID);
@@ -356,5 +356,10 @@ void AXLibActiveDisplays()
 ax_display *AXLibMainDisplay()
 {
     CGDirectDisplayID MainDisplay = CGSMainDisplayID();
-    return &Displays[MainDisplay];
+    return &(*Displays)[MainDisplay];
+}
+
+void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays)
+{
+    Displays = AXDisplays;
 }

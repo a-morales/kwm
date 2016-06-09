@@ -10,7 +10,9 @@ extern "C" CGSConnectionID _CGSDefaultConnection(void);
 extern "C" CGError CGSGetOnScreenWindowCount(const CGSConnectionID CID, CGSConnectionID TID, int *Count);
 extern "C" CGError CGSGetOnScreenWindowList(const CGSConnectionID CID, CGSConnectionID TID, int Count, int *List, int *OutCount);
 
+internal ax_state *AXState;
 internal std::map<pid_t, ax_application> *AXApplications;
+internal std::map<CGDirectDisplayID, ax_display> *AXDisplays;
 
 internal inline AXUIElementRef
 AXLibSystemWideElement()
@@ -178,9 +180,12 @@ void AXLibRunningApplications()
     }
 }
 
-void AXLibInit(std::map<pid_t, ax_application> *Apps)
+void AXLibInit(ax_state *State)
 {
-    AXApplications = Apps;
+    AXState = State;
+    AXApplications = &AXState->Applications;
+    AXDisplays = &AXState->Displays;
     AXUIElementSetMessagingTimeout(AXLibSystemWideElement(), 1.0);
     SharedWorkspaceInitialize(AXApplications);
+    AXLibInitializeDisplays(AXDisplays);
 }

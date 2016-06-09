@@ -11,8 +11,8 @@
 
 /*
  * NOTE(koekeishiya):
- *        AXlib requires the use of 'std::map<pid_t, ax_application>'. A pointer to this variable
- *        should be passed when calling AXLibInit(..).
+ *        AXlib requires the use of the 'ax_state' struct and a pointer to a variable of this
+ *        type should be passed when calling AXLibInit(..).
  *
  *        AXLibInit(..) will perform some setup that has to happen before any of the following
  *        functions can be called. Trying to call any of the below functions before AXLibInit(..)
@@ -33,6 +33,12 @@
  *        should happen every time a space transition occurs on the active monitor.
  * */
 
+struct ax_state
+{
+    std::map<pid_t, ax_application> Applications;
+    std::map<CGDirectDisplayID, ax_display> Displays;
+};
+
 ax_application *AXLibGetApplicationByPID(pid_t PID);
 
 ax_application * AXLibGetFocusedApplication();
@@ -42,6 +48,6 @@ void AXLibSetFocusedWindow(ax_window *Window);
 std::vector<ax_window *> AXLibGetAllKnowWindows();
 std::vector<ax_window *> AXLibGetAllVisibleWindows();
 void AXLibRunningApplications();
-void AXLibInit(std::map<pid_t, ax_application> *AXApplications);
+void AXLibInit(ax_state *State);
 
 #endif

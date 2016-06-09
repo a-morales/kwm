@@ -17,8 +17,7 @@
 
 
 const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
-std::map<pid_t, ax_application> AXApplications;
-
+ax_state AXState = {};
 ax_application *FocusedApplication;
 
 kwm_mach KWMMach = {};
@@ -314,15 +313,15 @@ int main(int argc, char **argv)
     CGEventTapEnable(KWMMach.EventTap, true);
 
     // NOTE(koekeishiya): Initialize AXLIB
-    AXLibInit(&AXApplications);
+    AXLibInit(&AXState);
     AXLibStartEventLoop();
     AXLibRunningApplications();
     FocusedApplication = AXLibGetFocusedApplication();
     UpdateWindowTree();
     UpdateBorder("focused");
 
-    /* NOTE(koekeishiya): Find connected screens and their associated spaces
-    AXLibActiveScreens();
+    /* NOTE(koekeishiya): Find connected displays and their associated spaces
+    AXLibActiveDisplays();
     */
 
     NSApplicationLoad();
