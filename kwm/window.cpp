@@ -54,6 +54,9 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
     printf("%d: AXEvent_DisplayChanged\n", FocusedDisplay->ArrangementID);
 }
 
+/* TODO(koekeishiya): If we trigger a space changed event through cmd+tab, we receive the 'didApplicationActivate'
+                      notification before the 'didActiveSpaceChange' notification. If a space has not been visited
+                      before, this will cause us to end up on that space with a unsynchronized focused application state. */
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
     DEBUG("AXEvent_SpaceChanged");
