@@ -16,5 +16,6 @@ void SharedWorkspaceDidTerminateApplication(pid_t PID);
 
 void SharedWorkspaceActivateApplication(pid_t PID);
 bool SharedWorkspaceIsApplicationActive(pid_t PID);
+bool SharedWorkspaceIsApplicationHidden(pid_t PID);
 
 #endif

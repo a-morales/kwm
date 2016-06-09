@@ -237,6 +237,11 @@ bool AXLibIsApplicationActive(ax_application *Application)
     return SharedWorkspaceIsApplicationActive(Application->PID);
 }
 
+bool AXLibIsApplicationHidden(ax_application *Application)
+{
+    return SharedWorkspaceIsApplicationHidden(Application->PID);
+}
+
 void AXLibDestroyApplication(ax_application *Application)
 {
     AXLibRemoveApplicationWindows(Application);

@@ -41,5 +41,6 @@ void AXLibRemoveApplicationObserver(ax_application *Application);
 
 void AXLibActivateApplication(ax_application *Application);
 bool AXLibIsApplicationActive(ax_application *Application);
+bool AXLibIsApplicationHidden(ax_application *Application);
 
 #endif

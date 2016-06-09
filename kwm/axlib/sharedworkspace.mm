@@ -56,6 +56,16 @@ bool SharedWorkspaceIsApplicationActive(pid_t PID)
     return Result == YES;
 }
 
+bool SharedWorkspaceIsApplicationHidden(pid_t PID)
+{
+    Boolean Result = NO;
+    NSRunningApplication *Application = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
+    if(Application)
+        Result = [Application isHidden];
+
+    return Result == YES;
+}
+
 internal inline void
 SharedWorkspaceDidActivateApplication(pid_t PID)
 {
