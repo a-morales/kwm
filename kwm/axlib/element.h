@@ -6,6 +6,7 @@
 
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, uint32_t *WID);
 
+bool AXLibIsWindowMinimized(AXUIElementRef WindowRef);
 bool AXLibIsWindowResizable(AXUIElementRef WindowRef);
 bool AXLibIsWindowMovable(AXUIElementRef WindowRef);
 

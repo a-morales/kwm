@@ -37,6 +37,20 @@ AXError AXLibSetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property, C
     return AXUIElementSetAttributeValue(WindowRef, Property, Value);
 }
 
+bool AXLibIsWindowMinimized(AXUIElementRef WindowRef)
+{
+    bool Result = true;
+
+    CFBooleanRef Value = (CFBooleanRef) AXLibGetWindowProperty(WindowRef, kAXMinimizedAttribute);
+    if(Value)
+    {
+        Result = CFBooleanGetValue(Value);
+        CFRelease(Value);
+    }
+
+    return Result;
+}
+
 bool AXLibIsWindowMovable(AXUIElementRef WindowRef)
 {
     bool Result;
