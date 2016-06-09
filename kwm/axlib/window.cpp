@@ -28,6 +28,15 @@ ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef Windo
     return Window;
 }
 
+/* TODO(koekeishiya): Need to implement support for adding other roles that should be accepted
+                      by this particular ax_window instance. */
+bool AXLibIsWindowStandard(ax_window *Window)
+{
+    bool Result = ((CFEqual(Window->Type.Role, kAXWindowRole)) &&
+                   (CFEqual(Window->Type.Subrole, kAXStandardWindowSubrole)));
+    return Result;
+}
+
 void AXLibDestroyWindow(ax_window *Window)
 {
     if(Window->Ref)
