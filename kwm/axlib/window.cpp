@@ -40,29 +40,6 @@ bool AXLibIsWindowStandard(ax_window *Window)
     return Result;
 }
 
-ax_display *AXLibGetWindowDisplay(ax_window *Window, std::map<CGDirectDisplayID, ax_display> *Displays)
-{
-    CGRect Frame = { Window->Position, Window->Size };
-    CGFloat HighestVolume = 0;
-    ax_display *BestDisplay = NULL;
-
-    std::map<CGDirectDisplayID, ax_display>::iterator It;
-    for(It = Displays->begin(); It != Displays->end(); ++It)
-    {
-        ax_display *Display = &It->second;
-        CGRect Intersection = CGRectIntersection(Frame, Display->Frame);
-        CGFloat Volume = Intersection.size.width * Intersection.size.height;
-
-        if(Volume > HighestVolume)
-        {
-            HighestVolume = Volume;
-            BestDisplay = Display;
-        }
-    }
-
-    return BestDisplay;
-}
-
 void AXLibDestroyWindow(ax_window *Window)
 {
     if(Window->Ref)

@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 
+
 /* NOTE(koekeishiya): User controlled spaces */
 #define kCGSSpaceUser 0
 
@@ -17,6 +18,7 @@
 typedef int CGSSpaceID;
 typedef int CGSSpaceType;
 
+struct ax_window;
 struct ax_space
 {
     CFStringRef Identifier;
@@ -37,8 +39,10 @@ struct ax_display
 
 void AXLibActiveDisplays();
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays);
+ax_space * AXLibGetActiveSpace(ax_display *Display);
 
 ax_display *AXLibMainDisplay();
+ax_display *AXLibWindowDisplay(ax_window *Window);
 ax_display *AXLibNextDisplay(ax_display *Display);
 ax_display *AXLibPreviousDisplay(ax_display *Display);
 

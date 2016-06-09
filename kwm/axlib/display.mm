@@ -1,5 +1,7 @@
 #include "display.h"
 #include "event.h"
+#include "window.h"
+#include <Cocoa/Cocoa.h>
 
 #define internal static
 #define CGSDefaultConnection _CGSDefaultConnection()
@@ -8,7 +10,6 @@ typedef int CGSConnectionID;
 extern "C" CGSConnectionID _CGSDefaultConnection(void);
 extern "C" CGSSpaceType CGSSpaceGetType(CGSConnectionID CID, CGSSpaceID SID);
 extern "C" CFArrayRef CGSCopyManagedDisplaySpaces(const CGSConnectionID CID);
-extern "C" CGDirectDisplayID CGSMainDisplayID(void);
 
 internal std::map<CGDirectDisplayID, ax_display> *Displays;
 internal unsigned int MaxDisplayCount = 5;
@@ -101,8 +102,7 @@ AXLibGetActiveSpaceID(ax_display *Display)
 }
 
 /* NOTE(koekeishiya): Find the active ax_space for a given ax_display. */
-internal inline ax_space *
-AXLibGetActiveSpace(ax_display *Display)
+ax_space * AXLibGetActiveSpace(ax_display *Display)
 {
     CGSSpaceID ActiveSpace = AXLibGetActiveSpaceID(Display);
     return &Display->Spaces[ActiveSpace];
@@ -341,9 +341,36 @@ void AXLibActiveDisplays()
 /* NOTE(koekeishiya): The main display is the display which currently holds the window that accepts key-input. */
 ax_display *AXLibMainDisplay()
 {
-    CGDirectDisplayID MainDisplay = CGSMainDisplayID();
+    NSDictionary* ScreenDictionary = [[NSScreen mainScreen] deviceDescription];
+    NSNumber* ScreenID = [ScreenDictionary objectForKey:@"NSScreenNumber"];
+    CGDirectDisplayID MainDisplay = [ScreenID unsignedIntValue];
     return &(*Displays)[MainDisplay];
 }
+
+/* NOTE(koekeishiya): The display that holds the largest portion of the given window. */
+ax_display *AXLibWindowDisplay(ax_window *Window)
+{
+    CGRect Frame = { Window->Position, Window->Size };
+    CGFloat HighestVolume = 0;
+    ax_display *BestDisplay = NULL;
+
+    std::map<CGDirectDisplayID, ax_display>::iterator It;
+    for(It = Displays->begin(); It != Displays->end(); ++It)
+    {
+        ax_display *Display = &It->second;
+        CGRect Intersection = CGRectIntersection(Frame, Display->Frame);
+        CGFloat Volume = Intersection.size.width * Intersection.size.height;
+
+        if(Volume > HighestVolume)
+        {
+            HighestVolume = Volume;
+            BestDisplay = Display;
+        }
+    }
+
+    return BestDisplay;
+}
+
 
 ax_display *AXLibNextDisplay(ax_display *Display)
 {
