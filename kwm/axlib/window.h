@@ -1,6 +1,7 @@
 #ifndef AXLIB_WINDOW_H
 #define AXLIB_WINDOW_H
 
+#include "display.h"
 #include <Carbon/Carbon.h>
 #include <string>
 
@@ -54,5 +55,6 @@ AXLibClearFlags(ax_window *Window, uint32_t Flag)
 ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef);
 bool AXLibIsWindowStandard(ax_window *Window);
 void AXLibDestroyWindow(ax_window *Window);
+ax_display *AXLibGetWindowDisplay(ax_window *Window, std::map<CGDirectDisplayID, ax_display> *Displays);
 
 #endif
