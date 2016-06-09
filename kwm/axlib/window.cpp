@@ -10,6 +10,8 @@ ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef Windo
     ax_window Window = {};
 
     Window.Ref = WindowRef;
+    CFRetain(WindowRef);
+
     Window.Application = Application;
     Window.ID = AXLibGetWindowID(WindowRef);
     Window.Name = AXLibGetWindowTitle(WindowRef);
