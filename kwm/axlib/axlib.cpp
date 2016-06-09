@@ -106,9 +106,9 @@ std::vector<ax_window *> AXLibGetAllKnownWindows()
 internal inline bool
 AXLibArrayContains(int *WindowList, int WindowCount, uint32_t WindowID)
 {
-    while(WindowCount >= 0)
+    while(WindowCount > 0)
     {
-        if(WindowList[WindowCount--] == WindowID)
+        if(WindowList[--WindowCount] == WindowID)
             return true;
     }
 
