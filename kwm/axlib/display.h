@@ -26,6 +26,7 @@ struct ax_space
 
 struct ax_display
 {
+    unsigned int ArrangementID;
     CFStringRef Identifier;
     CGDirectDisplayID ID;
     CGRect Frame;
