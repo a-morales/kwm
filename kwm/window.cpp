@@ -61,6 +61,14 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
     FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
 
     UpdateBorder("focused");
+
+    /* NOTE(koekeishiya): Print the name and application of all windows currently visible. */
+    /*
+    std::vector<ax_window *> VisibleWindows = AXLibGetAllVisibleWindows();
+    printf("VISIBLE WINDOWS: %zd\n", VisibleWindows.size());
+    for(int Index = 0; Index < VisibleWindows.size(); ++Index)
+        printf("%s - %s\n", VisibleWindows[Index]->Application->Name.c_str(), VisibleWindows[Index]->Name.c_str());
+    */
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
