@@ -20,12 +20,15 @@ internal unsigned int ActiveDisplayCount = 0;
 internal CGDirectDisplayID
 AXLibContainsDisplay(CFStringRef DisplayIdentifier)
 {
-    std::map<CGDirectDisplayID, ax_display>::iterator It;
-    for(It = Displays->begin(); It != Displays->end(); ++It)
+    if(DisplayIdentifier)
     {
-        CFStringRef ActiveIdentifier = It->second.Identifier;
-        if(CFStringCompare(DisplayIdentifier, ActiveIdentifier, 0) == kCFCompareEqualTo)
-            return It->first;
+        std::map<CGDirectDisplayID, ax_display>::iterator It;
+        for(It = Displays->begin(); It != Displays->end(); ++It)
+        {
+            CFStringRef ActiveIdentifier = It->second.Identifier;
+            if(CFStringCompare(DisplayIdentifier, ActiveIdentifier, 0) == kCFCompareEqualTo)
+                return It->first;
+        }
     }
 
     return 0;
@@ -209,7 +212,6 @@ AXLibAddDisplay(CGDirectDisplayID DisplayID)
     if(!StoredDisplayID)
     {
         /* NOTE(koekeishiya): New display detected. */
-        AXLibConstructEvent(AXEvent_DisplayAdded, NULL);
     }
     else if(StoredDisplayID != DisplayID)
     {
@@ -224,7 +226,9 @@ AXLibAddDisplay(CGDirectDisplayID DisplayID)
                               is still in use by the same display we added earlier (?) */
     }
 
+    /* NOTE(koekeishiya): Refresh all displays and their asssociated spaces for now. */
     AXLibRefreshDisplays();
+
     /* TODO(koekeishiya): Should probably pass an identifier for the added display. */
     AXLibConstructEvent(AXEvent_DisplayAdded, NULL);
 }
@@ -248,7 +252,9 @@ AXLibRemoveDisplay(CGDirectDisplayID DisplayID)
         }
     }
 
+    /* NOTE(koekeishiya): Refresh all displays for now. */
     AXLibRefreshDisplays();
+
     /* TODO(koekeishiya): Should probably pass an identifier for the removed display. */
     AXLibConstructEvent(AXEvent_DisplayRemoved, NULL);
 }
@@ -263,6 +269,9 @@ AXLibResizeDisplay(CGDirectDisplayID DisplayID)
 
     /* NOTE(koekeishiya): Refresh all displays for now. */
     AXLibRefreshDisplays();
+
+    /* TODO(koekeishiya): Should probably pass an identifier for the resized display. */
+    AXLibConstructEvent(AXEvent_DisplayResized, NULL);
 }
 
 /* NOTE(koekeishiya): Caused by a change in monitor arrangements (?) */
@@ -271,12 +280,18 @@ AXLibMoveDisplay(CGDirectDisplayID DisplayID)
 {
     /* NOTE(koekeishiya): Probably have to update arrangement-index as well as display bounds for all displays. */
     AXLibRefreshDisplays();
+
+    /* TODO(koekeishiya): Should probably pass an identifier for the moved display. */
+    AXLibConstructEvent(AXEvent_DisplayMoved, NULL);
 }
 
 
 /* NOTE(koekeishiya): Get notified about display changes. */
 void AXDisplayReconfigurationCallBack(CGDirectDisplayID DisplayID, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
+    static int DisplayCallbackCount = 0;
+    printf("%d: Begin Display Callback\n", ++DisplayCallbackCount);
+
     if(Flags & kCGDisplayAddFlag)
     {
         printf("%d: Display detected\n", DisplayID);
@@ -320,6 +335,8 @@ void AXDisplayReconfigurationCallBack(CGDirectDisplayID DisplayID, CGDisplayChan
     {
         printf("%d: Display disabled\n", DisplayID);
     }
+
+    printf("%d: End Display Callback\n", DisplayCallbackCount);
 }
 
 /* NOTE(koekeishiya): Populate map with information about all connected displays. */
@@ -332,6 +349,7 @@ void AXLibActiveDisplays()
     {
         CGDirectDisplayID ID = CGDirectDisplayList[Index];
         (*Displays)[ID] = AXLibConstructDisplay(ID, Index);
+        printf("CGDirectDisplayID %d, Arrangement: %zd\n", ID, Index);
     }
 
     free(CGDirectDisplayList);
