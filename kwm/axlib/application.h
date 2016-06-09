@@ -21,8 +21,7 @@ struct ax_application
 
     bool Float;
     ax_window *Focus;
-    std::map<uint32_t, ax_window> Windows;
-    std::map<uint32_t, ax_window*> VisibleWindows;
+    std::map<uint32_t, ax_window*> Windows;
 };
 
 ax_application AXLibConstructApplication(pid_t PID, std::string Name);
@@ -33,7 +32,7 @@ void AXLibAddApplicationWindows(ax_application *Application);
 void AXLibRemoveApplicationWindows(ax_application *Application);
 
 ax_window *AXLibFindApplicationWindow(ax_application *Application, uint32_t WID);
-void AXLibAddApplicationWindow(ax_application *Application, ax_window Window);
+void AXLibAddApplicationWindow(ax_application *Application, ax_window *Window);
 void AXLibRemoveApplicationWindow(ax_application *Application, uint32_t WID);
 
 void AXLibAddApplicationObserver(ax_application *Application);

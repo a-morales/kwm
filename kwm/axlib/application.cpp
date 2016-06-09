@@ -22,6 +22,13 @@ AXLibUpdateApplicationWindowTitle(ax_application *Application, AXUIElementRef Wi
         Window->Name = AXLibGetWindowTitle(WindowRef);
 }
 
+internal inline void
+AXLibDestroyInvalidWindow(ax_window *Window)
+{
+    AXLibRemoveObserverNotification(&Window->Application->Observer, Window->Ref, kAXUIElementDestroyedNotification);
+    AXLibDestroyWindow(Window);
+}
+
 OBSERVER_CALLBACK(AXApplicationCallback)
 {
     ax_application *Application = (ax_application *) Reference;
@@ -31,25 +38,23 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         // printf("%s: kAXWindowCreatedNotification\n", Application->Name.c_str());
 
         /* NOTE(koekeishiya): Construct ax_window struct for the newly created window */
-        ax_window Window = AXLibConstructWindow(Application, Element);
-        AXLibAddApplicationWindow(Application, Window);
-
-        ax_window *WindowPtr = AXLibFindApplicationWindow(Application, Window.ID);
-        if(AXLibAddObserverNotification(&Application->Observer, WindowPtr->Ref, kAXUIElementDestroyedNotification, WindowPtr) == kAXErrorSuccess)
+        ax_window *Window = AXLibConstructWindow(Application, Element);
+        if(AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXUIElementDestroyedNotification, Window) == kAXErrorSuccess)
         {
+            AXLibAddApplicationWindow(Application, Window);
+
             /* NOTE(koekeishiya): Triggers an AXEvent_WindowCreated and passes a pointer to the new ax_window */
-            AXLibConstructEvent(AXEvent_WindowCreated, WindowPtr);
+            AXLibConstructEvent(AXEvent_WindowCreated, Window);
 
             /* NOTE(koekeishiya): When a new window is created, we incorrectly receive the kAXFocusedWindowChangedNotification
                                   first, for some reason. We discard that notification and restore it when we have the window to work with. */
-            Application->Focus = WindowPtr;
-            AXLibConstructEvent(AXEvent_WindowFocused, WindowPtr);
+            Application->Focus = Window;
+            AXLibConstructEvent(AXEvent_WindowFocused, Window);
         }
         else
         {
             /* NOTE(koekeishiya): This element is not destructible and cannot be an application window (?) */
-            AXLibRemoveObserverNotification(&Application->Observer, WindowPtr->Ref, kAXUIElementDestroyedNotification);
-            AXLibRemoveApplicationWindow(Application, Window.ID);
+            AXLibDestroyInvalidWindow(Window);
         }
     }
     else if(CFEqual(Notification, kAXUIElementDestroyedNotification))
@@ -187,34 +192,44 @@ void AXLibAddApplicationWindows(ax_application *Application)
         for(CFIndex Index = 0; Index < Count; ++Index)
         {
             AXUIElementRef Ref = (AXUIElementRef) CFArrayGetValueAtIndex(Windows, Index);
-            AXLibAddApplicationWindow(Application, AXLibConstructWindow(Application, Ref));
+            ax_window *Window = AXLibConstructWindow(Application, Ref);
+            CFRelease(Ref);
+
+            if(AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXUIElementDestroyedNotification, Window) == kAXErrorSuccess)
+            {
+                AXLibAddApplicationWindow(Application, Window);
+            }
+            else
+            {
+                AXLibDestroyInvalidWindow(Window);
+            }
         }
     }
 }
 
 void AXLibRemoveApplicationWindows(ax_application *Application)
 {
-    std::map<uint32_t, ax_window>::iterator It;
+    std::map<uint32_t, ax_window*>::iterator It;
     for(It = Application->Windows.begin(); It != Application->Windows.end(); ++It)
-        AXLibDestroyWindow(&It->second);
+        AXLibDestroyWindow(It->second);
 
     Application->Windows.clear();
 }
 
 ax_window *AXLibFindApplicationWindow(ax_application *Application, uint32_t WID)
 {
-    std::map<uint32_t, ax_window>::iterator It;
+    std::map<uint32_t, ax_window*>::iterator It;
     It = Application->Windows.find(WID);
     if(It != Application->Windows.end())
-        return &It->second;
+        return It->second;
     else
         return NULL;
 }
 
-void AXLibAddApplicationWindow(ax_application *Application, ax_window Window)
+void AXLibAddApplicationWindow(ax_application *Application, ax_window *Window)
 {
-    if(!AXLibFindApplicationWindow(Application, Window.ID))
-        Application->Windows[Window.ID] = Window;
+    if(!AXLibFindApplicationWindow(Application, Window->ID))
+        Application->Windows[Window->ID] = Window;
 }
 
 void AXLibRemoveApplicationWindow(ax_application *Application, uint32_t WID)

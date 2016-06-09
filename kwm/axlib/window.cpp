@@ -5,28 +5,27 @@
 #define internal static
 #define local_persist static
 
-ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef)
+ax_window *AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef)
 {
-    ax_window Window = {};
+    ax_window *Window = (ax_window *) malloc(sizeof(ax_window));
+    memset(Window, '\0', sizeof(ax_window));
 
-    Window.Ref = WindowRef;
-    CFRetain(WindowRef);
+    Window->Ref = (AXUIElementRef) CFRetain(WindowRef);
+    Window->Application = Application;
+    Window->ID = AXLibGetWindowID(WindowRef);
+    Window->Name = AXLibGetWindowTitle(WindowRef);
 
-    Window.Application = Application;
-    Window.ID = AXLibGetWindowID(WindowRef);
-    Window.Name = AXLibGetWindowTitle(WindowRef);
+    Window->Position = AXLibGetWindowPosition(WindowRef);
+    Window->Size = AXLibGetWindowSize(WindowRef);
 
-    Window.Position = AXLibGetWindowPosition(WindowRef);
-    Window.Size = AXLibGetWindowSize(WindowRef);
+    if(AXLibIsWindowMovable(Window->Ref))
+        AXLibAddFlags(Window, AXWindow_Movable);
 
-    if(AXLibIsWindowMovable(WindowRef))
-        AXLibAddFlags(&Window, AXWindow_Movable);
+    if(AXLibIsWindowResizable(Window->Ref))
+        AXLibAddFlags(Window, AXWindow_Resizable);
 
-    if(AXLibIsWindowResizable(WindowRef))
-        AXLibAddFlags(&Window, AXWindow_Resizable);
-
-    AXLibGetWindowRole(WindowRef, &Window.Type.Role);
-    AXLibGetWindowSubrole(WindowRef, &Window.Type.Subrole);
+    AXLibGetWindowRole(Window->Ref, &Window->Type.Role);
+    AXLibGetWindowSubrole(Window->Ref, &Window->Type.Subrole);
 
     return Window;
 }
@@ -55,4 +54,5 @@ void AXLibDestroyWindow(ax_window *Window)
     Window->Type.Role = NULL;
     Window->Type.Subrole = NULL;
     Window->Application = NULL;
+    free(Window);
 }

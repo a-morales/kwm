@@ -306,6 +306,13 @@ AXLibMoveDisplay(CGDirectDisplayID DisplayID)
 /* NOTE(koekeishiya): Get notified about display changes. */
 void AXDisplayReconfigurationCallBack(CGDirectDisplayID DisplayID, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
+    /* TODO(koekeishiya): Debug the following sequence of actions, which led to a crash for some reason.
+                          1. Start Kwm
+                          2. Connect external monitor
+                          3. Close macbook lid (clamshell mode)
+                          4. External monitor becomes main
+                          5. Reopen macbook lid, crash happens (?) */
+
     static int DisplayCallbackCount = 0;
     printf("%d: Begin Display Callback\n", ++DisplayCallbackCount);
 

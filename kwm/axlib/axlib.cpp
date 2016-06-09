@@ -96,8 +96,9 @@ std::vector<ax_window *> AXLibGetAllKnownWindows()
     for(It = AXApplications->begin(); It != AXApplications->end(); ++It)
     {
         ax_application *Application = &It->second;
-        for(int Index = 0; Index < Application->Windows.size(); ++Index)
-            Windows.push_back(&Application->Windows[Index]);
+        std::map<uint32_t, ax_window*>::iterator WIt;
+        for(WIt = Application->Windows.begin(); WIt != Application->Windows.end(); ++WIt)
+            Windows.push_back(WIt->second);
     }
 
     return Windows;
@@ -139,9 +140,10 @@ std::vector<ax_window *> AXLibGetAllVisibleWindows()
                 ax_application *Application = &It->second;
                 if(!AXLibIsApplicationHidden(Application))
                 {
-                    for(int Index = 0; Index < Application->Windows.size(); ++Index)
+                    std::map<uint32_t, ax_window*>::iterator WIt;
+                    for(WIt = Application->Windows.begin(); WIt != Application->Windows.end(); ++WIt)
                     {
-                        ax_window *Window = &Application->Windows[Index];
+                        ax_window *Window = WIt->second;
                         /* NOTE(koekeishiya): If a window is minimized, the ArrayContains check should fail
                                               if(!AXLibIsWindowMinimized(Window->Ref)) */
 

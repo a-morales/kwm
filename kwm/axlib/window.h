@@ -52,7 +52,7 @@ AXLibClearFlags(ax_window *Window, uint32_t Flag)
     Window->Flags &= ~Flag;
 }
 
-ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef);
+ax_window *AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef);
 bool AXLibIsWindowStandard(ax_window *Window);
 void AXLibDestroyWindow(ax_window *Window);
 
