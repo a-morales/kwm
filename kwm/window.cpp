@@ -117,17 +117,21 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
 
 EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
 {
-    DEBUG("AXEvent_WindowDestroyed");
+    ax_window *Window = (ax_window *) Event->Context;
+    DEBUG("AXEvent_WindowDestroyed: " << Window->Application->Name << " - " << Window->Name);
+    free(Window);
+
     UpdateBorder("focused");
     UpdateBorder("marked");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 {
-    Assert(FocusedApplication != NULL);
-    Assert(FocusedApplication->Focus != NULL);
+    if(FocusedApplication && FocusedApplication->Focus)
+    {
+        DEBUG("AXEvent_WindowFocused: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
+    }
 
-    DEBUG("AXEvent_WindowFocused: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
     UpdateBorder("focused");
     UpdateBorder("marked");
 }
