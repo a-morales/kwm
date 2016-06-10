@@ -97,13 +97,14 @@ CarbonApplicationTerminated(ProcessSerialNumber PSN)
 internal OSStatus
 CarbonApplicationEventHandler(EventHandlerCallRef HandlerCallRef, EventRef Event, void *Refcon)
 {
-    UInt32 Type = GetEventKind(Event);
     ProcessSerialNumber PSN;
-    if(GetEventParameter(Event, kEventParamProcessID, typeProcessSerialNumber, NULL, sizeof(PSN), NULL, &PSN) != noErr) {
+    if(GetEventParameter(Event, kEventParamProcessID, typeProcessSerialNumber, NULL, sizeof(PSN), NULL, &PSN) != noErr)
+    {
         printf("CarbonEventHandler: Could not get event parameter in application event\n");
         return -1;
     }
 
+    UInt32 Type = GetEventKind(Event);
     switch(Type)
     {
         case kEventAppLaunched:
@@ -130,13 +131,6 @@ bool AXLibInitializeCarbonEventHandler(carbon_event_handler *Carbon, std::map<pi
     Carbon->EventType[1].eventClass = kEventClassApplication;
     Carbon->EventType[1].eventKind = kEventAppTerminated;
 
-    if(InstallEventHandler(Carbon->EventTarget,
-                           Carbon->EventHandler, 2,
-                           Carbon->EventType, NULL,
-                           &Carbon->CurHandler) != noErr)
-    {
-        return false;
-    }
-
-    return true;
+    /* TODO(koekeishiya): Do we fallback to NSWorkspaceNotifications if we cannot install the Carbon handle, or simply abort (?) */
+    return InstallEventHandler(Carbon->EventTarget, Carbon->EventHandler, 2, Carbon->EventType, NULL, &Carbon->CurHandler) == noErr;
 }
