@@ -73,6 +73,7 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         printf("Display: CGDirectDisplayID %d, Arrangement %d\n", FocusedDisplay->ID, FocusedDisplay->ArrangementID);
         printf("Space: CGSSpaceID %d\n", FocusedDisplay->Space->ID);
         CreateWindowNodeTree(FocusedDisplay);
+        ShouldBSPTreeUpdate(FocusedDisplay);
     }
     else
     {
@@ -400,6 +401,30 @@ std::vector<int> GetAllWindowIDsInTree(space_info *Space)
     return Windows;
 }
 
+std::vector<ax_window *> GetAllAXWindowsNotInTree(std::vector<int> &WindowIDsInTree)
+{
+    std::vector<ax_window *> Windows;
+    std::vector<ax_window *> AXWindows = AXLibGetAllVisibleWindows();
+    for(std::size_t WindowIndex = 0; WindowIndex < AXWindows.size(); ++WindowIndex)
+    {
+        bool Found = false;
+        ax_window *AXWindow = AXWindows[WindowIndex];
+        for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
+        {
+            if(AXWindow->ID == WindowIDsInTree[IDIndex])
+            {
+                Found = true;
+                break;
+            }
+        }
+
+        if(!Found)
+            Windows.push_back(AXWindow);
+    }
+
+    return Windows;
+}
+
 std::vector<window_info*> GetAllWindowsNotInTree(std::vector<int> &WindowIDsInTree)
 {
     std::vector<window_info*> Windows;
@@ -417,6 +442,30 @@ std::vector<window_info*> GetAllWindowsNotInTree(std::vector<int> &WindowIDsInTr
 
         if(!Found)
             Windows.push_back(&KWMTiling.WindowLst[WindowIndex]);
+    }
+
+    return Windows;
+}
+
+std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree)
+{
+    std::vector<uint32_t> Windows;
+    std::vector<ax_window *> AXWindows = AXLibGetAllVisibleWindows();
+
+    for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
+    {
+        bool Found = false;
+        for(std::size_t WindowIndex = 0; WindowIndex < AXWindows.size(); ++WindowIndex)
+        {
+            if(AXWindows[WindowIndex]->ID == WindowIDsInTree[IDIndex])
+            {
+                Found = true;
+                break;
+            }
+        }
+
+        if(!Found)
+            Windows.push_back(WindowIDsInTree[IDIndex]);
     }
 
     return Windows;
@@ -558,30 +607,30 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 void ShouldBSPTreeUpdate(ax_display *Display)
 {
     space_info *Space = &WindowTree[Display->Space->Identifier];
-    std::vector<int> WindowIDsInTree = GetAllWindowIDsInTree(Space);
-    std::vector<window_info*> WindowsToAdd = GetAllWindowsNotInTree(WindowIDsInTree);
-    std::vector<int> WindowsToRemove = GetAllWindowIDsToRemoveFromTree(WindowIDsInTree);
-
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowsToRemove.size(); ++WindowIndex)
+    if(Space->RootNode)
     {
-        DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowsToRemove[WindowIndex]);
-        RemoveWindowFromBSPTree(Display, WindowsToRemove[WindowIndex]);
-    }
+        std::vector<int> WindowIDsInTree = GetAllWindowIDsInTree(Space);
+        std::vector<ax_window*> WindowsToAdd = GetAllAXWindowsNotInTree(WindowIDsInTree);
+        std::vector<uint32_t> WindowsToRemove = GetAllAXWindowIDsToRemoveFromTree(WindowIDsInTree);
 
-    window_info *FocusWindow = NULL;
-    for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
-    {
-        if(IsWindowTilable(WindowsToAdd[WindowIndex]) &&
-           !IsWindowFloating(WindowsToAdd[WindowIndex]->WID, NULL))
+        for(std::size_t WindowIndex = 0; WindowIndex < WindowsToRemove.size(); ++WindowIndex)
         {
-            DEBUG("ShouldBSPTreeUpdate() Add Window");
-            tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
-            if(Insert && (Insert->WindowID = WindowsToAdd[WindowIndex]->WID))
-                ApplyTreeNodeContainer(Insert);
-            else
-                AddWindowToBSPTree(Display, WindowsToAdd[WindowIndex]->WID);
+            DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowsToRemove[WindowIndex]);
+            RemoveWindowFromBSPTree(Display, WindowsToRemove[WindowIndex]);
+        }
 
-            FocusWindow = WindowsToAdd[WindowIndex];
+        for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
+        {
+            ax_window *AXWindow = WindowsToAdd[WindowIndex];
+            if(AXLibIsWindowStandard(AXWindow))
+            {
+                DEBUG("ShouldBSPTreeUpdate() Add Window");
+                tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
+                if(Insert && (Insert->WindowID = AXWindow->ID))
+                    ApplyTreeNodeContainer(Insert);
+                else
+                    AddWindowToBSPTree(Display, AXWindow->ID);
+            }
         }
     }
 }

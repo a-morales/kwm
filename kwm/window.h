@@ -9,6 +9,9 @@ void CreateWindowNodeTree(ax_display *Display);
 ax_window *GetWindowByID(unsigned int WindowID);
 void AddWindowToBSPTree(ax_display *Display, int WindowID);
 void RemoveWindowFromBSPTree(ax_display *Display, int WindowID);
+std::vector<ax_window *> GetAllAXWindowsNotInTree(std::vector<int> &WindowIDsInTree);
+void ShouldBSPTreeUpdate(ax_display *Display);
+std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree);
 
 
 /* TODO(koekeishiya): NOT YET LOOKED AT */
