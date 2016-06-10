@@ -7,6 +7,56 @@
 #define internal static
 #define local_persist static
 
+enum ax_application_notifications
+{
+    AXApplication_Notification_WindowCreated,
+    AXApplication_Notification_WindowFocused,
+    AXApplication_Notification_WindowMinimized,
+    AXApplication_Notification_WindowDeminimized,
+    AXApplication_Notification_WindowMoved,
+    AXApplication_Notification_WindowResized,
+    AXApplication_Notification_WindowTitle,
+
+    AXApplication_Notification_Count,
+};
+
+internal CFStringRef
+AXNotificationFromEnum(int Type)
+{
+    switch(Type)
+    {
+        case AXApplication_Notification_WindowCreated:
+        {
+            return kAXWindowCreatedNotification;
+        } break;
+        case AXApplication_Notification_WindowFocused:
+        {
+            return kAXFocusedWindowChangedNotification;
+        } break;
+        case AXApplication_Notification_WindowMinimized:
+        {
+            return kAXWindowMiniaturizedNotification;
+        } break;
+        case AXApplication_Notification_WindowDeminimized:
+        {
+            return kAXWindowDeminiaturizedNotification;
+        } break;
+        case AXApplication_Notification_WindowMoved:
+        {
+            return kAXWindowMovedNotification;
+        } break;
+        case AXApplication_Notification_WindowResized:
+        {
+            return kAXWindowResizedNotification;
+        } break;
+        case AXApplication_Notification_WindowTitle:
+        {
+            return kAXTitleChangedNotification;
+        } break;
+        default: { return NULL; /* NOTE(koekeishiya): Should never happen */ } break;
+    }
+}
+
 internal inline ax_window *
 AXLibGetWindowByRef(ax_application *Application, AXUIElementRef WindowRef)
 {
@@ -153,14 +203,23 @@ void AXLibAddApplicationObserver(ax_application *Application)
     if(Application->Observer.Valid)
     {
         printf("AXLIB Create observer: %s\n", Application->Name.c_str());
-        AXLibAddObserverNotification(&Application->Observer, Application->Ref, kAXWindowCreatedNotification, Application);
-        AXLibAddObserverNotification(&Application->Observer, Application->Ref, kAXFocusedWindowChangedNotification, Application);
+        for(int Notification = AXApplication_Notification_WindowCreated;
+                Notification < AXApplication_Notification_Count;
+                ++Notification)
+        {
+            int Attempts = 10;
+            while((--Attempts > 0) &&
+                  (AXLibAddObserverNotification(&Application->Observer, Application->Ref, AXNotificationFromEnum(Notification), Application) != kAXErrorSuccess))
+            {
+                /* NOTE(koekeishiya): Could not add notification because the application has not finishied initializing yet.
+                                      Sleep for a short while and try again. We limit the number of tries to prevent a deadlock. */
+                usleep(10000);
+            }
 
-        AXLibAddObserverNotification(&Application->Observer, Application->Ref, kAXWindowMiniaturizedNotification, Application);
-        AXLibAddObserverNotification(&Application->Observer, Application->Ref, kAXWindowDeminiaturizedNotification, Application);
-        AXLibAddObserverNotification(&Application->Observer, Application->Ref, kAXWindowMovedNotification, Application);
-        AXLibAddObserverNotification(&Application->Observer, Application->Ref, kAXWindowResizedNotification, Application);
-        AXLibAddObserverNotification(&Application->Observer, Application->Ref, kAXTitleChangedNotification, Application);
+            /* NOTE(koekeishiya): Do we want to schedule a future event for the given application here if we failed (?) */
+            bool Success = Attempts != 0;
+            printf("AXLIB Add notification %d, success %d\n", Notification, Success);
+        }
 
         AXLibStartObserver(&Application->Observer);
     }
@@ -172,14 +231,12 @@ void AXLibRemoveApplicationObserver(ax_application *Application)
     {
         AXLibStopObserver(&Application->Observer);
 
-        AXLibRemoveObserverNotification(&Application->Observer, Application->Ref, kAXWindowCreatedNotification);
-        AXLibRemoveObserverNotification(&Application->Observer, Application->Ref, kAXFocusedWindowChangedNotification);
-
-        AXLibRemoveObserverNotification(&Application->Observer, Application->Ref, kAXWindowMiniaturizedNotification);
-        AXLibRemoveObserverNotification(&Application->Observer, Application->Ref, kAXWindowDeminiaturizedNotification);
-        AXLibRemoveObserverNotification(&Application->Observer, Application->Ref, kAXWindowMovedNotification);
-        AXLibRemoveObserverNotification(&Application->Observer, Application->Ref, kAXWindowResizedNotification);
-        AXLibRemoveObserverNotification(&Application->Observer, Application->Ref, kAXTitleChangedNotification);
+        for(int Notification = AXApplication_Notification_WindowCreated;
+                Notification < AXApplication_Notification_Count;
+                ++Notification)
+        {
+            AXLibRemoveObserverNotification(&Application->Observer, Application->Ref, AXNotificationFromEnum(Notification));
+        }
 
         AXLibDestroyObserver(&Application->Observer);
     }
