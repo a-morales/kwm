@@ -168,6 +168,30 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     UpdateBorder("marked");
 }
 
+EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
+{
+    ax_window *Window = (ax_window *) Event->Context;
+    DEBUG("AXEvent_WindowMinimized: " << Window->Application->Name << " - " << Window->Name);
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(Display)
+        RemoveWindowFromBSPTree(Display, Window->ID);
+
+    UpdateBorder("focused");
+    UpdateBorder("marked");
+}
+
+EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
+{
+    ax_window *Window = (ax_window *) Event->Context;
+    DEBUG("AXEvent_WindowDeminimized: " << Window->Application->Name << " - " << Window->Name);
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(Display)
+        AddWindowToBSPTree(Display, Window->ID);
+
+    UpdateBorder("focused");
+    UpdateBorder("marked");
+}
+
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 {
     if(FocusedApplication && FocusedApplication->Focus)
