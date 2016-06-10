@@ -7,7 +7,7 @@ KWM_SRCS      = kwm/kwm.cpp kwm/container.cpp kwm/node.cpp kwm/tree.cpp kwm/wind
 				kwm/daemon.cpp kwm/interpreter.cpp kwm/keys.cpp kwm/space.cpp kwm/border.cpp kwm/workspace.mm \
 				kwm/serializer.cpp kwm/tokenizer.cpp kwm/rules.cpp kwm/scratchpad.cpp kwm/command.cpp kwm/config.cpp \
 				kwm/axlib/axlib.cpp kwm/axlib/element.cpp kwm/axlib/window.cpp kwm/axlib/application.cpp kwm/axlib/observer.cpp \
-				kwm/axlib/event.cpp kwm/axlib/sharedworkspace.mm kwm/axlib/display.mm
+				kwm/axlib/event.cpp kwm/axlib/sharedworkspace.mm kwm/axlib/display.mm kwm/axlib/carbon.cpp
 KWM_OBJS_TMP  = $(KWM_SRCS:.cpp=.o)
 KWM_OBJS      = $(KWM_OBJS_TMP:.mm=.o)
 KWMC_SRCS     = kwmc/kwmc.cpp
@@ -19,7 +19,7 @@ OBJS_DIR      = ./obj
 SAMPLE_CONFIG = examples/kwmrc
 CONFIG_DIR    = $(HOME)/.kwm
 BUILD_PATH    = ./bin
-BUILD_FLAGS   = -O3 -Wall
+BUILD_FLAGS   = -Wall
 BINS          = $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(CONFIG_DIR)/kwmrc
 
 all: $(BINS)
