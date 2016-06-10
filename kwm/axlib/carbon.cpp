@@ -89,7 +89,7 @@ CarbonApplicationTerminated(ProcessSerialNumber PSN)
             Applications->erase(PID);
 
             /* TODO(koekeishiya): We probably want to pass an identifier for this application. */
-            // AXLibConstructEvent(AXEvent_ApplicationTerminated, NULL);
+            AXLibConstructEvent(AXEvent_ApplicationTerminated, NULL);
         }
     }
 }
