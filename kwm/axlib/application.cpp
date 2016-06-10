@@ -79,8 +79,6 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = AXLibConstructWindow(Application, Element);
         if(AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXUIElementDestroyedNotification, Window) == kAXErrorSuccess)
         {
-            AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowMiniaturizedNotification, Window);
-            AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowDeminiaturizedNotification, Window);
             AXLibAddApplicationWindow(Application, Window);
 
             /* NOTE(koekeishiya): Triggers an AXEvent_WindowCreated and passes a pointer to the new ax_window */
@@ -283,7 +281,11 @@ ax_window *AXLibFindApplicationWindow(ax_application *Application, uint32_t WID)
 void AXLibAddApplicationWindow(ax_application *Application, ax_window *Window)
 {
     if(!AXLibFindApplicationWindow(Application, Window->ID))
+    {
+        AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowMiniaturizedNotification, Window);
+        AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowDeminiaturizedNotification, Window);
         Application->Windows[Window->ID] = Window;
+    }
 }
 
 void AXLibRemoveApplicationWindow(ax_application *Application, uint32_t WID)
