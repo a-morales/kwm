@@ -31,14 +31,6 @@ AXNotificationFromEnum(int Type)
         {
             return kAXFocusedWindowChangedNotification;
         } break;
-        case AXApplication_Notification_WindowMinimized:
-        {
-            return kAXWindowMiniaturizedNotification;
-        } break;
-        case AXApplication_Notification_WindowDeminimized:
-        {
-            return kAXWindowDeminiaturizedNotification;
-        } break;
         case AXApplication_Notification_WindowMoved:
         {
             return kAXWindowMovedNotification;
