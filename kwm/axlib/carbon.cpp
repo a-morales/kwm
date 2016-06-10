@@ -7,6 +7,30 @@
 #define internal static
 internal std::map<pid_t, ax_application> *Applications;
 
+/* TODO(koekeishiya): The processes we observe can be of the following types.
+                      We probably do not care about tracking daemons.
+   enum {
+       modeReserved = 0x01000000,
+       modeControlPanel = 0x00080000,
+       modeLaunchDontSwitch = 0x00040000,
+       modeDeskAccessory = 0x00020000,
+       modeMultiLaunch = 0x00010000,
+       modeNeedSuspendResume = 0x00004000,
+       modeCanBackground = 0x00001000,
+       modeDoesActivateOnFGSwitch = 0x00000800,
+       modeOnlyBackground = 0x00000400,
+       modeGetFrontClicks = 0x00000200,
+       modeGetAppDiedMsg = 0x00000100,
+       mode32BitCompatible = 0x00000080,
+       modeHighLevelEventAware = 0x00000040,
+       modeLocalAndRemoteHLEvents = 0x00000020,
+       modeStationeryAware = 0x00000010,
+       modeUseTextEditServices = 0x00000008,
+       modeDisplayManagerAware = 0x00000004
+};
+
+*/
+
 /* NOTE(koekeishiya): A pascal string has the size of the string stored as the first byte. */
 internal void
 CopyPascalStringToC(ConstStr255Param Source, char *Destination)
@@ -23,15 +47,14 @@ CarbonApplicationLaunched(ProcessSerialNumber PSN)
     ProcessInfo.processInfoLength = sizeof(ProcessInfoRec);
     ProcessInfo.processName = ProcessName;
 
-    /* NOTE(koekeishiya): Deprecated, we're fucked if this gets removed in the future. */
+    /* NOTE(koekeishiya): Deprecated, consider switching to
+     * CFDictionaryRef ProcessInformationCopyDictionary(const ProcessSerialNumber *PSN, UInt32 infoToReturn) */
     GetProcessInformation(&PSN, &ProcessInfo);
 
-    /* NOTE(koekeishiya): Check if we should care about this process. */
+    /* TODO(koekeishiya): Check if we should care about this process. */
     /* if((ProcessInfo.processMode & modeOnlyBackground) != 0)
         return;
     */
-    if((ProcessInfo.processMode & modeGetAppDiedMsg) != 0)
-        return;
 
     char ProcessNameCString[256] = {0};
     if(ProcessInfo.processName)
