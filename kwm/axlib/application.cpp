@@ -11,13 +11,11 @@ enum ax_application_notifications
 {
     AXApplication_Notification_WindowCreated,
     AXApplication_Notification_WindowFocused,
-    AXApplication_Notification_WindowMinimized,
-    AXApplication_Notification_WindowDeminimized,
     AXApplication_Notification_WindowMoved,
     AXApplication_Notification_WindowResized,
     AXApplication_Notification_WindowTitle,
 
-    AXApplication_Notification_Count,
+    AXApplication_Notification_Count
 };
 
 internal CFStringRef
@@ -89,6 +87,9 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = AXLibConstructWindow(Application, Element);
         if(AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXUIElementDestroyedNotification, Window) == kAXErrorSuccess)
         {
+            AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowMiniaturizedNotification, Window);
+            AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowDeminiaturizedNotification, Window);
+
             AXLibAddApplicationWindow(Application, Window);
 
             /* NOTE(koekeishiya): Triggers an AXEvent_WindowCreated and passes a pointer to the new ax_window */
@@ -134,22 +135,20 @@ OBSERVER_CALLBACK(AXApplicationCallback)
     }
     else if(CFEqual(Notification, kAXWindowMiniaturizedNotification))
     {
-        /* NOTE(koekeishiya): Triggers an AXEvent_WindowMiniaturized and passes a pointer to the ax_window */
-        ax_window *Window = AXLibGetWindowByRef(Application, Element);
+        /* NOTE(koekeishiya): Triggers an AXEvent_WindowMinimized and passes a pointer to the ax_window */
+        ax_window *Window = (ax_window *) Reference;
         if(Window)
         {
-            AXLibConstructEvent(AXEvent_WindowMiniaturized, Window);
+            AXLibConstructEvent(AXEvent_WindowMinimized, Window);
         }
     }
     else if(CFEqual(Notification, kAXWindowDeminiaturizedNotification))
     {
-        /* NOTE(koekeishiya): Triggers an AXEvent_WindowMiniaturized and passes a pointer to the ax_window */
-        ax_window *Window = AXLibGetWindowByRef(Application, Element);
-        ax_window *Window = AXLibGetWindowByRef(Application, Element);
-        ax_window *Window = AXLibGetWindowByRef(Application, Element);
+        /* NOTE(koekeishiya): Triggers an AXEvent_WindowDeminimized and passes a pointer to the ax_window */
+        ax_window *Window = (ax_window *) Reference;
         if(Window)
         {
-            AXLibConstructEvent(AXEvent_WindowDeminiaturized, Window);
+            AXLibConstructEvent(AXEvent_WindowDeminimized, Window);
         }
     }
     else if(CFEqual(Notification, kAXWindowMovedNotification))
@@ -275,6 +274,8 @@ void AXLibRemoveApplicationWindows(ax_application *Application)
     {
         ax_window *Window = It->second;
         AXLibRemoveObserverNotification(&Window->Application->Observer, Window->Ref, kAXUIElementDestroyedNotification);
+        AXLibRemoveObserverNotification(&Window->Application->Observer, Window->Ref, kAXWindowMiniaturizedNotification);
+        AXLibRemoveObserverNotification(&Window->Application->Observer, Window->Ref, kAXWindowDeminiaturizedNotification);
         AXLibDestroyWindow(Window);
     }
 
