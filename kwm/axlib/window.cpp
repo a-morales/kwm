@@ -12,11 +12,11 @@ ax_window *AXLibConstructWindow(ax_application *Application, AXUIElementRef Wind
 
     Window->Ref = (AXUIElementRef) CFRetain(WindowRef);
     Window->Application = Application;
-    Window->ID = AXLibGetWindowID(WindowRef);
-    Window->Name = AXLibGetWindowTitle(WindowRef);
+    Window->ID = AXLibGetWindowID(Window->Ref);
+    Window->Name = AXLibGetWindowTitle(Window->Ref);
 
-    Window->Position = AXLibGetWindowPosition(WindowRef);
-    Window->Size = AXLibGetWindowSize(WindowRef);
+    Window->Position = AXLibGetWindowPosition(Window->Ref);
+    Window->Size = AXLibGetWindowSize(Window->Ref);
 
     if(AXLibIsWindowMovable(Window->Ref))
         AXLibAddFlags(Window, AXWindow_Movable);
