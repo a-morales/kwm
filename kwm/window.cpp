@@ -102,7 +102,15 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
     FocusedApplication = Application;
     FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
 
-    DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name);
+    if(FocusedApplication->Focus)
+    {
+        DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
+    }
+    else
+    {
+        DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name << " - [Unknown Window]");
+    }
+
     UpdateBorder("focused");
 }
 
