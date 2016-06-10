@@ -136,8 +136,11 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
     if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
     {
         DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
-        ax_display *Display = AXLibWindowDisplay(Window);
-        AddWindowToBSPTree(Display, Window->ID);
+        if(AXLibIsWindowStandard(Window))
+        {
+            ax_display *Display = AXLibWindowDisplay(Window);
+            AddWindowToBSPTree(Display, Window->ID);
+        }
     }
 }
 
@@ -309,16 +312,7 @@ bool IsWindowBelowCursor(window_info *Window)
     return false;
 }
 
-bool IsWindowOnActiveSpace(int WindowID)
-{
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-    {
-        if(WindowID == KWMTiling.WindowLst[WindowIndex].WID)
-            return true;
-    }
-
-    return false;
-}
+bool IsWindowOnActiveSpace(int WindowID) { }
 
 void ClearFocusedWindow()
 {
@@ -327,23 +321,7 @@ void ClearFocusedWindow()
     KWMFocus.Cache = KWMFocus.NULLWindowInfo;
 }
 
-bool FocusWindowOfOSX()
-{
-    if(IsSpaceTransitionInProgress() ||
-       !IsActiveSpaceManaged())
-        return false;
-
-    AXUIElementRef WindowRef;
-    if(AXLibGetFocusedWindow(&WindowRef))
-    {
-        SetKwmFocus(WindowRef);
-        CFRelease(WindowRef);
-        return true;
-    }
-
-    ClearFocusedWindow();
-    return false;
-}
+bool FocusWindowOfOSX() { }
 
 void FocusWindowBelowCursor()
 {
@@ -383,85 +361,9 @@ void FocusWindowBelowCursor()
     }
 }
 
-void UpdateWindowTree()
-{
-    if(IsSpaceTransitionInProgress() ||
-       !IsActiveSpaceManaged())
-        return;
+void UpdateWindowTree() { }
 
-    UpdateActiveWindowList(KWMScreen.Current);
-    if(KWMToggles.EnableTilingMode &&
-       FilterWindowList(KWMScreen.Current))
-    {
-        std::vector<window_info*> WindowsOnDisplay = GetAllWindowsOnDisplay(KWMScreen.Current->ID);
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-
-        if(!IsActiveSpaceFloating())
-        {
-            if(!Space->Initialized)
-                CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
-            else if(Space->Initialized &&
-                    !WindowsOnDisplay.empty() &&
-                    !Space->RootNode)
-                CreateWindowNodeTree(KWMScreen.Current, &WindowsOnDisplay);
-            else if(Space->Initialized &&
-                    !WindowsOnDisplay.empty() &&
-                    Space->RootNode)
-                ShouldWindowNodeTreeUpdate(KWMScreen.Current);
-            else if(Space->Initialized &&
-                    WindowsOnDisplay.empty() &&
-                    Space->RootNode)
-            {
-                DestroyNodeTree(Space->RootNode);
-                Space->RootNode = NULL;
-                Space->FocusedWindowID = -1;
-                ClearFocusedWindow();
-            }
-        }
-    }
-}
-
-void UpdateActiveWindowList(screen_info *Screen)
-{
-    static CGWindowListOption OsxWindowListOption = kCGWindowListOptionOnScreenOnly |
-                                                    kCGWindowListExcludeDesktopElements;
-
-    KWMTiling.WindowLst.clear();
-    CFArrayRef OsxWindowLst = CGWindowListCopyWindowInfo(OsxWindowListOption, kCGNullWindowID);
-    if(!OsxWindowLst)
-        return;
-
-    CFIndex OsxWindowCount = CFArrayGetCount(OsxWindowLst);
-    for(CFIndex WindowIndex = 0; WindowIndex < OsxWindowCount; ++WindowIndex)
-    {
-        CFDictionaryRef Elem = (CFDictionaryRef)CFArrayGetValueAtIndex(OsxWindowLst, WindowIndex);
-        KWMTiling.WindowLst.push_back(window_info());
-        CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
-        if(KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Owner == "kwm-overlay")
-        {
-            if(KWMTiling.KwmOverlay[0] == 0)
-            {
-                int OverlayWID = KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].WID;
-                if(KWMTiling.KwmOverlay[1] != OverlayWID)
-                    KWMTiling.KwmOverlay[0] = OverlayWID;
-            }
-            else if(KWMTiling.KwmOverlay[1] == 0)
-            {
-                int OverlayWID = KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].WID;
-                if(KWMTiling.KwmOverlay[0] != OverlayWID)
-                    KWMTiling.KwmOverlay[1] = OverlayWID;
-            }
-
-            KWMTiling.WindowLst.pop_back();
-        }
-    }
-    CFRelease(OsxWindowLst);
-
-    for(int Index = 0; Index < KWMTiling.WindowLst.size(); ++Index)
-        CheckWindowRules(&KWMTiling.WindowLst[Index]);
-
-    KWMTiling.FocusLst = KWMTiling.WindowLst;
-}
+void UpdateActiveWindowList(screen_info *Screen) { }
 
 std::vector<int> GetAllWindowIDsInTree(space_info *Space)
 {
@@ -783,8 +685,10 @@ void RemoveWindowFromBSPTree(ax_display *Display, int WindowID)
 {
     space_info *Space = &WindowTree[Display->Space->Identifier];
     tree_node *WindowNode = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
-    tree_node *Parent = WindowNode->Parent;
+    if(!WindowNode)
+        return;
 
+    tree_node *Parent = WindowNode->Parent;
     if(Parent && Parent->LeftChild && Parent->RightChild)
     {
         tree_node *AccessChild = IsRightChild(WindowNode) ? Parent->LeftChild : Parent->RightChild;
