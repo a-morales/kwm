@@ -1147,38 +1147,42 @@ void ToggleFocusedWindowParentContainer()
 
 void ToggleFocusedWindowFullscreen()
 {
-    if(!KWMFocus.Window || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    /* NOTE(koekeishiya): The following code works and was added due to frustration of using a pre-alpha
+                          window manager during development.  */
+
+    /* TODO(koekeishiya): This function should be able to assume that the focused window is valid. */
+
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
         return;
 
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Settings.Mode == SpaceModeBSP && !IsLeafNode(Space->RootNode))
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    space_info *Space = &WindowTree[Display->Space->Identifier];
+    if(!Space->RootNode)
+        return;
+
+    tree_node *Node = NULL;
+    if(Space->RootNode->WindowID == -1)
     {
-        tree_node *Node = NULL;
-        if(Space->RootNode->WindowID == -1)
+        Node = GetTreeNodeFromWindowID(Space->RootNode, Window->ID);
+        if(Node)
         {
-            Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-            if(Node)
-            {
-                DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen");
-                Space->RootNode->WindowID = Node->WindowID;
-                ResizeWindowToContainerSize(Space->RootNode);
-            }
+            DEBUG("ToggleFocusedWindowFullscreen() Set fullscreen");
+            Space->RootNode->WindowID = Node->WindowID;
+            ResizeWindowToContainerSize(Space->RootNode);
         }
-        else
+    }
+    else
+    {
+        DEBUG("ToggleFocusedWindowFullscreen() Restore old size");
+        Space->RootNode->WindowID = -1;
+        Node = GetTreeNodeFromWindowID(Space->RootNode, Window->ID);
+        if(Node)
         {
-            DEBUG("ToggleFocusedWindowFullscreen() Restore old size");
-            Space->RootNode->WindowID = -1;
-
-            Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-            if(Node)
-            {
-                ResizeWindowToContainerSize(Node);
-            }
-        }
-
-        if(KWMTiling.LockToContainer)
-        {
-            UpdateBorder("focused");
+            ResizeWindowToContainerSize(Node);
         }
     }
 }
