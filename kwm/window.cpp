@@ -63,7 +63,6 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
     DEBUG("AXEvent_SpaceChanged");
-
     AXLibRunningApplications();
     ax_display *Display  = AXLibMainDisplay();
     if(Display)
@@ -72,6 +71,7 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         FocusedDisplay->Space = AXLibGetActiveSpace(FocusedDisplay);
         printf("Display: CGDirectDisplayID %d, Arrangement %d\n", FocusedDisplay->ID, FocusedDisplay->ArrangementID);
         printf("Space: CGSSpaceID %d\n", FocusedDisplay->Space->ID);
+
         CreateWindowNodeTree(FocusedDisplay);
         ShouldBSPTreeUpdate(FocusedDisplay);
     }
@@ -103,13 +103,22 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
     if(Application->Focus)
     {
         ax_display *Display = AXLibWindowDisplay(Application->Focus);
-
+        if(Display)
+        {
+            AddWindowToBSPTree(Display, Application->Focus->ID);
+        }
     }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
 {
     DEBUG("AXEvent_ApplicationTerminated");
+
+    /* TODO(koekeishiya): We probably want to flag every display for an update, as the application
+                          in question could have had windows on several displays and spaces. */
+    ax_display *Display = AXLibMainDisplay();
+    if(Display)
+        ShouldBSPTreeUpdate(Display);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
@@ -153,8 +162,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     ax_display *Display = AXLibWindowDisplay(Window);
     if(Display)
         RemoveWindowFromBSPTree(Display, Window->ID);
-    AXLibDestroyWindow(Window);
 
+    AXLibDestroyWindow(Window);
     UpdateBorder("focused");
     UpdateBorder("marked");
 }
@@ -613,27 +622,12 @@ void ShouldBSPTreeUpdate(ax_display *Display)
     if(Space->RootNode)
     {
         std::vector<int> WindowIDsInTree = GetAllWindowIDsInTree(Space);
-        std::vector<ax_window*> WindowsToAdd = GetAllAXWindowsNotInTree(Display, WindowIDsInTree);
         std::vector<uint32_t> WindowsToRemove = GetAllAXWindowIDsToRemoveFromTree(WindowIDsInTree);
 
         for(std::size_t WindowIndex = 0; WindowIndex < WindowsToRemove.size(); ++WindowIndex)
         {
             DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowsToRemove[WindowIndex]);
             RemoveWindowFromBSPTree(Display, WindowsToRemove[WindowIndex]);
-        }
-
-        for(std::size_t WindowIndex = 0; WindowIndex < WindowsToAdd.size(); ++WindowIndex)
-        {
-            ax_window *AXWindow = WindowsToAdd[WindowIndex];
-            if(AXLibIsWindowStandard(AXWindow))
-            {
-                DEBUG("ShouldBSPTreeUpdate() Add Window");
-                tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
-                if(Insert && (Insert->WindowID = AXWindow->ID))
-                    ApplyTreeNodeContainer(Insert);
-                else
-                    AddWindowToBSPTree(Display, AXWindow->ID);
-            }
         }
     }
 }
