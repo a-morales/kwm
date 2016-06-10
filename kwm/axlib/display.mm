@@ -135,6 +135,7 @@ ax_space * AXLibGetActiveSpace(ax_display *Display)
         CFStringRef SpaceUUID = AXLibGetActiveSpaceIdentifier(Display);
         CGSSpaceType SpaceType = CGSSpaceGetType(CGSDefaultConnection, SpaceID);
         Display->Spaces[SpaceID] = AXLibConstructSpace(SpaceUUID, SpaceID, SpaceType);
+        /* NOTE(koekeishiya): Do we want this (?) AXLibConstructEvent(AXEvent_SpaceCreated, &Display->Spaces[SpaceID]); */
     }
 
     return &Display->Spaces[SpaceID];
