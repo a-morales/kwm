@@ -81,7 +81,6 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         {
             AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowMiniaturizedNotification, Window);
             AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowDeminiaturizedNotification, Window);
-
             AXLibAddApplicationWindow(Application, Window);
 
             /* NOTE(koekeishiya): Triggers an AXEvent_WindowCreated and passes a pointer to the new ax_window */
@@ -104,11 +103,8 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = (ax_window *) Reference;
         if(Window)
         {
-            printf("%d:%s:%s: kAXUIElementDestroyedNotification\n", Window->ID, Window->Application->Name.c_str(), Window->Name.c_str());
-            Window->Application->Focus = AXLibGetFocusedWindow(Window->Application);
-
-            AXLibRemoveObserverNotification(&Window->Application->Observer, Window->Ref, kAXUIElementDestroyedNotification);
             AXLibRemoveApplicationWindow(Window->Application, Window->ID);
+            Window->Application->Focus = AXLibGetFocusedWindow(Window->Application);
 
             /* NOTE(koekeishiya): The callback is responsible for calling AXLibDestroyWindow(Window); */
             AXLibConstructEvent(AXEvent_WindowDestroyed, Window);
@@ -295,6 +291,9 @@ void AXLibRemoveApplicationWindow(ax_application *Application, uint32_t WID)
     ax_window *Window = AXLibFindApplicationWindow(Application, WID);
     if(Window)
     {
+        AXLibRemoveObserverNotification(&Window->Application->Observer, Window->Ref, kAXUIElementDestroyedNotification);
+        AXLibRemoveObserverNotification(&Window->Application->Observer, Window->Ref, kAXWindowMiniaturizedNotification);
+        AXLibRemoveObserverNotification(&Window->Application->Observer, Window->Ref, kAXWindowDeminiaturizedNotification);
         Application->Windows.erase(WID);
     }
 }
