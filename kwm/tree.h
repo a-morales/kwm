@@ -2,7 +2,16 @@
 #define TREE_H
 
 #include "types.h"
+#include "axlib/display.h"
 
+/* NOTE(koekeishiya): The following functions are working as expected. */
+
+/* NOTE(koekeishiya): The following functions are under testing. */
+tree_node *CreateTreeFromWindowIDList(ax_display *Display, std::vector<uint32_t> *Windows);
+bool CreateBSPTree(tree_node *RootNode, ax_display *Display, std::vector<uint32_t> *WindowsPtr);
+bool CreateMonocleTree(tree_node *RootNode, ax_display *Display, std::vector<uint32_t> *WindowsPtr);
+
+/* NOTE(koekeishiya): The following functions still need to be investigated. */
 tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr);
 bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr);
 bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr);

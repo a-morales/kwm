@@ -2,7 +2,15 @@
 #define NODE_H
 
 #include "types.h"
+#include "axlib/display.h"
 
+/* NOTE(koekeishiya): The following functions are working as expected. */
+
+/* NOTE(koekeishiya): The following functions are under testing. */
+void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode);
+tree_node *CreateLeafNode(ax_display *Display, tree_node *Parent, int WindowID, int ContainerType);
+
+/* NOTE(koekeishiya): The following functions still need to be investigated. */
 tree_node *CreateRootNode();
 link_node *CreateLinkNode();
 tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType);

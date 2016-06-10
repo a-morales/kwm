@@ -38,10 +38,8 @@ link_node *CreateLinkNode()
     return Link;
 }
 
-tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType)
+tree_node *CreateLeafNode(ax_display *Display, tree_node *Parent, int WindowID, int ContainerType)
 {
-    Assert(Parent);
-
     tree_node Clear = {0};
     tree_node *Leaf = (tree_node*) malloc(sizeof(tree_node));
     *Leaf = Clear;
@@ -50,7 +48,7 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
     Leaf->WindowID = WindowID;
     Leaf->Type = NodeTypeTree;
 
-    CreateNodeContainer(Screen, Leaf, ContainerType);
+    CreateNodeContainer(Display, Leaf, ContainerType);
 
     Leaf->LeftChild = NULL;
     Leaf->RightChild = NULL;
@@ -58,12 +56,13 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
     return Leaf;
 }
 
-void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode)
-{
-    Assert(Parent);
+tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType) { }
 
+void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode)
+{
     Parent->WindowID = -1;
     Parent->SplitMode = SplitMode;
+    /* TODO(koekeishiya): Is KWMScreen.SplitRatio a thing (?) */
     Parent->SplitRatio = KWMScreen.SplitRatio;
 
     node_type ParentType = Parent->Type;
@@ -71,13 +70,14 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowI
     Parent->Type = NodeTypeTree;
     Parent->List = NULL;
 
+    /* TODO(koekeishiya): Is KWMTiling.SpawnAsLeftChild a thing (?) */
     int LeftWindowID = KWMTiling.SpawnAsLeftChild ? SecondWindowID : FirstWindowID;
     int RightWindowID = KWMTiling.SpawnAsLeftChild ? FirstWindowID : SecondWindowID;
 
     if(SplitMode == SPLIT_VERTICAL)
     {
-        Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 1);
-        Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 2);
+        Parent->LeftChild = CreateLeafNode(Display, Parent, LeftWindowID, 1);
+        Parent->RightChild = CreateLeafNode(Display, Parent, RightWindowID, 2);
 
         tree_node *Node = KWMTiling.SpawnAsLeftChild ?  Parent->RightChild : Parent->LeftChild;
         Node->Type = ParentType;
@@ -86,8 +86,8 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowI
     }
     else if(SplitMode == SPLIT_HORIZONTAL)
     {
-        Parent->LeftChild = CreateLeafNode(Screen, Parent, LeftWindowID, 3);
-        Parent->RightChild = CreateLeafNode(Screen, Parent, RightWindowID, 4);
+        Parent->LeftChild = CreateLeafNode(Display, Parent, LeftWindowID, 3);
+        Parent->RightChild = CreateLeafNode(Display, Parent, RightWindowID, 4);
 
         tree_node *Node = KWMTiling.SpawnAsLeftChild ?  Parent->RightChild : Parent->LeftChild;
         Node->Type = ParentType;
@@ -102,6 +102,8 @@ void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowI
         Parent = NULL;
     }
 }
+
+void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode) { }
 
 void CreatePseudoNode()
 {
@@ -250,10 +252,15 @@ split_type GetOptimalSplitMode(tree_node *Node)
 
 void ResizeWindowToContainerSize(tree_node *Node)
 {
-    window_info *Window = GetWindowByID(Node->WindowID);
+    // window_info *Window = GetWindowByID(Node->WindowID);
+    ax_window *Window = GetWindowByID((unsigned int)Node->WindowID);
 
     if(Window)
     {
+        SetWindowDimensions(Window->Ref, NULL,
+                    Node->Container.X, Node->Container.Y,
+                    Node->Container.Width, Node->Container.Height);
+        /*
         AXUIElementRef WindowRef;
         if(GetWindowRef(Window, &WindowRef))
         {
@@ -264,6 +271,7 @@ void ResizeWindowToContainerSize(tree_node *Node)
             if(WindowsAreEqual(Window, KWMFocus.Window))
                 KWMFocus.Cache = *Window;
         }
+        */
     }
 }
 

@@ -20,6 +20,8 @@ const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
 ax_state AXState = {};
 ax_application *FocusedApplication;
 ax_display *FocusedDisplay;
+std::map<CFStringRef, space_info> WindowTree;
+
 
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
@@ -292,8 +294,27 @@ int main(int argc, char **argv)
     AXLibStartEventLoop();
     AXLibActiveDisplays();
     AXLibRunningApplications();
+
     FocusedDisplay = AXLibMainDisplay();
     FocusedApplication = AXLibGetFocusedApplication();
+
+    ax_display *CurrentDisplay = FocusedDisplay;
+    do
+    {
+        std::map<CGSSpaceID, ax_space>::iterator It;
+        for(It = CurrentDisplay->Spaces.begin();
+            It != CurrentDisplay->Spaces.end();
+            ++It)
+        {
+            ax_space *Space = &It->second;
+            space_info Info = {{{0}}};
+            WindowTree[Space->Identifier] = Info;
+        }
+
+        CurrentDisplay = AXLibNextDisplay(CurrentDisplay);
+    } while(CurrentDisplay != FocusedDisplay);
+
+    CreateWindowNodeTree(FocusedDisplay);
 
     NSApplicationLoad();
     CFRunLoopRun();

@@ -2,7 +2,16 @@
 #define WINDOW_H
 
 #include "types.h"
+#include "axlib/display.h"
+#include "axlib/window.h"
 
+void CreateWindowNodeTree(ax_display *Display);
+ax_window *GetWindowByID(unsigned int WindowID);
+void AddWindowToBSPTree(ax_display *Display, int WindowID);
+void RemoveWindowFromBSPTree(ax_display *Display, int WindowID);
+
+
+/* TODO(koekeishiya): NOT YET LOOKED AT */
 extern int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID);
 extern int GetActiveSpaceOfDisplay(screen_info *Screen);
 

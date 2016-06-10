@@ -14,6 +14,9 @@
 
 #include <cmath>
 
+extern std::map<CFStringRef, space_info> WindowTree;
+
+extern ax_state AXState;
 extern ax_display *FocusedDisplay;
 extern ax_application *FocusedApplication;
 
@@ -69,6 +72,7 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         FocusedDisplay->Space = AXLibGetActiveSpace(FocusedDisplay);
         printf("Display: CGDirectDisplayID %d, Arrangement %d\n", FocusedDisplay->ID, FocusedDisplay->ArrangementID);
         printf("Space: CGSSpaceID %d\n", FocusedDisplay->Space->ID);
+        CreateWindowNodeTree(FocusedDisplay);
     }
     else
     {
@@ -84,10 +88,22 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
    */
 }
 
+/* TODO(koekeishiya): Is this interesting (?)
+EVENT_CALLBACK(Callback_AXEvent_SpaceCreated)
+{
+    ax_space *Space = (ax_space *) Event->Context;
+}
+*/
+
 EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
 {
     ax_application *Application = (ax_application *) Event->Context;
     DEBUG("AXEvent_ApplicationLaunched: " << Application->Name);
+    if(Application->Focus)
+    {
+        ax_display *Display = AXLibWindowDisplay(Application->Focus);
+
+    }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
@@ -120,6 +136,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
     if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
     {
         DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
+        ax_display *Display = AXLibWindowDisplay(Window);
+        AddWindowToBSPTree(Display, Window->ID);
     }
 }
 
@@ -127,6 +145,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
 {
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowDestroyed: " << Window->Application->Name << " - " << Window->Name);
+    ax_display *Display = AXLibWindowDisplay(Window);
+    RemoveWindowFromBSPTree(Display, Window->ID);
     AXLibDestroyWindow(Window);
 
     UpdateBorder("focused");
@@ -522,6 +542,38 @@ std::vector<int> GetAllWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTr
     return Windows;
 }
 
+#define internal static
+internal std::vector<uint32_t> GetAllWindowIDSOnDisplay(ax_display *Display)
+{
+    std::vector<uint32_t> Windows;
+    std::vector<ax_window*> VisibleWindows = AXLibGetAllVisibleWindows();
+    for(int Index = 0; Index < VisibleWindows.size(); ++Index)
+    {
+        ax_window *Window = VisibleWindows[Index];
+        ax_display *DisplayOfWindow = AXLibWindowDisplay(Window);
+        if(DisplayOfWindow == Display)
+        {
+            Windows.push_back(Window->ID);
+        }
+    }
+
+    return Windows;
+}
+
+#define local_persist static
+void CreateWindowNodeTree(ax_display *Display)
+{
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(!SpaceInfo->RootNode)
+    {
+        local_persist container_offset Offset = { 100, 100, 100, 100, 20, 20 };
+        SpaceInfo->Settings.Offset = Offset;
+        std::vector<uint32_t> Windows = GetAllWindowIDSOnDisplay(Display);
+        SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
+        ApplyTreeNodeContainer(SpaceInfo->RootNode);
+    }
+}
+
 void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)
 {
     space_info *Space = GetActiveSpaceOfScreen(Screen);
@@ -601,8 +653,9 @@ void ShouldWindowNodeTreeUpdate(screen_info *Screen)
         ShouldMonocleTreeUpdate(Screen, Space);
 }
 
-void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
+void ShouldBSPTreeUpdate(ax_display *Display)
 {
+    space_info *Space = &WindowTree[Display->Space->Identifier];
     std::vector<int> WindowIDsInTree = GetAllWindowIDsInTree(Space);
     std::vector<window_info*> WindowsToAdd = GetAllWindowsNotInTree(WindowIDsInTree);
     std::vector<int> WindowsToRemove = GetAllWindowIDsToRemoveFromTree(WindowIDsInTree);
@@ -610,7 +663,7 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
     for(std::size_t WindowIndex = 0; WindowIndex < WindowsToRemove.size(); ++WindowIndex)
     {
         DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowsToRemove[WindowIndex]);
-        RemoveWindowFromBSPTree(Screen, WindowsToRemove[WindowIndex], false, true);
+        RemoveWindowFromBSPTree(Display, WindowsToRemove[WindowIndex]);
     }
 
     window_info *FocusWindow = NULL;
@@ -624,16 +677,26 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space)
             if(Insert && (Insert->WindowID = WindowsToAdd[WindowIndex]->WID))
                 ApplyTreeNodeContainer(Insert);
             else
-                AddWindowToBSPTree(Screen, WindowsToAdd[WindowIndex]->WID);
+                AddWindowToBSPTree(Display, WindowsToAdd[WindowIndex]->WID);
 
             FocusWindow = WindowsToAdd[WindowIndex];
         }
     }
+}
 
-    if(FocusWindow)
+void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space) { }
+
+void AddWindowToBSPTree(ax_display *Display, int WindowID)
+{
+    space_info *Space = &WindowTree[Display->Space->Identifier];
+    tree_node *RootNode = Space->RootNode;
+    tree_node *CurrentNode = NULL;
+    GetFirstLeafNode(RootNode, (void**)&CurrentNode);
+    if(CurrentNode)
     {
-        SetWindowFocus(FocusWindow);
-        MoveCursorToCenterOfFocusedWindow();
+        split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+        CreateLeafNodePair(Display, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
+        ApplyTreeNodeContainer(CurrentNode);
     }
 }
 
@@ -714,6 +777,49 @@ void AddWindowToBSPTree()
         return;
 
     AddWindowToBSPTree(KWMScreen.Current, KWMFocus.Window->WID);
+}
+
+void RemoveWindowFromBSPTree(ax_display *Display, int WindowID)
+{
+    space_info *Space = &WindowTree[Display->Space->Identifier];
+    tree_node *WindowNode = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
+    tree_node *Parent = WindowNode->Parent;
+
+    if(Parent && Parent->LeftChild && Parent->RightChild)
+    {
+        tree_node *AccessChild = IsRightChild(WindowNode) ? Parent->LeftChild : Parent->RightChild;
+        tree_node *NewFocusNode = NULL;
+        Parent->LeftChild = NULL;
+        Parent->RightChild = NULL;
+
+        Parent->WindowID = AccessChild->WindowID;
+        Parent->Type = AccessChild->Type;
+        Parent->List = AccessChild->List;
+
+        if(AccessChild->LeftChild && AccessChild->RightChild)
+        {
+            Parent->LeftChild = AccessChild->LeftChild;
+            Parent->LeftChild->Parent = Parent;
+
+            Parent->RightChild = AccessChild->RightChild;
+            Parent->RightChild->Parent = Parent;
+
+            CreateNodeContainers(Display, Parent, true);
+            NewFocusNode = IsLeafNode(Parent->LeftChild) ? Parent->LeftChild : Parent->RightChild;
+            while(!IsLeafNode(NewFocusNode))
+                NewFocusNode = IsLeafNode(Parent->LeftChild) ? Parent->LeftChild : Parent->RightChild;
+        }
+
+        ResizeLinkNodeContainers(Parent);
+        ApplyTreeNodeContainer(Parent);
+        free(AccessChild);
+        free(WindowNode);
+    }
+    else if(!Parent)
+    {
+        free(Space->RootNode);
+        Space->RootNode = NULL;
+    }
 }
 
 void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus)
@@ -1709,21 +1815,9 @@ void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Y
 
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)
 {
-    Assert(WindowRef);
-    Assert(Window);
-
     AXLibSetWindowPosition(WindowRef, X, Y);
     AXLibSetWindowSize(WindowRef, Width, Height);
     CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
-
-    Window->X = X;
-    Window->Y = Y;
-    Window->Width = Width;
-    Window->Height = Height;
-
-    DEBUG("SetWindowDimensions() " << Window->Name <<
-          " pos: " << Window->X << "," << Window->Y <<
-          " size: " << Window->Width << "," << Window->Height);
 }
 
 void CenterWindow(screen_info *Screen, window_info *Window)
@@ -1789,7 +1883,7 @@ CGPoint GetWindowPos(window_info *Window)
 window_info GetWindowByRef(AXUIElementRef WindowRef)
 {
     Assert(WindowRef);
-    window_info *Window = GetWindowByID(AXLibGetWindowID(WindowRef));
+    window_info *Window = GetWindowByID((int)AXLibGetWindowID(WindowRef));
     return Window ? *Window : KWMFocus.NULLWindowInfo;
 }
 
@@ -1799,6 +1893,22 @@ window_info *GetWindowByID(int WindowID)
     {
         if(KWMTiling.FocusLst[WindowIndex].WID == WindowID)
             return &KWMTiling.FocusLst[WindowIndex];
+    }
+
+    return NULL;
+}
+
+ax_window *GetWindowByID(unsigned int WindowID)
+{
+    std::map<pid_t, ax_application>::iterator It;
+    for(It = AXState.Applications.begin();
+        It != AXState.Applications.end();
+        ++It)
+    {
+        ax_application *Application = &It->second;
+        ax_window *Window = AXLibFindApplicationWindow(Application, WindowID);
+        if(Window)
+            return Window;
     }
 
     return NULL;

@@ -7,21 +7,25 @@
 #include "window.h"
 #include "border.h"
 
-tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr)
+extern std::map<CFStringRef, space_info> WindowTree;
+
+/* NOTE(koekeishiya): AXLIB */
+tree_node *CreateTreeFromWindowIDList(ax_display *Display, std::vector<uint32_t> *Windows)
 {
-    if(IsSpaceFloating(Screen->ActiveSpace))
+    /*
+     if(IsSpaceFloating(Screen->ActiveSpace))
         return NULL;
+    */
 
     tree_node *RootNode = CreateRootNode();
-    SetRootNodeContainer(Screen, RootNode);
-
+    SetRootNodeContainer(Display, RootNode);
     bool Result = false;
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
 
-    if(Space->Settings.Mode == SpaceModeBSP)
-        Result = CreateBSPTree(RootNode, Screen, WindowsPtr);
-    else if(Space->Settings.Mode == SpaceModeMonocle)
-        Result = CreateMonocleTree(RootNode, Screen, WindowsPtr);
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(SpaceInfo->Settings.Mode == SpaceModeBSP)
+        Result = CreateBSPTree(RootNode, Display, Windows);
+    else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
+        Result = CreateMonocleTree(RootNode, Display, Windows);
 
     if(!Result)
     {
@@ -32,18 +36,16 @@ tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_in
     return RootNode;
 }
 
-bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
+bool CreateBSPTree(tree_node *RootNode, ax_display *Display, std::vector<uint32_t> *WindowsPtr)
 {
-    Assert(RootNode);
-
     bool Result = false;
-    std::vector<window_info*> &Windows = *WindowsPtr;
+    std::vector<uint32_t> &Windows = *WindowsPtr;
 
     if(!Windows.empty())
     {
         tree_node *Root = RootNode;
-        Root->WindowID = Windows[0]->WID;
-        for(std::size_t WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
+        Root->WindowID = Windows[0];
+        for(std::size_t Index = 1; Index < Windows.size(); ++Index)
         {
             while(!IsLeafNode(Root))
             {
@@ -54,7 +56,7 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
             }
 
             DEBUG("CreateBSPTree() Create pair of leafs");
-            CreateLeafNodePair(Screen, Root, Root->WindowID, Windows[WindowIndex]->WID, GetOptimalSplitMode(Root));
+            CreateLeafNodePair(Display, Root, Root->WindowID, Windows[Index], GetOptimalSplitMode(Root));
             Root = RootNode;
         }
 
@@ -64,27 +66,25 @@ bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_
     return Result;
 }
 
-bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr)
+bool CreateMonocleTree(tree_node *RootNode, ax_display *Display, std::vector<uint32_t> *WindowsPtr)
 {
-    Assert(RootNode);
-
     bool Result = false;
-    std::vector<window_info*> &Windows = *WindowsPtr;
+    std::vector<uint32_t> &Windows = *WindowsPtr;
 
     if(!Windows.empty())
     {
         tree_node *Root = RootNode;
         Root->List = CreateLinkNode();
 
-        SetLinkNodeContainer(Screen, Root->List);
-        Root->List->WindowID = Windows[0]->WID;
+        SetLinkNodeContainer(Display, Root->List);
+        Root->List->WindowID = Windows[0];
 
         link_node *Link = Root->List;
-        for(std::size_t WindowIndex = 1; WindowIndex < Windows.size(); ++WindowIndex)
+        for(std::size_t Index = 1; Index < Windows.size(); ++Index)
         {
             link_node *Next = CreateLinkNode();
-            SetLinkNodeContainer(Screen, Next);
-            Next->WindowID = Windows[WindowIndex]->WID;
+            SetLinkNodeContainer(Display, Next);
+            Next->WindowID = Windows[Index];
 
             Link->Next = Next;
             Next->Prev = Link;
@@ -96,6 +96,12 @@ bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<win
 
     return Result;
 }
+
+tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr) { }
+
+bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr) { }
+
+bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr) { }
 
 tree_node *GetNearestLeafNodeNeighbour(tree_node *Node)
 {
@@ -413,4 +419,3 @@ void ChangeSplitRatio(double Value)
         KWMScreen.SplitRatio = Value;
     }
 }
-
