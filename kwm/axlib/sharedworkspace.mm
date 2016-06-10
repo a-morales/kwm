@@ -94,6 +94,7 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
                 name:NSWorkspaceActiveSpaceDidChangeNotification
                 object:nil];
 
+       /* NOTE(koekeishiya): These notifications are skipped by many applications and so we use the Carbon event system instead.
        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(didLaunchApplication:)
                 name:NSWorkspaceDidLaunchApplicationNotification
@@ -103,6 +104,7 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
                 selector:@selector(didTerminateApplication:)
                 name:NSWorkspaceDidTerminateApplicationNotification
                 object:nil];
+       */
 
        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
                 selector:@selector(didActivateApplication:)
@@ -129,21 +131,28 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
     AXLibConstructEvent(AXEvent_SpaceChanged, NULL);
 }
 
+/* NOTE(koekeishiya): This notification is skipped by many applications and so we use the Carbon event system instead.
+                      Make sure that the Carbon event system actually triggers for 64-bit applications (?) */
 - (void)didLaunchApplication:(NSNotification *)notification
 {
+    /*
     pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
     std::string Name = [[[notification.userInfo objectForKey:NSWorkspaceApplicationKey] localizedName] UTF8String];
     (*Applications)[PID] = AXLibConstructApplication(PID, Name);
     AXLibInitializeApplication(&(*Applications)[PID]);
     AXLibConstructEvent(AXEvent_ApplicationLaunched, &(*Applications)[PID]);
+    */
 
     /* NOTE(koekeishiya): When a new application is launched, we incorrectly receive the didActivateApplication notification
                           first, for some reason. We discard that notification and restore it when we have the application to work with. */
-    SharedWorkspaceDidActivateApplication(PID);
+    // SharedWorkspaceDidActivateApplication(PID);
 }
 
+/* NOTE(koekeishiya): This notification is skipped by many applications and so we use the Carbon event system instead.
+                      Make sure that the Carbon event system actually triggers for 64-bit applications (?) */
 - (void)didTerminateApplication:(NSNotification *)notification
 {
+    /*
     pid_t PID = [[notification.userInfo objectForKey:NSWorkspaceApplicationKey] processIdentifier];
     std::map<pid_t, ax_application>::iterator It = Applications->find(PID);
     if(It != Applications->end())
@@ -152,6 +161,7 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
         Applications->erase(PID);
         AXLibConstructEvent(AXEvent_ApplicationTerminated, NULL);
     }
+    */
 }
 
 - (void)didActivateApplication:(NSNotification *)notification

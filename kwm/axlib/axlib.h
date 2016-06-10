@@ -8,6 +8,7 @@
 #include "display.h"
 #include "sharedworkspace.h"
 #include "event.h"
+#include "carbon.h"
 
 /*
  * NOTE(koekeishiya):
@@ -35,6 +36,7 @@
 
 struct ax_state
 {
+    carbon_event_handler Carbon;
     std::map<pid_t, ax_application> Applications;
     std::map<CGDirectDisplayID, ax_display> Displays;
 };

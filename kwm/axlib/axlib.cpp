@@ -11,6 +11,7 @@ extern "C" CGError CGSGetOnScreenWindowCount(const CGSConnectionID CID, CGSConne
 extern "C" CGError CGSGetOnScreenWindowList(const CGSConnectionID CID, CGSConnectionID TID, int Count, int *List, int *OutCount);
 
 internal ax_state *AXState;
+internal carbon_event_handler *Carbon;
 internal std::map<pid_t, ax_application> *AXApplications;
 internal std::map<CGDirectDisplayID, ax_display> *AXDisplays;
 
@@ -187,7 +188,9 @@ void AXLibInit(ax_state *State)
     AXState = State;
     AXApplications = &AXState->Applications;
     AXDisplays = &AXState->Displays;
+    Carbon = &AXState->Carbon;
     AXUIElementSetMessagingTimeout(AXLibSystemWideElement(), 1.0);
+    AXLibInitializeCarbonEventHandler(Carbon, AXApplications);
     SharedWorkspaceInitialize(AXApplications);
     AXLibInitializeDisplays(AXDisplays);
 }

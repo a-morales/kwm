@@ -216,9 +216,10 @@ void AXLibAddApplicationObserver(ax_application *Application)
                 usleep(10000);
             }
 
-            /* NOTE(koekeishiya): Do we want to schedule a future event for the given application here if we failed (?) */
-            bool Success = Attempts != 0;
-            printf("AXLIB Add notification %d, success %d\n", Notification, Success);
+            /* NOTE(koekeishiya): Do we want to schedule a future event for the given application here if we failed (?)
+                bool Success = Attempts != 0;
+                printf("AXLIB Add notification %d, success %d\n", Notification, Success);
+            */
         }
 
         AXLibStartObserver(&Application->Observer);
