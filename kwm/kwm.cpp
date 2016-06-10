@@ -297,23 +297,6 @@ int main(int argc, char **argv)
 
     FocusedDisplay = AXLibMainDisplay();
     FocusedApplication = AXLibGetFocusedApplication();
-
-    ax_display *CurrentDisplay = FocusedDisplay;
-    do
-    {
-        std::map<CGSSpaceID, ax_space>::iterator It;
-        for(It = CurrentDisplay->Spaces.begin();
-            It != CurrentDisplay->Spaces.end();
-            ++It)
-        {
-            ax_space *Space = &It->second;
-            space_info Info = {{{0}}};
-            WindowTree[Space->Identifier] = Info;
-        }
-
-        CurrentDisplay = AXLibNextDisplay(CurrentDisplay);
-    } while(CurrentDisplay != FocusedDisplay);
-
     CreateWindowNodeTree(FocusedDisplay);
 
     NSApplicationLoad();
