@@ -213,7 +213,10 @@ void AXLibRemoveApplicationWindows(ax_application *Application)
 {
     std::map<uint32_t, ax_window*>::iterator It;
     for(It = Application->Windows.begin(); It != Application->Windows.end(); ++It)
+    {
+        AXLibRemoveObserverNotification(&It->second->Application->Observer, It->second->Ref, kAXUIElementDestroyedNotification);
         AXLibDestroyWindow(It->second);
+    }
 
     Application->Windows.clear();
 }
