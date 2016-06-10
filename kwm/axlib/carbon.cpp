@@ -60,7 +60,6 @@ CarbonApplicationLaunched(ProcessSerialNumber PSN)
     if(ProcessInfo.processName)
         CopyPascalStringToC(ProcessInfo.processName, ProcessNameCString);
 
-
     pid_t PID = 0;
     GetProcessPID(&PSN, &PID);
     std::string Name = ProcessNameCString;
