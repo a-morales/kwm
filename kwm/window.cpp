@@ -108,7 +108,7 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
     }
     else
     {
-        DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name << " - [Unknown Window]");
+        DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name << " - [No Focused Window]");
     }
 
     UpdateBorder("focused");
@@ -127,7 +127,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
 {
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowDestroyed: " << Window->Application->Name << " - " << Window->Name);
-    free(Window);
+    AXLibDestroyWindow(Window);
 
     UpdateBorder("focused");
     UpdateBorder("marked");
