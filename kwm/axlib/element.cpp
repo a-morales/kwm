@@ -3,28 +3,6 @@
 #define internal static
 #define local_persist static
 
-/* TODO(koekeishiya): Required for compatibility with current Kwm code */
-bool AXLibGetFocusedWindow(AXUIElementRef *WindowRef)
-{
-    local_persist AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
-    AXUIElementRef Application = (AXUIElementRef) AXLibGetWindowProperty(SystemWideElement, kAXFocusedApplicationAttribute);
-
-    if(Application)
-    {
-        AXUIElementRef AppWindowRef = (AXUIElementRef) AXLibGetWindowProperty(Application, kAXFocusedWindowAttribute);
-        CFRelease(Application);
-
-        if(AppWindowRef)
-        {
-            *WindowRef = AppWindowRef;
-            return true;
-        }
-    }
-
-    return false;
-}
-/* --- END --- */
-
 CFTypeRef AXLibGetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property)
 {
     CFTypeRef TypeRef;
