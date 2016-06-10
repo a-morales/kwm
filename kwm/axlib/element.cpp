@@ -167,52 +167,6 @@ bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole)
     return *Subrole != NULL;
 }
 
-/*
-void AXLibParseWindowInfo(const void *Key, const void *Value, void *Context)
-{
-    CFStringRef K = (CFStringRef)Key;
-    std::string KeyStr = CFStringGetCStringPtr(K, kCFStringEncodingMacRoman);
-    CFTypeID ID = CFGetTypeID(Value);
-    if(ID == CFStringGetTypeID())
-    {
-        CFStringRef V = (CFStringRef)Value;
-        std::string ValueStr = GetUTF8String(V);
-        if(ValueStr.empty() && CFStringGetCStringPtr(V, kCFStringEncodingMacRoman))
-            ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
-
-        if(KeyStr == "kCGWindowName")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Name = ValueStr;
-        else if(KeyStr == "kCGWindowOwnerName")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Owner = ValueStr;
-    }
-    else if(ID == CFNumberGetTypeID())
-    {
-        int MyInt;
-        CFNumberRef V = (CFNumberRef)Value;
-        CFNumberGetValue(V, kCFNumberSInt64Type, &MyInt);
-        if(KeyStr == "kCGWindowNumber")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].WID = MyInt;
-        else if(KeyStr == "kCGWindowOwnerPID")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].PID = MyInt;
-        else if(KeyStr == "kCGWindowLayer")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Layer = MyInt;
-        else if(KeyStr == "X")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].X = MyInt;
-        else if(KeyStr == "Y")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Y = MyInt;
-        else if(KeyStr == "Width")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Width = MyInt;
-        else if(KeyStr == "Height")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Height = MyInt;
-    }
-    else if(ID == CFDictionaryGetTypeID())
-    {
-        CFDictionaryRef Elem = (CFDictionaryRef)Value;
-        CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
-    }
-}
-*/
-
 std::string
 GetUTF8String(CFStringRef Temp)
 {
