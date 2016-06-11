@@ -14,6 +14,7 @@ void ShouldBSPTreeUpdate(ax_display *Display);
 std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree);
 void GetCenterOfWindow(ax_window *Window, int *X, int *Y);
 bool WindowIsInDirection(ax_window *WindowA, ax_window *WindowB, int Degrees);
+bool FindClosestWindow(int Degrees, ax_window **ClosestWindow, bool Wrap);
 
 
 /* TODO(koekeishiya): NOT YET LOOKED AT */

@@ -662,13 +662,20 @@ void AddWindowToBSPTree(ax_display *Display, int WindowID)
 {
     space_info *Space = &WindowTree[Display->Space->Identifier];
     tree_node *RootNode = Space->RootNode;
-    tree_node *CurrentNode = NULL;
-    GetFirstLeafNode(RootNode, (void**)&CurrentNode);
-    if(CurrentNode)
+    if(RootNode)
     {
-        split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
-        CreateLeafNodePair(Display, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
-        ApplyTreeNodeContainer(CurrentNode);
+        tree_node *CurrentNode = NULL;
+        GetFirstLeafNode(RootNode, (void**)&CurrentNode);
+        if(CurrentNode)
+        {
+            split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+            CreateLeafNodePair(Display, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
+            ApplyTreeNodeContainer(CurrentNode);
+        }
+    }
+    else
+    {
+        CreateWindowNodeTree(Display);
     }
 }
 
@@ -1323,34 +1330,40 @@ void SwapFocusedWindowWithNearest(int Shift)
 
 void SwapFocusedWindowDirected(int Degrees)
 {
-    if(!KWMFocus.Window || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
         return;
 
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Settings.Mode == SpaceModeMonocle)
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    space_info *Space = &WindowTree[Display->Space->Identifier];
+    if(!Space)
+        return;
+
+    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, Window->ID);
+    if(TreeNode)
+    {
+        tree_node *NewFocusNode = NULL;
+        ax_window *ClosestWindow = NULL;
+        if(FindClosestWindow(Degrees, &ClosestWindow, KWMMode.Cycle == CycleModeScreen))
+            NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, ClosestWindow->ID);
+
+        if(NewFocusNode)
+        {
+            SwapNodeWindowIDs(TreeNode, NewFocusNode);
+        }
+    }
+    /*
+    else if(Space->Settings.Mode == SpaceModeMonocle)
     {
         if(Degrees == 90)
             SwapFocusedWindowWithNearest(1);
         else if(Degrees == 270)
             SwapFocusedWindowWithNearest(-1);
     }
-    else if(Space->Settings.Mode == SpaceModeBSP)
-    {
-        tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
-        if(TreeNode)
-        {
-            tree_node *NewFocusNode = NULL;
-            window_info SwapWindow = {};
-            if(FindClosestWindow(Degrees, &SwapWindow, KWMMode.Cycle == CycleModeScreen))
-                NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, SwapWindow.WID);
-
-            if(NewFocusNode)
-            {
-                SwapNodeWindowIDs(TreeNode, NewFocusNode);
-                MoveCursorToCenterOfFocusedWindow();
-            }
-        }
-    }
+    */
 }
 
 bool WindowIsInDirection(ax_window *WindowA, ax_window *WindowB, int Degrees)
