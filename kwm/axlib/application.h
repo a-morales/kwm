@@ -26,28 +26,27 @@ struct ax_application
     ax_observer Observer;
     uint32_t Flags;
 
-    bool Float;
     ax_window *Focus;
     std::map<uint32_t, ax_window*> Windows;
 };
 
 inline bool
-AXLibHasFlags(ax_application *Window, uint32_t Flag)
+AXLibHasFlags(ax_application *Application, uint32_t Flag)
 {
-    bool Result = Window->Flags & Flag;
+    bool Result = Application->Flags & Flag;
     return Result;
 }
 
 inline void
-AXLibAddFlags(ax_application *Window, uint32_t Flag)
+AXLibAddFlags(ax_application *Application, uint32_t Flag)
 {
-    Window->Flags |= Flag;
+    Application->Flags |= Flag;
 }
 
 inline void
-AXLibClearFlags(ax_application *Window, uint32_t Flag)
+AXLibClearFlags(ax_application *Application, uint32_t Flag)
 {
-    Window->Flags &= ~Flag;
+    Application->Flags &= ~Flag;
 }
 
 ax_application AXLibConstructApplication(pid_t PID, std::string Name);
