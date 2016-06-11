@@ -86,8 +86,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
 
             /* NOTE(koekeishiya): When a new window is created, we incorrectly receive the kAXFocusedWindowChangedNotification
                                   first, for some reason. We discard that notification and restore it when we have the window to work with. */
-            Application->Focus = Window;
-            AXLibConstructEvent(AXEvent_WindowFocused, Window);
+            AXApplicationCallback(Observer, Window->Ref, kAXFocusedWindowChangedNotification, Application);
         }
         else
         {
