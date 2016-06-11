@@ -124,6 +124,7 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
 EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
 {
     ax_application *Application = (ax_application *) Event->Context;
+    ax_application *OldFocusedApplication = FocusedApplication;
 
     FocusedApplication = Application;
     FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
@@ -131,10 +132,17 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
     if(FocusedApplication->Focus)
     {
         DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
+        if(AXLibHasFlags(FocusedApplication->Focus, AXWindow_Minimized))
+        {
+            FocusedApplication = OldFocusedApplication;
+            AXLibAddFlags(Application, AXApplication_Activate);
+        }
     }
     else
     {
         DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name << " - [No Focused Window]");
+        FocusedApplication = OldFocusedApplication;
+        AXLibAddFlags(Application, AXApplication_Activate);
     }
 
     UpdateBorder("focused");
@@ -172,6 +180,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
 {
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowMinimized: " << Window->Application->Name << " - " << Window->Name);
+    AXLibAddFlags(Window, AXWindow_Minimized);
+
     ax_display *Display = AXLibWindowDisplay(Window);
     if(Display)
         RemoveWindowFromBSPTree(Display, Window->ID);
@@ -184,9 +194,16 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
 {
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowDeminimized: " << Window->Application->Name << " - " << Window->Name);
+
     ax_display *Display = AXLibWindowDisplay(Window);
     if(Display)
         AddWindowToBSPTree(Display, Window->ID);
+
+    if(AXLibHasFlags(Window, AXWindow_Minimized))
+    {
+        AXLibClearFlags(Window, AXWindow_Minimized);
+        FocusedApplication = Window->Application;
+    }
 
     UpdateBorder("focused");
     UpdateBorder("marked");
@@ -198,6 +215,13 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 
     DEBUG("AXEvent_WindowFocused: " << Window->Application->Name << " - " << Window->Name);
     Window->Application->Focus = Window;
+
+    if(AXLibHasFlags(Window->Application, AXApplication_Activate))
+    {
+        AXLibClearFlags(Window->Application, AXApplication_Activate);
+        if(!AXLibHasFlags(Window, AXWindow_Minimized))
+            FocusedApplication = Window->Application;
+    }
 
     UpdateBorder("focused");
     UpdateBorder("marked");
