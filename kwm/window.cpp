@@ -163,9 +163,9 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     if(Display)
         RemoveWindowFromBSPTree(Display, Window->ID);
 
-    AXLibDestroyWindow(Window);
     UpdateBorder("focused");
     UpdateBorder("marked");
+    AXLibDestroyWindow(Window);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
@@ -665,7 +665,19 @@ void AddWindowToBSPTree(ax_display *Display, int WindowID)
     if(RootNode)
     {
         tree_node *CurrentNode = NULL;
-        GetFirstLeafNode(RootNode, (void**)&CurrentNode);
+
+        ax_window *Window = FocusedApplication->Focus;
+        if(Window && Window->ID != WindowID)
+        {
+            DEBUG("INSERT AT FOCUSED WINDOW");
+            CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, Window->ID);
+        }
+        else
+        {
+            DEBUG("INSERT AT LEFT-MOST WINDOW");
+            GetFirstLeafNode(RootNode, (void**)&CurrentNode);
+        }
+
         if(CurrentNode)
         {
             split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
