@@ -197,13 +197,14 @@ void AXLibAddApplicationObserver(ax_application *Application)
             {
                 /* NOTE(koekeishiya): Could not add notification because the application has not finishied initializing yet.
                                       Sleep for a short while and try again. We limit the number of tries to prevent a deadlock. */
-                usleep(10000);
+                usleep(20000);
             }
 
             /* NOTE(koekeishiya): Do we want to schedule a future event for the given application here if we failed (?)
-                bool Success = Attempts != 0;
-                printf("AXLIB Add notification %d, success %d\n", Notification, Success);
             */
+                bool Success = Attempts != 0;
+                if(!Success)
+                    printf("AXLIB Add notification %d, success %d\n", Notification, Success);
         }
 
         AXLibStartObserver(&Application->Observer);
@@ -236,17 +237,19 @@ void AXLibAddApplicationWindows(ax_application *Application)
         for(CFIndex Index = 0; Index < Count; ++Index)
         {
             AXUIElementRef Ref = (AXUIElementRef) CFArrayGetValueAtIndex(Windows, Index);
-            ax_window *Window = AXLibConstructWindow(Application, Ref);
+            if(!AXLibGetWindowByRef(Application, Ref))
+            {
+                ax_window *Window = AXLibConstructWindow(Application, Ref);
+                if(AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXUIElementDestroyedNotification, Window) == kAXErrorSuccess)
+                {
+                    AXLibAddApplicationWindow(Application, Window);
+                }
+                else
+                {
+                    AXLibDestroyInvalidWindow(Window);
+                }
+            }
             CFRelease(Ref);
-
-            if(AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXUIElementDestroyedNotification, Window) == kAXErrorSuccess)
-            {
-                AXLibAddApplicationWindow(Application, Window);
-            }
-            else
-            {
-                AXLibDestroyInvalidWindow(Window);
-            }
         }
     }
 }
