@@ -10,6 +10,12 @@
 #include "window.h"
 #include "observer.h"
 
+enum ax_application_flags
+{
+    AXApplication_Float = (1 << 0),
+    AXApplication_Activate = (1 << 1),
+};
+
 struct ax_application
 {
     AXUIElementRef Ref;
@@ -18,11 +24,31 @@ struct ax_application
 
     ProcessSerialNumber PSN;
     ax_observer Observer;
+    uint32_t Flags;
 
     bool Float;
     ax_window *Focus;
     std::map<uint32_t, ax_window*> Windows;
 };
+
+inline bool
+AXLibHasFlags(ax_application *Window, uint32_t Flag)
+{
+    bool Result = Window->Flags & Flag;
+    return Result;
+}
+
+inline void
+AXLibAddFlags(ax_application *Window, uint32_t Flag)
+{
+    Window->Flags |= Flag;
+}
+
+inline void
+AXLibClearFlags(ax_application *Window, uint32_t Flag)
+{
+    Window->Flags &= ~Flag;
+}
 
 ax_application AXLibConstructApplication(pid_t PID, std::string Name);
 void AXLibInitializeApplication(ax_application *Application);
