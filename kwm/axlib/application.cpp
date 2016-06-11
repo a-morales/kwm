@@ -114,7 +114,6 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = AXLibGetWindowByRef(Application, Element);
         if(Window)
         {
-            Application->Focus = Window;
             AXLibConstructEvent(AXEvent_WindowFocused, Window);
         }
     }

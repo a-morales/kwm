@@ -194,10 +194,10 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
 
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 {
-    if(FocusedApplication && FocusedApplication->Focus)
-    {
-        DEBUG("AXEvent_WindowFocused: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
-    }
+    ax_window *Window = (ax_window *) Event->Context;
+
+    DEBUG("AXEvent_WindowFocused: " << Window->Application->Name << " - " << Window->Name);
+    Window->Application->Focus = Window;
 
     UpdateBorder("focused");
     UpdateBorder("marked");
