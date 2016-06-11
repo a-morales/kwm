@@ -13,8 +13,8 @@ void AXLibConstructObserver(ax_application *Application, ObserverCallback Callba
 
 void AXLibStartObserver(ax_observer *Observer)
 {
-    if(!CFRunLoopContainsSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode))
-        CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
+    if(!CFRunLoopContainsSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode))
+        CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(Observer->Ref), kCFRunLoopDefaultMode);
 }
 
 AXError AXLibAddObserverNotification(ax_observer *Observer, AXUIElementRef Ref, CFStringRef Notification, void *Reference)
