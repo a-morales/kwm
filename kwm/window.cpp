@@ -708,7 +708,8 @@ void AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, unsigned int
             DEBUG("INSERT AT FOCUSED WINDOW");
             CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, Window->ID);
         }
-        else
+
+        if(!CurrentNode)
         {
             DEBUG("INSERT AT LEFT-MOST WINDOW");
             GetFirstLeafNode(RootNode, (void**)&CurrentNode);
