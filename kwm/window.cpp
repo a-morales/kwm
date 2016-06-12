@@ -268,68 +268,11 @@ bool WindowsAreEqual(window_info *Window, window_info *Match) { }
 
 std::vector<window_info> FilterWindowListAllDisplays() { }
 
-bool FilterWindowList(screen_info *Screen)
-{
-    std::vector<window_info> FilteredWindowLst;
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-    {
-        window_info *Window = &KWMTiling.WindowLst[WindowIndex];
+bool FilterWindowList(screen_info *Screen) { }
 
-        /* Note(koekeishiya):
-         * Mission-Control mode is on and so we do not try to tile windows */
-        if(Window->Owner == "Dock" && Window->Name == "")
-                return false;
+bool IsFocusedWindowFloating() { }
 
-        if(Window->Layer == 0)
-        {
-            if(EnforceWindowRules(Window))
-                return false;
-
-            screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-            if(ScreenOfWindow && Screen != ScreenOfWindow)
-            {
-                space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-                if(!SpaceOfWindow->Initialized ||
-                   SpaceOfWindow->Settings.Mode == SpaceModeFloating ||
-                   GetTreeNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID) ||
-                   GetLinkNodeFromWindowID(SpaceOfWindow->RootNode, Window->WID))
-                    continue;
-            }
-
-            CFTypeRef Role, SubRole;
-            if(GetWindowRole(Window, &Role, &SubRole))
-            {
-                if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
-                   IsWindowSpecificRole(Window, Role, SubRole))
-                    FilteredWindowLst.push_back(KWMTiling.WindowLst[WindowIndex]);
-            }
-        }
-    }
-
-    KWMTiling.WindowLst = FilteredWindowLst;
-    return true;
-}
-
-bool IsFocusedWindowFloating()
-{
-    return KWMFocus.Window && IsWindowFloating(KWMFocus.Window->WID, NULL);
-}
-
-bool IsWindowFloating(int WindowID, int *Index)
-{
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FloatingWindowLst.size(); ++WindowIndex)
-    {
-        if(WindowID == KWMTiling.FloatingWindowLst[WindowIndex])
-        {
-            if(Index)
-                *Index = WindowIndex;
-
-            return true;
-        }
-    }
-
-    return false;
-}
+bool IsWindowFloating(int WindowID, int *Index) { }
 
 bool IsAnyWindowBelowCursor()
 {
@@ -474,27 +417,7 @@ std::vector<ax_window *> GetAllAXWindowsNotInTree(ax_display *Display, std::vect
     return Windows;
 }
 
-std::vector<window_info*> GetAllWindowsNotInTree(std::vector<int> &WindowIDsInTree)
-{
-    std::vector<window_info*> Windows;
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-    {
-        bool Found = false;
-        for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
-        {
-            if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
-            {
-                Found = true;
-                break;
-            }
-        }
-
-        if(!Found)
-            Windows.push_back(&KWMTiling.WindowLst[WindowIndex]);
-    }
-
-    return Windows;
-}
+std::vector<window_info*> GetAllWindowsNotInTree(std::vector<int> &WindowIDsInTree) { }
 
 std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree)
 {
@@ -1126,14 +1049,24 @@ void ToggleFocusedWindowFloating()
 
 void ToggleFocusedWindowParentContainer()
 {
-    if(!KWMFocus.Window || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    /* TODO(koekeishiya): This function should be able to assume that the focused window is valid. */
+
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
         return;
 
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    space_info *Space = &WindowTree[Display->Space->Identifier];
+    if(!Space->RootNode)
+        return;
+
     if(Space->Settings.Mode != SpaceModeBSP)
         return;
 
-    tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+    tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->ID);
     if(Node && Node->Parent)
     {
         if(IsLeafNode(Node) && Node->Parent->WindowID == -1)
@@ -1147,11 +1080,6 @@ void ToggleFocusedWindowParentContainer()
             DEBUG("ToggleFocusedWindowParentContainer() Restore Window Container");
             Node->Parent->WindowID = -1;
             ResizeWindowToContainerSize(Node);
-        }
-
-        if(KWMTiling.LockToContainer)
-        {
-            UpdateBorder("focused");
         }
     }
 }
@@ -1173,6 +1101,9 @@ void ToggleFocusedWindowFullscreen()
 
     space_info *Space = &WindowTree[Display->Space->Identifier];
     if(!Space->RootNode)
+        return;
+
+    if(Space->Settings.Mode != SpaceModeBSP)
         return;
 
     tree_node *Node = NULL;
