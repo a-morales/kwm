@@ -548,27 +548,7 @@ std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<int> &Window
     return Windows;
 }
 
-std::vector<int> GetAllWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree)
-{
-    std::vector<int> Windows;
-    for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
-    {
-        bool Found = false;
-        for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-        {
-            if(KWMTiling.WindowLst[WindowIndex].WID == WindowIDsInTree[IDIndex])
-            {
-                Found = true;
-                break;
-            }
-        }
-
-        if(!Found)
-            Windows.push_back(WindowIDsInTree[IDIndex]);
-    }
-
-    return Windows;
-}
+std::vector<int> GetAllWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree) { }
 
 #define internal static
 internal std::vector<uint32_t> GetAllWindowIDSOnDisplay(ax_display *Display)
@@ -706,11 +686,11 @@ void RebalanceMonocleTree(ax_display *Display)
     if(SpaceInfo->RootNode->List)
     {
         std::vector<int> WindowIDsInTree = GetAllWindowIDsInTree(SpaceInfo);
-        std::vector<int> WindowsToRemove = GetAllWindowIDsToRemoveFromTree(WindowIDsInTree);
+        std::vector<uint32_t> WindowsToRemove = GetAllAXWindowIDsToRemoveFromTree(WindowIDsInTree);
 
         for(std::size_t WindowIndex = 0; WindowIndex < WindowsToRemove.size(); ++WindowIndex)
         {
-            DEBUG("ShouldBSPTreeUpdate() Remove Window " << WindowsToRemove[WindowIndex]);
+            DEBUG("RebalanceMonocleTree() Remove Window " << WindowsToRemove[WindowIndex]);
             RemoveWindowFromMonocleTree(Display, WindowsToRemove[WindowIndex]);
         }
     }
