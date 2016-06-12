@@ -589,70 +589,79 @@ internal std::vector<uint32_t> GetAllWindowIDSOnDisplay(ax_display *Display)
 }
 
 #define local_persist static
+/* TODO(koekeishiya): Fix how these settings are stored. */
+internal void
+LoadSpaceSettings(ax_display *Display, space_info *SpaceInfo)
+{
+    int DesktopID = AXLibDesktopIDFromCGSSpaceID(Display, Display->Space->ID);
+    space_settings *SpaceSettings = GetSpaceSettingsForDesktopID(Display->ArrangementID, DesktopID);
+    if(SpaceSettings)
+    {
+        SpaceInfo->Settings = *SpaceSettings;
+    }
+    else
+    {
+        SpaceSettings = GetSpaceSettingsForDisplay(Display->ArrangementID);
+        if(SpaceSettings)
+            SpaceInfo->Settings = *SpaceSettings;
+        else
+        {
+            /* NOTE(koekeishiya): Both display and space has no specific settings, Load global default display settings. */
+            SpaceInfo->Settings.Offset = KWMScreen.DefaultOffset;
+            SpaceInfo->Settings.Mode = SpaceModeDefault;
+            SpaceInfo->Settings.Layout = "";
+            SpaceInfo->Settings.Name = "";
+        }
+    }
+
+    if(SpaceInfo->Settings.Mode == SpaceModeDefault)
+        SpaceInfo->Settings.Mode = KWMMode.Space;
+
+}
+
 void CreateWindowNodeTree(ax_display *Display)
 {
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
-    if(!SpaceInfo->RootNode)
+    if(!SpaceInfo->Initialized && !SpaceInfo->RootNode)
     {
-        local_persist container_offset Offset = { 100, 100, 100, 100, 20, 20 };
-        SpaceInfo->Settings.Offset = Offset;
+        SpaceInfo->Initialized = true;
+        LoadSpaceSettings(Display, SpaceInfo);
         std::vector<uint32_t> Windows = GetAllWindowIDSOnDisplay(Display);
-        SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
-        ApplyTreeNodeContainer(SpaceInfo->RootNode);
-    }
-}
 
-void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows)
-{
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-    if(!Space->Initialized)
-    {
-        Assert(Space);
-        DEBUG("CreateWindowNodeTree() Create Space " << Screen->ActiveSpace);
-
-        Space->FocusedWindowID = -1;
-        int DesktopID = GetSpaceNumberFromCGSpaceID(Screen, Screen->ActiveSpace);
-        space_settings *SpaceSettings = GetSpaceSettingsForDesktopID(Screen->ID, DesktopID);
-        if(SpaceSettings)
+        if(SpaceInfo->Settings.Layout.empty() ||
+           SpaceInfo->Settings.Mode != SpaceModeBSP)
         {
-            Space->Settings = *SpaceSettings;
+            SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
         }
         else
         {
-            SpaceSettings = GetSpaceSettingsForDisplay(Screen->ID);
-            if(SpaceSettings)
-                Space->Settings = *SpaceSettings;
-            else
-                Space->Settings = Screen->Settings;
+            LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
+            FillDeserializedTree(SpaceInfo->RootNode, &Windows);
+        }
+    }
+    else if(SpaceInfo->Initialized && !SpaceInfo->RootNode)
+    {
+        /* NOTE(koekeishiha): If a space has been initialized, but the node-tree was destroyed. */
+        std::vector<uint32_t> Windows = GetAllWindowIDSOnDisplay(Display);
+        if(SpaceInfo->Settings.Layout.empty() ||
+           SpaceInfo->Settings.Mode != SpaceModeBSP)
+        {
+            SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
+        }
+        else
+        {
+            LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
+            FillDeserializedTree(SpaceInfo->RootNode, &Windows);
         }
 
-        if(Space->Settings.Mode == SpaceModeDefault)
-            Space->Settings.Mode = KWMMode.Space;
-
-        Space->Initialized = true;
-        Space->NeedsUpdate = false;
-
-        if(Space->Settings.Layout.empty() || Space->Settings.Mode != SpaceModeBSP)
-            Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
-        else
-            LoadBSPTreeFromFile(Screen, Space->Settings.Layout);
-    }
-    else if(Space->Initialized)
-    {
-        Space->FocusedWindowID = -1;
-
-        if(Space->Settings.Layout.empty() || Space->Settings.Mode != SpaceModeBSP)
-            Space->RootNode = CreateTreeFromWindowIDList(Screen, Windows);
-        else
-            LoadBSPTreeFromFile(Screen, Space->Settings.Layout);
-
-        if(Space->RootNode)
+        if(SpaceInfo->RootNode)
         {
-            if(Space->Settings.Mode == SpaceModeBSP)
+            if(SpaceInfo->Settings.Mode == SpaceModeBSP)
             {
-                SetRootNodeContainer(Screen, Space->RootNode);
-                CreateNodeContainers(Screen, Space->RootNode, true);
+                SetRootNodeContainer(Display, SpaceInfo->RootNode);
+                CreateNodeContainers(Display, SpaceInfo->RootNode, true);
             }
+            /* TODO(koekeishiya): Implement monocle mode.
             else if(Space->Settings.Mode == SpaceModeMonocle)
             {
                 link_node *Link = Space->RootNode->List;
@@ -662,15 +671,15 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
                     Link = Link->Next;
                 }
             }
+            */
         }
     }
 
-    if(Space->RootNode)
-    {
-        ApplyTreeNodeContainer(Space->RootNode);
-        FocusWindowBelowCursor();
-    }
+    if(SpaceInfo->RootNode)
+        ApplyTreeNodeContainer(SpaceInfo->RootNode);
 }
+
+void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows) { }
 
 void ShouldWindowNodeTreeUpdate(screen_info *Screen)
 {
@@ -702,6 +711,13 @@ void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space) { }
 void AddWindowToBSPTree(ax_display *Display, int WindowID)
 {
     space_info *Space = &WindowTree[Display->Space->Identifier];
+    tree_node *Insert = GetFirstPseudoLeafNode(Space->RootNode);
+    if(Insert && (Insert->WindowID = WindowID))
+    {
+        ApplyTreeNodeContainer(Insert);
+        return;
+    }
+
     tree_node *RootNode = Space->RootNode;
     if(RootNode)
     {

@@ -190,7 +190,7 @@ void CreateNodeContainers(ax_display *Display, tree_node *Node, bool OptimalSpli
 
 void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSplit) { }
 
-void CreateDeserializedNodeContainer(tree_node *Node)
+void CreateDeserializedNodeContainer(ax_display *Display, tree_node *Node)
 {
     int SplitMode = Node->Parent->SplitMode;
     int ContainerType = 0;
@@ -200,5 +200,5 @@ void CreateDeserializedNodeContainer(tree_node *Node)
     else
         ContainerType = IsLeftChild(Node) ? 3 : 4;
 
-    CreateNodeContainer(KWMScreen.Current, Node, ContainerType);
+    CreateNodeContainer(Display, Node, ContainerType);
 }

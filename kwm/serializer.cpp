@@ -5,14 +5,15 @@
 #include "space.h"
 #include "border.h"
 #include "helpers.h"
+#include "axlib/display.h"
 
 #define internal static
 
 internal void SerializeParentNode(tree_node *Parent, std::string Role, std::vector<std::string> &Serialized);
-internal unsigned int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index);
-internal tree_node * DeserializeNodeTree(std::vector<std::string> &Serialized);
-internal unsigned int DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index);
-internal unsigned int DeserializeChildNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index);
+
+internal tree_node * DeserializeNodeTree(std::vector<std::string> &Serialized, ax_display *Display);
+internal unsigned int DeserializeParentNode(tree_node *Parent, ax_display *Display, std::vector<std::string> &Serialized, unsigned int Index);
+internal unsigned int DeserializeChildNode(tree_node *Parent, ax_display *Display, std::vector<std::string> &Serialized, unsigned int Index);
 
 internal void
 SerializeParentNode(tree_node *Parent, std::string Role, std::vector<std::string> &Serialized)
@@ -45,7 +46,7 @@ SerializeParentNode(tree_node *Parent, std::string Role, std::vector<std::string
 }
 
 internal unsigned int
-DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index)
+DeserializeParentNode(tree_node *Parent, ax_display *Display, std::vector<std::string> &Serialized, unsigned int Index)
 {
     unsigned int LineNumber = Index;
     for(;LineNumber < Serialized.size(); ++LineNumber)
@@ -67,7 +68,7 @@ DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, u
         {
             DEBUG("Root: Child Found");
             DEBUG("Parent: " << Parent->SplitMode << "|" << Parent->SplitRatio);
-            LineNumber = DeserializeChildNode(Parent, Serialized, LineNumber+1);
+            LineNumber = DeserializeChildNode(Parent, Display, Serialized, LineNumber+1);
         }
 
         if(Parent->RightChild)
@@ -78,7 +79,7 @@ DeserializeParentNode(tree_node *Parent, std::vector<std::string> &Serialized, u
 }
 
 internal unsigned int
-DeserializeChildNode(tree_node *Parent, std::vector<std::string> &Serialized, unsigned int Index)
+DeserializeChildNode(tree_node *Parent, ax_display *Display, std::vector<std::string> &Serialized, unsigned int Index)
 {
     unsigned int LineNumber = Index;
     for(;LineNumber < Serialized.size(); ++LineNumber)
@@ -87,31 +88,31 @@ DeserializeChildNode(tree_node *Parent, std::vector<std::string> &Serialized, un
         if(Line == "kwmc tree root create left")
         {
             DEBUG("Child: Create root");
-            Parent->LeftChild = CreateLeafNode(KWMScreen.Current, Parent, -1, 1);
-            CreateDeserializedNodeContainer(Parent->LeftChild);
-            LineNumber = DeserializeParentNode(Parent->LeftChild, Serialized, LineNumber+1);
+            Parent->LeftChild = CreateLeafNode(Display, Parent, -1, 1);
+            CreateDeserializedNodeContainer(Display, Parent->LeftChild);
+            LineNumber = DeserializeParentNode(Parent->LeftChild, Display, Serialized, LineNumber+1);
             return LineNumber;
         }
         else if(Line == "kwmc tree root create right")
         {
             DEBUG("Child: Create root");
-            Parent->RightChild = CreateLeafNode(KWMScreen.Current, Parent, -1, 2);
-            CreateDeserializedNodeContainer(Parent->RightChild);
-            LineNumber = DeserializeParentNode(Parent->RightChild, Serialized, LineNumber+1);
+            Parent->RightChild = CreateLeafNode(Display, Parent, -1, 2);
+            CreateDeserializedNodeContainer(Display, Parent->RightChild);
+            LineNumber = DeserializeParentNode(Parent->RightChild, Display, Serialized, LineNumber+1);
             return LineNumber;
         }
         else if(Line == "kwmc tree leaf create left")
         {
             DEBUG("Child: Create left leaf");
-            Parent->LeftChild = CreateLeafNode(KWMScreen.Current, Parent, -1, 1);
-            CreateDeserializedNodeContainer(Parent->LeftChild);
+            Parent->LeftChild = CreateLeafNode(Display, Parent, -1, 1);
+            CreateDeserializedNodeContainer(Display, Parent->LeftChild);
             return LineNumber;
         }
         else if(Line == "kwmc tree leaf create right")
         {
             DEBUG("Child: Create right leaf");
-            Parent->RightChild = CreateLeafNode(KWMScreen.Current, Parent, -1, 2);
-            CreateDeserializedNodeContainer(Parent->RightChild);
+            Parent->RightChild = CreateLeafNode(Display, Parent, -1, 2);
+            CreateDeserializedNodeContainer(Display, Parent->RightChild);
             return LineNumber;
         }
     }
@@ -120,18 +121,19 @@ DeserializeChildNode(tree_node *Parent, std::vector<std::string> &Serialized, un
 }
 
 internal tree_node *
-DeserializeNodeTree(std::vector<std::string> &Serialized)
+DeserializeNodeTree(std::vector<std::string> &Serialized, ax_display *Display)
 {
     if(Serialized.empty() || Serialized[0] != "kwmc tree root create parent")
         return NULL;
 
     DEBUG("Deserialize: Create Master");
     tree_node *RootNode = CreateRootNode();
-    SetRootNodeContainer(KWMScreen.Current, RootNode);
-    DeserializeParentNode(RootNode, Serialized, 1);
+    SetRootNodeContainer(Display, RootNode);
+    DeserializeParentNode(RootNode, Display, Serialized, 1);
     return RootNode;
 }
 
+/* NOTE(koekeishiya): This is outdated and does not work with ax_display. */
 void SaveBSPTreeToFile(screen_info *Screen, std::string Name)
 {
     if(IsSpaceInitializedForScreen(Screen))
@@ -160,29 +162,23 @@ void SaveBSPTreeToFile(screen_info *Screen, std::string Name)
     }
 }
 
-void LoadBSPTreeFromFile(screen_info *Screen, std::string Name)
+void LoadBSPTreeFromFile(screen_info *Screen, std::string Name) { }
+
+void LoadBSPTreeFromFile(ax_display *Display, space_info *SpaceInfo, std::string Name)
 {
-    if(IsSpaceInitializedForScreen(Screen))
-    {
-        space_info *Space = GetActiveSpaceOfScreen(Screen);
-        if(Space->Settings.Mode != SpaceModeBSP)
-            return;
+    if(SpaceInfo->Settings.Mode != SpaceModeBSP)
+        return;
 
-        std::string TempPath = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + KWMPath.BSPLayouts;
-        std::ifstream InFD(TempPath + "/" + Name);
-        if(InFD.fail())
-            return;
+    std::string TempPath = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + KWMPath.BSPLayouts;
+    std::ifstream InFD(TempPath + "/" + Name);
+    if(InFD.fail())
+        return;
 
-        std::string Line;
-        std::vector<std::string> SerializedTree;
-        while(std::getline(InFD, Line))
-            SerializedTree.push_back(Line);
+    std::string Line;
+    std::vector<std::string> SerializedTree;
+    while(std::getline(InFD, Line))
+        SerializedTree.push_back(Line);
 
-        DestroyNodeTree(Space->RootNode);
-        Space->RootNode = DeserializeNodeTree(SerializedTree);
-        FillDeserializedTree(Space->RootNode);
-        ApplyTreeNodeContainer(Space->RootNode);
-        UpdateBorder("focused");
-        UpdateBorder("marked");
-    }
+    DestroyNodeTree(SpaceInfo->RootNode);
+    SpaceInfo->RootNode = DeserializeNodeTree(SerializedTree, Display);
 }
