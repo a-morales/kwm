@@ -218,12 +218,14 @@ KwmInit()
     else
         Fatal("Kwm: Could not start daemon..");
 
+    /*
     signal(SIGSEGV, SignalHandler);
     signal(SIGABRT, SignalHandler);
     signal(SIGTRAP, SignalHandler);
     signal(SIGTERM, SignalHandler);
     signal(SIGKILL, SignalHandler);
     signal(SIGINT, SignalHandler);
+    */
 
     KWMScreen.SplitRatio = 0.5;
     KWMScreen.SplitMode = SPLIT_OPTIMAL;
@@ -253,7 +255,7 @@ KwmInit()
 
     GetKwmFilePath();
     KwmExecuteConfig();
-    // KwmExecuteInitScript();
+    KwmExecuteInitScript();
 }
 
 void KwmQuit()
@@ -289,16 +291,15 @@ int main(int argc, char **argv)
                        kCFRunLoopCommonModes);
     CGEventTapEnable(KWMMach.EventTap, true);
 
-    // NOTE(koekeishiya): Initialize AXLIB
+    /* NOTE(koekeishiya): Initialize AXLIB */
     AXLibInit(&AXState);
     AXLibStartEventLoop();
-    AXLibActiveDisplays();
-    AXLibRunningApplications();
 
     FocusedDisplay = AXLibMainDisplay();
     FocusedDisplay->Space = AXLibGetActiveSpace(FocusedDisplay);
     FocusedApplication = AXLibGetFocusedApplication();
     CreateWindowNodeTree(FocusedDisplay);
+    /* ----------------------------------- */
 
     NSApplicationLoad();
     CFRunLoopRun();
