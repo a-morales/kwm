@@ -604,14 +604,14 @@ void CreateWindowNodeTree(ax_display *Display)
             return;
 
         std::vector<uint32_t> Windows = GetAllWindowIDSOnDisplay(Display);
-        if(SpaceInfo->Settings.Layout.empty())
-        {
-            SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
-        }
-        else
+        if(SpaceInfo->Settings.Mode == SpaceModeBSP && !SpaceInfo->Settings.Layout.empty())
         {
             LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
             FillDeserializedTree(SpaceInfo->RootNode, &Windows);
+        }
+        else
+        {
+            SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
         }
     }
     else if(SpaceInfo->Initialized && !SpaceInfo->RootNode)
@@ -621,14 +621,14 @@ void CreateWindowNodeTree(ax_display *Display)
 
         /* NOTE(koekeishiya): If a space has been initialized, but the node-tree was destroyed. */
         std::vector<uint32_t> Windows = GetAllWindowIDSOnDisplay(Display);
-        if(SpaceInfo->Settings.Layout.empty())
-        {
-            SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
-        }
-        else
+        if(SpaceInfo->Settings.Mode == SpaceModeBSP && !SpaceInfo->Settings.Layout.empty())
         {
             LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
             FillDeserializedTree(SpaceInfo->RootNode, &Windows);
+        }
+        else
+        {
+            SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
         }
 
         /* NOTE(koekeishiya): Is this something that we really need to do (?) */
@@ -641,6 +641,7 @@ void CreateWindowNodeTree(ax_display *Display)
             }
             else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
             {
+                SetRootNodeContainer(Display, SpaceInfo->RootNode);
                 link_node *Link = SpaceInfo->RootNode->List;
                 while(Link)
                 {
@@ -718,16 +719,16 @@ void RemoveWindowFromNodeTree(ax_display *Display, unsigned int WindowID)
 
 void AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, unsigned int WindowID)
 {
-    tree_node *Insert = GetFirstPseudoLeafNode(SpaceInfo->RootNode);
-    if(Insert && (Insert->WindowID = WindowID))
-    {
-        ApplyTreeNodeContainer(Insert);
-        return;
-    }
-
     tree_node *RootNode = SpaceInfo->RootNode;
     if(RootNode)
     {
+        tree_node *Insert = GetFirstPseudoLeafNode(SpaceInfo->RootNode);
+        if(Insert && (Insert->WindowID = WindowID))
+        {
+            ApplyTreeNodeContainer(Insert);
+            return;
+        }
+
         tree_node *CurrentNode = NULL;
         ax_window *Window = FocusedApplication->Focus;
         if(Window && Window->ID != WindowID)
@@ -793,18 +794,21 @@ void RemoveWindowFromBSPTree(ax_display *Display, unsigned int WindowID)
 
 void AddWindowToMonocleTree(ax_display *Display, space_info *SpaceInfo, unsigned int WindowID)
 {
-    link_node *Link = SpaceInfo->RootNode->List;
-    while(Link->Next)
-        Link = Link->Next;
+    if(SpaceInfo->RootNode)
+    {
+        link_node *Link = SpaceInfo->RootNode->List;
+        while(Link->Next)
+            Link = Link->Next;
 
-    link_node *NewLink = CreateLinkNode();
-    SetLinkNodeContainer(Display, NewLink);
+        link_node *NewLink = CreateLinkNode();
+        SetLinkNodeContainer(Display, NewLink);
 
-    NewLink->WindowID = WindowID;
-    Link->Next = NewLink;
-    NewLink->Prev = Link;
+        NewLink->WindowID = WindowID;
+        Link->Next = NewLink;
+        NewLink->Prev = Link;
 
-    ResizeWindowToContainerSize(NewLink);
+        ResizeWindowToContainerSize(NewLink);
+    }
 }
 
 void RemoveWindowFromMonocleTree(ax_display *Display, unsigned int WindowID)
