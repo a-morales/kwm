@@ -296,6 +296,7 @@ int main(int argc, char **argv)
     AXLibRunningApplications();
 
     FocusedDisplay = AXLibMainDisplay();
+    FocusedDisplay->Space = AXLibGetActiveSpace(FocusedDisplay);
     FocusedApplication = AXLibGetFocusedApplication();
     CreateWindowNodeTree(FocusedDisplay);
 
