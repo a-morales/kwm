@@ -210,14 +210,16 @@ HasRuleBeenApplied(window_info *Window)
     return It != KWMTiling.EnforcedWindows.end();
 }
 
+internal bool MatchWindowRule(window_rule *Rule, window_info *Window) { }
+
 internal bool
-MatchWindowRule(window_rule *Rule, window_info *Window)
+MatchWindowRule(window_rule *Rule, ax_window *Window)
 {
     bool Match = true;
     if(!Rule->Owner.empty())
     {
         std::regex Exp(Rule->Owner);
-        Match = std::regex_match(Window->Owner, Exp);
+        Match = std::regex_match(Window->Application->Name, Exp);
     }
 
     if(!Rule->Name.empty())
@@ -275,6 +277,35 @@ void CheckWindowRules(window_info *Window)
     }
 }
 
+void ApplyWindowRules(ax_window *Window)
+{
+    for(int Index = 0; Index < KWMTiling.WindowRules.size(); ++Index)
+    {
+        window_rule *Rule = &KWMTiling.WindowRules[Index];
+        if(MatchWindowRule(Rule, Window))
+        {
+            if(Rule->Properties.Float == 1)
+                AXLibAddFlags(Window, AXWindow_Floating);
+
+            /*
+            if(Rule->Properties.Display != -1)
+                Window->Properties.Display = Rule->Properties.Display;
+
+            if(Rule->Properties.Space != -1)
+                Window->Properties.Space = Rule->Properties.Space;
+
+            if(Rule->Properties.Scratchpad != -1)
+                Window->Properties.Scratchpad = Rule->Properties.Scratchpad;
+            */
+
+            if(!Rule->Properties.Role.empty())
+                Window->Type.CustomRole = CFStringCreateWithCString(NULL,
+                                                                    Rule->Properties.Role.c_str(),
+                                                                    kCFStringEncodingMacRoman);
+        }
+    }
+}
+
 bool EnforceWindowRules(window_info *Window)
 {
     if(HasRuleBeenApplied(Window))
@@ -283,17 +314,6 @@ bool EnforceWindowRules(window_info *Window)
     bool Result  = false;
     if(Window->Properties.Float == 1)
     {
-        screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-        if(ScreenOfWindow)
-        {
-            space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-            if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
-                RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, true, false);
-            else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
-                RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, true, false);
-        }
-
-        KWMTiling.FloatingWindowLst.push_back(Window->WID);
     }
 
     if(Window->Properties.Display != -1)

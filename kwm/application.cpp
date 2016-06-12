@@ -5,15 +5,7 @@
 extern kwm_tiling KWMTiling;
 extern kwm_cache KWMCache;
 
-void AllowRoleForWindow(window_info *Window, std::string Role)
-{
-    std::map<int, CFTypeRef>::iterator It = KWMTiling.AllowedWindowRoles.find(Window->WID);
-    if(It == KWMTiling.AllowedWindowRoles.end())
-    {
-        CFStringRef RoleRef = CFStringCreateWithCString(NULL, Role.c_str(), kCFStringEncodingMacRoman);
-        KWMTiling.AllowedWindowRoles[Window->WID] = RoleRef;
-    }
-}
+void AllowRoleForWindow(window_info *Window, std::string Role) {}
 
 bool IsWindowSpecificRole(window_info *Window, CFTypeRef Role, CFTypeRef SubRole)
 {

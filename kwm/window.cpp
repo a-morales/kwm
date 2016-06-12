@@ -94,10 +94,16 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
     DEBUG("AXEvent_ApplicationLaunched: " << Application->Name);
     if(Application->Focus)
     {
+        ApplyWindowRules(Application->Focus);
         ax_display *Display = AXLibWindowDisplay(Application->Focus);
         if(Display)
         {
-            AddWindowToNodeTree(Display, Application->Focus->ID);
+            if((!AXLibHasFlags(Application->Focus, AXWindow_Minimized)) &&
+               (AXLibIsWindowStandard(Application->Focus) || AXLibIsWindowCustom(Application->Focus)) &&
+               (!AXLibHasFlags(Application->Focus, AXWindow_Floating)))
+            {
+                AddWindowToNodeTree(Display, Application->Focus->ID);
+            }
         }
     }
 }
@@ -146,11 +152,16 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
     if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
     {
         DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
-        if(AXLibIsWindowStandard(Window))
+        ApplyWindowRules(Window);
+        ax_display *Display = AXLibWindowDisplay(Window);
+        if(Display)
         {
-            ax_display *Display = AXLibWindowDisplay(Window);
-            if(Display)
+            if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
+               (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+               (!AXLibHasFlags(Window, AXWindow_Floating)))
+            {
                 AddWindowToNodeTree(Display, Window->ID);
+            }
         }
     }
 }
@@ -187,7 +198,14 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
 
     ax_display *Display = AXLibWindowDisplay(Window);
     if(Display)
-        AddWindowToNodeTree(Display, Window->ID);
+    {
+        if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
+           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+           (!AXLibHasFlags(Window, AXWindow_Floating)))
+        {
+            AddWindowToNodeTree(Display, Window->ID);
+        }
+    }
 
     /* NOTE(koekeishiya): If a window was minimized, it should now be the focused window for its application,
                           and the corresponding application will have input focus. */
@@ -246,35 +264,9 @@ EVENT_CALLBACK(Callback_AXEvent_WindowResized)
     }
 }
 
-bool WindowsAreEqual(window_info *Window, window_info *Match)
-{
-    if(Window && Match)
-    {
-        if(Window->PID == Match->PID &&
-           Window->WID == Match->WID &&
-           Window->Layer == Match->Layer)
-            return true;
-    }
+bool WindowsAreEqual(window_info *Window, window_info *Match) { }
 
-    return false;
-}
-
-std::vector<window_info> FilterWindowListAllDisplays()
-{
-    std::vector<window_info> FilteredWindowLst;
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
-    {
-        CFTypeRef Role, SubRole;
-        if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
-        {
-            if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
-               IsWindowSpecificRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
-                    FilteredWindowLst.push_back(KWMTiling.FocusLst[WindowIndex]);
-        }
-    }
-
-    return FilteredWindowLst;
-}
+std::vector<window_info> FilterWindowListAllDisplays() { }
 
 bool FilterWindowList(screen_info *Screen)
 {
