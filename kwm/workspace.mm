@@ -61,64 +61,9 @@ int GetNumberOfSpacesOfDisplay(screen_info *Screen)
     return Result;
 }
 
-int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID)
-{
-    int Result = -1;
-    NSString *CurrentIdentifier = (__bridge NSString *)Screen->Identifier;
+int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID) { }
 
-    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
-    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
-    {
-        int SpaceIndex = 1;
-        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
-        if ([ScreenIdentifier isEqualToString:CurrentIdentifier])
-        {
-            NSArray *Spaces = ScreenDictionary[@"Spaces"];
-            for(NSDictionary *SpaceDictionary in (__bridge NSArray *)Spaces)
-            {
-                int CurrentSpace = [SpaceDictionary[@"id64"] intValue];
-                if(CurrentSpace == CGSpaceID)
-                {
-                    Result = SpaceIndex;
-                    break;
-                }
-
-                ++SpaceIndex;
-            }
-        }
-    }
-
-    CFRelease(ScreenDictionaries);
-    return Result;
-}
-
-int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID)
-{
-    int Result = -1;
-    NSString *CurrentIdentifier = (__bridge NSString *)Screen->Identifier;
-
-    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
-    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
-    {
-        int SpaceIndex = 1;
-        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
-        if ([ScreenIdentifier isEqualToString:CurrentIdentifier])
-        {
-            NSArray *Spaces = ScreenDictionary[@"Spaces"];
-            for(NSDictionary *SpaceDictionary in (__bridge NSArray *)Spaces)
-            {
-                if(SpaceIndex == SpaceID)
-                {
-                    Result = [SpaceDictionary[@"id64"] intValue];
-                    break;
-                }
-                ++SpaceIndex;
-            }
-        }
-    }
-
-    CFRelease(ScreenDictionaries);
-    return Result;
+int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID) {
 }
 
 extern "C" int CGSRemoveWindowsFromSpaces(int cid, CFArrayRef windows, CFArrayRef spaces);
