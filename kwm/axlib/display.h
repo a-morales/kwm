@@ -37,7 +37,6 @@ struct ax_display
     std::map<CGSSpaceID, ax_space> Spaces;
 };
 
-void AXLibActiveDisplays();
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays);
 ax_space * AXLibGetActiveSpace(ax_display *Display);
 

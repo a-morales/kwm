@@ -305,7 +305,8 @@ AXLibMoveDisplay(CGDirectDisplayID DisplayID)
 
 
 /* NOTE(koekeishiya): Get notified about display changes. */
-void AXDisplayReconfigurationCallBack(CGDirectDisplayID DisplayID, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
+internal void
+AXDisplayReconfigurationCallBack(CGDirectDisplayID DisplayID, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
 {
     /* TODO(koekeishiya): Debug the following sequence of actions, which led to a crash for some reason.
                           1. Start Kwm
@@ -365,7 +366,8 @@ void AXDisplayReconfigurationCallBack(CGDirectDisplayID DisplayID, CGDisplayChan
 }
 
 /* NOTE(koekeishiya): Populate map with information about all connected displays. */
-void AXLibActiveDisplays()
+internal void
+AXLibActiveDisplays()
 {
     CGDirectDisplayID *CGDirectDisplayList = (CGDirectDisplayID *) malloc(sizeof(CGDirectDisplayID) * MaxDisplayCount);
     CGGetActiveDisplayList(MaxDisplayCount, CGDirectDisplayList, &ActiveDisplayCount);
@@ -507,4 +509,5 @@ CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int Deskto
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays)
 {
     Displays = AXDisplays;
+    AXLibActiveDisplays();
 }

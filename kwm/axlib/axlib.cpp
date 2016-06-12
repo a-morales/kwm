@@ -28,6 +28,7 @@ AXLibSystemWideElement()
     return AXLibSystemWideElement;
 }
 
+/* NOTE(koekeishiya): Does AXLib already have an ax_application struct for the given process id (?) .*/
 internal bool
 AXLibIsApplicationCached(pid_t PID)
 {
@@ -35,11 +36,13 @@ AXLibIsApplicationCached(pid_t PID)
     return It != AXApplications->end();
 }
 
+/* NOTE(koekeishiya): Returns a pointer to the ax_application struct corresponding to the given process id. */
 ax_application *AXLibGetApplicationByPID(pid_t PID)
 {
     return AXLibIsApplicationCached(PID) ? &(*AXApplications)[PID] : NULL;
 }
 
+/* NOTE(koekeishiya): Returns a pointer to the ax_application struct that is the current active application. */
 ax_application *AXLibGetFocusedApplication()
 {
     AXUIElementRef Ref = (AXUIElementRef) AXLibGetWindowProperty(AXLibSystemWideElement(), kAXFocusedApplicationAttribute);
@@ -56,6 +59,7 @@ ax_application *AXLibGetFocusedApplication()
     return NULL;
 }
 
+/* NOTE(koekeishiya): Returns a pointer to the ax_window struct that is the current focused window of an application. */
 ax_window *AXLibGetFocusedWindow(ax_application *Application)
 {
     AXUIElementRef Ref = (AXUIElementRef) AXLibGetWindowProperty(Application->Ref, kAXFocusedWindowAttribute);
@@ -71,6 +75,8 @@ ax_window *AXLibGetFocusedWindow(ax_application *Application)
     return NULL;
 }
 
+/* NOTE(koekeishiya): The passed ax_window will now become the focused window of OSX. If the
+                      application corresponding to this window is not active, it will be activated. */
 void AXLibSetFocusedWindow(ax_window *Window)
 {
     AXLibSetWindowProperty(Window->Ref, kAXMainAttribute, kCFBooleanTrue);
@@ -79,17 +85,9 @@ void AXLibSetFocusedWindow(ax_window *Window)
 
     if(!AXLibIsApplicationActive(Window->Application))
         AXLibActivateApplication(Window->Application);
-
-    /* TODO(koekeishiya): Confirm that the following behaviour is performed by
-                          the 'AXLibActivateApplication' function call.
-
-       if(KWMMode.Focus != FocusModeAutofocus && KWMMode.Focus != FocusModeStandby)
-       SetFrontProcessWithOptions(&Window->Application->PSN, kSetFrontProcessFrontWindowOnly);
-    */
 }
 
-/* NOTE(koekeishiya): Returns a vector of all windows that we currently know about.
-                      This fuction is probably not necessary. */
+/* NOTE(koekeishiya): Returns a vector of all windows that we currently know about. This fuction is probably not necessary. */
 std::vector<ax_window *> AXLibGetAllKnownWindows()
 {
     std::vector<ax_window *> Windows;
@@ -117,6 +115,8 @@ AXLibArrayContains(int *WindowList, int WindowCount, uint32_t WindowID)
     return false;
 }
 
+/* NOTE(koekeishiya): Returns a list of pointer to ax_window structs containing all windows currently visible,
+                     filtering by their associated kAXWindowRole and kAXWindowSubrole. */
 std::vector<ax_window *> AXLibGetAllVisibleWindows()
 {
     std::vector<ax_window *> Windows;
@@ -160,6 +160,7 @@ std::vector<ax_window *> AXLibGetAllVisibleWindows()
     return Windows;
 }
 
+/* NOTE(koekeishiya): Update state of known applications and their windows, stored inside the ax_state passed to AXLibInit(..). */
 void AXLibRunningApplications()
 {
     std::map<pid_t, std::string> List = SharedWorkspaceRunningApplications();
@@ -181,6 +182,9 @@ void AXLibRunningApplications()
     }
 }
 
+/* NOTE(koekeishiya): This function is responsible for initializing internal variables used by AXLib, and must be
+                      called before using any of the provided functions!  In addition to this, it will also
+                      populate the display and running applications map in the ax_state struct.  */
 void AXLibInit(ax_state *State)
 {
     AXState = State;
@@ -191,4 +195,5 @@ void AXLibInit(ax_state *State)
     AXLibInitializeCarbonEventHandler(Carbon, AXApplications);
     SharedWorkspaceInitialize(AXApplications);
     AXLibInitializeDisplays(AXDisplays);
+    AXLibRunningApplications();
 }
