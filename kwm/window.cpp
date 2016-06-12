@@ -1328,13 +1328,21 @@ void SwapFocusedWindowWithMarked()
 
 void SwapFocusedWindowWithNearest(int Shift)
 {
-    if(!KWMFocus.Window || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
         return;
 
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    space_info *Space = &WindowTree[Display->Space->Identifier];
+    if(!Space)
+        return;
+
     if(Space->Settings.Mode == SpaceModeMonocle)
     {
-        link_node *Link = GetLinkNodeFromTree(Space->RootNode, KWMFocus.Window->WID);
+        link_node *Link = GetLinkNodeFromTree(Space->RootNode, Window->ID);
         if(Link)
         {
             link_node *ShiftNode = Shift == 1 ? Link->Next : Link->Prev;
@@ -1351,13 +1359,13 @@ void SwapFocusedWindowWithNearest(int Shift)
             if(ShiftNode)
             {
                 SwapNodeWindowIDs(Link, ShiftNode);
-                MoveCursorToCenterOfFocusedWindow();
+                // MoveCursorToCenterOfFocusedWindow();
             }
         }
     }
     else if(Space->Settings.Mode == SpaceModeBSP)
     {
-        tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
+        tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, Window->ID);
         if(TreeNode)
         {
             tree_node *NewFocusNode = NULL;;
@@ -1370,7 +1378,7 @@ void SwapFocusedWindowWithNearest(int Shift)
             if(NewFocusNode)
             {
                 SwapNodeWindowIDs(TreeNode, NewFocusNode);
-                MoveCursorToCenterOfFocusedWindow();
+                // MoveCursorToCenterOfFocusedWindow();
             }
         }
     }
@@ -1390,20 +1398,22 @@ void SwapFocusedWindowDirected(int Degrees)
     if(!Space)
         return;
 
-    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, Window->ID);
-    if(TreeNode)
+    if(Space->Settings.Mode == SpaceModeBSP)
     {
-        tree_node *NewFocusNode = NULL;
-        ax_window *ClosestWindow = NULL;
-        if(FindClosestWindow(Degrees, &ClosestWindow, KWMMode.Cycle == CycleModeScreen))
-            NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, ClosestWindow->ID);
-
-        if(NewFocusNode)
+        tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, Window->ID);
+        if(TreeNode)
         {
-            SwapNodeWindowIDs(TreeNode, NewFocusNode);
+            tree_node *NewFocusNode = NULL;
+            ax_window *ClosestWindow = NULL;
+            if(FindClosestWindow(Degrees, &ClosestWindow, KWMMode.Cycle == CycleModeScreen))
+                NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, ClosestWindow->ID);
+
+            if(NewFocusNode)
+            {
+                SwapNodeWindowIDs(TreeNode, NewFocusNode);
+            }
         }
     }
-    /*
     else if(Space->Settings.Mode == SpaceModeMonocle)
     {
         if(Degrees == 90)
@@ -1411,7 +1421,6 @@ void SwapFocusedWindowDirected(int Degrees)
         else if(Degrees == 270)
             SwapFocusedWindowWithNearest(-1);
     }
-    */
 }
 
 bool WindowIsInDirection(ax_window *WindowA, ax_window *WindowB, int Degrees)
@@ -1682,24 +1691,10 @@ void ShiftSubTreeWindowFocus(int Shift)
 
 void FocusWindowByID(int WindowID)
 {
-    window_info *Window = GetWindowByID(WindowID);
+    ax_window *Window = GetWindowByID((unsigned int)WindowID);
     if(Window)
     {
-        screen_info *Screen = GetDisplayOfWindow(Window);
-        if(Screen == KWMScreen.Current)
-        {
-            SetWindowFocus(Window);
-            MoveCursorToCenterOfFocusedWindow();
-        }
-
-        if(Screen != KWMScreen.Current && IsSpaceInitializedForScreen(Screen))
-        {
-            space_info *Space = GetActiveSpaceOfScreen(Screen);
-            tree_node *Root = Space->RootNode;
-            tree_node *Node = GetTreeNodeFromWindowID(Root, WindowID);
-            if(Node)
-                GiveFocusToScreen(Screen->ID, Node, false, true);
-        }
+        AXLibSetFocusedWindow(Window);
     }
 }
 
@@ -1863,33 +1858,10 @@ bool IsWindowTilable(AXUIElementRef WindowRef)
     return AXLibIsWindowResizable(WindowRef) && AXLibIsWindowMovable(WindowRef);
 }
 
-CGPoint GetWindowPos(window_info *Window)
-{
-    CGPoint Result = {};
-    AXUIElementRef WindowRef;
-    if(GetWindowRef(Window, &WindowRef))
-        Result = AXLibGetWindowPosition(WindowRef);
+CGPoint GetWindowPos(window_info *Window) { }
+window_info GetWindowByRef(AXUIElementRef WindowRef) { }
 
-    return Result;
-}
-
-window_info GetWindowByRef(AXUIElementRef WindowRef)
-{
-    Assert(WindowRef);
-    window_info *Window = GetWindowByID((int)AXLibGetWindowID(WindowRef));
-    return Window ? *Window : KWMFocus.NULLWindowInfo;
-}
-
-window_info *GetWindowByID(int WindowID)
-{
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
-    {
-        if(KWMTiling.FocusLst[WindowIndex].WID == WindowID)
-            return &KWMTiling.FocusLst[WindowIndex];
-    }
-
-    return NULL;
-}
+window_info *GetWindowByID(int WindowID) { }
 
 ax_window *GetWindowByID(unsigned int WindowID)
 {
@@ -1907,79 +1879,9 @@ ax_window *GetWindowByID(unsigned int WindowID)
     return NULL;
 }
 
-bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole)
-{
-    bool Result = false;
+bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole) { }
 
-    std::map<int, window_role>::iterator It = KWMCache.WindowRole.find(Window->WID);
-    if(It != KWMCache.WindowRole.end())
-    {
-        *Role = KWMCache.WindowRole[Window->WID].Role;
-        *SubRole = KWMCache.WindowRole[Window->WID].SubRole;
-        Result = true;
-    }
-    else
-    {
-        AXUIElementRef WindowRef;
-        if(GetWindowRef(Window, &WindowRef))
-        {
-            AXLibGetWindowRole(WindowRef, Role);
-            AXLibGetWindowSubrole(WindowRef, SubRole);
-            window_role RoleEntry = { *Role, *SubRole };
-            KWMCache.WindowRole[Window->WID] = RoleEntry;
-            Result = true;
-        }
-    }
-
-    return Result;
-}
-
-bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef)
-{
-    if(Window->Owner == "Dock")
-        return false;
-
-    if(GetWindowRefFromCache(Window, WindowRef))
-        return true;
-
-    AXUIElementRef App = AXUIElementCreateApplication(Window->PID);
-    if(!App)
-    {
-        DEBUG("GetWindowRef() Failed to get App for: " << Window->Name);
-        return false;
-    }
-
-    CFArrayRef AppWindowLst;
-    AXUIElementCopyAttributeValue(App, kAXWindowsAttribute, (CFTypeRef*)&AppWindowLst);
-    if(!AppWindowLst)
-    {
-        DEBUG("GetWindowRef() Could not get AppWindowLst");
-        return false;
-    }
-
-    bool Found = false;
-    FreeWindowRefCache(Window->PID);
-    CFIndex AppWindowCount = CFArrayGetCount(AppWindowLst);
-    for(CFIndex WindowIndex = 0; WindowIndex < AppWindowCount; ++WindowIndex)
-    {
-        AXUIElementRef AppWindowRef = (AXUIElementRef)CFArrayGetValueAtIndex(AppWindowLst, WindowIndex);
-        if(AppWindowRef)
-        {
-            KWMCache.WindowRefs[Window->PID].push_back(AppWindowRef);
-            if(!Found)
-            {
-                if(AXLibGetWindowID(AppWindowRef) == Window->WID)
-                {
-                    *WindowRef = AppWindowRef;
-                    Found = true;
-                }
-            }
-        }
-    }
-
-    CFRelease(App);
-    return Found;
-}
+bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef) { }
 
 void GetWindowInfo(const void *Key, const void *Value, void *Context)
 {
