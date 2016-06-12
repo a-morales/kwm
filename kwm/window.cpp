@@ -73,7 +73,7 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         printf("Space: CGSSpaceID %d\n", FocusedDisplay->Space->ID);
 
         CreateWindowNodeTree(FocusedDisplay);
-        RebalanceBSPTree(FocusedDisplay);
+        RebalanceNodeTree(FocusedDisplay);
     }
     else
     {
