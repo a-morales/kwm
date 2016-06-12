@@ -12,8 +12,7 @@
 
 enum ax_application_flags
 {
-    AXApplication_Float = (1 << 0),
-    AXApplication_Activate = (1 << 1),
+    AXApplication_Activate = (1 << 0),
 };
 
 struct ax_application

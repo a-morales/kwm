@@ -117,9 +117,6 @@ AXLibArrayContains(int *WindowList, int WindowCount, uint32_t WindowID)
     return false;
 }
 
-/* TODO(koekeishiya): Somehow need to filter windows that fail the role-check,
-                      while still allowing custom roles for specific windows.
-                      Should only have to call this function on startup and space-changed events. */
 std::vector<ax_window *> AXLibGetAllVisibleWindows()
 {
     std::vector<ax_window *> Windows;
@@ -148,8 +145,9 @@ std::vector<ax_window *> AXLibGetAllVisibleWindows()
                         /* NOTE(koekeishiya): If a window is minimized, the ArrayContains check should fail
                                               if(!AXLibIsWindowMinimized(Window->Ref)) */
 
-                        if(AXLibArrayContains(WindowList, WindowCount, Window->ID) &&
-                           AXLibIsWindowStandard(Window))
+                        if((AXLibArrayContains(WindowList, WindowCount, Window->ID)) &&
+                           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+                           (!AXLibHasFlags(Window, AXWindow_Floating)))
                         {
                             Windows.push_back(Window);
                         }

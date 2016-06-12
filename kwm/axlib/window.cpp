@@ -30,12 +30,18 @@ ax_window *AXLibConstructWindow(ax_application *Application, AXUIElementRef Wind
     return Window;
 }
 
-/* TODO(koekeishiya): Need to implement support for adding other roles that should be accepted
-                      by this particular ax_window instance. */
 bool AXLibIsWindowStandard(ax_window *Window)
 {
     bool Result = ((CFEqual(Window->Type.Role, kAXWindowRole)) &&
                    (CFEqual(Window->Type.Subrole, kAXStandardWindowSubrole)));
+    return Result;
+}
+
+bool AXLibIsWindowCustom(ax_window *Window)
+{
+    bool Result = ((Window->Type.CustomRole) &&
+                   ((CFEqual(Window->Type.Role, Window->Type.CustomRole)) ||
+                   (CFEqual(Window->Type.Subrole, Window->Type.CustomRole))));
     return Result;
 }
 

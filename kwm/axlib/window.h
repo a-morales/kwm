@@ -17,6 +17,7 @@ struct ax_window_role
 {
     CFTypeRef Role;
     CFTypeRef Subrole;
+    CFTypeRef CustomRole;
 };
 
 struct ax_application;
@@ -55,6 +56,7 @@ AXLibClearFlags(ax_window *Window, uint32_t Flag)
 
 ax_window *AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef);
 bool AXLibIsWindowStandard(ax_window *Window);
+bool AXLibIsWindowCustom(ax_window *Window);
 void AXLibDestroyWindow(ax_window *Window);
 
 #endif
