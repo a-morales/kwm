@@ -2,6 +2,7 @@
 #define SPACE_H
 
 #include "types.h"
+#include "axlib/axlib.h"
 
 extern void MoveFocusedWindowToSpace(std::string SpaceID);
 
@@ -27,5 +28,6 @@ space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID);
 int GetSpaceFromName(screen_info *Screen, std::string Name);
 void SetNameOfActiveSpace(screen_info *Screen, std::string Name);
 std::string GetNameOfSpace(screen_info *Screen, int CGSpaceID);
+std::string GetNameOfSpace(ax_display *Display);
 
 #endif

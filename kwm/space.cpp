@@ -7,6 +7,7 @@
 #include "helpers.h"
 
 #include "axlib/axlib.h"
+extern std::map<CFStringRef, space_info> WindowTree;
 
 extern kwm_mach KWMMach;
 extern kwm_tiling KWMTiling;
@@ -52,15 +53,16 @@ void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
 
 void GetTagForCurrentSpace(std::string &Tag)
 {
-    if(IsSpaceInitializedForScreen(KWMScreen.Current))
+    ax_display *Display = AXLibMainDisplay();
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(SpaceInfo->Initialized)
     {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        if(Space->Settings.Mode == SpaceModeBSP)
+        if(SpaceInfo->Settings.Mode == SpaceModeBSP)
             Tag = "[bsp]";
-        else if(Space->Settings.Mode == SpaceModeFloating)
+        else if(SpaceInfo->Settings.Mode == SpaceModeFloating)
             Tag = "[float]";
-        else if(Space->Settings.Mode == SpaceModeMonocle)
-            GetTagForMonocleSpace(Space, Tag);
+        else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
+            GetTagForMonocleSpace(SpaceInfo, Tag);
     }
     else
     {
@@ -343,22 +345,23 @@ int GetSpaceFromName(screen_info *Screen, std::string Name)
     return -1;
 }
 
-void SetNameOfActiveSpace(screen_info *Screen, std::string Name)
+void SetNameOfActiveSpace(screen_info *Screen, std::string Name) {}
+
+void SetNameOfActiveSpace(ax_display *Display, std::string Name)
 {
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-    if(Space) Space->Settings.Name = Name;
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(SpaceInfo) SpaceInfo->Settings.Name = Name;
 }
 
-std::string GetNameOfSpace(screen_info *Screen, int CGSpaceID)
+std::string GetNameOfSpace(screen_info *Screen, int CGSpaceID) { }
+
+std::string GetNameOfSpace(ax_display *Display)
 {
-    std::map<int, space_info>::iterator It = Screen->Space.find(CGSpaceID);
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     std::string Result = "[no tag]";
 
-    if(It != Screen->Space.end())
-    {
-        if(!It->second.Settings.Name.empty())
-            Result = It->second.Settings.Name;
-    }
+    if(!SpaceInfo->Settings.Name.empty())
+        Result = SpaceInfo->Settings.Name;
 
     return Result;
 }
