@@ -683,7 +683,7 @@ void RebalanceBSPTree(ax_display *Display)
 void RebalanceMonocleTree(ax_display *Display)
 {
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
-    if(SpaceInfo->RootNode->List)
+    if(SpaceInfo->RootNode && SpaceInfo->RootNode->List)
     {
         std::vector<int> WindowIDsInTree = GetAllWindowIDsInTree(SpaceInfo);
         std::vector<uint32_t> WindowsToRemove = GetAllAXWindowIDsToRemoveFromTree(WindowIDsInTree);
