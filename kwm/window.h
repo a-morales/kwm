@@ -6,11 +6,21 @@
 #include "axlib/window.h"
 
 void CreateWindowNodeTree(ax_display *Display);
+void AddWindowToNodeTree(ax_display *Display, unsigned int WindowID);
+void RemoveWindowFromNodeTree(ax_display *Display, unsigned int WindowID);
+
+void AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, unsigned int WindowID);
+void RemoveWindowFromBSPTree(ax_display *Display, unsigned int WindowID);
+
+void AddWindowToMonocleTree(ax_display *Display, space_info *SpaceInfo, unsigned int WindowID);
+void RemoveWindowFromMonocleTree(ax_display *Display, unsigned int WindowID);
+
+void RebalanceNodeTree(ax_display *Display);
+void RebalanceBSPTree(ax_display *Display);
+void RebalanceMonocleTree(ax_display *Display);
+
 ax_window *GetWindowByID(unsigned int WindowID);
-void AddWindowToBSPTree(ax_display *Display, int WindowID);
-void RemoveWindowFromBSPTree(ax_display *Display, int WindowID);
 std::vector<ax_window *> GetAllAXWindowsNotInTree(ax_display *Display, std::vector<int> &WindowIDsInTree);
-void ShouldBSPTreeUpdate(ax_display *Display);
 std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree);
 void GetCenterOfWindow(ax_window *Window, int *X, int *Y);
 bool WindowIsInDirection(ax_window *WindowA, ax_window *WindowB, int Degrees);

@@ -12,11 +12,6 @@ extern std::map<CFStringRef, space_info> WindowTree;
 /* NOTE(koekeishiya): AXLIB */
 tree_node *CreateTreeFromWindowIDList(ax_display *Display, std::vector<uint32_t> *Windows)
 {
-    /*
-     if(IsSpaceFloating(Screen->ActiveSpace))
-        return NULL;
-    */
-
     tree_node *RootNode = CreateRootNode();
     SetRootNodeContainer(Display, RootNode);
     bool Result = false;

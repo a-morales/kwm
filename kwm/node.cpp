@@ -252,45 +252,23 @@ split_type GetOptimalSplitMode(tree_node *Node)
 
 void ResizeWindowToContainerSize(tree_node *Node)
 {
-    // window_info *Window = GetWindowByID(Node->WindowID);
     ax_window *Window = GetWindowByID((unsigned int)Node->WindowID);
-
     if(Window)
     {
         SetWindowDimensions(Window->Ref, NULL,
                     Node->Container.X, Node->Container.Y,
                     Node->Container.Width, Node->Container.Height);
-        /*
-        AXUIElementRef WindowRef;
-        if(GetWindowRef(Window, &WindowRef))
-        {
-            SetWindowDimensions(WindowRef, Window,
-                        Node->Container.X, Node->Container.Y,
-                        Node->Container.Width, Node->Container.Height);
-
-            if(WindowsAreEqual(Window, KWMFocus.Window))
-                KWMFocus.Cache = *Window;
-        }
-        */
     }
 }
 
 void ResizeWindowToContainerSize(link_node *Link)
 {
-    window_info *Window = GetWindowByID(Link->WindowID);
-
+    ax_window *Window = GetWindowByID((unsigned int)Link->WindowID);
     if(Window)
     {
-        AXUIElementRef WindowRef;
-        if(GetWindowRef(Window, &WindowRef))
-        {
-            SetWindowDimensions(WindowRef, Window,
-                        Link->Container.X, Link->Container.Y,
-                        Link->Container.Width, Link->Container.Height);
-
-            if(WindowsAreEqual(Window, KWMFocus.Window))
-                KWMFocus.Cache = *Window;
-        }
+        SetWindowDimensions(Window->Ref, NULL,
+                    Link->Container.X, Link->Container.Y,
+                    Link->Container.Width, Link->Container.Height);
     }
 }
 

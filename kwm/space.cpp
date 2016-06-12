@@ -8,6 +8,7 @@
 
 #include "axlib/axlib.h"
 extern std::map<CFStringRef, space_info> WindowTree;
+extern ax_application *FocusedApplication;
 
 extern kwm_mach KWMMach;
 extern kwm_tiling KWMTiling;
@@ -29,7 +30,7 @@ void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
     int FocusedIndex = 0;
     int NumberOfWindows = 0;
 
-    if(Node && KWMFocus.Window)
+    if(Node && FocusedApplication && FocusedApplication->Focus)
     {
         link_node *Link = Node->List;
         while(Link)
@@ -37,7 +38,7 @@ void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
             if(!FoundFocusedWindow)
                 ++FocusedIndex;
 
-            if(Link->WindowID == KWMFocus.Window->WID)
+            if(Link->WindowID == FocusedApplication->Focus->ID)
                 FoundFocusedWindow = true;
 
             ++NumberOfWindows;
