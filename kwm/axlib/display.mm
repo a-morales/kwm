@@ -443,6 +443,67 @@ ax_display *AXLibPreviousDisplay(ax_display *Display)
     return NULL;
 }
 
+unsigned int AXLibDesktopIDFromCGSSpaceID(ax_display *Display, CGSSpaceID SpaceID)
+{
+    unsigned int Result = 0;
+    NSString *CurrentIdentifier = (__bridge NSString *)Display->Identifier;
+
+    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
+    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
+    {
+        int SpaceIndex = 1;
+        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
+        if([ScreenIdentifier isEqualToString:CurrentIdentifier])
+        {
+            NSArray *SpaceDictionaries = ScreenDictionary[@"Spaces"];
+            for(NSDictionary *SpaceDictionary in (__bridge NSArray *)SpaceDictionaries)
+            {
+                if(SpaceID == [SpaceDictionary[@"id64"] intValue])
+                {
+                    Result = SpaceIndex;
+                    break;
+                }
+
+                ++SpaceIndex;
+            }
+            break;
+        }
+    }
+
+    CFRelease(ScreenDictionaries);
+    return Result;
+}
+
+CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int DesktopID)
+{
+    CGSSpaceID Result = 0;
+    NSString *CurrentIdentifier = (__bridge NSString *)Display->Identifier;
+
+    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
+    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
+    {
+        int SpaceIndex = 1;
+        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
+        if([ScreenIdentifier isEqualToString:CurrentIdentifier])
+        {
+            NSArray *SpaceDictionaries = ScreenDictionary[@"Spaces"];
+            for(NSDictionary *SpaceDictionary in (__bridge NSArray *)SpaceDictionaries)
+            {
+                if(SpaceIndex == DesktopID)
+                {
+                    Result = [SpaceDictionary[@"id64"] intValue];
+                    break;
+                }
+                ++SpaceIndex;
+            }
+            break;
+        }
+    }
+
+    CFRelease(ScreenDictionaries);
+    return Result;
+}
+
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays)
 {
     Displays = AXDisplays;

@@ -13,5 +13,4 @@
 ## Todo
 
  - Any changes made to display arrangement should be self-contained.
- - Allow translation between CGSSpaceIDs and DesktopIDs.
  - Implement support for interacting with spaces.
