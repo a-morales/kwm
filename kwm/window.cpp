@@ -79,14 +79,6 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
     {
         printf("What the fuck.. Display was null (?)");
     }
-
-    /* NOTE(koekeishiya): Print the name and application of all windows currently visible. */
-    /*
-       std::vector<ax_window *> VisibleWindows = AXLibGetAllVisibleWindows();
-       printf("VISIBLE WINDOWS: %zd\n", VisibleWindows.size());
-       for(int Index = 0; Index < VisibleWindows.size(); ++Index)
-       printf("%s - %s\n", VisibleWindows[Index]->Application->Name.c_str(), VisibleWindows[Index]->Name.c_str());
-   */
 }
 
 /* TODO(koekeishiya): Is this interesting (?)
@@ -119,6 +111,8 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
     ax_display *Display = AXLibMainDisplay();
     if(Display)
         RebalanceNodeTree(Display);
+
+    ClearBorder(&FocusedBorder);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
@@ -129,30 +123,21 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
     FocusedApplication = Application;
     FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
 
-    /* TODO(koekeishiya): Both 'failure' points have the same solution and should be combined. */
-    if(FocusedApplication->Focus)
-    {
-        DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name << " - " << FocusedApplication->Focus->Name);
+    /* NOTE(koekeishiya): When an application that is already running, but has no open windows, is activated,
+                          or a window is deminimized, we receive 'didApplicationActivate' notification first.
+                          We have to preserve our insertion point and flag this application for activation at a later point in time. */
 
-        /* NOTE(koekeishiya): When a window is deminimized, the corresponding application is activated first. We have to preserve
-                              our insertion point and flag this application for activation at a later point in time. */
-        if(AXLibHasFlags(FocusedApplication->Focus, AXWindow_Minimized))
-        {
-            FocusedApplication = OldFocusedApplication;
-            AXLibAddFlags(Application, AXApplication_Activate);
-        }
-    }
-    else
+    if((!FocusedApplication->Focus) ||
+       (AXLibHasFlags(FocusedApplication->Focus, AXWindow_Minimized)))
     {
-        DEBUG("AXEvent_ApplicationActivated: " << FocusedApplication->Name << " - [No Focused Window]");
-
-        /* NOTE(koekeishiya): When an application that is already running, but has no open windows, is activated, we receive ApplicationActivated
-                              notification first. We need to preserve our insertion point, and flag this application for activation later. */
         FocusedApplication = OldFocusedApplication;
         AXLibAddFlags(Application, AXApplication_Activate);
     }
-
-    UpdateBorder("focused");
+    else
+    {
+        DEBUG("AXEvent_ApplicationActivated: " << Application->Name);
+        UpdateBorder("focused");
+    }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
@@ -179,7 +164,6 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
         RemoveWindowFromNodeTree(Display, Window->ID);
 
     UpdateBorder("focused");
-    UpdateBorder("marked");
     AXLibDestroyWindow(Window);
 }
 
@@ -193,8 +177,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
     if(Display)
         RemoveWindowFromNodeTree(Display, Window->ID);
 
-    UpdateBorder("focused");
-    UpdateBorder("marked");
+    ClearBorder(&FocusedBorder);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
@@ -213,10 +196,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
         AXLibClearFlags(Window, AXWindow_Minimized);
         FocusedApplication = Window->Application;
         FocusedApplication->Focus = Window;
+        UpdateBorder("focused");
     }
-
-    UpdateBorder("focused");
-    UpdateBorder("marked");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
@@ -240,9 +221,10 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
             FocusedApplication = Window->Application;
     }
 
-    UpdateBorder("focused");
-    UpdateBorder("marked");
+    if(FocusedApplication == Window->Application)
+        UpdateBorder("focused");
 }
+
 
 EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
 {
@@ -251,7 +233,6 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
     {
         DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
         UpdateBorder("focused");
-        UpdateBorder("marked");
     }
 }
 
@@ -262,7 +243,6 @@ EVENT_CALLBACK(Callback_AXEvent_WindowResized)
     {
         DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
         UpdateBorder("focused");
-        UpdateBorder("marked");
     }
 }
 
@@ -814,30 +794,32 @@ void AddWindowToMonocleTree(ax_display *Display, space_info *SpaceInfo, unsigned
 void RemoveWindowFromMonocleTree(ax_display *Display, unsigned int WindowID)
 {
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
-    link_node *Link = GetLinkNodeFromTree(SpaceInfo->RootNode, WindowID);
-
-    if(Link)
+    if(SpaceInfo->RootNode && SpaceInfo->RootNode->List)
     {
-        link_node *Prev = Link->Prev;
-        link_node *Next = Link->Next;
-
-        if(Prev)
-            Prev->Next = Next;
-
-        if(Next)
-            Next->Prev = Prev;
-
-        if(Link == SpaceInfo->RootNode->List)
+        link_node *Link = GetLinkNodeFromTree(SpaceInfo->RootNode, WindowID);
+        if(Link)
         {
-            SpaceInfo->RootNode->List = Next;
+            link_node *Prev = Link->Prev;
+            link_node *Next = Link->Next;
 
-            if(!SpaceInfo->RootNode->List)
+            if(Prev)
+                Prev->Next = Next;
+
+            if(Next)
+                Next->Prev = Prev;
+
+            if(Link == SpaceInfo->RootNode->List)
             {
-                free(SpaceInfo->RootNode);
-                SpaceInfo->RootNode = NULL;
+                SpaceInfo->RootNode->List = Next;
+
+                if(!SpaceInfo->RootNode->List)
+                {
+                    free(SpaceInfo->RootNode);
+                    SpaceInfo->RootNode = NULL;
+                }
             }
+            free(Link);
         }
-        free(Link);
     }
 }
 
