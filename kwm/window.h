@@ -26,6 +26,9 @@ void GetCenterOfWindow(ax_window *Window, int *X, int *Y);
 bool WindowIsInDirection(ax_window *WindowA, ax_window *WindowB, int Degrees);
 bool FindClosestWindow(int Degrees, ax_window **ClosestWindow, bool Wrap);
 
+/* TODO(koekeishiya): PARTIALLY LOOKED AT */
+void ToggleWindowFloating(unsigned int WindowID, bool Center);
+void ToggleFocusedWindowFloating();
 
 /* TODO(koekeishiya): NOT YET LOOKED AT */
 extern int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID);
@@ -64,15 +67,13 @@ void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space);
 void AddWindowToMonocleTree(screen_info *Screen, int WindowID);
 void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus);
 
-void ToggleWindowFloating(int WindowID, bool Center);
-void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowParentContainer();
 void ToggleFocusedWindowFullscreen();
 bool IsWindowFullscreen(window_info *Window);
 bool IsWindowParentContainer(window_info *Window);
 void LockWindowToContainerSize(window_info *Window);
 
-void DetachAndReinsertWindow(int WindowID, int Degrees);
+void DetachAndReinsertWindow(unsigned int WindowID, int Degrees);
 void SwapFocusedWindowWithMarked();
 void SwapFocusedWindowDirected(int Degrees);
 void SwapFocusedWindowWithNearest(int Shift);

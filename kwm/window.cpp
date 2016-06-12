@@ -1087,43 +1087,40 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
     }
 }
 
-void ToggleWindowFloating(int WindowID, bool Center)
+void ToggleWindowFloating(unsigned int WindowID, bool Center)
 {
-    Assert(KWMScreen.Current);
+    ax_window *Window = GetWindowByID(WindowID);
+    if(!Window)
+        return;
 
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(IsWindowOnActiveSpace(WindowID))
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    /* TODO(koekeishiya): Do we handle standby-on-float here (?)
+    if(KWMMode.Focus != FocusModeDisabled && KWMToggles.StandbyOnFloat)
+        KWMMode.Focus = FocusModeAutoraise;
+    if(KWMMode.Focus != FocusModeDisabled && KWMToggles.StandbyOnFloat)
+        KWMMode.Focus = FocusModeStandby;
+    */
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(AXLibHasFlags(Window, AXWindow_Floating))
     {
-        int WindowIndex;
-        if(IsWindowFloating(WindowID, &WindowIndex))
-        {
-            KWMTiling.FloatingWindowLst.erase(KWMTiling.FloatingWindowLst.begin() + WindowIndex);
-            if(Space->Settings.Mode == SpaceModeBSP)
-                AddWindowToBSPTree(KWMScreen.Current, WindowID);
-            else if(Space->Settings.Mode == SpaceModeMonocle)
-                AddWindowToMonocleTree(KWMScreen.Current, WindowID);
-
-            if(KWMMode.Focus != FocusModeDisabled && KWMToggles.StandbyOnFloat)
-                KWMMode.Focus = FocusModeAutoraise;
-        }
-        else
-        {
-            KWMTiling.FloatingWindowLst.push_back(WindowID);
-            if(Space->Settings.Mode == SpaceModeBSP)
-                RemoveWindowFromBSPTree(KWMScreen.Current, WindowID, Center, false);
-            else if(Space->Settings.Mode == SpaceModeMonocle)
-                RemoveWindowFromMonocleTree(KWMScreen.Current, WindowID, Center, false);
-
-            if(KWMMode.Focus != FocusModeDisabled && KWMToggles.StandbyOnFloat)
-                KWMMode.Focus = FocusModeStandby;
-        }
+        AXLibClearFlags(Window, AXWindow_Floating);
+        AddWindowToNodeTree(Display, Window->ID);
+    }
+    else
+    {
+        AXLibAddFlags(Window, AXWindow_Floating);
+        RemoveWindowFromNodeTree(Display, Window->ID);
     }
 }
 
 void ToggleFocusedWindowFloating()
 {
-    if(KWMFocus.Window)
-        ToggleWindowFloating(KWMFocus.Window->WID, true);
+    if(FocusedApplication && FocusedApplication->Focus)
+        ToggleWindowFloating(FocusedApplication->Focus->ID, true);
 }
 
 void ToggleFocusedWindowParentContainer()
@@ -1229,7 +1226,7 @@ void LockWindowToContainerSize(window_info *Window)
     }
 }
 
-void DetachAndReinsertWindow(int WindowID, int Degrees)
+void DetachAndReinsertWindow(unsigned int WindowID, int Degrees)
 {
     if(WindowID == KWMScreen.MarkedWindow.WID)
     {
@@ -1245,11 +1242,12 @@ void DetachAndReinsertWindow(int WindowID, int Degrees)
     else
     {
         if(WindowID == KWMScreen.MarkedWindow.WID ||
-           WindowID == -1)
+           WindowID == 0)
             return;
 
+        ax_window *ClosestWindow = NULL;
         window_info InsertWindow = {};
-        if(FindClosestWindow(Degrees, &InsertWindow, false))
+        if(FindClosestWindow(Degrees, &ClosestWindow, false))
         {
             ToggleWindowFloating(WindowID, false);
             KWMScreen.MarkedWindow = InsertWindow;
