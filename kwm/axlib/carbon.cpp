@@ -7,30 +7,6 @@
 #define internal static
 internal std::map<pid_t, ax_application> *Applications;
 
-/* TODO(koekeishiya): The processes we observe can be of the following types.
-                      We probably do not care about tracking daemons.
-   enum {
-       modeReserved = 0x01000000,
-       modeControlPanel = 0x00080000,
-       modeLaunchDontSwitch = 0x00040000,
-       modeDeskAccessory = 0x00020000,
-       modeMultiLaunch = 0x00010000,
-       modeNeedSuspendResume = 0x00004000,
-       modeCanBackground = 0x00001000,
-       modeDoesActivateOnFGSwitch = 0x00000800,
-       modeOnlyBackground = 0x00000400,
-       modeGetFrontClicks = 0x00000200,
-       modeGetAppDiedMsg = 0x00000100,
-       mode32BitCompatible = 0x00000080,
-       modeHighLevelEventAware = 0x00000040,
-       modeLocalAndRemoteHLEvents = 0x00000020,
-       modeStationeryAware = 0x00000010,
-       modeUseTextEditServices = 0x00000008,
-       modeDisplayManagerAware = 0x00000004
-};
-
-*/
-
 /* NOTE(koekeishiya): A pascal string has the size of the string stored as the first byte. */
 internal void
 CopyPascalStringToC(ConstStr255Param Source, char *Destination)
@@ -52,9 +28,8 @@ CarbonApplicationLaunched(ProcessSerialNumber PSN)
     GetProcessInformation(&PSN, &ProcessInfo);
 
     /* TODO(koekeishiya): Check if we should care about this process. */
-    /* if((ProcessInfo.processMode & modeOnlyBackground) != 0)
+    if((ProcessInfo.processMode & modeOnlyBackground) != 0)
         return;
-    */
 
     char ProcessNameCString[256] = {0};
     if(ProcessInfo.processName)
@@ -63,7 +38,26 @@ CarbonApplicationLaunched(ProcessSerialNumber PSN)
     pid_t PID = 0;
     GetProcessPID(&PSN, &PID);
     std::string Name = ProcessNameCString;
+    /*
     printf("Carbon: Application launched %s\n", Name.c_str());
+    printf("%d: modeReserved\n", ProcessInfo.processMode & modeReserved);
+    printf("%d: modeControlPanel\n", ProcessInfo.processMode & modeControlPanel);
+    printf("%d: modeLaunchDontSwitch\n", ProcessInfo.processMode & modeLaunchDontSwitch);
+    printf("%d: modeDeskAccessory\n", ProcessInfo.processMode & modeDeskAccessory);
+    printf("%d: modeMultiLaunch\n", ProcessInfo.processMode & modeMultiLaunch);
+    printf("%d: modeNeedSuspendResume\n", ProcessInfo.processMode & modeNeedSuspendResume);
+    printf("%d: modeCanBackground\n", ProcessInfo.processMode & modeCanBackground);
+    printf("%d: modeDoesActivateOnFGSwitch\n", ProcessInfo.processMode & modeDoesActivateOnFGSwitch);
+    printf("%d: modeOnlyBackground\n", ProcessInfo.processMode & modeOnlyBackground);
+    printf("%d: modeGetFrontClicks\n", ProcessInfo.processMode & modeGetFrontClicks);
+    printf("%d: modeGetAppDiedMsg\n", ProcessInfo.processMode & modeGetAppDiedMsg);
+    printf("%d: mode32BitCompatible\n", ProcessInfo.processMode & mode32BitCompatible);
+    printf("%d: modeHighLevelEventAware\n", ProcessInfo.processMode & modeHighLevelEventAware);
+    printf("%d: modeLocalAndRemoteHLEvents\n", ProcessInfo.processMode & modeLocalAndRemoteHLEvents);
+    printf("%d: modeStationeryAware\n", ProcessInfo.processMode & modeStationeryAware);
+    printf("%d: modeUseTextEditServices\n", ProcessInfo.processMode & modeUseTextEditServices);
+    printf("%d: modeDisplayManagerAware\n", ProcessInfo.processMode & modeDisplayManagerAware);
+    */
 
     (*Applications)[PID] = AXLibConstructApplication(PID, Name);
     AXLibInitializeApplication(&(*Applications)[PID]);
@@ -82,7 +76,7 @@ CarbonApplicationTerminated(ProcessSerialNumber PSN)
         if(Application->PSN.lowLongOfPSN == PSN.lowLongOfPSN &&
            Application->PSN.highLongOfPSN == PSN.highLongOfPSN)
         {
-            printf("Carbon: Application terminated %s\n", Application->Name.c_str());
+            // printf("Carbon: Application terminated %s\n", Application->Name.c_str());
             pid_t PID = Application->PID;
             AXLibDestroyApplication(Application);
             Applications->erase(PID);
