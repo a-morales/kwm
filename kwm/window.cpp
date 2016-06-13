@@ -252,35 +252,6 @@ EVENT_CALLBACK(Callback_AXEvent_WindowResized)
         UpdateBorder("focused");
 }
 
-bool WindowsAreEqual(window_info *Window, window_info *Match) { }
-
-std::vector<window_info> FilterWindowListAllDisplays() { }
-
-bool FilterWindowList(screen_info *Screen) { }
-
-bool IsFocusedWindowFloating() { }
-
-bool IsWindowFloating(int WindowID, int *Index) { }
-
-bool IsAnyWindowBelowCursor() { }
-
-bool IsWindowBelowCursor(window_info *Window) { }
-
-bool IsWindowOnActiveSpace(int WindowID) { }
-
-void ClearFocusedWindow()
-{
-    ClearBorder(&FocusedBorder);
-    KWMFocus.Window = NULL;
-    KWMFocus.Cache = KWMFocus.NULLWindowInfo;
-}
-
-bool FocusWindowOfOSX() { }
-
-void UpdateWindowTree() { }
-
-void UpdateActiveWindowList(screen_info *Screen) { }
-
 std::vector<uint32_t> GetAllWindowIDsInTree(space_info *Space)
 {
     std::vector<uint32_t> Windows;
@@ -341,8 +312,6 @@ std::vector<ax_window *> GetAllAXWindowsNotInTree(ax_display *Display, std::vect
     return Windows;
 }
 
-std::vector<window_info*> GetAllWindowsNotInTree(std::vector<int> &WindowIDsInTree) { }
-
 std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<uint32_t> &WindowIDsInTree)
 {
     std::vector<uint32_t> Windows;
@@ -366,8 +335,6 @@ std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<uint32_t> &W
 
     return Windows;
 }
-
-std::vector<int> GetAllWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree) { }
 
 #define internal static
 internal std::vector<uint32_t> GetAllWindowIDSOnDisplay(ax_display *Display)
@@ -665,13 +632,7 @@ void RemoveWindowFromMonocleTree(ax_display *Display, uint32_t WindowID)
     }
 }
 
-/* NOTE(koekeishiya): Old tiling code. */
-void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows) { }
-
-void ShouldWindowNodeTreeUpdate(screen_info *Screen) { }
-
-void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space) { }
-
+/* TODO(koekeishiya): Make this work for monocle subtrees. */
 void AddWindowToBSPTree(screen_info *Screen, int WindowID)
 {
     if(!DoesSpaceExistInMapOfScreen(Screen))
@@ -743,6 +704,7 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
     }
 }
 
+/* TODO(koekeishiya): Do we need this (?) */
 void AddWindowToBSPTree()
 {
     if(!KWMScreen.Current)
@@ -751,6 +713,7 @@ void AddWindowToBSPTree()
     AddWindowToBSPTree(KWMScreen.Current, KWMFocus.Window->WID);
 }
 
+/* TODO(koekeishiya): Make monocle subtrees work for ax_window. */
 void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus)
 {
     if(!DoesSpaceExistInMapOfScreen(Screen))
@@ -862,6 +825,7 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
     }
 }
 
+/* TODO(koekeishiya): Do we need this (?)  */
 void RemoveWindowFromBSPTree()
 {
     if(!KWMScreen.Current)
@@ -870,12 +834,7 @@ void RemoveWindowFromBSPTree()
     RemoveWindowFromBSPTree(KWMScreen.Current, KWMFocus.Window->WID, true, true);
 }
 
-void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space) {}
-
-void AddWindowToMonocleTree(screen_info *Screen, int WindowID) { }
-
-void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus) { }
-
+/* TODO(koekeishiya): Make this work for ax_window. */
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 {
     screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
@@ -1055,12 +1014,14 @@ void ToggleFocusedWindowFullscreen()
     }
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 bool IsWindowFullscreen(window_info *Window)
 {
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
     return Space->RootNode && Space->RootNode->WindowID == Window->WID;
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 bool IsWindowParentContainer(window_info *Window)
 {
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
@@ -1068,6 +1029,7 @@ bool IsWindowParentContainer(window_info *Window)
     return Node && Node->Parent && Node->Parent->WindowID == Window->WID;
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void LockWindowToContainerSize(window_info *Window)
 {
     if(Window)
@@ -1084,6 +1046,7 @@ void LockWindowToContainerSize(window_info *Window)
     }
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void DetachAndReinsertWindow(unsigned int WindowID, int Degrees)
 {
     if(WindowID == KWMScreen.MarkedWindow.WID)
@@ -1115,6 +1078,7 @@ void DetachAndReinsertWindow(unsigned int WindowID, int Degrees)
     }
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void SwapFocusedWindowWithMarked()
 {
     if(!KWMFocus.Window || KWMScreen.MarkedWindow.WID == KWMFocus.Window->WID ||
@@ -1258,8 +1222,6 @@ bool WindowIsInDirection(ax_window *WindowA, ax_window *WindowB, int Degrees)
     return false;
 }
 
-bool WindowIsInDirection(window_info *WindowA, window_info *WindowB, int Degrees) { }
-
 void GetCenterOfWindow(ax_window *Window, int *X, int *Y)
 {
     ax_display *Display = AXLibWindowDisplay(Window);
@@ -1276,8 +1238,6 @@ void GetCenterOfWindow(ax_window *Window, int *X, int *Y)
         *Y = -1;
     }
 }
-
-void GetCenterOfWindow(window_info *Window, int *X, int *Y) { }
 
 double GetWindowDistance(ax_window *A, ax_window *B, int Degrees, bool Wrap)
 {
@@ -1324,10 +1284,6 @@ double GetWindowDistance(ax_window *A, ax_window *B, int Degrees, bool Wrap)
     Rank = Distance / std::cos(DeltaA / 2.0);
     return Rank;
 }
-
-double GetWindowDistance(window_info *A, window_info *B, int Degrees, bool Wrap) { }
-
-bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap) { }
 
 bool FindClosestWindow(int Degrees, ax_window **ClosestWindow, bool Wrap)
 {
@@ -1462,6 +1418,7 @@ void ShiftWindowFocus(int Shift)
     }
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void ShiftSubTreeWindowFocus(int Shift)
 {
     if(!KWMFocus.Window || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
@@ -1503,8 +1460,6 @@ void ShiftSubTreeWindowFocus(int Shift)
     }
 }
 
-void FocusWindowByID(int WindowID) {}
-
 void FocusWindowByID(uint32_t WindowID)
 {
     ax_window *Window = GetWindowByID(WindowID);
@@ -1514,6 +1469,7 @@ void FocusWindowByID(uint32_t WindowID)
     }
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void MoveCursorToCenterOfWindow(window_info *Window)
 {
     Assert(Window);
@@ -1526,18 +1482,21 @@ void MoveCursorToCenterOfWindow(window_info *Window)
     }
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void MoveCursorToCenterOfFocusedWindow()
 {
     if(KWMToggles.UseMouseFollowsFocus && KWMFocus.Window && !IsActiveSpaceFloating())
         MoveCursorToCenterOfWindow(KWMFocus.Window);
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void ClearMarkedWindow()
 {
     std::memset(&KWMScreen.MarkedWindow, 0, sizeof(window_info));
     ClearBorder(&MarkedBorder);
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void MarkWindowContainer(window_info *Window)
 {
     if(Window)
@@ -1556,16 +1515,11 @@ void MarkWindowContainer(window_info *Window)
     }
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void MarkFocusedWindowContainer()
 {
     MarkWindowContainer(KWMFocus.Window);
 }
-
-void SetKwmFocus(AXUIElementRef WindowRef) { }
-
-void SetWindowRefFocus(AXUIElementRef WindowRef) { }
-
-void SetWindowFocus(window_info *Window) { }
 
 void SetWindowFocusByNode(tree_node *Node)
 {
@@ -1624,6 +1578,7 @@ void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, i
     CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void CenterWindow(screen_info *Screen, window_info *Window)
 {
     AXUIElementRef WindowRef;
@@ -1637,6 +1592,7 @@ void CenterWindow(screen_info *Screen, window_info *Window)
     }
 }
 
+/* TODO(koekeishiya): Make this work for ax_window. */
 void MoveFloatingWindow(int X, int Y)
 {
     if(!KWMFocus.Window || !IsWindowFloating(KWMFocus.Window->WID, NULL))
@@ -1651,33 +1607,6 @@ void MoveFloatingWindow(int X, int Y)
         AXLibSetWindowPosition(WindowRef, WindowPos.x, WindowPos.y);
     }
 }
-
-bool IsWindowTilable(window_info *Window)
-{
-    bool Result = true;
-    if(KWMTiling.FloatNonResizable)
-    {
-        AXUIElementRef WindowRef;
-        if(GetWindowRef(Window, &WindowRef))
-            Result = IsWindowTilable(WindowRef);
-
-        if(!Result && !IsWindowFloating(Window->WID, NULL))
-            KWMTiling.FloatingWindowLst.push_back(Window->WID);
-    }
-
-    return Result;
-}
-
-bool IsWindowTilable(AXUIElementRef WindowRef)
-{
-
-    return AXLibIsWindowResizable(WindowRef) && AXLibIsWindowMovable(WindowRef);
-}
-
-CGPoint GetWindowPos(window_info *Window) { }
-window_info GetWindowByRef(AXUIElementRef WindowRef) { }
-
-window_info *GetWindowByID(int WindowID) { }
 
 ax_window *GetWindowByID(uint32_t WindowID)
 {
@@ -1694,6 +1623,74 @@ ax_window *GetWindowByID(uint32_t WindowID)
 
     return NULL;
 }
+
+/* NOTE(koekeishiya): These functions act as stubs to prevent compilation errors due to functions in other translation units. */
+
+bool WindowsAreEqual(window_info *Window, window_info *Match) { }
+
+std::vector<window_info> FilterWindowListAllDisplays() { }
+
+bool FilterWindowList(screen_info *Screen) { }
+
+bool IsFocusedWindowFloating() { }
+
+bool IsWindowFloating(int WindowID, int *Index) { }
+
+bool IsAnyWindowBelowCursor() { }
+
+bool IsWindowBelowCursor(window_info *Window) { }
+
+bool IsWindowOnActiveSpace(int WindowID) { }
+
+void ClearFocusedWindow() { }
+
+bool FocusWindowOfOSX() { }
+
+void UpdateWindowTree() { }
+
+void UpdateActiveWindowList(screen_info *Screen) { }
+
+std::vector<window_info*> GetAllWindowsNotInTree(std::vector<int> &WindowIDsInTree) { }
+
+std::vector<int> GetAllWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree) { }
+
+void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Windows) { }
+
+void ShouldWindowNodeTreeUpdate(screen_info *Screen) { }
+
+void ShouldBSPTreeUpdate(screen_info *Screen, space_info *Space) { }
+
+void ShouldMonocleTreeUpdate(screen_info *Screen, space_info *Space) {}
+
+void AddWindowToMonocleTree(screen_info *Screen, int WindowID) { }
+
+void RemoveWindowFromMonocleTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus) { }
+
+bool WindowIsInDirection(window_info *WindowA, window_info *WindowB, int Degrees) { }
+
+void GetCenterOfWindow(window_info *Window, int *X, int *Y) { }
+
+double GetWindowDistance(window_info *A, window_info *B, int Degrees, bool Wrap) { }
+
+bool FindClosestWindow(int Degrees, window_info *Target, bool Wrap) { }
+
+void FocusWindowByID(int WindowID) {}
+
+void SetKwmFocus(AXUIElementRef WindowRef) { }
+
+void SetWindowRefFocus(AXUIElementRef WindowRef) { }
+
+void SetWindowFocus(window_info *Window) { }
+
+bool IsWindowTilable(window_info *Window) { }
+
+bool IsWindowTilable(AXUIElementRef WindowRef) { }
+
+CGPoint GetWindowPos(window_info *Window) { }
+
+window_info GetWindowByRef(AXUIElementRef WindowRef) { }
+
+window_info *GetWindowByID(int WindowID) { }
 
 bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole) { }
 
