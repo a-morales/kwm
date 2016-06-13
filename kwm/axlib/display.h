@@ -19,11 +19,18 @@ typedef int CGSSpaceID;
 typedef int CGSSpaceType;
 
 struct ax_window;
+enum ax_space_flags
+{
+    AXSpace_DeminimizedTransition = (1 << 0),
+    AXSpace_CmdTabTransition = (1 << 1),
+};
+
 struct ax_space
 {
     CFStringRef Identifier;
     CGSSpaceID ID;
     CGSSpaceType Type;
+    uint32_t Flags;
 };
 
 struct ax_display
@@ -36,6 +43,26 @@ struct ax_display
     ax_space *Space;
     std::map<CGSSpaceID, ax_space> Spaces;
 };
+
+inline bool
+AXLibHasFlags(ax_space *Space, uint32_t Flag)
+{
+    bool Result = Space->Flags & Flag;
+    return Result;
+}
+
+inline void
+AXLibAddFlags(ax_space *Space, uint32_t Flag)
+{
+    Space->Flags |= Flag;
+}
+
+inline void
+AXLibClearFlags(ax_space *Space, uint32_t Flag)
+{
+    Space->Flags &= ~Flag;
+}
+
 
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays);
 ax_space * AXLibGetActiveSpace(ax_display *Display);
