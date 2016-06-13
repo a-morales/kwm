@@ -37,12 +37,6 @@ kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
 scratchpad Scratchpad = {};
 
-/* TODO(koekeishiya): focus-follows-mouse
-
-                      Need to keep track of windows on the currently active space using 'CGCopyWindowList..' to get
-                      z-ordering used for focus-follows-mouse. There are also cases in which applications doesn't seem
-                      to trigger a kAXWindowCreated notification, so we probably have to pick these up from this list. */
-
 /* TODO(koekeishiya): Should probably be moved to a 'cursor.cpp' or similar in the future,
                       along with other cursor-related functionality we might want */
 EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
