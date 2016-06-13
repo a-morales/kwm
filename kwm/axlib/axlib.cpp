@@ -82,9 +82,12 @@ void AXLibSetFocusedWindow(ax_window *Window)
     AXLibSetWindowProperty(Window->Ref, kAXMainAttribute, kCFBooleanTrue);
     AXLibSetWindowProperty(Window->Ref, kAXFocusedAttribute, kCFBooleanTrue);
     AXUIElementPerformAction(Window->Ref, kAXRaiseAction);
+    SetFrontProcessWithOptions(&Window->Application->PSN, kSetFrontProcessFrontWindowOnly);
 
+    /* NOTE(koekeishiya): Calling SetFrontProcessWithOptions is faster than performing this sequence of functions.
     if(!AXLibIsApplicationActive(Window->Application))
         AXLibActivateApplication(Window->Application);
+    */
 }
 
 /* NOTE(koekeishiya): Returns a vector of all windows that we currently know about. This fuction is probably not necessary. */
