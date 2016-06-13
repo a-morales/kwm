@@ -181,6 +181,21 @@ void AXLibInitializeApplication(ax_application *Application)
     Application->Focus = AXLibGetFocusedWindow(Application);
 }
 
+/* NOTE(koekeishiya): This function will add the notifications that was not marked
+                      as successful during the creation of the applications observer. */
+void AXLibAddApplicationObserverNotificationFallback(ax_application *Application)
+{
+    for(int Notification = AXApplication_Notification_WindowCreated;
+            Notification < AXApplication_Notification_Count;
+            ++Notification)
+    {
+        if(!(Application->Notifications & (1 << Notification)))
+        {
+            AXLibAddObserverNotification(&Application->Observer, Application->Ref, AXNotificationFromEnum(Notification), Application);
+        }
+    }
+}
+
 void AXLibAddApplicationObserver(ax_application *Application)
 {
     AXLibConstructObserver(Application, AXApplicationCallback);
@@ -197,14 +212,14 @@ void AXLibAddApplicationObserver(ax_application *Application)
             {
                 /* NOTE(koekeishiya): Could not add notification because the application has not finishied initializing yet.
                                       Sleep for a short while and try again. We limit the number of tries to prevent a deadlock. */
-                usleep(20000);
+                usleep(10000);
             }
 
-            /* NOTE(koekeishiya): Do we want to schedule a future event for the given application here if we failed (?)
-            */
-                bool Success = Attempts != 0;
-                if(!Success)
-                    printf("AXLIB Add notification %d, success %d\n", Notification, Success);
+            /* NOTE(koekeishiya): Mark the notification as successful. */
+            if(Attempts != 0)
+            {
+                Application->Notifications &= (1 << Notification);
+            }
         }
 
         AXLibStartObserver(&Application->Observer);

@@ -24,6 +24,7 @@ struct ax_application
     ProcessSerialNumber PSN;
     ax_observer Observer;
     uint32_t Flags;
+    uint32_t Notifications;
 
     ax_window *Focus;
     std::map<uint32_t, ax_window*> Windows;
@@ -61,6 +62,7 @@ void AXLibRemoveApplicationWindow(ax_application *Application, uint32_t WID);
 
 void AXLibAddApplicationObserver(ax_application *Application);
 void AXLibRemoveApplicationObserver(ax_application *Application);
+void AXLibAddApplicationObserverNotificationFallback(ax_application *Application);
 
 void AXLibActivateApplication(ax_application *Application);
 bool AXLibIsApplicationActive(ax_application *Application);
