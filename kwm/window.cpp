@@ -222,9 +222,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
     if(AXLibHasFlags(Window, AXWindow_Minimized))
     {
         AXLibClearFlags(Window, AXWindow_Minimized);
-        FocusedApplication = Window->Application;
-        FocusedApplication->Focus = Window;
-        UpdateBorder("focused");
+        AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
     }
 }
 
@@ -232,13 +230,17 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 {
     ax_window *Window = (ax_window *) Event->Context;
 
-    DEBUG("AXEvent_WindowFocused: " << Window->Application->Name << " - " << Window->Name);
-
     /* NOTE(koekeishiya): When a window is deminimized, we receive a FocusedWindowChanged notification before the
                           window is visible. Only set the focused window for the corresponding application when
                           we know that we can interact with the window in question, so we can preserve our insertion point. */
     if(!AXLibHasFlags(Window, AXWindow_Minimized))
+    {
+        DEBUG("AXEvent_WindowFocused: " << Window->Application->Name << " - " << Window->Name);
         Window->Application->Focus = Window;
+
+        if(FocusedApplication == Window->Application)
+            UpdateBorder("focused");
+    }
 
     /* NOTE(koekeishiya): If the application corresponding to this window is flagged for activation and
                           the window is visible to the user, this should be our focused application. */
@@ -246,11 +248,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
     {
         AXLibClearFlags(Window->Application, AXApplication_Activate);
         if(!AXLibHasFlags(Window, AXWindow_Minimized))
-            FocusedApplication = Window->Application;
+            AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
     }
-
-    if(FocusedApplication == Window->Application)
-        UpdateBorder("focused");
 }
 
 
