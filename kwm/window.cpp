@@ -636,7 +636,6 @@ RebalanceMonocleTree(ax_display *Display)
     }
 }
 
-
 void RebalanceNodeTree(ax_display *Display)
 {
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
