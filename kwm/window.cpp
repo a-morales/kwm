@@ -262,35 +262,9 @@ bool IsFocusedWindowFloating() { }
 
 bool IsWindowFloating(int WindowID, int *Index) { }
 
-bool IsAnyWindowBelowCursor()
-{
-    CGPoint Cursor = GetCursorPos();
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
-    {
-        window_info *Window = &KWMTiling.FocusLst[WindowIndex];
-        if(Cursor.x >= Window->X &&
-           Cursor.x <= Window->X + Window->Width &&
-           Cursor.y >= Window->Y &&
-           Cursor.y <= Window->Y + Window->Height)
-            return true;
-    }
+bool IsAnyWindowBelowCursor() { }
 
-    return false;
-}
-
-bool IsWindowBelowCursor(window_info *Window)
-{
-    Assert(Window);
-
-    CGPoint Cursor = GetCursorPos();
-    if(Cursor.x >= Window->X &&
-       Cursor.x <= Window->X + Window->Width &&
-       Cursor.y >= Window->Y &&
-       Cursor.y <= Window->Y + Window->Height)
-        return true;
-
-    return false;
-}
+bool IsWindowBelowCursor(window_info *Window) { }
 
 bool IsWindowOnActiveSpace(int WindowID) { }
 
@@ -302,44 +276,6 @@ void ClearFocusedWindow()
 }
 
 bool FocusWindowOfOSX() { }
-
-void FocusWindowBelowCursor()
-{
-    if(IsSpaceTransitionInProgress() ||
-       !IsActiveSpaceManaged())
-           return;
-
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.FocusLst.size(); ++WindowIndex)
-    {
-        /* Note(koekeishiya): Allow focus-follows-mouse to ignore Launchpad */
-        if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock" &&
-           KWMTiling.FocusLst[WindowIndex].Name == "LPSpringboard")
-            return;
-
-        /* Note(koekeishiya): Allow focus-follows-mouse to work when the dock is visible */
-        if(KWMTiling.FocusLst[WindowIndex].Owner == "Dock" &&
-           KWMTiling.FocusLst[WindowIndex].X == 0 &&
-           KWMTiling.FocusLst[WindowIndex].Y == 0)
-            continue;
-
-        if(IsWindowBelowCursor(&KWMTiling.FocusLst[WindowIndex]))
-        {
-            CFTypeRef Role, SubRole;
-            if(GetWindowRole(&KWMTiling.FocusLst[WindowIndex], &Role, &SubRole))
-            {
-                if((CFEqual(Role, kAXWindowRole) && CFEqual(SubRole, kAXStandardWindowSubrole)) ||
-                   IsWindowSpecificRole(&KWMTiling.FocusLst[WindowIndex], Role, SubRole))
-                {
-                    if(WindowsAreEqual(KWMFocus.Window, &KWMTiling.FocusLst[WindowIndex]))
-                        KWMFocus.Cache = KWMTiling.FocusLst[WindowIndex];
-                    else
-                        SetWindowFocus(&KWMTiling.FocusLst[WindowIndex]);
-                }
-            }
-            return;
-        }
-    }
-}
 
 void UpdateWindowTree() { }
 
@@ -1763,46 +1699,4 @@ bool GetWindowRole(window_info *Window, CFTypeRef *Role, CFTypeRef *SubRole) { }
 
 bool GetWindowRef(window_info *Window, AXUIElementRef *WindowRef) { }
 
-void GetWindowInfo(const void *Key, const void *Value, void *Context)
-{
-    CFStringRef K = (CFStringRef)Key;
-    std::string KeyStr = CFStringGetCStringPtr(K, kCFStringEncodingMacRoman);
-    CFTypeID ID = CFGetTypeID(Value);
-    if(ID == CFStringGetTypeID())
-    {
-        CFStringRef V = (CFStringRef)Value;
-        std::string ValueStr = GetUTF8String(V);
-        if(ValueStr.empty() && CFStringGetCStringPtr(V, kCFStringEncodingMacRoman))
-            ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
-
-        if(KeyStr == "kCGWindowName")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Name = ValueStr;
-        else if(KeyStr == "kCGWindowOwnerName")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Owner = ValueStr;
-    }
-    else if(ID == CFNumberGetTypeID())
-    {
-        int MyInt;
-        CFNumberRef V = (CFNumberRef)Value;
-        CFNumberGetValue(V, kCFNumberSInt64Type, &MyInt);
-        if(KeyStr == "kCGWindowNumber")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].WID = MyInt;
-        else if(KeyStr == "kCGWindowOwnerPID")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].PID = MyInt;
-        else if(KeyStr == "kCGWindowLayer")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Layer = MyInt;
-        else if(KeyStr == "X")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].X = MyInt;
-        else if(KeyStr == "Y")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Y = MyInt;
-        else if(KeyStr == "Width")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Width = MyInt;
-        else if(KeyStr == "Height")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Height = MyInt;
-    }
-    else if(ID == CFDictionaryGetTypeID())
-    {
-        CFDictionaryRef Elem = (CFDictionaryRef)Value;
-        CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
-    }
-}
+void GetWindowInfo(const void *Key, const void *Value, void *Context) { }

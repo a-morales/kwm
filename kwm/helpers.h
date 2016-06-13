@@ -125,16 +125,6 @@ ConvertRGBAToHex(color *Color)
     return Hex;
 }
 
-inline CGPoint
-GetCursorPos()
-{
-    CGEventRef Event = CGEventCreate(NULL);
-    CGPoint Cursor = CGEventGetLocation(Event);
-    CFRelease(Event);
-
-    return Cursor;
-}
-
 inline char*
 ReadFile(std::string File)
 {

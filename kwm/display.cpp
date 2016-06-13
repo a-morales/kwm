@@ -5,6 +5,7 @@
 #include "application.h"
 #include "window.h"
 #include "helpers.h"
+#include "cursor.h"
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
@@ -244,20 +245,7 @@ screen_info *GetDisplayFromScreenID(unsigned int ID)
     return NULL;
 }
 
-screen_info *GetDisplayOfMousePointer()
-{
-    std::map<unsigned int, screen_info>::iterator It;
-    for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
-    {
-        CGPoint Cursor = GetCursorPos();
-        screen_info *Screen = &It->second;
-        if(Cursor.x >= Screen->X && Cursor.x <= Screen->X + Screen->Width &&
-           Cursor.y >= Screen->Y && Cursor.y <= Screen->Y + Screen->Height)
-               return Screen;
-    }
-
-    return NULL;
-}
+screen_info *GetDisplayOfMousePointer() { }
 
 screen_info *GetDisplayOfWindow(window_info *Window)
 {
@@ -487,6 +475,7 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
                     if(!Mouse)
                         CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2), Screen->Y + (Screen->Height / 2)));
 
+                    /*
                     if(Space->Settings.Mode != SpaceModeFloating && !Space->RootNode)
                     {
                         CGPoint ClickPos = GetCursorPos();
@@ -500,6 +489,7 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
                         CGEventPost(kCGHIDEventTap, ClickEvent);
                         CFRelease(ClickEvent);
                     }
+                    */
                 }
             }
         }

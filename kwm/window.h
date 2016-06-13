@@ -45,7 +45,6 @@ bool WindowsAreEqual(window_info *Window, window_info *Match);
 
 void ClearFocusedWindow();
 bool FocusWindowOfOSX();
-void FocusWindowBelowCursor();
 
 void UpdateWindowTree();
 std::vector<window_info> FilterWindowListAllDisplays();

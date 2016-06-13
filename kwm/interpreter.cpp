@@ -16,6 +16,7 @@
 #include "rules.h"
 #include "query.h"
 #include "scratchpad.h"
+#include "cursor.h"
 
 #define internal static
 

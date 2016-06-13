@@ -10,6 +10,7 @@
 #include "border.h"
 #include "config.h"
 #include "command.h"
+#include "cursor.h"
 
 #include "axlib/axlib.h"
 
@@ -21,7 +22,6 @@ ax_state AXState = {};
 ax_application *FocusedApplication;
 ax_display *FocusedDisplay;
 std::map<CFStringRef, space_info> WindowTree;
-
 
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
@@ -47,6 +47,7 @@ scratchpad Scratchpad = {};
                       along with other cursor-related functionality we might want */
 EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
 {
+    FocusWindowBelowCursor();
 }
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
@@ -84,8 +85,8 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
-            // TODO(koekeishiya): Reimplement focus-follows-mouse support
-            // AXLibConstructEvent(AXEvent_MouseMoved, NULL);
+            if(KWMMode.Focus == FocusModeAutoraise)
+                AXLibConstructEvent(AXEvent_MouseMoved, NULL);
         } break;
         default: {} break;
     }
