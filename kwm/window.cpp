@@ -558,6 +558,9 @@ void CreateWindowNodeTree(ax_display *Display)
         {
             SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
         }
+
+        if(SpaceInfo->RootNode)
+            ApplyTreeNodeContainer(SpaceInfo->RootNode);
     }
     else if(SpaceInfo->Initialized && !SpaceInfo->RootNode)
     {
@@ -594,11 +597,10 @@ void CreateWindowNodeTree(ax_display *Display)
                     Link = Link->Next;
                 }
             }
+
+            ApplyTreeNodeContainer(SpaceInfo->RootNode);
         }
     }
-
-    if(SpaceInfo->RootNode)
-        ApplyTreeNodeContainer(SpaceInfo->RootNode);
 }
 
 void RebalanceNodeTree(ax_display *Display)
