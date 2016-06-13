@@ -8,7 +8,8 @@
  - The state of an application is almost completely self-contained.
  - Provides access to connected displays and their associated spaces.
  - Provides mechanisms necessary to manage windows.
- - Provides an event system to trigger defined callbacks upon a specific action.
+ - Emit window events in the correct order, and reconstructs expected events that are missing.
+ - Provides an event system to trigger defined callbacks.
 
 ## Todo
 
