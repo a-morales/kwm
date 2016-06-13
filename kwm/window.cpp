@@ -70,12 +70,10 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
     printf("%d: AXEvent_DisplayChanged\n", FocusedDisplay->ArrangementID);
 }
 
-/* TODO(koekeishiya): If we trigger a space changed event through cmd+tab, we receive the 'didApplicationActivate'
-                      notification before the 'didActiveSpaceChange' notification. If a space has not been visited
-                      before, this will cause us to end up on that space with a unsynchronized focused application state. */
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
     DEBUG("AXEvent_SpaceChanged");
+    ClearBorder(&FocusedBorder);
     ax_display *Display  = AXLibMainDisplay();
     ax_space *OldSpace = Display->Space;
 
@@ -111,11 +109,18 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
                 {
                     AddWindowToNodeTree(Display, Window->ID);
                 }
-
-                AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
             }
         }
     }
+
+    /* NOTE(koekeishiya): If we trigger a space changed event through cmd+tab, we receive the 'didApplicationActivate'
+                          notification before the 'didActiveSpaceChange' notification. If a space has not been visited
+                          before, this will cause us to end up on that space with an unsynchronized focused application state.
+
+                          Always update state of focused application and its window after a space transition. */
+    FocusedApplication = AXLibGetFocusedApplication();
+    FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
+    UpdateBorder("focused");
 }
 
 /* TODO(koekeishiya): Is this interesting (?)
@@ -138,14 +143,13 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
     {
         ApplyWindowRules(Application->Focus);
         ax_display *Display = AXLibWindowDisplay(Application->Focus);
-        if(Display)
+        Assert(Display != NULL);
+
+        if((!AXLibHasFlags(Application->Focus, AXWindow_Minimized)) &&
+           (AXLibIsWindowStandard(Application->Focus) || AXLibIsWindowCustom(Application->Focus)) &&
+           (!AXLibHasFlags(Application->Focus, AXWindow_Floating)))
         {
-            if((!AXLibHasFlags(Application->Focus, AXWindow_Minimized)) &&
-               (AXLibIsWindowStandard(Application->Focus) || AXLibIsWindowCustom(Application->Focus)) &&
-               (!AXLibHasFlags(Application->Focus, AXWindow_Floating)))
-            {
-                AddWindowToNodeTree(Display, Application->Focus->ID);
-            }
+            AddWindowToNodeTree(Display, Application->Focus->ID);
         }
     }
 }
@@ -157,10 +161,8 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
     /* TODO(koekeishiya): We probably want to flag every display for an update, as the application
                           in question could have had windows on several displays and spaces. */
     ax_display *Display = AXLibMainDisplay();
-    if(Display)
-        RebalanceNodeTree(Display);
-
-    ClearBorder(&FocusedBorder);
+    Assert(Display != NULL);
+    RebalanceNodeTree(Display);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
@@ -196,14 +198,13 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
         DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
         ApplyWindowRules(Window);
         ax_display *Display = AXLibWindowDisplay(Window);
-        if(Display)
+        Assert(Display != NULL);
+
+        if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
+           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+           (!AXLibHasFlags(Window, AXWindow_Floating)))
         {
-            if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
-               (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
-               (!AXLibHasFlags(Window, AXWindow_Floating)))
-            {
-                AddWindowToNodeTree(Display, Window->ID);
-            }
+            AddWindowToNodeTree(Display, Window->ID);
         }
     }
 }
@@ -213,10 +214,12 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowDestroyed: " << Window->Application->Name << " - " << Window->Name);
     ax_display *Display = AXLibWindowDisplay(Window);
-    if(Display)
-        RemoveWindowFromNodeTree(Display, Window->ID);
+    Assert(Display != NULL);
+    RemoveWindowFromNodeTree(Display, Window->ID);
 
-    UpdateBorder("focused");
+    if(FocusedApplication == Window->Application)
+        UpdateBorder("focused");
+
     AXLibDestroyWindow(Window);
 }
 
@@ -227,8 +230,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
     AXLibAddFlags(Window, AXWindow_Minimized);
 
     ax_display *Display = AXLibWindowDisplay(Window);
-    if(Display)
-        RemoveWindowFromNodeTree(Display, Window->ID);
+    Assert(Display != NULL);
+    RemoveWindowFromNodeTree(Display, Window->ID);
 
     ClearBorder(&FocusedBorder);
 }
@@ -238,6 +241,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
     ax_window *Window = (ax_window *) Event->Context;
     ax_display *Display = AXLibWindowDisplay(Window);
     DEBUG("AXEvent_WindowDeminimized: " << Window->Application->Name << " - " << Window->Name);
+    Assert(Display != NULL);
 
     /* NOTE(koekeishiya): kAXWindowDeminiaturized is sent before didActiveSpaceChange, when a deminimized
                           window pulls you to the space of that window. If the active space of the display
