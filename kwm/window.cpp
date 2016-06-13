@@ -196,6 +196,12 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
     ClearBorder(&FocusedBorder);
 }
 
+/* TODO(koekeishiya): kAXWindowDeminiaturized is sent before didActiveSpaceChange, when a deminimized
+                      window pulls you to the space of that window.
+
+                      This can probably be solved by checking if the active space of the display and
+                      the space of the window is equal. If they are not, we should ignore this event
+                      and schedule a new one to happen after the next space changed event. */
 EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
 {
     ax_window *Window = (ax_window *) Event->Context;
