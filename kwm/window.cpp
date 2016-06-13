@@ -76,21 +76,45 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
     DEBUG("AXEvent_SpaceChanged");
-    AXLibRunningApplications();
     ax_display *Display  = AXLibMainDisplay();
-    if(Display)
-    {
-        FocusedDisplay = Display;
-        FocusedDisplay->Space = AXLibGetActiveSpace(FocusedDisplay);
-        printf("Display: CGDirectDisplayID %d, Arrangement %d\n", FocusedDisplay->ID, FocusedDisplay->ArrangementID);
-        printf("Space: CGSSpaceID %d\n", FocusedDisplay->Space->ID);
+    ax_space *OldSpace = Display->Space;
 
-        CreateWindowNodeTree(FocusedDisplay);
-        RebalanceNodeTree(FocusedDisplay);
-    }
-    else
+    FocusedDisplay = Display;
+    FocusedDisplay->Space = AXLibGetActiveSpace(FocusedDisplay);
+    printf("Display: CGDirectDisplayID %d, Arrangement %d\n", FocusedDisplay->ID, FocusedDisplay->ArrangementID);
+    printf("Space: CGSSpaceID %d\n", FocusedDisplay->Space->ID);
+
+    AXLibRunningApplications();
+    CreateWindowNodeTree(FocusedDisplay);
+    RebalanceNodeTree(FocusedDisplay);
+
+    /* NOTE(koekeishiya): This space transition was invoked through deminiaturizing a window.
+                          We have no way of passing the actual window in question, to this callback,
+                          so we have marked the window through AXWindow_Pending. We iterate through
+                          all visible windows to locate the window we need. */
+
+    /* TODO(koekeishiya): Can we simplify this somehow (?) */
+    if(AXLibHasFlags(OldSpace, AXSpace_DeminimizedTransition))
     {
-        printf("What the fuck.. Display was null (?)");
+        AXLibClearFlags(OldSpace, AXSpace_DeminimizedTransition);
+        std::vector<ax_window *> Windows = AXLibGetAllVisibleWindows();
+        for(std::size_t Index = 0; Index < Windows.size(); ++Index)
+        {
+            ax_window *Window = Windows[Index];
+            if(AXLibHasFlags(Window, AXWindow_Pending))
+            {
+                AXLibClearFlags(Window, AXWindow_Pending);
+                AXLibClearFlags(Window, AXWindow_Minimized);
+
+                if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+                   (!AXLibHasFlags(Window, AXWindow_Floating)))
+                {
+                    AddWindowToNodeTree(Display, Window->ID);
+                }
+
+                AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
+            }
+        }
     }
 }
 
@@ -209,33 +233,37 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
     ClearBorder(&FocusedBorder);
 }
 
-/* TODO(koekeishiya): kAXWindowDeminiaturized is sent before didActiveSpaceChange, when a deminimized
-                      window pulls you to the space of that window.
-
-                      This can probably be solved by checking if the active space of the display and
-                      the space of the window is equal. If they are not, we should ignore this event
-                      and schedule a new one to happen after the next space changed event. */
 EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
 {
     ax_window *Window = (ax_window *) Event->Context;
+    ax_display *Display = AXLibWindowDisplay(Window);
     DEBUG("AXEvent_WindowDeminimized: " << Window->Application->Name << " - " << Window->Name);
 
-    ax_display *Display = AXLibWindowDisplay(Window);
-    if(Display)
+    /* NOTE(koekeishiya): kAXWindowDeminiaturized is sent before didActiveSpaceChange, when a deminimized
+                          window pulls you to the space of that window. If the active space of the display
+                          is not equal to the space of the window, we should ignore this event and schedule
+                          a new one to happen after the next space changed event. */
+
+    if(AXLibIsWindowOnSpace(Window, Display->Space->ID))
     {
         if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
            (!AXLibHasFlags(Window, AXWindow_Floating)))
         {
             AddWindowToNodeTree(Display, Window->ID);
         }
-    }
 
-    /* NOTE(koekeishiya): If a window was minimized, it should now be the focused window for its application,
-                          and the corresponding application will have input focus. */
-    if(AXLibHasFlags(Window, AXWindow_Minimized))
+        /* NOTE(koekeishiya): If a window was minimized, it should now be the focused window for its application,
+                              and the corresponding application will have input focus. */
+        if(AXLibHasFlags(Window, AXWindow_Minimized))
+        {
+            AXLibClearFlags(Window, AXWindow_Minimized);
+            AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
+        }
+    }
+    else
     {
-        AXLibClearFlags(Window, AXWindow_Minimized);
-        AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
+        AXLibAddFlags(Display->Space, AXSpace_DeminimizedTransition);
+        AXLibAddFlags(Window, AXWindow_Pending);
     }
 }
 
