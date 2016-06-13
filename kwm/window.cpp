@@ -166,13 +166,14 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
 
     ApplyWindowRules(Window);
     ax_display *Display = AXLibWindowDisplay(Window);
-    Assert(Display != NULL);
-
-    if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
-       (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
-       (!AXLibHasFlags(Window, AXWindow_Floating)))
+    if(Display)
     {
-        AddWindowToNodeTree(Display, Window->ID);
+        if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
+           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+           (!AXLibHasFlags(Window, AXWindow_Floating)))
+        {
+            AddWindowToNodeTree(Display, Window->ID);
+        }
     }
 }
 
