@@ -10,6 +10,7 @@ typedef int CGSConnectionID;
 extern "C" CGSConnectionID _CGSDefaultConnection(void);
 extern "C" CGSSpaceType CGSSpaceGetType(CGSConnectionID CID, CGSSpaceID SID);
 extern "C" CFArrayRef CGSCopyManagedDisplaySpaces(const CGSConnectionID CID);
+extern "C" CFArrayRef CGSCopySpacesForWindows(CGSConnectionID CID, CGSSpaceSelector Type, CFArrayRef Windows);
 
 internal std::map<CGDirectDisplayID, ax_display> *Displays;
 internal unsigned int MaxDisplayCount = 5;
@@ -504,6 +505,21 @@ CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int Deskto
 
     CFRelease(ScreenDictionaries);
     return Result;
+}
+
+bool AXLibIsWindowOnSpace(ax_window *Window, CGSSpaceID SpaceID)
+{
+    NSArray *NSArrayWindow = @[ @(Window->ID) ];
+    CFArrayRef Spaces = CGSCopySpacesForWindows(CGSDefaultConnection, kCGSSpaceAll, (__bridge CFArrayRef)NSArrayWindow);
+    int NumberOfSpaces = CFArrayGetCount(Spaces);
+    for(int Index = 0; Index < NumberOfSpaces; ++Index)
+    {
+        NSNumber *ID = (__bridge NSNumber*)CFArrayGetValueAtIndex(Spaces, Index);
+        if(SpaceID == [ID intValue])
+            return true;
+    }
+
+    return false;
 }
 
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays)

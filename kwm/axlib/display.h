@@ -15,6 +15,13 @@
 /* NOTE(koekeishiya): Fullscreen applications */
 #define kCGSSpaceFullscreen 4
 
+enum CGSSpaceSelector
+{
+    kCGSSpaceCurrent = 5,
+    kCGSSpaceOther = 6,
+    kCGSSpaceAll = 7
+};
+
 typedef int CGSSpaceID;
 typedef int CGSSpaceType;
 
@@ -74,5 +81,6 @@ ax_display *AXLibPreviousDisplay(ax_display *Display);
 
 unsigned int AXLibDesktopIDFromCGSSpaceID(ax_display *Display, CGSSpaceID SpaceID);
 CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int DesktopID);
+bool AXLibIsWindowOnSpace(ax_window *Window, CGSSpaceID SpaceID);
 
 #endif
