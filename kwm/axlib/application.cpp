@@ -193,7 +193,7 @@ void AXLibAddApplicationObserverNotificationFallback(ax_application *Application
         {
             if(AXLibAddObserverNotification(&Application->Observer, Application->Ref, AXNotificationFromEnum(Notification), Application) == kAXErrorSuccess)
             {
-                Application->Notifications &= (1 << Notification);
+                Application->Notifications |= (1 << Notification);
             }
         }
     }
@@ -221,7 +221,7 @@ void AXLibAddApplicationObserver(ax_application *Application)
             /* NOTE(koekeishiya): Mark the notification as successful. */
             if(Attempts != 0)
             {
-                Application->Notifications &= (1 << Notification);
+                Application->Notifications |= (1 << Notification);
             }
         }
 
