@@ -186,8 +186,10 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     DEBUG("AXEvent_WindowDestroyed: " << Window->Application->Name << " - " << Window->Name);
 
     ax_display *Display = AXLibWindowDisplay(Window);
-    Assert(Display != NULL);
-    RemoveWindowFromNodeTree(Display, Window->ID);
+    if(Display)
+    {
+        RemoveWindowFromNodeTree(Display, Window->ID);
+    }
 
     if(FocusedApplication == Window->Application)
         UpdateBorder("focused");
