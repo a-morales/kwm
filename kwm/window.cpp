@@ -107,7 +107,11 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 
                           Always update state of focused application and its window after a space transition. */
     FocusedApplication = AXLibGetFocusedApplication();
-    FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
+    if(FocusedApplication)
+    {
+        FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
+    }
+
     UpdateBorder("focused");
 }
 
