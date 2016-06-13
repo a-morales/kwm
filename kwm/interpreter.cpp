@@ -473,7 +473,7 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "curr")
             FocusWindowBelowCursor();
         else
-            FocusWindowByID(ConvertStringToInt(Tokens[2]));
+            FocusWindowByID(ConvertStringToUint(Tokens[2]));
     }
     else if(Tokens[1] == "-fm")
     {

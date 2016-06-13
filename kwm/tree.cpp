@@ -106,7 +106,7 @@ tree_node *GetNearestLeafNodeNeighbour(tree_node *Node)
     return NULL;
 }
 
-tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID)
+tree_node *GetTreeNodeFromWindowID(tree_node *Node, uint32_t WindowID)
 {
     if(Node)
     {
@@ -124,7 +124,7 @@ tree_node *GetTreeNodeFromWindowID(tree_node *Node, int WindowID)
     return NULL;
 }
 
-tree_node *GetTreeNodeFromWindowIDOrLinkNode(tree_node *Node, int WindowID)
+tree_node *GetTreeNodeFromWindowIDOrLinkNode(tree_node *Node, uint32_t WindowID)
 {
     tree_node *Result = NULL;
     Result = GetTreeNodeFromWindowID(Node, WindowID);
@@ -137,7 +137,7 @@ tree_node *GetTreeNodeFromWindowIDOrLinkNode(tree_node *Node, int WindowID)
     return Result;
 }
 
-link_node *GetLinkNodeFromWindowID(tree_node *Root, int WindowID)
+link_node *GetLinkNodeFromWindowID(tree_node *Root, uint32_t WindowID)
 {
     if(Root)
     {
@@ -156,7 +156,7 @@ link_node *GetLinkNodeFromWindowID(tree_node *Root, int WindowID)
     return NULL;
 }
 
-link_node *GetLinkNodeFromTree(tree_node *Root, int WindowID)
+link_node *GetLinkNodeFromTree(tree_node *Root, uint32_t WindowID)
 {
     if(Root)
     {
@@ -282,7 +282,7 @@ tree_node *GetFirstPseudoLeafNode(tree_node *Node)
 {
     tree_node *Leaf = NULL;
     GetFirstLeafNode(Node, (void**)&Leaf);
-    while(Leaf && Leaf->WindowID != -1)
+    while(Leaf && Leaf->WindowID != 0)
         Leaf = GetNearestTreeNodeToTheRight(Leaf);
 
     return Leaf;
@@ -302,7 +302,7 @@ void ApplyTreeNodeContainer(tree_node *Node)
 {
     if(Node)
     {
-        if(Node->WindowID != -1)
+        if(Node->WindowID != 0)
             ResizeWindowToContainerSize(Node);
 
         if(Node->List)

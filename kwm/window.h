@@ -6,28 +6,30 @@
 #include "axlib/window.h"
 
 void CreateWindowNodeTree(ax_display *Display);
-void AddWindowToNodeTree(ax_display *Display, unsigned int WindowID);
-void RemoveWindowFromNodeTree(ax_display *Display, unsigned int WindowID);
+void AddWindowToNodeTree(ax_display *Display, uint32_t WindowID);
+void RemoveWindowFromNodeTree(ax_display *Display, uint32_t WindowID);
 
-void AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, unsigned int WindowID);
-void RemoveWindowFromBSPTree(ax_display *Display, unsigned int WindowID);
+void AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, uint32_t WindowID);
+void RemoveWindowFromBSPTree(ax_display *Display, uint32_t WindowID);
 
-void AddWindowToMonocleTree(ax_display *Display, space_info *SpaceInfo, unsigned int WindowID);
-void RemoveWindowFromMonocleTree(ax_display *Display, unsigned int WindowID);
+void AddWindowToMonocleTree(ax_display *Display, space_info *SpaceInfo, uint32_t WindowID);
+void RemoveWindowFromMonocleTree(ax_display *Display, uint32_t WindowID);
 
 void RebalanceNodeTree(ax_display *Display);
 void RebalanceBSPTree(ax_display *Display);
 void RebalanceMonocleTree(ax_display *Display);
 
-ax_window *GetWindowByID(unsigned int WindowID);
-std::vector<ax_window *> GetAllAXWindowsNotInTree(ax_display *Display, std::vector<int> &WindowIDsInTree);
-std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree);
+ax_window *GetWindowByID(uint32_t WindowID);
+std::vector<ax_window *> GetAllAXWindowsNotInTree(ax_display *Display, std::vector<uint32_t> &WindowIDsInTree);
+std::vector<uint32_t> GetAllAXWindowIDsToRemoveFromTree(std::vector<uint32_t> &WindowIDsInTree);
 void GetCenterOfWindow(ax_window *Window, int *X, int *Y);
 bool WindowIsInDirection(ax_window *WindowA, ax_window *WindowB, int Degrees);
 bool FindClosestWindow(int Degrees, ax_window **ClosestWindow, bool Wrap);
 
 /* TODO(koekeishiya): PARTIALLY LOOKED AT */
-void ToggleWindowFloating(unsigned int WindowID, bool Center);
+void FocusWindowByID(uint32_t WindowID);
+std::vector<uint32_t> GetAllWindowIDsInTree(space_info *Space);
+void ToggleWindowFloating(uint32_t WindowID, bool Center);
 void ToggleFocusedWindowFloating();
 
 /* TODO(koekeishiya): NOT YET LOOKED AT */
@@ -53,7 +55,6 @@ void CreateWindowNodeTree(screen_info *Screen, std::vector<window_info*> *Window
 void ShouldWindowNodeTreeUpdate(screen_info *Screen);
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window);
 
-std::vector<int> GetAllWindowIDsInTree(space_info *Space);
 std::vector<window_info*> GetAllWindowsNotInTree(std::vector<int> &WindowIDsInTree);
 std::vector<int> GetAllWindowIDsToRemoveFromTree(std::vector<int> &WindowIDsInTree);
 

@@ -14,6 +14,7 @@ ConvertStringTo##name(std::string Value) \
     return Result; \
 }
 
+ConvertStringTo_(Uint, uint32_t);
 ConvertStringTo_(Int, int);
 ConvertStringTo_(Double, double);
 

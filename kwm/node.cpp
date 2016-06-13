@@ -14,7 +14,7 @@ tree_node *CreateRootNode()
     tree_node *RootNode = (tree_node*) malloc(sizeof(tree_node));
     *RootNode = Clear;
 
-    RootNode->WindowID = -1;
+    RootNode->WindowID = 0;
     RootNode->Type = NodeTypeTree;
     RootNode->Parent = NULL;
     RootNode->LeftChild = NULL;
@@ -31,7 +31,7 @@ link_node *CreateLinkNode()
     link_node *Link = (link_node*) malloc(sizeof(link_node));
     *Link = Clear;
 
-    Link->WindowID = -1;
+    Link->WindowID = 0;
     Link->Prev = NULL;
     Link->Next = NULL;
 
@@ -60,7 +60,7 @@ tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, 
 
 void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode)
 {
-    Parent->WindowID = -1;
+    Parent->WindowID = 0;
     Parent->SplitMode = SplitMode;
     /* TODO(koekeishiya): Is KWMScreen.SplitRatio a thing (?) */
     Parent->SplitRatio = KWMScreen.SplitRatio;
@@ -117,7 +117,7 @@ void CreatePseudoNode()
     if(Node)
     {
         split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(Node) : KWMScreen.SplitMode;
-        CreateLeafNodePair(Screen, Node, Node->WindowID, -1, SplitMode);
+        CreateLeafNodePair(Screen, Node, Node->WindowID, 0, SplitMode);
         ApplyTreeNodeContainer(Node);
     }
 }
@@ -135,7 +135,7 @@ void RemovePseudoNode()
     {
         tree_node *Parent = Node->Parent;
         tree_node *PseudoNode = IsLeftChild(Node) ? Parent->RightChild : Parent->LeftChild;
-        if(!PseudoNode || !IsLeafNode(PseudoNode) || PseudoNode->WindowID != -1)
+        if(!PseudoNode || !IsLeafNode(PseudoNode) || PseudoNode->WindowID != 0)
             return;
 
         Parent->WindowID = Node->WindowID;
@@ -154,7 +154,7 @@ bool IsLeafNode(tree_node *Node)
 
 bool IsPseudoNode(tree_node *Node)
 {
-    return Node && Node->WindowID == -1 && IsLeafNode(Node);
+    return Node && Node->WindowID == 0 && IsLeafNode(Node);
 }
 
 bool IsLeftChild(tree_node *Node)
@@ -303,7 +303,7 @@ void ModifyContainerSplitRatio(double Offset)
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         tree_node *Root = Space->RootNode;
-        if(IsLeafNode(Root) || Root->WindowID != -1)
+        if(IsLeafNode(Root) || Root->WindowID != 0)
             return;
 
         tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, KWMFocus.Window->WID);
@@ -326,7 +326,7 @@ void ModifyContainerSplitRatio(double Offset, int Degrees)
     {
         space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
         tree_node *Root = Space->RootNode;
-        if(IsLeafNode(Root) || Root->WindowID != -1)
+        if(IsLeafNode(Root) || Root->WindowID != 0)
             return;
 
         tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, KWMFocus.Window->WID);

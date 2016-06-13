@@ -88,7 +88,7 @@ DeserializeChildNode(tree_node *Parent, ax_display *Display, std::vector<std::st
         if(Line == "kwmc tree root create left")
         {
             DEBUG("Child: Create root");
-            Parent->LeftChild = CreateLeafNode(Display, Parent, -1, 1);
+            Parent->LeftChild = CreateLeafNode(Display, Parent, 0, 1);
             CreateDeserializedNodeContainer(Display, Parent->LeftChild);
             LineNumber = DeserializeParentNode(Parent->LeftChild, Display, Serialized, LineNumber+1);
             return LineNumber;
@@ -96,7 +96,7 @@ DeserializeChildNode(tree_node *Parent, ax_display *Display, std::vector<std::st
         else if(Line == "kwmc tree root create right")
         {
             DEBUG("Child: Create root");
-            Parent->RightChild = CreateLeafNode(Display, Parent, -1, 2);
+            Parent->RightChild = CreateLeafNode(Display, Parent, 0, 2);
             CreateDeserializedNodeContainer(Display, Parent->RightChild);
             LineNumber = DeserializeParentNode(Parent->RightChild, Display, Serialized, LineNumber+1);
             return LineNumber;
@@ -104,14 +104,14 @@ DeserializeChildNode(tree_node *Parent, ax_display *Display, std::vector<std::st
         else if(Line == "kwmc tree leaf create left")
         {
             DEBUG("Child: Create left leaf");
-            Parent->LeftChild = CreateLeafNode(Display, Parent, -1, 1);
+            Parent->LeftChild = CreateLeafNode(Display, Parent, 0, 1);
             CreateDeserializedNodeContainer(Display, Parent->LeftChild);
             return LineNumber;
         }
         else if(Line == "kwmc tree leaf create right")
         {
             DEBUG("Child: Create right leaf");
-            Parent->RightChild = CreateLeafNode(Display, Parent, -1, 2);
+            Parent->RightChild = CreateLeafNode(Display, Parent, 0, 2);
             CreateDeserializedNodeContainer(Display, Parent->RightChild);
             return LineNumber;
         }

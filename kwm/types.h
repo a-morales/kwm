@@ -239,7 +239,7 @@ struct node_container
 
 struct link_node
 {
-    int WindowID;
+    uint32_t WindowID;
     node_container Container;
 
     link_node *Prev;
@@ -248,7 +248,7 @@ struct link_node
 
 struct tree_node
 {
-    int WindowID;
+    uint32_t WindowID;
     node_type Type;
     node_container Container;
 

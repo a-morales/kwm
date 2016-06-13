@@ -23,6 +23,8 @@ extern kwm_border MarkedBorder;
 extern void AddWindowToSpace(int CGSpaceID, int WindowID);
 extern void RemoveWindowFromSpace(int CGSpaceID, int WindowID);
 
+/* NOTE(koekeishiya): Causes segfault if this function is called exactly as the window is destroyed.
+ *                    We probably have to use a lock on FocusedApplication->Focus */
 void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
 {
     tree_node *Node = Space->RootNode;
