@@ -160,6 +160,75 @@ std::vector<ax_window *> AXLibGetAllVisibleWindows()
     return Windows;
 }
 
+/* NOTE(koekeishiya): Returns a list of pointer to ax_window structs containing all windows currently visible,
+                      filtering by their associated kAXWindowRole and kAXWindowSubrole. The windows are
+                      return in topmost order. The window at index zero is the window at the top.
+                      If the topmost window is launchpad, or a context menu, this function will
+                      return an empty list! */
+#define CONTEXT_MENU_LAYER 101
+std::vector<ax_window *> AXLibGetAllVisibleWindowsOrdered()
+{
+    std::vector<ax_window *> Windows;
+
+    CGWindowListOption WindowListOption = kCGWindowListOptionOnScreenOnly |
+                                          kCGWindowListExcludeDesktopElements;
+
+    CFArrayRef WindowList = CGWindowListCopyWindowInfo(WindowListOption, kCGNullWindowID);
+    if(WindowList)
+    {
+        CFIndex WindowCount = CFArrayGetCount(WindowList);
+        for(std::size_t Index = 0; Index < WindowCount; ++Index)
+        {
+            uint32_t WindowID;
+            uint32_t WindowLayer;
+            CFNumberRef CFWindowNumber;
+            CFNumberRef CFWindowLayer;
+            CFDictionaryRef Elem = (CFDictionaryRef)CFArrayGetValueAtIndex(WindowList, Index);
+            CFWindowNumber = (CFNumberRef) CFDictionaryGetValue(Elem, CFSTR("kCGWindowNumber"));
+            CFWindowLayer = (CFNumberRef) CFDictionaryGetValue(Elem, CFSTR("kCGWindowLayer"));
+            CFNumberGetValue(CFWindowNumber, kCFNumberSInt32Type, &WindowID);
+            CFNumberGetValue(CFWindowLayer, kCFNumberSInt32Type, &WindowLayer);
+            CFRelease(CFWindowNumber);
+            CFRelease(CFWindowLayer);
+
+            CFStringRef CFOwner = (CFStringRef) CFDictionaryGetValue(Elem, CFSTR("kCGWindowOwnerName"));
+            CFStringRef CFName = (CFStringRef) CFDictionaryGetValue(Elem, CFSTR("kCGWindowName"));
+
+            if(((CFStringCompare(CFOwner, CFSTR("Dock"), 0) == kCFCompareEqualTo) &&
+               (CFStringCompare(CFName, CFSTR("LPSpringboard"), 0) == kCFCompareEqualTo)) ||
+               WindowLayer == CONTEXT_MENU_LAYER)
+            {
+                CFRelease(WindowList);
+                Windows.clear();
+                return Windows;
+            }
+
+            std::map<pid_t, ax_application>::iterator It;
+            for(It = AXApplications->begin(); It != AXApplications->end(); ++It)
+            {
+                ax_application *Application = &It->second;
+                if(!AXLibIsApplicationHidden(Application))
+                {
+                    ax_window *Window = AXLibFindApplicationWindow(Application, WindowID);
+                    if(Window)
+                    {
+                        if((Window->ID == WindowID) &&
+                           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)))
+                        {
+                            Windows.push_back(Window);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        CFRelease(WindowList);
+    }
+
+    return Windows;
+}
+
 /* NOTE(koekeishiya): Update state of known applications and their windows, stored inside the ax_state passed to AXLibInit(..). */
 void AXLibRunningApplications()
 {

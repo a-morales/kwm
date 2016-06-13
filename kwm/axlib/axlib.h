@@ -49,6 +49,7 @@ void AXLibSetFocusedWindow(ax_window *Window);
 
 std::vector<ax_window *> AXLibGetAllKnownWindows();
 std::vector<ax_window *> AXLibGetAllVisibleWindows();
+std::vector<ax_window *> AXLibGetAllVisibleWindowsOrdered();
 void AXLibRunningApplications();
 void AXLibInit(ax_state *State);
 
