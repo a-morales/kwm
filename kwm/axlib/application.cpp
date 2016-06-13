@@ -191,7 +191,10 @@ void AXLibAddApplicationObserverNotificationFallback(ax_application *Application
     {
         if(!(Application->Notifications & (1 << Notification)))
         {
-            AXLibAddObserverNotification(&Application->Observer, Application->Ref, AXNotificationFromEnum(Notification), Application);
+            if(AXLibAddObserverNotification(&Application->Observer, Application->Ref, AXNotificationFromEnum(Notification), Application) == kAXErrorSuccess)
+            {
+                Application->Notifications &= (1 << Notification);
+            }
         }
     }
 }
