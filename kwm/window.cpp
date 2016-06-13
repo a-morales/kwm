@@ -704,11 +704,7 @@ void RemoveWindowFromBSPTree(ax_display *Display, uint32_t WindowID)
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     tree_node *WindowNode = GetTreeNodeFromWindowID(SpaceInfo->RootNode, WindowID);
     if(!WindowNode)
-    {
-        DEBUG("Window node was null");
-        RebalanceBSPTree(Display);
         return;
-    }
 
     tree_node *Parent = WindowNode->Parent;
     if(Parent && Parent->LeftChild && Parent->RightChild)
