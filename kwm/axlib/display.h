@@ -29,7 +29,6 @@ struct ax_window;
 enum ax_space_flags
 {
     AXSpace_DeminimizedTransition = (1 << 0),
-    AXSpace_CmdTabTransition = (1 << 1),
 };
 
 struct ax_space
