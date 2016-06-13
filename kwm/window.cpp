@@ -110,9 +110,10 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
     if(FocusedApplication)
     {
         FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
+        if((FocusedApplication->Focus) &&
+           (AXLibIsWindowOnSpace(FocusedApplication->Focus, FocusedDisplay->Space->ID)))
+            UpdateBorder("focused");
     }
-
-    UpdateBorder("focused");
 }
 
 /* TODO(koekeishiya): Is this interesting (?)
