@@ -31,6 +31,19 @@ extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
+/* TODO(koekeishiya): The current implementation of the following callbacks are TEMPORARY.
+                      As of now, they include error checking and logic for dismissing and
+                      reconstructing events in the expected order. This kind of behaviour
+                      should be taken care of by AXLib itself, and is not something the
+                      implementing application should ever have to care about.
+
+                      When our callback is fired, we should be able to assume that the incoming
+                      order of notifications has been streamlined for us, and we just respond
+                      accordingly.
+
+                      Although, there might be a couple of cases that we have to handle manually.
+                      */
+
 EVENT_CALLBACK(Callback_AXEvent_DisplayAdded)
 {
     DEBUG("AXEvent_DisplayAdded");
