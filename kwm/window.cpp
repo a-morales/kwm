@@ -31,19 +31,6 @@ extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
-/* TODO(koekeishiya): The current implementation of the following callbacks are TEMPORARY.
-                      As of now, they include error checking and logic for dismissing and
-                      reconstructing events in the expected order. This kind of behaviour
-                      should be taken care of by AXLib itself, and is not something the
-                      implementing application should ever have to care about.
-
-                      When our callback is fired, we should be able to assume that the incoming
-                      order of notifications has been streamlined for us, and we just respond
-                      accordingly.
-
-                      Although, there might be a couple of cases that we have to handle manually.
-                      */
-
 EVENT_CALLBACK(Callback_AXEvent_DisplayAdded)
 {
     DEBUG("AXEvent_DisplayAdded");
@@ -88,7 +75,7 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 
     /* NOTE(koekeishiya): This space transition was invoked through deminiaturizing a window.
                           We have no way of passing the actual window in question, to this callback,
-                          so we have marked the window through AXWindow_Pending. We iterate through
+                          so we have marked the window through AXWindow_Minimized. We iterate through
                           all visible windows to locate the window we need. */
 
     /* TODO(koekeishiya): Can we simplify this somehow (?) */
@@ -99,11 +86,9 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         for(std::size_t Index = 0; Index < Windows.size(); ++Index)
         {
             ax_window *Window = Windows[Index];
-            if(AXLibHasFlags(Window, AXWindow_Pending))
+            if(AXLibHasFlags(Window, AXWindow_Minimized))
             {
-                AXLibClearFlags(Window, AXWindow_Pending);
                 AXLibClearFlags(Window, AXWindow_Minimized);
-
                 if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
                    (!AXLibHasFlags(Window, AXWindow_Floating)))
                 {
@@ -168,44 +153,26 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
 EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
 {
     ax_application *Application = (ax_application *) Event->Context;
-    ax_application *OldFocusedApplication = FocusedApplication;
+    DEBUG("AXEvent_ApplicationActivated: " << Application->Name);
 
     FocusedApplication = Application;
-    FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
-
-    /* NOTE(koekeishiya): When an application that is already running, but has no open windows, is activated,
-                          or a window is deminimized, we receive 'didApplicationActivate' notification first.
-                          We have to preserve our insertion point and flag this application for activation at a later point in time. */
-
-    if((!FocusedApplication->Focus) ||
-       (AXLibHasFlags(FocusedApplication->Focus, AXWindow_Minimized)))
-    {
-        FocusedApplication = OldFocusedApplication;
-        AXLibAddFlags(Application, AXApplication_Activate);
-    }
-    else
-    {
-        DEBUG("AXEvent_ApplicationActivated: " << Application->Name);
-        UpdateBorder("focused");
-    }
+    UpdateBorder("focused");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
 {
     ax_window *Window = (ax_window *) Event->Context;
-    if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
-    {
-        DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
-        ApplyWindowRules(Window);
-        ax_display *Display = AXLibWindowDisplay(Window);
-        Assert(Display != NULL);
+    DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
 
-        if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
-           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
-           (!AXLibHasFlags(Window, AXWindow_Floating)))
-        {
-            AddWindowToNodeTree(Display, Window->ID);
-        }
+    ApplyWindowRules(Window);
+    ax_display *Display = AXLibWindowDisplay(Window);
+    Assert(Display != NULL);
+
+    if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
+       (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+       (!AXLibHasFlags(Window, AXWindow_Floating)))
+    {
+        AddWindowToNodeTree(Display, Window->ID);
     }
 }
 
@@ -213,6 +180,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
 {
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowDestroyed: " << Window->Application->Name << " - " << Window->Name);
+
     ax_display *Display = AXLibWindowDisplay(Window);
     Assert(Display != NULL);
     RemoveWindowFromNodeTree(Display, Window->ID);
@@ -227,7 +195,6 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
 {
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowMinimized: " << Window->Application->Name << " - " << Window->Name);
-    AXLibAddFlags(Window, AXWindow_Minimized);
 
     ax_display *Display = AXLibWindowDisplay(Window);
     Assert(Display != NULL);
@@ -239,83 +206,49 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
 EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
 {
     ax_window *Window = (ax_window *) Event->Context;
-    ax_display *Display = AXLibWindowDisplay(Window);
     DEBUG("AXEvent_WindowDeminimized: " << Window->Application->Name << " - " << Window->Name);
+
+    ax_display *Display = AXLibWindowDisplay(Window);
     Assert(Display != NULL);
 
-    /* NOTE(koekeishiya): kAXWindowDeminiaturized is sent before didActiveSpaceChange, when a deminimized
-                          window pulls you to the space of that window. If the active space of the display
-                          is not equal to the space of the window, we should ignore this event and schedule
-                          a new one to happen after the next space changed event. */
-
-    if(AXLibIsWindowOnSpace(Window, Display->Space->ID))
+    if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+       (!AXLibHasFlags(Window, AXWindow_Floating)))
     {
-        if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
-           (!AXLibHasFlags(Window, AXWindow_Floating)))
-        {
-            AddWindowToNodeTree(Display, Window->ID);
-        }
+        AddWindowToNodeTree(Display, Window->ID);
+    }
 
-        /* NOTE(koekeishiya): If a window was minimized, it should now be the focused window for its application,
-                              and the corresponding application will have input focus. */
-        if(AXLibHasFlags(Window, AXWindow_Minimized))
-        {
-            AXLibClearFlags(Window, AXWindow_Minimized);
-            AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
-        }
-    }
-    else
-    {
-        AXLibAddFlags(Display->Space, AXSpace_DeminimizedTransition);
-        AXLibAddFlags(Window, AXWindow_Pending);
-    }
+    Window->Application->Focus = Window;
+    AXLibClearFlags(Window, AXWindow_Minimized);
+    AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 {
     ax_window *Window = (ax_window *) Event->Context;
+    DEBUG("AXEvent_WindowFocused: " << Window->Application->Name << " - " << Window->Name);
 
-    /* NOTE(koekeishiya): When a window is deminimized, we receive a FocusedWindowChanged notification before the
-                          window is visible. Only set the focused window for the corresponding application when
-                          we know that we can interact with the window in question, so we can preserve our insertion point. */
-    if(!AXLibHasFlags(Window, AXWindow_Minimized))
-    {
-        DEBUG("AXEvent_WindowFocused: " << Window->Application->Name << " - " << Window->Name);
-        Window->Application->Focus = Window;
-
-        if(FocusedApplication == Window->Application)
-            UpdateBorder("focused");
-    }
-
-    /* NOTE(koekeishiya): If the application corresponding to this window is flagged for activation and
-                          the window is visible to the user, this should be our focused application. */
-    if(AXLibHasFlags(Window->Application, AXApplication_Activate))
-    {
-        AXLibClearFlags(Window->Application, AXApplication_Activate);
-        if(!AXLibHasFlags(Window, AXWindow_Minimized))
-            AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
-    }
+    Window->Application->Focus = Window;
+    if(FocusedApplication == Window->Application)
+        UpdateBorder("focused");
 }
 
 
 EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
 {
     ax_window *Window = (ax_window *) Event->Context;
-    if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
-    {
-        DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
+    DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
+
+    if(FocusedApplication == Window->Application)
         UpdateBorder("focused");
-    }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowResized)
 {
     ax_window *Window = (ax_window *) Event->Context;
-    if(Window && AXLibFindApplicationWindow(Window->Application, Window->ID))
-    {
-        DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
+    DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
+
+    if(FocusedApplication == Window->Application)
         UpdateBorder("focused");
-    }
 }
 
 bool WindowsAreEqual(window_info *Window, window_info *Match) { }

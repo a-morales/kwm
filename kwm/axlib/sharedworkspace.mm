@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import "sharedworkspace.h"
 #include "event.h"
+#include "axlib.h"
 
 #define internal static
 #define local_persist static
@@ -74,7 +75,22 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
 {
     if(Applications->find(PID) != Applications->end())
     {
-        AXLibConstructEvent(AXEvent_ApplicationActivated, &(*Applications)[PID]);
+        ax_application *Application = &(*Applications)[PID];
+        Application->Focus = AXLibGetFocusedWindow(Application);
+
+        /* NOTE(koekeishiya): When an application that is already running, but has no open windows, is activated,
+                              or a window is deminimized, we receive 'didApplicationActivate' notification first.
+                              We have to preserve our insertion point and flag this application for activation at a later point in time. */
+
+        if((!Application->Focus) ||
+           (AXLibHasFlags(Application->Focus, AXWindow_Minimized)))
+        {
+            AXLibAddFlags(Application, AXApplication_Activate);
+        }
+        else
+        {
+            AXLibConstructEvent(AXEvent_ApplicationActivated, Application);
+        }
     }
 }
 

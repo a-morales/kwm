@@ -2,6 +2,7 @@
 #include "element.h"
 #include "sharedworkspace.h"
 #include "event.h"
+#include "display.h"
 #include "axlib.h"
 
 #define internal static
@@ -114,7 +115,21 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = AXLibGetWindowByRef(Application, Element);
         if(Window)
         {
-            AXLibConstructEvent(AXEvent_WindowFocused, Window);
+            /* NOTE(koekeishiya): When a window is deminimized, we receive a FocusedWindowChanged notification before the
+               window is visible. Only notify our callback when we know that we can interact with the window in question. */
+            if(!AXLibHasFlags(Window, AXWindow_Minimized))
+            {
+                AXLibConstructEvent(AXEvent_WindowFocused, Window);
+            }
+
+            /* NOTE(koekeishiya): If the application corresponding to this window is flagged for activation and
+                                  the window is visible to the user, this should be the focused application. */
+            if(AXLibHasFlags(Window->Application, AXApplication_Activate))
+            {
+                AXLibClearFlags(Window->Application, AXApplication_Activate);
+                if(!AXLibHasFlags(Window, AXWindow_Minimized))
+                    AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
+            }
         }
     }
     else if(CFEqual(Notification, kAXWindowMiniaturizedNotification))
@@ -123,6 +138,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = (ax_window *) Reference;
         if(Window)
         {
+            AXLibAddFlags(Window, AXWindow_Minimized);
             AXLibConstructEvent(AXEvent_WindowMinimized, Window);
         }
     }
@@ -132,7 +148,20 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = (ax_window *) Reference;
         if(Window)
         {
-            AXLibConstructEvent(AXEvent_WindowDeminimized, Window);
+            /* NOTE(koekeishiya): kAXWindowDeminiaturized is sent before didActiveSpaceChange, when a deminimized
+                                  window pulls you to the space of that window. If the active space of the display
+                                  is not equal to the space of the window, we should ignore this event and schedule
+                                  a new one to happen after the next space changed event. */
+
+            ax_display *Display = AXLibWindowDisplay(Window);
+            if(AXLibIsWindowOnSpace(Window, Display->Space->ID))
+            {
+                AXLibConstructEvent(AXEvent_WindowDeminimized, Window);
+            }
+            else
+            {
+                AXLibAddFlags(Display->Space, AXSpace_DeminimizedTransition);
+            }
         }
     }
     else if(CFEqual(Notification, kAXWindowMovedNotification))

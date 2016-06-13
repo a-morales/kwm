@@ -11,7 +11,6 @@ enum ax_window_flags
     AXWindow_Resizable = (1 << 1),
     AXWindow_Floating = (1 << 2),
     AXWindow_Minimized = (1 << 3),
-    AXWindow_Pending = (1 << 4),
 };
 
 struct ax_window_role
