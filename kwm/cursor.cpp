@@ -32,30 +32,21 @@ IsWindowBelowCursor(ax_window *Window)
 
 void FocusWindowBelowCursor()
 {
-    ax_window *FocusedWindow = FocusedApplication->Focus;
-    if(FocusedWindow && IsWindowBelowCursor(FocusedWindow))
-        return;
-
     std::vector<ax_window *> Windows = AXLibGetAllVisibleWindowsOrdered();
     for(std::size_t Index = 0; Index < Windows.size(); ++Index)
     {
         ax_window *Window = Windows[Index];
-
-        /* Note(koekeishiya): Allow focus-follows-mouse to ignore Launchpad */
-        if(Window->Application->Name == "Dock" &&
-           Window->Name  == "LPSpringboard")
-            return;
-
-        /* Note(koekeishiya): Allow focus-follows-mouse to work when the dock is visible */
-        if(Window->Application->Name == "Dock" &&
-           Window->Position.x == 0 &&
-           Window->Position.y == 0)
-            continue;
-
         if(IsWindowBelowCursor(Window))
         {
-           if(FocusedWindow != Window)
+           if(FocusedApplication == Window->Application)
+           {
+               if(FocusedApplication->Focus != Window)
+                   AXLibSetFocusedWindow(Window);
+           }
+           else
+           {
                 AXLibSetFocusedWindow(Window);
+           }
             return;
         }
     }
