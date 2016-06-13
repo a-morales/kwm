@@ -204,8 +204,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
     ax_display *Display = AXLibWindowDisplay(Window);
     if(Display)
     {
-        if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
-           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+        if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
            (!AXLibHasFlags(Window, AXWindow_Floating)))
         {
             AddWindowToNodeTree(Display, Window->ID);
