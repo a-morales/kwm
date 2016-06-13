@@ -197,8 +197,8 @@ std::vector<ax_window *> AXLibGetAllVisibleWindowsOrdered()
             CFStringRef CFOwner = (CFStringRef) CFDictionaryGetValue(Elem, CFSTR("kCGWindowOwnerName"));
             CFStringRef CFName = (CFStringRef) CFDictionaryGetValue(Elem, CFSTR("kCGWindowName"));
 
-            if(((CFStringCompare(CFOwner, CFSTR("Dock"), 0) == kCFCompareEqualTo) &&
-               (CFStringCompare(CFName, CFSTR("LPSpringboard"), 0) == kCFCompareEqualTo)) ||
+            if(((CFOwner && (CFStringCompare(CFOwner, CFSTR("Dock"), 0) == kCFCompareEqualTo)) &&
+                (CFName && (CFStringCompare(CFName, CFSTR("LPSpringboard"), 0) == kCFCompareEqualTo))) ||
                WindowLayer == CONTEXT_MENU_LAYER)
             {
                 CFRelease(WindowList);
