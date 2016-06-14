@@ -394,6 +394,28 @@ ax_display *AXLibMainDisplay()
     return &(*Displays)[MainDisplay];
 }
 
+/* NOTE(koekeishiya): The display that holds the cursor. */
+ax_display *AXLibCursorDisplay()
+{
+    CGEventRef Event = CGEventCreate(NULL);
+    CGPoint Cursor = CGEventGetLocation(Event);
+    CFRelease(Event);
+
+    ax_display *Result = NULL;
+    std::map<CGDirectDisplayID, ax_display>::iterator It;
+    for(It = Displays->begin(); It != Displays->end(); ++It)
+    {
+        ax_display *Display = &It->second;
+        if(CGRectContainsPoint(Display->Frame, Cursor))
+        {
+            Result = Display;
+            break;
+        }
+    }
+
+    return Result;
+}
+
 /* NOTE(koekeishiya): The display that holds the largest portion of the given window. */
 ax_display *AXLibWindowDisplay(ax_window *Window)
 {

@@ -75,6 +75,7 @@ ax_space * AXLibGetActiveSpace(ax_display *Display);
 bool AXLibIsSpaceTransitionInProgress();
 
 ax_display *AXLibMainDisplay();
+ax_display *AXLibCursorDisplay();
 ax_display *AXLibWindowDisplay(ax_window *Window);
 ax_display *AXLibNextDisplay(ax_display *Display);
 ax_display *AXLibPreviousDisplay(ax_display *Display);
