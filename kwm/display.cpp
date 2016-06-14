@@ -12,276 +12,29 @@ extern kwm_tiling KWMTiling;
 extern kwm_thread KWMThread;
 extern kwm_toggles KWMToggles;
 
-unsigned int GetDisplayIDFromIdentifier(CFStringRef Identifier)
-{
-    std::map<unsigned int, screen_info>::iterator It;
-    for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
-    {
-        CFStringRef ActiveID = It->second.Identifier;
-        CFComparisonResult Result = CFStringCompare(Identifier, ActiveID, 0);
-        if(Result == kCFCompareEqualTo)
-            return It->first;
-    }
-    return 0;
-}
+unsigned int GetDisplayIDFromIdentifier(CFStringRef Identifier) { }
 
-void UpdateDisplayIDForDisplay(int OldDisplayIndex, int NewDisplayIndex)
-{
-    std::map<unsigned int, screen_info>::iterator It = KWMTiling.DisplayMap.find(OldDisplayIndex);
-    screen_info Screen = It->second;
-    KWMTiling.DisplayMap.erase(It);
-    KWMTiling.DisplayMap[NewDisplayIndex] = Screen;
-}
+void UpdateDisplayIDForDisplay(int OldDisplayIndex, int NewDisplayIndex) { }
 
-void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo)
-{
-    static int idx = 0;
-    DEBUG("\n[" << idx << "] BEGIN DISPLAY CONFIGURATION CALLBACK");
+void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo) { }
 
-    if (Flags & kCGDisplayAddFlag)
-    {
-        CFStringRef displayIdentifier = GetDisplayIdentifier(Display);
-        int savedDisplayID = 0;
-        if(displayIdentifier)
-            savedDisplayID = GetDisplayIDFromIdentifier(displayIdentifier);
-        if (!savedDisplayID) {
-            DEBUG("New display detected! DisplayID: " << Display << " Index: " << KWMScreen.ActiveCount);
-        }
-        else if (savedDisplayID != Display) {
-            DEBUG("This display being added had saved ID: " << savedDisplayID);
-            UpdateDisplayIDForDisplay(savedDisplayID, Display);
-        }
-        else {
-            DEBUG("The display that is being added is already there!");
-        }
-        // Display has been added
-        RefreshActiveDisplays(true);
-    }
-    if (Flags & kCGDisplayRemoveFlag)
-    {
-        CFStringRef displayIdentifier = GetDisplayIdentifier(Display);
-        int savedDisplayID = 0;
-        if(displayIdentifier)
-            savedDisplayID = GetDisplayIDFromIdentifier(displayIdentifier);
-        if ((!savedDisplayID) || (savedDisplayID == Display)) {
-            // Display has been removed
-            if(CGDisplayIsAsleep(Display))
-            {
-                DEBUG("Display " << Display << " is asleep!");
-                RefreshActiveDisplays(false);
-            }
-            else
-            {
-                DEBUG("Display has been removed! DisplayID: " << Display);
-                std::map<int, space_info>::iterator It;
-                for(It = KWMTiling.DisplayMap[Display].Space.begin(); It != KWMTiling.DisplayMap[Display].Space.end(); ++It)
-                    DestroyNodeTree(It->second.RootNode);
+screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex) { }
 
-                if(KWMTiling.DisplayMap[Display].Identifier)
-                    CFRelease(KWMTiling.DisplayMap[Display].Identifier);
+void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenIndex) { }
 
-                KWMTiling.DisplayMap.erase(Display);
-                RefreshActiveDisplays(true);
-            }
-        }
-        else if (savedDisplayID != Display) {
-            DEBUG("This display being removed had saved ID: " << savedDisplayID);
-            RefreshActiveDisplays(true);
-        }
-    }
-    if ((Flags & kCGDisplayDesktopShapeChangedFlag) || (Flags & kCGDisplayMovedFlag))
-    {
-        if(!CGDisplayIsAsleep(Display))
-        {
-            if (Flags & kCGDisplayDesktopShapeChangedFlag) {
-                DEBUG("Display " << Display << " changed resolution");
-            }
-            else {
-                DEBUG("Display " << Display << " moved");
-            }
-            screen_info *Screen = &KWMTiling.DisplayMap[Display];
-            UpdateExistingScreenInfo(Screen, Display, Screen->ID);
-            std::map<int, space_info>::iterator It;
-            for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
-            {
-                if(It->second.Managed || It->second.Settings.Mode == SpaceModeFloating)
-                {
-                    if(It->first == Screen->ActiveSpace)
-                        UpdateSpaceOfScreen(&It->second, Screen);
-                    else
-                        It->second.NeedsUpdate = true;
-                }
-            }
-        }
-    }
-    if (Flags & kCGDisplaySetMainFlag)
-    {
-        DEBUG("Display " << Display << " became main");
-    }
-    if (Flags & kCGDisplaySetModeFlag)
-    {
-        DEBUG("Display " << Display << " changed mode");
-    }
-    if (Flags & kCGDisplayEnabledFlag)
-    {
-        DEBUG("Display " << Display << " enabled");
-    }
-    if (Flags & kCGDisplayDisabledFlag)
-    {
-        DEBUG("Display " << Display << " disabled");
-    }
+CFStringRef GetDisplayIdentifier(int DisplayID) { }
 
-    DEBUG("[" << idx << "] END DISPLAY CONFIGURATION CALLBACK\n");
-    idx++;
-}
+void GetActiveDisplays() { }
 
-screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex)
-{
-    CGRect DisplayRect = CGDisplayBounds(DisplayIndex);
-    screen_info Screen;
+void RefreshActiveDisplays(bool ShouldFocusScreen) { }
 
-    Screen.Identifier = GetDisplayIdentifier(DisplayIndex);
-    Screen.ID = ScreenIndex;
-    Screen.ActiveSpace = -1;
-    Screen.TrackSpaceChange = true;
-
-    Screen.X = DisplayRect.origin.x;
-    Screen.Y = DisplayRect.origin.y;
-    Screen.Width = DisplayRect.size.width;
-    Screen.Height = DisplayRect.size.height;
-
-    Screen.Settings.Offset = KWMScreen.DefaultOffset;
-    Screen.Settings.Mode = SpaceModeDefault;
-    Screen.Settings.Layout = "";
-    Screen.Settings.Name = "";
-
-    DEBUG("Creating screen info for display ID: " << DisplayIndex << " Resolution: " << Screen.Width << "x" << Screen.Height << " Origin: (" << Screen.X << "," << Screen.Y << ")");
-
-    return Screen;
-}
-
-void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenIndex)
-{
-    CGRect DisplayRect = CGDisplayBounds(DisplayIndex);
-    Screen->ID = ScreenIndex;
-
-    Screen->X = DisplayRect.origin.x;
-    Screen->Y = DisplayRect.origin.y;
-    Screen->Width = DisplayRect.size.width;
-    Screen->Height = DisplayRect.size.height;
-
-    Screen->Settings.Offset = KWMScreen.DefaultOffset;
-    Screen->Settings.Mode = SpaceModeDefault;
-}
-
-CFStringRef GetDisplayIdentifier(int DisplayID)
-{
-    CFUUIDRef displayUUID = CGDisplayCreateUUIDFromDisplayID(DisplayID);
-    if (!displayUUID)
-        return NULL;
-    CFStringRef Identifier = CFUUIDCreateString(NULL, displayUUID);
-    CFRelease(displayUUID);
-    return Identifier;
-}
-
-void GetActiveDisplays()
-{
-    KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * KWMScreen.MaxCount);
-    CGGetActiveDisplayList(KWMScreen.MaxCount, KWMScreen.Displays, &KWMScreen.ActiveCount);
-    for(std::size_t DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
-    {
-        unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
-        KWMTiling.DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);;
-
-        DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex << " and Identifier " << CFStringGetCStringPtr(KWMTiling.DisplayMap[DisplayID].Identifier,kCFStringEncodingUTF8));
-    }
-
-    KWMScreen.Current = GetDisplayOfMousePointer();
-    KWMScreen.Current->ActiveSpace = GetActiveSpaceOfDisplay(KWMScreen.Current);
-    ShouldActiveSpaceBeManaged();
-
-    CGDisplayRegisterReconfigurationCallback(DisplayReconfigurationCallBack, NULL);
-}
-
-void RefreshActiveDisplays(bool ShouldFocusScreen)
-{
-    if(KWMScreen.Displays)
-        free(KWMScreen.Displays);
-
-    KWMScreen.Displays = (CGDirectDisplayID*) malloc(sizeof(CGDirectDisplayID) * KWMScreen.MaxCount);
-    CGGetActiveDisplayList(KWMScreen.MaxCount, KWMScreen.Displays, &KWMScreen.ActiveCount);
-    for(std::size_t DisplayIndex = 0; DisplayIndex < KWMScreen.ActiveCount; ++DisplayIndex)
-    {
-        unsigned int DisplayID = KWMScreen.Displays[DisplayIndex];
-        std::map<unsigned int, screen_info>::iterator It = KWMTiling.DisplayMap.find(DisplayID);
-
-        if(It != KWMTiling.DisplayMap.end())
-            UpdateExistingScreenInfo(&KWMTiling.DisplayMap[DisplayID], DisplayID, DisplayIndex);
-        else
-            KWMTiling.DisplayMap[DisplayID] = CreateDefaultScreenInfo(DisplayID, DisplayIndex);
-
-        DEBUG("DisplayID " << DisplayID << " has index " << DisplayIndex << " and Identifier " << CFStringGetCStringPtr(KWMTiling.DisplayMap[DisplayID].Identifier,kCFStringEncodingUTF8));
-    }
-
-    if (ShouldFocusScreen)
-    {
-        screen_info *NewScreen = GetDisplayOfMousePointer();
-        if(NewScreen)
-            GiveFocusToScreen(NewScreen->ID, NULL, false, true);
-    }
-}
-
-screen_info *GetDisplayFromScreenID(unsigned int ID)
-{
-    std::map<unsigned int, screen_info>::iterator It;
-    for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
-    {
-        screen_info *Screen = &It->second;
-        if(Screen->ID == ID)
-            return Screen;
-    }
-
-    return NULL;
-}
+screen_info *GetDisplayFromScreenID(unsigned int ID) { }
 
 screen_info *GetDisplayOfMousePointer() { }
 
-screen_info *GetDisplayOfWindow(window_info *Window)
-{
-    if(Window)
-    {
-        std::map<unsigned int, screen_info>::iterator It;
-        for(It = KWMTiling.DisplayMap.begin(); It != KWMTiling.DisplayMap.end(); ++It)
-        {
-            screen_info *Screen = &It->second;
-            if(Window->X >= Screen->X && Window->X <= Screen->X + Screen->Width &&
-               Window->Y >= Screen->Y && Window->Y <= Screen->Y + Screen->Height)
-                return Screen;
-        }
+screen_info *GetDisplayOfWindow(window_info *Window) { }
 
-        return GetDisplayOfMousePointer();
-    }
-
-    return NULL;
-}
-
-std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
-{
-    screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-    std::vector<window_info*> ScreenWindowLst;
-    for(std::size_t WindowIndex = 0; WindowIndex < KWMTiling.WindowLst.size(); ++WindowIndex)
-    {
-        window_info *Window = &KWMTiling.WindowLst[WindowIndex];
-        if(IsWindowTilable(Window) &&
-           !IsWindowFloating(KWMTiling.WindowLst[WindowIndex].WID, NULL))
-        {
-            if(Screen == GetDisplayOfWindow(Window))
-                ScreenWindowLst.push_back(Window);
-        }
-    }
-
-    return ScreenWindowLst;
-}
+std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex) { }
 
 void UpdateSpaceOfScreen(space_info *Space, screen_info *Screen)
 {
@@ -405,6 +158,7 @@ int GetIndexOfPrevScreen()
 
 void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mouse, bool UpdateFocus)
 {
+    /*
     screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
     if(Screen && Screen != KWMScreen.Current)
     {
@@ -476,7 +230,6 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
                     if(!Mouse)
                         CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2), Screen->Y + (Screen->Height / 2)));
 
-                    /*
                     if(Space->Settings.Mode != SpaceModeFloating && !Space->RootNode)
                     {
                         CGPoint ClickPos = GetCursorPos();
@@ -490,11 +243,11 @@ void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mous
                         CGEventPost(kCGHIDEventTap, ClickEvent);
                         CFRelease(ClickEvent);
                     }
-                    */
                 }
             }
         }
     }
+*/
 }
 
 void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)

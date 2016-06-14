@@ -2,6 +2,7 @@
 #include "display.h"
 #include "space.h"
 #include "window.h"
+#include "axlib/axlib.h"
 
 extern kwm_tiling KWMTiling;
 extern kwm_screen KWMScreen;
@@ -9,9 +10,6 @@ extern kwm_mode KWMMode;
 extern kwm_path KWMPath;
 extern kwm_focus KWMFocus;
 extern scratchpad Scratchpad;
-
-extern void AddWindowToSpace(int SpaceID, int WindowID);
-extern void RemoveWindowFromSpace(int SpaceID, int WindowID);
 
 bool IsScratchpadSlotValid(int Index)
 {
@@ -69,6 +67,7 @@ void AddWindowToScratchpad(window_info *Window)
 
 void RemoveWindowFromScratchpad(window_info *Window)
 {
+    /*
     if(!IsSpaceTransitionInProgress() &&
        IsWindowOnScratchpad(Window))
     {
@@ -83,6 +82,7 @@ void RemoveWindowFromScratchpad(window_info *Window)
         Scratchpad.Windows.erase(Slot);
         DEBUG("RemoveWindowFromScratchpad() " << Slot);
     }
+    */
 }
 
 void ToggleScratchpadWindow(int Index)
@@ -100,6 +100,7 @@ void ToggleScratchpadWindow(int Index)
 
 void HideScratchpadWindow(int Index)
 {
+    /*
     if(!IsSpaceTransitionInProgress() &&
        IsScratchpadSlotValid(Index))
     {
@@ -119,10 +120,12 @@ void HideScratchpadWindow(int Index)
                 FocusWindowByID(Scratchpad.LastFocus);
         }
     }
+    */
 }
 
 void ShowScratchpadWindow(int Index)
 {
+    /*
     if(!IsSpaceTransitionInProgress() &&
        IsScratchpadSlotValid(Index))
     {
@@ -135,6 +138,7 @@ void ShowScratchpadWindow(int Index)
         UpdateActiveWindowList(KWMScreen.Current);
         FocusWindowByID(Window->WID);
     }
+    */
 }
 
 void ResizeScratchpadWindow(screen_info *Screen, window_info *Window)

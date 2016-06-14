@@ -33,6 +33,31 @@ extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
+internal void
+UpdateSpaceOfDisplay(ax_display *Display, space_info *Space)
+{
+    if(Space->RootNode)
+    {
+        if(Space->Settings.Mode == SpaceModeBSP)
+        {
+            SetRootNodeContainer(Display, Space->RootNode);
+            CreateNodeContainers(Display, Space->RootNode, true);
+        }
+        else if(Space->Settings.Mode == SpaceModeMonocle)
+        {
+            link_node *Link = Space->RootNode->List;
+            while(Link)
+            {
+                SetLinkNodeContainer(Display, Link);
+                Link = Link->Next;
+            }
+        }
+
+        ApplyTreeNodeContainer(Space->RootNode);
+        Space->NeedsUpdate = false;
+    }
+}
+
 EVENT_CALLBACK(Callback_AXEvent_DisplayAdded)
 {
     DEBUG("AXEvent_DisplayAdded");
@@ -45,12 +70,36 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayRemoved)
 
 EVENT_CALLBACK(Callback_AXEvent_DisplayResized)
 {
+    ax_display *Display = (ax_display *) Event->Context;
     DEBUG("AXEvent_DisplayResized");
+
+    std::map<CGSSpaceID, ax_space>::iterator It;
+    for(It = Display->Spaces.begin(); It != Display->Spaces.end(); ++It)
+    {
+        ax_space *Space = &It->second;
+        space_info *SpaceInfo = &WindowTree[Space->Identifier];
+        if(Space == Display->Space)
+            UpdateSpaceOfDisplay(Display, SpaceInfo);
+        else
+            SpaceInfo->NeedsUpdate = true;
+    }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_DisplayMoved)
 {
+    ax_display *Display = (ax_display *) Event->Context;
     DEBUG("AXEvent_DisplayMoved");
+
+    std::map<CGSSpaceID, ax_space>::iterator It;
+    for(It = Display->Spaces.begin(); It != Display->Spaces.end(); ++It)
+    {
+        ax_space *Space = &It->second;
+        space_info *SpaceInfo = &WindowTree[Space->Identifier];
+        if(Space == Display->Space)
+            UpdateSpaceOfDisplay(Display, SpaceInfo);
+        else
+            SpaceInfo->NeedsUpdate = true;
+    }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
@@ -61,6 +110,25 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
     AXLibRunningApplications();
     CreateWindowNodeTree(FocusedDisplay);
     RebalanceNodeTree(FocusedDisplay);
+}
+
+internal void
+AddMinimizedWindowsToTree(ax_display *Display)
+{
+    std::vector<ax_window *> Windows = AXLibGetAllVisibleWindows();
+    for(std::size_t Index = 0; Index < Windows.size(); ++Index)
+    {
+        ax_window *Window = Windows[Index];
+        if(AXLibHasFlags(Window, AXWindow_Minimized))
+        {
+            AXLibClearFlags(Window, AXWindow_Minimized);
+            if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+               (!AXLibHasFlags(Window, AXWindow_Floating)))
+            {
+                AddWindowToNodeTree(Display, Window->ID);
+            }
+        }
+    }
 }
 
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
@@ -85,36 +153,31 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 
     FocusedDisplay = Display;
     ax_space *PrevSpace = FocusedDisplay->PrevSpace;
+    space_info *SpaceInfo = &WindowTree[FocusedDisplay->Space->Identifier];
     printf("Display: CGDirectDisplayID %d, Arrangement %d\n", FocusedDisplay->ID, FocusedDisplay->ArrangementID);
     printf("OldSpace %d : NewSpace %d\n", PrevSpace->ID, FocusedDisplay->Space->ID);
 
     AXLibRunningApplications();
-    CreateWindowNodeTree(FocusedDisplay);
     RebalanceNodeTree(FocusedDisplay);
 
     /* NOTE(koekeishiya): This space transition was invoked through deminiaturizing a window.
                           We have no way of passing the actual window in question, to this callback,
                           so we have marked the window through AXWindow_Minimized. We iterate through
                           all visible windows to locate the window we need. */
-
-    /* TODO(koekeishiya): Can we simplify this somehow (?) */
     if(AXLibHasFlags(PrevSpace, AXSpace_DeminimizedTransition))
     {
         AXLibClearFlags(PrevSpace, AXSpace_DeminimizedTransition);
-        std::vector<ax_window *> Windows = AXLibGetAllVisibleWindows();
-        for(std::size_t Index = 0; Index < Windows.size(); ++Index)
-        {
-            ax_window *Window = Windows[Index];
-            if(AXLibHasFlags(Window, AXWindow_Minimized))
-            {
-                AXLibClearFlags(Window, AXWindow_Minimized);
-                if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
-                   (!AXLibHasFlags(Window, AXWindow_Floating)))
-                {
-                    AddWindowToNodeTree(Display, Window->ID);
-                }
-            }
-        }
+        AddMinimizedWindowsToTree(Display);
+    }
+
+    /* NOTE(koekeishiya): This space transition was invoked after a window was moved to this space.
+                          We have marked the window through AXWindow_Minimized. We iterate through
+                          all visible windows to locate the window we need. */
+    if(SpaceInfo->Initialized &&
+       AXLibHasFlags(Display->Space, AXSpace_NeedsUpdate))
+    {
+        AXLibClearFlags(Display->Space, AXSpace_NeedsUpdate);
+        AddMinimizedWindowsToTree(Display);
     }
 
     /* NOTE(koekeishiya): If we trigger a space changed event through cmd+tab, we receive the 'didApplicationActivate'
@@ -122,6 +185,7 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
                           before, this will cause us to end up on that space with an unsynchronized focused application state.
 
                           Always update state of focused application and its window after a space transition. */
+    CreateWindowNodeTree(FocusedDisplay);
     FocusedApplication = AXLibGetFocusedApplication();
     if(FocusedApplication)
     {
@@ -672,6 +736,9 @@ RebalanceMonocleTree(ax_display *Display)
 void RebalanceNodeTree(ax_display *Display)
 {
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(!SpaceInfo->Initialized)
+        return;
+
     if(SpaceInfo->Settings.Mode == SpaceModeBSP)
         RebalanceBSPTree(Display);
     else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)

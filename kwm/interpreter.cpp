@@ -28,9 +28,6 @@ extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
 extern kwm_hotkeys KWMHotkeys;
 
-void MoveFocusedWindowToSpace(std::string SpaceID);
-void ActivateSpaceWithoutTransition(std::string SpaceID);
-
 internal void
 KwmConfigCommand(std::vector<std::string> &Tokens)
 {
@@ -362,8 +359,10 @@ KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
                 KwmWriteToSocket(ClientSockFD, GetTagOfCurrentSpace());
             else if(Tokens[3] == "name")
                 KwmWriteToSocket(ClientSockFD, GetNameOfCurrentSpace());
+            /*
             else if(Tokens[3] == "id")
                 KwmWriteToSocket(ClientSockFD, GetIdOfCurrentSpace());
+            */
             else if(Tokens[3] == "mode")
                 KwmWriteToSocket(ClientSockFD, GetModeOfCurrentSpace());
         }
@@ -371,11 +370,15 @@ KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         {
             if(Tokens[3] == "name")
                 KwmWriteToSocket(ClientSockFD, GetNameOfPreviousSpace());
+            /*
             else if(Tokens[3] == "id")
                 KwmWriteToSocket(ClientSockFD, GetIdOfPreviousSpace());
+            */
         }
+        /*
         else if(Tokens[2] == "list")
             KwmWriteToSocket(ClientSockFD, GetListOfSpaces());
+        */
     }
     else if(Tokens[1] == "border")
     {
@@ -558,9 +561,6 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "-m")
     {
-        if(!KWMFocus.Window)
-            return;
-
         if(Tokens[2] == "space")
         {
             if(Tokens[3] == "previous")

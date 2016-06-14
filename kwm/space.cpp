@@ -80,6 +80,7 @@ void GetTagForCurrentSpace(std::string &Tag)
 
 void GoToPreviousSpace(bool MoveFocusedWindow)
 {
+    /*
     if(IsSpaceTransitionInProgress())
         return;
 
@@ -98,6 +99,7 @@ void GoToPreviousSpace(bool MoveFocusedWindow)
         else
             KwmEmitKeystroke(KWMHotkeys.SpacesKey, WorkspaceStr);
     }
+    */
 }
 
 bool IsActiveSpaceFloating()
@@ -119,25 +121,7 @@ bool IsSpaceFloating(int SpaceID)
     return Result;
 }
 
-space_info *GetActiveSpaceOfScreen(screen_info *Screen)
-{
-    space_info *Space = NULL;
-    std::map<int, space_info>::iterator It = Screen->Space.find(Screen->ActiveSpace);
-
-    if(It == Screen->Space.end())
-    {
-        space_info Clear = {{{0}}};
-        Screen->ActiveSpace = GetActiveSpaceOfDisplay(Screen);
-        Screen->Space[Screen->ActiveSpace] = Clear;
-        Space = &Screen->Space[Screen->ActiveSpace];
-    }
-    else
-    {
-        Space = &Screen->Space[Screen->ActiveSpace];
-    }
-
-    return Space;
-}
+space_info *GetActiveSpaceOfScreen(screen_info *Screen) { }
 
 bool IsSpaceInitializedForScreen(screen_info *Screen)
 {
@@ -246,6 +230,7 @@ void TileFocusedSpace(space_tiling_option Mode)
 
 void UpdateActiveSpace()
 {
+    /*
     ClearFocusedWindow();
     ClearMarkedWindow();
 
@@ -321,6 +306,7 @@ void UpdateActiveSpace()
         AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[0]);
     if(KWMTiling.KwmOverlay[1] != 0)
         AddWindowToSpace(KWMScreen.Current->ActiveSpace, KWMTiling.KwmOverlay[1]);
+    */
 }
 
 space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID)
@@ -366,4 +352,87 @@ std::string GetNameOfSpace(ax_display *Display)
         Result = SpaceInfo->Settings.Name;
 
     return Result;
+}
+
+void ActivateSpaceWithoutTransition(std::string SpaceID)
+{
+    ax_display *Display = AXLibMainDisplay();
+    if(Display)
+    {
+        int TotalSpaces = AXLibDisplaySpacesCount(Display);
+        int ActiveSpace = AXLibDesktopIDFromCGSSpaceID(Display, Display->Space->ID);
+        int DestinationSpaceID = ActiveSpace;
+        if(SpaceID == "left")
+        {
+            DestinationSpaceID = ActiveSpace > 1 ? ActiveSpace-1 : 1;
+        }
+        else if(SpaceID == "right")
+        {
+            DestinationSpaceID = ActiveSpace < TotalSpaces ? ActiveSpace+1 : TotalSpaces;
+        }
+        else
+        {
+            int LookupSpace = GetSpaceFromName(Display, SpaceID);
+            if(LookupSpace != -1)
+                DestinationSpaceID = AXLibDesktopIDFromCGSSpaceID(Display, LookupSpace);
+            else
+                DestinationSpaceID = std::atoi(SpaceID.c_str());
+        }
+
+        if(DestinationSpaceID != ActiveSpace &&
+           DestinationSpaceID > 0 && DestinationSpaceID <= TotalSpaces)
+        {
+            int CGSSpaceID = AXLibCGSSpaceIDFromDesktopID(Display, DestinationSpaceID);
+            AXLibInstantSpaceTransition(Display, CGSSpaceID);
+        }
+    }
+}
+
+void MoveWindowBetweenSpaces(ax_display *Display, int SourceSpaceID, int DestinationSpaceID, ax_window *Window)
+{
+    int SourceCGSpaceID = AXLibCGSSpaceIDFromDesktopID(Display, SourceSpaceID);
+    int DestinationCGSpaceID = AXLibCGSSpaceIDFromDesktopID(Display, DestinationSpaceID);
+    RemoveWindowFromNodeTree(Display, Window->ID);
+    AXLibAddFlags(Window, AXWindow_Minimized);
+    ax_space *Space = &Display->Spaces[DestinationCGSpaceID];
+    AXLibAddFlags(Space, AXSpace_NeedsUpdate);
+    AXLibSpaceRemoveWindow(SourceCGSpaceID, Window->ID);
+    AXLibSpaceAddWindow(DestinationCGSpaceID, Window->ID);
+}
+
+void MoveFocusedWindowToSpace(std::string SpaceID)
+{
+    printf("NO WINDOW\n");
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
+        return;
+
+    printf("NO DISPLAY\n");
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    printf("MOVING\n");
+    int TotalSpaces = AXLibDisplaySpacesCount(Display);
+    int ActiveSpace = AXLibDesktopIDFromCGSSpaceID(Display, Display->Space->ID);
+    int DestinationSpaceID = ActiveSpace;
+    if(SpaceID == "left")
+    {
+        DestinationSpaceID = ActiveSpace > 1 ? ActiveSpace-1 : 1;
+    }
+    else if(SpaceID == "right")
+    {
+        DestinationSpaceID = ActiveSpace < TotalSpaces ? ActiveSpace+1 : TotalSpaces;
+    }
+    else
+    {
+        int LookupSpace = GetSpaceFromName(Display, SpaceID);
+        if(LookupSpace != -1)
+            DestinationSpaceID = AXLibDesktopIDFromCGSSpaceID(Display, LookupSpace);
+        else
+            DestinationSpaceID = std::atoi(SpaceID.c_str());
+    }
+
+    printf("MOVE WINDOW TO SPACE\n");
+    MoveWindowBetweenSpaces(Display, ActiveSpace, DestinationSpaceID, Window);
 }

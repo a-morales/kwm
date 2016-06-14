@@ -309,14 +309,11 @@ void ApplyWindowRules(ax_window *Window)
 
 bool EnforceWindowRules(window_info *Window)
 {
+    /*
     if(HasRuleBeenApplied(Window))
         return false;
 
     bool Result  = false;
-    if(Window->Properties.Float == 1)
-    {
-    }
-
     if(Window->Properties.Display != -1)
     {
         screen_info *Screen = GetDisplayFromScreenID(Window->Properties.Display);
@@ -354,4 +351,5 @@ bool EnforceWindowRules(window_info *Window)
 
     KWMTiling.EnforcedWindows[Window->WID] = true;
     return Result;
+    */
 }

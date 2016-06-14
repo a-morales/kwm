@@ -4,8 +4,6 @@
 #include "types.h"
 #include "axlib/axlib.h"
 
-extern void MoveFocusedWindowToSpace(std::string SpaceID);
-
 void GetTagForMonocleSpace(space_info *Space, std::string &Tag);
 void GetTagForCurrentSpace(std::string &Tag);
 bool IsSpaceInitializedForScreen(screen_info *Screen);
@@ -29,5 +27,9 @@ int GetSpaceFromName(ax_display *Display, std::string Name);
 void SetNameOfActiveSpace(screen_info *Screen, std::string Name);
 std::string GetNameOfSpace(screen_info *Screen, int CGSpaceID);
 std::string GetNameOfSpace(ax_display *Display);
+
+void ActivateSpaceWithoutTransition(std::string SpaceID);
+void MoveFocusedWindowToSpace(std::string SpaceID);
+void MoveWindowBetweenSpaces(ax_display *Display, int SourceSpaceID, int DestinationSpaceID, uint32_t WindowID);
 
 #endif
