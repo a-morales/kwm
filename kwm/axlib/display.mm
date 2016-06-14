@@ -205,6 +205,7 @@ AXLibRefreshDisplay(ax_display *Display, CGDirectDisplayID DisplayID, unsigned i
     Display->Spaces.clear();
     AXLibConstructSpacesForDisplay(Display);
     Display->Space = AXLibGetActiveSpace(Display);
+    Display->PrevSpace = Display->Space;
 }
 
 /* NOTE(koekeishiya): Repopulate map with information about all connected displays. */
@@ -297,7 +298,7 @@ AXLibResizeDisplay(CGDirectDisplayID DisplayID)
     AXLibRefreshDisplays();
 
     /* TODO(koekeishiya): Should probably pass an identifier for the resized display. */
-    AXLibConstructEvent(AXEvent_DisplayResized, NULL);
+    AXLibConstructEvent(AXEvent_DisplayResized, &Displays[DisplayID]);
 }
 
 /* NOTE(koekeishiya): Caused by a change in monitor arrangements (?) */
@@ -308,7 +309,7 @@ AXLibMoveDisplay(CGDirectDisplayID DisplayID)
     AXLibRefreshDisplays();
 
     /* TODO(koekeishiya): Should probably pass an identifier for the moved display. */
-    AXLibConstructEvent(AXEvent_DisplayMoved, NULL);
+    AXLibConstructEvent(AXEvent_DisplayMoved, &Displays[DisplayID]);
 }
 
 
@@ -322,6 +323,10 @@ AXDisplayReconfigurationCallBack(CGDirectDisplayID DisplayID, CGDisplayChangeSum
                           3. Close macbook lid (clamshell mode)
                           4. External monitor becomes main
                           5. Reopen macbook lid, crash happens (?) */
+
+    /* TODO(koekeishiya): Can we somehow save the flags performed between the call to
+                          BeginDisplayConfiguration and EndDisplayConfiguration and
+                          then notify our callbacks in the correct order (?) */
 
     static int DisplayCallbackCount = 0;
     printf("%d: Begin Display Callback\n", ++DisplayCallbackCount);
