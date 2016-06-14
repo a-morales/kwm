@@ -6,7 +6,6 @@
 #include "tree.h"
 #include "helpers.h"
 #include "scratchpad.h"
-#include "application.h"
 #include <regex>
 
 #define internal static
@@ -246,6 +245,7 @@ void KwmAddRule(std::string RuleSym)
 
 void CheckWindowRules(window_info *Window)
 {
+    /*
     if(HasRuleBeenApplied(Window))
         return;
 
@@ -275,6 +275,7 @@ void CheckWindowRules(window_info *Window)
                 AllowRoleForWindow(Window, Rule->Properties.Role);
         }
     }
+    */
 }
 
 void ApplyWindowRules(ax_window *Window)

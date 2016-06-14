@@ -30,7 +30,6 @@ kwm_toggles KWMToggles = {};
 kwm_focus KWMFocus = {};
 kwm_mode KWMMode = {};
 kwm_tiling KWMTiling = {};
-kwm_cache KWMCache = {};
 kwm_thread KWMThread = {};
 kwm_hotkeys KWMHotkeys = {};
 kwm_border FocusedBorder = {};

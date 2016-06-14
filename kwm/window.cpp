@@ -4,7 +4,6 @@
 #include "display.h"
 #include "space.h"
 #include "tree.h"
-#include "application.h"
 #include "border.h"
 #include "helpers.h"
 #include "rules.h"
@@ -29,7 +28,6 @@ extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
 extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
-extern kwm_cache KWMCache;
 extern kwm_path KWMPath;
 extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;

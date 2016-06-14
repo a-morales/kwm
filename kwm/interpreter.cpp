@@ -4,7 +4,6 @@
 #include "daemon.h"
 #include "display.h"
 #include "space.h"
-#include "application.h"
 #include "window.h"
 #include "container.h"
 #include "node.h"

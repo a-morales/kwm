@@ -2,7 +2,6 @@
 #include "space.h"
 #include "container.h"
 #include "tree.h"
-#include "application.h"
 #include "window.h"
 #include "helpers.h"
 #include "cursor.h"

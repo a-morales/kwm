@@ -55,7 +55,6 @@ struct kwm_path;
 struct kwm_focus;
 struct kwm_screen;
 struct kwm_tiling;
-struct kwm_cache;
 struct kwm_mode;
 struct kwm_thread;
 
@@ -428,12 +427,6 @@ struct kwm_tiling
     std::map<int, bool> EnforcedWindows;
 
     int KwmOverlay[2];
-};
-
-struct kwm_cache
-{
-    std::map<int, window_role> WindowRole;
-    std::map<int, std::vector<AXUIElementRef> > WindowRefs;
 };
 
 struct kwm_mode
