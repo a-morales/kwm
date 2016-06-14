@@ -4,6 +4,11 @@
 #include "space.h"
 #include "window.h"
 
+#include "axlib/axlib.h"
+
+extern std::map<CFStringRef, space_info> WindowTree;
+extern ax_application *FocusedApplication;
+
 extern kwm_screen KWMScreen;
 extern kwm_tiling KWMTiling;
 extern kwm_focus KWMFocus;
@@ -56,8 +61,6 @@ tree_node *CreateLeafNode(ax_display *Display, tree_node *Parent, int WindowID, 
     return Leaf;
 }
 
-tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType) { }
-
 void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode)
 {
     Parent->WindowID = 0;
@@ -103,34 +106,38 @@ void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowI
     }
 }
 
-void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode) { }
-
 void CreatePseudoNode()
 {
-    screen_info *Screen = KWMScreen.Current;
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-    window_info *Window = KWMFocus.Window;
-    if(!Screen || !Space || !Window)
+    ax_display *Display = AXLibMainDisplay();
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(!FocusedApplication)
         return;
 
-    tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
+        return;
+
+    tree_node *Node = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
     if(Node)
     {
         split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(Node) : KWMScreen.SplitMode;
-        CreateLeafNodePair(Screen, Node, Node->WindowID, 0, SplitMode);
+        CreateLeafNodePair(Display, Node, Node->WindowID, 0, SplitMode);
         ApplyTreeNodeContainer(Node);
     }
 }
 
 void RemovePseudoNode()
 {
-    screen_info *Screen = KWMScreen.Current;
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-    window_info *Window = KWMFocus.Window;
-    if(!Screen || !Space || !Window)
+    ax_display *Display = AXLibMainDisplay();
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(!FocusedApplication)
         return;
 
-    tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
+        return;
+
+    tree_node *Node = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
     if(Node && Node->Parent)
     {
         tree_node *Parent = Node->Parent;
@@ -179,16 +186,31 @@ bool IsRightChild(tree_node *Node)
     return false;
 }
 
-void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node)
+void ToggleFocusedNodeSplitMode()
 {
-    if(!Node || IsLeafNode(Node))
+    ax_display *Display = AXLibMainDisplay();
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(!FocusedApplication)
         return;
 
-    Node->SplitMode = Node->SplitMode == SPLIT_VERTICAL ? SPLIT_HORIZONTAL : SPLIT_VERTICAL;
-    CreateNodeContainers(Screen, Node, false);
-    ApplyTreeNodeContainer(Node);
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
+        return;
+
+    tree_node *Node = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
+    if(!Node)
+        return;
+
+    tree_node *Parent = Node->Parent;
+    if(!Parent || IsLeafNode(Parent))
+        return;
+
+    Parent->SplitMode = Parent->SplitMode == SPLIT_VERTICAL ? SPLIT_HORIZONTAL : SPLIT_VERTICAL;
+    CreateNodeContainers(Display, Parent, false);
+    ApplyTreeNodeContainer(Parent);
 }
 
+/* TODO(koekeishiya): Update for ax_window. */
 void ToggleTypeOfFocusedNode()
 {
     space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
@@ -197,6 +219,7 @@ void ToggleTypeOfFocusedNode()
         TreeNode->Type = TreeNode->Type == NodeTypeTree ? NodeTypeLink : NodeTypeTree;
 }
 
+/* TODO(koekeishiya): Update for ax_window. */
 void ChangeTypeOfFocusedNode(node_type Type)
 {
     Assert(KWMScreen.Current);
@@ -272,6 +295,7 @@ void ResizeWindowToContainerSize(link_node *Link)
     }
 }
 
+/* TODO(koekeishiya): Update for ax_window. */
 void ResizeWindowToContainerSize(window_info *Window)
 {
     Assert(Window);
@@ -291,12 +315,14 @@ void ResizeWindowToContainerSize(window_info *Window)
     }
 }
 
+/* TODO(koekeishiya): Update for ax_window. */
 void ResizeWindowToContainerSize()
 {
     if(KWMFocus.Window)
         ResizeWindowToContainerSize(KWMFocus.Window);
 }
 
+/* TODO(koekeishiya): Update for ax_window. */
 void ModifyContainerSplitRatio(double Offset)
 {
     if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
@@ -320,6 +346,7 @@ void ModifyContainerSplitRatio(double Offset)
     }
 }
 
+/* TODO(koekeishiya): Update for ax_window. */
 void ModifyContainerSplitRatio(double Offset, int Degrees)
 {
     if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))

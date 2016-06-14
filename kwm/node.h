@@ -7,21 +7,19 @@
 /* NOTE(koekeishiya): The following functions are working as expected. */
 
 /* NOTE(koekeishiya): The following functions are under testing. */
-void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode);
-tree_node *CreateLeafNode(ax_display *Display, tree_node *Parent, int WindowID, int ContainerType);
-
-/* NOTE(koekeishiya): The following functions still need to be investigated. */
 tree_node *CreateRootNode();
 link_node *CreateLinkNode();
-tree_node *CreateLeafNode(screen_info *Screen, tree_node *Parent, int WindowID, int ContainerType);
-void CreateLeafNodePair(screen_info *Screen, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode);
+void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowID, int SecondWindowID, split_type SplitMode);
+tree_node *CreateLeafNode(ax_display *Display, tree_node *Parent, int WindowID, int ContainerType);
 void CreatePseudoNode();
 void RemovePseudoNode();
 bool IsLeafNode(tree_node *Node);
 bool IsPseudoNode(tree_node *Node);
 bool IsLeftChild(tree_node *Node);
 bool IsRightChild(tree_node *Node);
-void ToggleNodeSplitMode(screen_info *Screen, tree_node *Node);
+void ToggleFocusedNodeSplitMode();
+
+/* NOTE(koekeishiya): The following functions still need to be investigated. */
 void ToggleTypeOfFocusedNode();
 void ChangeTypeOfFocusedNode(node_type Type);
 void SwapNodeWindowIDs(tree_node *A, tree_node *B);
