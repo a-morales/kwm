@@ -40,7 +40,8 @@ scratchpad Scratchpad = {};
                       along with other cursor-related functionality we might want */
 EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
 {
-    FocusWindowBelowCursor();
+    if(!AXLibIsSpaceTransitionInProgress())
+        FocusWindowBelowCursor();
 }
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
