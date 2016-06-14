@@ -74,6 +74,10 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                         if(!Hotkey->Passthrough)
                             return NULL;
                     }
+                    else
+                    {
+                        free(Hotkey);
+                    }
                 }
             }
         } break;

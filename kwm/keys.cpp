@@ -428,21 +428,13 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string 
 
 EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed)
 {
+    hotkey *Hotkey = (hotkey *) Event->Context;
     DEBUG("AXEvent_HotkeyPressed: Hotkey activated");
-    if(Event->Context)
-    {
-        hotkey *Hotkey = (hotkey *) Event->Context;
 
-        if(IsHotkeyStateReqFulfilled(Hotkey))
-            KwmExecuteHotkey(Hotkey);
+    if(IsHotkeyStateReqFulfilled(Hotkey))
+        KwmExecuteHotkey(Hotkey);
 
-        free(Hotkey);
-    }
-    else
-    {
-        DEBUG("AXEvent_HotkeyPressed: Invalid Event Context!");
-    }
-
+    free(Hotkey);
 }
 
 void KwmEmitKeystrokes(std::string Text)
