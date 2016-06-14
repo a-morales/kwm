@@ -57,6 +57,9 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
 {
     FocusedDisplay = AXLibMainDisplay();
     printf("%d: AXEvent_DisplayChanged\n", FocusedDisplay->ArrangementID);
+    AXLibRunningApplications();
+    CreateWindowNodeTree(FocusedDisplay);
+    RebalanceNodeTree(FocusedDisplay);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
@@ -134,8 +137,9 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
     if(Application->Focus)
     {
         ApplyWindowRules(Application->Focus);
-        ax_display *Display = AXLibWindowDisplay(Application->Focus);
-        Assert(Display != NULL);
+        ax_display *Display = AXLibCursorDisplay();
+        if(!Display)
+            Display = AXLibWindowDisplay(Application->Focus);
 
         if((!AXLibHasFlags(Application->Focus, AXWindow_Minimized)) &&
            (AXLibIsWindowStandard(Application->Focus) || AXLibIsWindowCustom(Application->Focus)) &&
