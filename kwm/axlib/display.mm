@@ -181,6 +181,7 @@ AXLibConstructDisplay(CGDirectDisplayID DisplayID, unsigned int ArrangementID)
     Display.Frame = CGDisplayBounds(DisplayID);
     AXLibConstructSpacesForDisplay(&Display);
     Display.Space = AXLibGetActiveSpace(&Display);
+    Display.PrevSpace = Display.Space;
 
     return Display;
 }
@@ -527,6 +528,25 @@ CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int Deskto
     }
 
     CFRelease(ScreenDictionaries);
+    return Result;
+}
+
+/* NOTE(koekeishiya): Given an abitrary CGSSpaceID, return the ax_display it belongs to. */
+ax_display * AXLibSpaceDisplay(CGSSpaceID SpaceID)
+{
+    ax_display *Result = NULL;
+
+    std::map<CGDirectDisplayID, ax_display>::iterator It;
+    for(It = Displays->begin(); It != Displays->end(); ++It)
+    {
+        ax_display *Display = &It->second;
+        if(Display->Spaces.find(SpaceID) != Display->Spaces.end())
+        {
+            Result = Display;
+            break;
+        }
+    }
+
     return Result;
 }
 

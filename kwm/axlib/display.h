@@ -47,6 +47,7 @@ struct ax_display
     CGRect Frame;
 
     ax_space *Space;
+    ax_space *PrevSpace;
     std::map<CGSSpaceID, ax_space> Spaces;
 };
 
@@ -71,12 +72,13 @@ AXLibClearFlags(ax_space *Space, uint32_t Flag)
 
 
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays);
-ax_space * AXLibGetActiveSpace(ax_display *Display);
+ax_space *AXLibGetActiveSpace(ax_display *Display);
 bool AXLibIsSpaceTransitionInProgress();
 
 ax_display *AXLibMainDisplay();
 ax_display *AXLibCursorDisplay();
 ax_display *AXLibWindowDisplay(ax_window *Window);
+ax_display *AXLibSpaceDisplay(CGSSpaceID SpaceID);
 ax_display *AXLibNextDisplay(ax_display *Display);
 ax_display *AXLibPreviousDisplay(ax_display *Display);
 
