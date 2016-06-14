@@ -311,8 +311,8 @@ void AXLibAddApplicationWindows(ax_application *Application)
                     AXLibDestroyWindow(Window);
                 }
             }
-            CFRelease(Ref);
         }
+        CFRelease(Windows);
     }
 }
 

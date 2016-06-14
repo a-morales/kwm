@@ -18,6 +18,7 @@ KeycodeToString(CGKeyCode Keycode)
 {
     TISInputSourceRef Keyboard = TISCopyCurrentASCIICapableKeyboardLayoutInputSource();
     CFDataRef Uchr = (CFDataRef)TISGetInputSourceProperty(Keyboard, kTISPropertyUnicodeKeyLayoutData);
+    CFRelease(Keyboard);
     const UCKeyboardLayout *KeyboardLayout = (const UCKeyboardLayout*)CFDataGetBytePtr(Uchr);
 
     if(KeyboardLayout)

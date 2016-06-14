@@ -38,6 +38,7 @@ std::map<pid_t, std::string> SharedWorkspaceRunningApplications()
 
             List[PID] = Name;
         }
+        [Application release];
     }
 
     return List;
@@ -47,7 +48,10 @@ void SharedWorkspaceActivateApplication(pid_t PID)
 {
     NSRunningApplication *Application = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
     if(Application)
+    {
         [Application activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+        [Application release];
+    }
 }
 
 bool SharedWorkspaceIsApplicationActive(pid_t PID)
@@ -55,7 +59,10 @@ bool SharedWorkspaceIsApplicationActive(pid_t PID)
     Boolean Result = NO;
     NSRunningApplication *Application = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
     if(Application)
+    {
         Result = [Application isActive];
+        [Application release];
+    }
 
     return Result == YES;
 }
@@ -65,7 +72,10 @@ bool SharedWorkspaceIsApplicationHidden(pid_t PID)
     Boolean Result = NO;
     NSRunningApplication *Application = [NSRunningApplication runningApplicationWithProcessIdentifier:PID];
     if(Application)
+    {
         Result = [Application isHidden];
+        [Application release];
+    }
 
     return Result == YES;
 }
