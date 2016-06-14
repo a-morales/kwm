@@ -29,6 +29,7 @@ struct ax_window;
 enum ax_space_flags
 {
     AXSpace_DeminimizedTransition = (1 << 0),
+    AXSpace_NeedsUpdate = (1 << 1),
 };
 
 struct ax_space
@@ -85,7 +86,9 @@ ax_display *AXLibPreviousDisplay(ax_display *Display);
 unsigned int AXLibDisplaySpacesCount(ax_display *Display);
 unsigned int AXLibDesktopIDFromCGSSpaceID(ax_display *Display, CGSSpaceID SpaceID);
 CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int DesktopID);
-bool AXLibIsWindowOnSpace(ax_window *Window, CGSSpaceID SpaceID);
 void AXLibInstantSpaceTransition(ax_display *Display, CGSSpaceID SpaceID);
+bool AXLibIsWindowOnSpace(ax_window *Window, CGSSpaceID SpaceID);
+void AXLibSpaceAddWindow(CGSSpaceID SpaceID, uint32_t WindowID);
+void AXLibSpaceRemoveWindow(CGSSpaceID SpaceID, uint32_t WindowID);
 
 #endif

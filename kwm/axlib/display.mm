@@ -18,6 +18,9 @@ extern "C" void CGSShowSpaces(CGSConnectionID CID, CFArrayRef Spaces);
 extern "C" void CGSManagedDisplaySetIsAnimating(CGSConnectionID CID, CFStringRef Display, bool Animating);
 extern "C" void CGSManagedDisplaySetCurrentSpace(CGSConnectionID CID, CFStringRef Display, CGSSpaceID SpaceID);
 
+extern "C" void CGSRemoveWindowsFromSpaces(CGSConnectionID CID, CFArrayRef Windows, CFArrayRef Spaces);
+extern "C" void CGSAddWindowsToSpaces(CGSConnectionID CID, CFArrayRef Windows, CFArrayRef Spaces);
+
 internal std::map<CGDirectDisplayID, ax_display> *Displays;
 internal unsigned int MaxDisplayCount = 5;
 internal unsigned int ActiveDisplayCount = 0;
@@ -606,6 +609,20 @@ void AXLibInstantSpaceTransition(ax_display *Display, CGSSpaceID SpaceID)
 
     CGSManagedDisplaySetCurrentSpace(CGSDefaultConnection, Display->Identifier, SpaceID);
     CGSManagedDisplaySetIsAnimating(CGSDefaultConnection, Display->Identifier, false);
+}
+
+void AXLibSpaceAddWindow(CGSSpaceID SpaceID, uint32_t WindowID)
+{
+    NSArray *NSArrayWindow = @[ @(WindowID) ];
+    NSArray *NSArrayDestinationSpace = @[ @(SpaceID) ];
+    CGSAddWindowsToSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayWindow, (__bridge CFArrayRef)NSArrayDestinationSpace);
+}
+
+void AXLibSpaceRemoveWindow(CGSSpaceID SpaceID, uint32_t WindowID)
+{
+    NSArray *NSArrayWindow = @[ @(WindowID) ];
+    NSArray *NSArraySourceSpace = @[ @(SpaceID) ];
+    CGSRemoveWindowsFromSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayWindow, (__bridge CFArrayRef)NSArraySourceSpace);
 }
 
 bool AXLibIsWindowOnSpace(ax_window *Window, CGSSpaceID SpaceID)

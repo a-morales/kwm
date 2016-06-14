@@ -10,8 +10,8 @@
  - Provides mechanisms necessary to manage windows.
  - Emit window events in the correct order, and reconstructs expected events that are missing.
  - Provides an event system to trigger defined callbacks.
+ - Provides mechanisms to add and remove windows from spaces, as well as focusing spaces.
 
 ## Todo
 
  - Any changes made to display arrangement should be self-contained.
- - Implement support for interacting with spaces.
