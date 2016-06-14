@@ -82,8 +82,10 @@ ax_display *AXLibSpaceDisplay(CGSSpaceID SpaceID);
 ax_display *AXLibNextDisplay(ax_display *Display);
 ax_display *AXLibPreviousDisplay(ax_display *Display);
 
+unsigned int AXLibDisplaySpacesCount(ax_display *Display);
 unsigned int AXLibDesktopIDFromCGSSpaceID(ax_display *Display, CGSSpaceID SpaceID);
 CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int DesktopID);
 bool AXLibIsWindowOnSpace(ax_window *Window, CGSSpaceID SpaceID);
+void AXLibInstantSpaceTransition(ax_display *Display, CGSSpaceID SpaceID);
 
 #endif

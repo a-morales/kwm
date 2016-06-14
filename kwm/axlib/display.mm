@@ -13,6 +13,11 @@ extern "C" CFArrayRef CGSCopyManagedDisplaySpaces(const CGSConnectionID CID);
 extern "C" CFArrayRef CGSCopySpacesForWindows(CGSConnectionID CID, CGSSpaceSelector Type, CFArrayRef Windows);
 extern "C" bool CGSManagedDisplayIsAnimating(CGSConnectionID CID, CFStringRef DisplayIdentifier);
 
+extern "C" void CGSHideSpaces(CGSConnectionID CID, CFArrayRef Spaces);
+extern "C" void CGSShowSpaces(CGSConnectionID CID, CFArrayRef Spaces);
+extern "C" void CGSManagedDisplaySetIsAnimating(CGSConnectionID CID, CFStringRef Display, bool Animating);
+extern "C" void CGSManagedDisplaySetCurrentSpace(CGSConnectionID CID, CFStringRef Display, CGSSpaceID SpaceID);
+
 internal std::map<CGDirectDisplayID, ax_display> *Displays;
 internal unsigned int MaxDisplayCount = 5;
 internal unsigned int ActiveDisplayCount = 0;
@@ -531,6 +536,26 @@ CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int Deskto
     return Result;
 }
 
+unsigned int AXLibDisplaySpacesCount(ax_display *Display)
+{
+    unsigned int Result = 0;
+    NSString *CurrentIdentifier = (__bridge NSString *)Display->Identifier;
+
+    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
+    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
+    {
+        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
+        if ([ScreenIdentifier isEqualToString:CurrentIdentifier])
+        {
+            NSArray *Spaces = ScreenDictionary[@"Spaces"];
+            Result = CFArrayGetCount((__bridge CFArrayRef)Spaces);
+        }
+    }
+
+    CFRelease(ScreenDictionaries);
+    return Result;
+}
+
 /* NOTE(koekeishiya): Given an abitrary CGSSpaceID, return the ax_display it belongs to. */
 ax_display * AXLibSpaceDisplay(CGSSpaceID SpaceID)
 {
@@ -562,6 +587,20 @@ bool AXLibIsSpaceTransitionInProgress()
     }
 
     return Result;
+}
+
+/* NOTE(koekeishiya): Performs a space transition without the animation. */
+void AXLibInstantSpaceTransition(ax_display *Display, CGSSpaceID SpaceID)
+{
+    NSArray *NSArraySourceSpace = @[ @(Display->Space->ID) ];
+    NSArray *NSArrayDestinationSpace = @[ @(SpaceID) ];
+    CGSManagedDisplaySetIsAnimating(CGSDefaultConnection, Display->Identifier, true);
+
+    CGSShowSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayDestinationSpace);
+    CGSHideSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArraySourceSpace);
+
+    CGSManagedDisplaySetCurrentSpace(CGSDefaultConnection, Display->Identifier, SpaceID);
+    CGSManagedDisplaySetIsAnimating(CGSDefaultConnection, Display->Identifier, false);
 }
 
 bool AXLibIsWindowOnSpace(ax_window *Window, CGSSpaceID SpaceID)
