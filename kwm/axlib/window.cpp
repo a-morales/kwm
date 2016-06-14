@@ -12,6 +12,8 @@ ax_window *AXLibConstructWindow(ax_application *Application, AXUIElementRef Wind
 
     Window->Ref = (AXUIElementRef) CFRetain(WindowRef);
     Window->Application = Application;
+    /* TODO(koekeishiya): If a window is minimized when we call this function,
+                          the WindowID returned is 0. Fix somehow (?) */
     Window->ID = AXLibGetWindowID(Window->Ref);
     Window->Name = AXLibGetWindowTitle(Window->Ref);
 
@@ -23,6 +25,9 @@ ax_window *AXLibConstructWindow(ax_application *Application, AXUIElementRef Wind
 
     if(AXLibIsWindowResizable(Window->Ref))
         AXLibAddFlags(Window, AXWindow_Resizable);
+
+    if(AXLibIsWindowMinimized(Window->Ref))
+        AXLibAddFlags(Window, AXWindow_Minimized);
 
     AXLibGetWindowRole(Window->Ref, &Window->Type.Role);
     AXLibGetWindowSubrole(Window->Ref, &Window->Type.Subrole);
