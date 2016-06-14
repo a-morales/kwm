@@ -11,6 +11,7 @@ extern "C" CGSConnectionID _CGSDefaultConnection(void);
 extern "C" CGSSpaceType CGSSpaceGetType(CGSConnectionID CID, CGSSpaceID SID);
 extern "C" CFArrayRef CGSCopyManagedDisplaySpaces(const CGSConnectionID CID);
 extern "C" CFArrayRef CGSCopySpacesForWindows(CGSConnectionID CID, CGSSpaceSelector Type, CFArrayRef Windows);
+extern "C" bool CGSManagedDisplayIsAnimating(CGSConnectionID CID, CFStringRef DisplayIdentifier);
 
 internal std::map<CGDirectDisplayID, ax_display> *Displays;
 internal unsigned int MaxDisplayCount = 5;
@@ -504,6 +505,20 @@ CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int Deskto
     }
 
     CFRelease(ScreenDictionaries);
+    return Result;
+}
+
+bool AXLibIsSpaceTransitionInProgress()
+{
+    bool Result = false;
+
+    std::map<CGDirectDisplayID, ax_display>::iterator It;
+    for(It = Displays->begin(); It != Displays->end(); ++It)
+    {
+        ax_display *Display = &It->second;
+        Result = Result || CGSManagedDisplayIsAnimating(CGSDefaultConnection, Display->Identifier);
+    }
+
     return Result;
 }
 
