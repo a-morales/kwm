@@ -372,7 +372,7 @@ void RotateTree(tree_node *Node, int Deg)
 
 void FillDeserializedTree(tree_node *RootNode) { }
 
-void FillDeserializedTree(tree_node *RootNode, std::vector<uint32_t> *WindowsPtr)
+void FillDeserializedTree(tree_node *RootNode, ax_display *Display, std::vector<uint32_t> *WindowsPtr)
 {
     std::vector<uint32_t> &Windows = *WindowsPtr;
     tree_node *Current = NULL;
@@ -402,7 +402,7 @@ void FillDeserializedTree(tree_node *RootNode, std::vector<uint32_t> *WindowsPtr
             }
 
             DEBUG("FillDeserializedTree() Create pair of leafs");
-            CreateLeafNodePair(KWMScreen.Current, Root, Root->WindowID, Windows[Counter], GetOptimalSplitMode(Root));
+            CreateLeafNodePair(Display, Root, Root->WindowID, Windows[Counter], GetOptimalSplitMode(Root));
             Root = RootNode;
         }
     }

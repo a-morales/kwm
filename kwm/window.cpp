@@ -540,7 +540,7 @@ void CreateWindowNodeTree(ax_display *Display)
         if(SpaceInfo->Settings.Mode == SpaceModeBSP && !SpaceInfo->Settings.Layout.empty())
         {
             LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
-            FillDeserializedTree(SpaceInfo->RootNode, &Windows);
+            FillDeserializedTree(SpaceInfo->RootNode, Display, &Windows);
         }
         else
         {
@@ -560,7 +560,7 @@ void CreateWindowNodeTree(ax_display *Display)
         if(SpaceInfo->Settings.Mode == SpaceModeBSP && !SpaceInfo->Settings.Layout.empty())
         {
             LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
-            FillDeserializedTree(SpaceInfo->RootNode, &Windows);
+            FillDeserializedTree(SpaceInfo->RootNode, Display, &Windows);
         }
         else
         {
