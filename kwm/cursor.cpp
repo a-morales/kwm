@@ -30,6 +30,12 @@ IsWindowBelowCursor(ax_window *Window)
     return false;
 }
 
+void MoveCursorToCenterOfWindow(ax_window *Window)
+{
+    CGWarpMouseCursorPosition(CGPointMake(Window->Position.x + Window->Size.width / 2,
+                                          Window->Position.y + Window->Size.height / 2));
+}
+
 void FocusWindowBelowCursor()
 {
     std::vector<ax_window *> Windows = AXLibGetAllVisibleWindowsOrdered();

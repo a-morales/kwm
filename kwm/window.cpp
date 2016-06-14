@@ -9,6 +9,7 @@
 #include "helpers.h"
 #include "rules.h"
 #include "serializer.h"
+#include "cursor.h"
 
 #include "axlib/axlib.h"
 
@@ -1159,7 +1160,7 @@ void SwapFocusedWindowWithNearest(int Shift)
             if(ShiftNode)
             {
                 SwapNodeWindowIDs(Link, ShiftNode);
-                // MoveCursorToCenterOfFocusedWindow();
+                MoveCursorToCenterOfWindow(Window);
             }
         }
     }
@@ -1178,7 +1179,7 @@ void SwapFocusedWindowWithNearest(int Shift)
             if(NewFocusNode)
             {
                 SwapNodeWindowIDs(TreeNode, NewFocusNode);
-                // MoveCursorToCenterOfFocusedWindow();
+                MoveCursorToCenterOfWindow(Window);
             }
         }
     }
@@ -1211,6 +1212,9 @@ void SwapFocusedWindowDirected(int Degrees)
             if(NewFocusNode)
             {
                 SwapNodeWindowIDs(TreeNode, NewFocusNode);
+                Window->Position = AXLibGetWindowPosition(Window->Ref);
+                Window->Size = AXLibGetWindowSize(Window->Ref);
+                MoveCursorToCenterOfWindow(Window);
             }
         }
     }
@@ -1354,7 +1358,7 @@ void ShiftWindowFocusDirected(int Degrees)
             FindClosestWindow(Degrees, &ClosestWindow, true)))
         {
             AXLibSetFocusedWindow(ClosestWindow);
-            // MoveCursorToCenterOfFocusedWindow();
+            MoveCursorToCenterOfWindow(ClosestWindow);
         }
     }
     else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
@@ -1396,7 +1400,7 @@ void ShiftWindowFocus(int Shift)
             if(FocusNode)
             {
                 SetWindowFocusByNode(FocusNode);
-                // MoveCursorToCenterOfFocusedWindow();
+                MoveCursorToCenterOfFocusedWindow();
             }
         }
     }
@@ -1435,7 +1439,7 @@ void ShiftWindowFocus(int Shift)
             }
 
             SetWindowFocusByNode(FocusNode);
-            // MoveCursorToCenterOfFocusedWindow();
+            MoveCursorToCenterOfFocusedWindow();
         }
     }
 }
@@ -1491,24 +1495,10 @@ void FocusWindowByID(uint32_t WindowID)
     }
 }
 
-/* TODO(koekeishiya): Make this work for ax_window. */
-void MoveCursorToCenterOfWindow(window_info *Window)
-{
-    Assert(Window);
-    AXUIElementRef WindowRef;
-    if(GetWindowRef(Window, &WindowRef))
-    {
-        CGPoint WindowPos = AXLibGetWindowPosition(WindowRef);
-        CGSize WindowSize = AXLibGetWindowSize(WindowRef);
-        CGWarpMouseCursorPosition(CGPointMake(WindowPos.x + WindowSize.width / 2, WindowPos.y + WindowSize.height / 2));
-    }
-}
-
-/* TODO(koekeishiya): Make this work for ax_window. */
 void MoveCursorToCenterOfFocusedWindow()
 {
-    if(KWMToggles.UseMouseFollowsFocus && KWMFocus.Window && !IsActiveSpaceFloating())
-        MoveCursorToCenterOfWindow(KWMFocus.Window);
+    if(KWMToggles.UseMouseFollowsFocus && FocusedApplication &&  FocusedApplication->Focus)
+        MoveCursorToCenterOfWindow(FocusedApplication->Focus);
 }
 
 /* TODO(koekeishiya): Make this work for ax_window. */
