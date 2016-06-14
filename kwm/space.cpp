@@ -333,16 +333,15 @@ space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID)
         return NULL;
 }
 
-int GetSpaceFromName(screen_info *Screen, std::string Name)
+int GetSpaceFromName(ax_display *Display, std::string Name)
 {
-    Assert(Screen);
-    Assert(!Name.empty());
-
-    std::map<int, space_info>::iterator It;
-    for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
+    std::map<CGSSpaceID, ax_space>::iterator It;
+    for(It = Display->Spaces.begin(); It != Display->Spaces.end(); ++It)
     {
-        if(It->second.Settings.Name == Name)
-            return It->first;
+        ax_space *Space = &It->second;
+        space_info *SpaceInfo = &WindowTree[Space->Identifier];
+        if(SpaceInfo->Settings.Name == Name)
+            return Space->ID;
     }
 
     return -1;

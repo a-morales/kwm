@@ -3,7 +3,7 @@
 #include "axlib/axlib.h"
 #include "border.h"
 
-extern int GetSpaceFromName(screen_info *Screen, std::string Name);
+extern int GetSpaceFromName(ax_display *Display, std::string Name);
 
 extern kwm_focus KWMFocus;
 extern kwm_screen KWMScreen;
@@ -17,7 +17,6 @@ int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID) { }
 
 int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID) { }
 /* --------------------------------------------------- */
-
 
 int GetNumberOfSpacesOfDisplay(screen_info *Screen)
 {
@@ -41,17 +40,15 @@ int GetNumberOfSpacesOfDisplay(screen_info *Screen)
 
 extern "C" int CGSRemoveWindowsFromSpaces(int cid, CFArrayRef windows, CFArrayRef spaces);
 extern "C" int CGSAddWindowsToSpaces(int cid, CFArrayRef windows, CFArrayRef spaces);
-extern "C" void CGSHideSpaces(int cid, CFArrayRef spaces);
-extern "C" void CGSShowSpaces(int cid, CFArrayRef spaces);
-extern "C" void CGSManagedDisplaySetIsAnimating(int cid, CFStringRef display, bool animating);
-extern "C" void CGSManagedDisplaySetCurrentSpace(int cid, CFStringRef display, int space);
 
 void ActivateSpaceWithoutTransition(std::string SpaceID)
 {
-    if(KWMScreen.Current)
+    ax_display *Display = AXLibMainDisplay();
+    if(Display)
     {
-        int TotalSpaces = GetNumberOfSpacesOfDisplay(KWMScreen.Current);
-        int ActiveSpace = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->ActiveSpace);
+        DEBUG("SPACEID STR: " << SpaceID);
+        int TotalSpaces = AXLibDisplaySpacesCount(Display);
+        int ActiveSpace = AXLibDesktopIDFromCGSSpaceID(Display, Display->Space->ID);
         int DestinationSpaceID = ActiveSpace;
         if(SpaceID == "left")
         {
@@ -63,25 +60,19 @@ void ActivateSpaceWithoutTransition(std::string SpaceID)
         }
         else
         {
-            int LookupSpace = GetSpaceFromName(KWMScreen.Current, SpaceID);
+            int LookupSpace = GetSpaceFromName(Display, SpaceID);
             if(LookupSpace != -1)
-                DestinationSpaceID = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, LookupSpace);
+                DestinationSpaceID = AXLibDesktopIDFromCGSSpaceID(Display, LookupSpace);
             else
                 DestinationSpaceID = std::atoi(SpaceID.c_str());
         }
 
+        DEBUG("DESTINATION SPACE: " << DestinationSpaceID);
         if(DestinationSpaceID != ActiveSpace &&
            DestinationSpaceID > 0 && DestinationSpaceID <= TotalSpaces)
         {
-            int CGSpaceID = GetCGSpaceIDFromSpaceNumber(KWMScreen.Current, DestinationSpaceID);
-            NSArray *NSArraySourceSpace = @[ @(KWMScreen.Current->ActiveSpace) ];
-            NSArray *NSArrayDestinationSpace = @[ @(CGSpaceID) ];
-            KWMScreen.Transitioning = true;
-            CGSManagedDisplaySetIsAnimating(CGSDefaultConnection, KWMScreen.Current->Identifier, true);
-            CGSShowSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayDestinationSpace);
-            CGSHideSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArraySourceSpace);
-            CGSManagedDisplaySetCurrentSpace(CGSDefaultConnection, KWMScreen.Current->Identifier, CGSpaceID);
-            CGSManagedDisplaySetIsAnimating(CGSDefaultConnection, KWMScreen.Current->Identifier, false);
+            int CGSSpaceID = AXLibCGSSpaceIDFromDesktopID(Display, DestinationSpaceID);
+            AXLibInstantSpaceTransition(Display, CGSSpaceID);
         }
     }
 }
@@ -125,7 +116,7 @@ void MoveFocusedWindowToSpace(std::string SpaceID)
         }
         else
         {
-            int LookupSpace = GetSpaceFromName(KWMScreen.Current, SpaceID);
+            int LookupSpace = -1; //GetSpaceFromName(KWMScreen.Current, SpaceID);
             if(LookupSpace != -1)
                 DestinationSpaceID = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, LookupSpace);
             else
