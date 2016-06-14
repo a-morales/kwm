@@ -402,17 +402,14 @@ void MoveWindowBetweenSpaces(ax_display *Display, int SourceSpaceID, int Destina
 
 void MoveFocusedWindowToSpace(std::string SpaceID)
 {
-    printf("NO WINDOW\n");
     ax_window *Window = FocusedApplication->Focus;
     if(!Window)
         return;
 
-    printf("NO DISPLAY\n");
     ax_display *Display = AXLibWindowDisplay(Window);
     if(!Display)
         return;
 
-    printf("MOVING\n");
     int TotalSpaces = AXLibDisplaySpacesCount(Display);
     int ActiveSpace = AXLibDesktopIDFromCGSSpaceID(Display, Display->Space->ID);
     int DestinationSpaceID = ActiveSpace;
@@ -433,6 +430,5 @@ void MoveFocusedWindowToSpace(std::string SpaceID)
             DestinationSpaceID = std::atoi(SpaceID.c_str());
     }
 
-    printf("MOVE WINDOW TO SPACE\n");
     MoveWindowBetweenSpaces(Display, ActiveSpace, DestinationSpaceID, Window);
 }
