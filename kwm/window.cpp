@@ -367,10 +367,17 @@ GetAllWindowIDSOnDisplay(ax_display *Display)
     {
         ax_window *Window = VisibleWindows[Index];
         ax_display *DisplayOfWindow = AXLibWindowDisplay(Window);
-        if(DisplayOfWindow == Display)
+        if(DisplayOfWindow != Display)
         {
-            Windows.push_back(Window->ID);
+            space_info *SpaceOfWindow = &WindowTree[DisplayOfWindow->Space->Identifier];
+            if(!SpaceOfWindow->Initialized ||
+               SpaceOfWindow->Settings.Mode == SpaceModeFloating ||
+               GetTreeNodeFromWindowID(SpaceOfWindow->RootNode, Window->ID) ||
+               GetLinkNodeFromWindowID(SpaceOfWindow->RootNode, Window->ID))
+                continue;
         }
+
+        Windows.push_back(Window->ID);
     }
 
     return Windows;
