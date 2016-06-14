@@ -246,20 +246,24 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 
 EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
 {
+    /*
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
 
     if(FocusedApplication == Window->Application)
-        UpdateBorder("focused");
+    */
+    UpdateBorder("focused");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowResized)
 {
+    /*
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
 
     if(FocusedApplication == Window->Application)
-        UpdateBorder("focused");
+    */
+    UpdateBorder("focused");
 }
 
 internal std::vector<uint32_t>
