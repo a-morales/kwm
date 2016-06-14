@@ -44,6 +44,25 @@ AXLibContainsDisplay(CFStringRef DisplayIdentifier)
     return 0;
 }
 
+/* NOTE(koekeishiya): If the display UUID is stored, return the corresponding
+                      ax_display. Otherwise we return NULL */
+internal ax_display *
+AXLibDisplay(CFStringRef DisplayIdentifier)
+{
+    if(DisplayIdentifier)
+    {
+        std::map<CGDirectDisplayID, ax_display>::iterator It;
+        for(It = Displays->begin(); It != Displays->end(); ++It)
+        {
+            CFStringRef ActiveIdentifier = It->second.Identifier;
+            if(CFStringCompare(DisplayIdentifier, ActiveIdentifier, 0) == kCFCompareEqualTo)
+                return &It->second;
+        }
+    }
+
+    return NULL;
+}
+
 /* NOTE(koekeishiya): CGDirectDisplayID of a display can change when swapping GPUs, but the
                       UUID remain the same. This function performs the CGDirectDisplayID update. */
 internal inline void
@@ -300,21 +319,29 @@ AXLibResizeDisplay(CGDirectDisplayID DisplayID)
                           we also need to refresh display bounds of the secondary monitor (?) */
 
     /* NOTE(koekeishiya): Refresh all displays for now. */
+    CFStringRef DisplayIdentifier = AXLibGetDisplayIdentifier(DisplayID);
     AXLibRefreshDisplays();
 
-    /* TODO(koekeishiya): Should probably pass an identifier for the resized display. */
-    AXLibConstructEvent(AXEvent_DisplayResized, &Displays[DisplayID]);
+    ax_display *Display = AXLibDisplay(DisplayIdentifier);
+    AXLibConstructEvent(AXEvent_DisplayResized, Display);
+
+    if(DisplayIdentifier)
+        CFRelease(DisplayIdentifier);
 }
 
 /* NOTE(koekeishiya): Caused by a change in monitor arrangements (?) */
 internal inline void
 AXLibMoveDisplay(CGDirectDisplayID DisplayID)
 {
-    /* NOTE(koekeishiya): Probably have to update arrangement-index as well as display bounds for all displays. */
+    /* NOTE(koekeishiya): Refresh all displays for now. */
+    CFStringRef DisplayIdentifier = AXLibGetDisplayIdentifier(DisplayID);
     AXLibRefreshDisplays();
 
-    /* TODO(koekeishiya): Should probably pass an identifier for the moved display. */
-    AXLibConstructEvent(AXEvent_DisplayMoved, &Displays[DisplayID]);
+    ax_display *Display = AXLibDisplay(DisplayIdentifier);
+    AXLibConstructEvent(AXEvent_DisplayMoved, Display);
+
+    if(DisplayIdentifier)
+        CFRelease(DisplayIdentifier);
 }
 
 
