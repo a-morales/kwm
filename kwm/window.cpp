@@ -57,8 +57,6 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
 {
     FocusedDisplay = AXLibMainDisplay();
     printf("%d: AXEvent_DisplayChanged\n", FocusedDisplay->ArrangementID);
-    if(AXLibIsSpaceTransitionInProgress())
-        return;
 
     AXLibRunningApplications();
     CreateWindowNodeTree(FocusedDisplay);

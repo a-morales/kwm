@@ -289,8 +289,17 @@ int main(int argc, char **argv)
     AXLibInit(&AXState);
     AXLibStartEventLoop();
 
-    FocusedDisplay = AXLibMainDisplay();
-    FocusedDisplay->Space = AXLibGetActiveSpace(FocusedDisplay);
+    ax_display *MainDisplay = AXLibMainDisplay();
+    ax_display *Display = MainDisplay;
+    do
+    {
+        ax_space *PrevSpace = Display->Space;
+        Display->Space = AXLibGetActiveSpace(Display);
+        Display->PrevSpace = PrevSpace;
+        Display = AXLibNextDisplay(Display);
+    } while(Display != MainDisplay);
+
+    FocusedDisplay = MainDisplay;
     FocusedApplication = AXLibGetFocusedApplication();
     CreateWindowNodeTree(FocusedDisplay);
     /* ----------------------------------- */
