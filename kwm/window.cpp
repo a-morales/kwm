@@ -17,6 +17,10 @@
 #define internal static
 #define local_persist static
 
+/* TODO(koekeishiya): std::map cannot properly compare CFStringRefs. Consider writing
+                      our own map type or switch back to CGSSpaceID. Using a CGSSpaceID
+                      would require a remap between old and new CGSSpaceIDs in certain cases.
+                      Is there a better alternative (?) */
 extern std::map<CFStringRef, space_info> WindowTree;
 
 extern ax_state AXState;
@@ -152,13 +156,15 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
     } while(Display != MainDisplay);
 
     FocusedDisplay = Display;
-    ax_space *PrevSpace = FocusedDisplay->PrevSpace;
-    space_info *SpaceInfo = &WindowTree[FocusedDisplay->Space->Identifier];
-    printf("Display: CGDirectDisplayID %d, Arrangement %d\n", FocusedDisplay->ID, FocusedDisplay->ArrangementID);
-    printf("OldSpace %d : NewSpace %d\n", PrevSpace->ID, FocusedDisplay->Space->ID);
+    ax_space *PrevSpace = Display->PrevSpace;
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    printf("Display: CGDirectDisplayID %d, Arrangement %d\n", Display->ID, Display->ArrangementID);
+    printf("OldSpace %d : NewSpace %d\n", PrevSpace->ID, Display->Space->ID);
 
     AXLibRunningApplications();
-    RebalanceNodeTree(FocusedDisplay);
+    RebalanceNodeTree(Display);
+    if(SpaceInfo->NeedsUpdate)
+        UpdateSpaceOfDisplay(Display, SpaceInfo);
 
     /* NOTE(koekeishiya): This space transition was invoked through deminiaturizing a window.
                           We have no way of passing the actual window in question, to this callback,
@@ -185,13 +191,13 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
                           before, this will cause us to end up on that space with an unsynchronized focused application state.
 
                           Always update state of focused application and its window after a space transition. */
-    CreateWindowNodeTree(FocusedDisplay);
+    CreateWindowNodeTree(Display);
     FocusedApplication = AXLibGetFocusedApplication();
     if(FocusedApplication)
     {
         FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
         if((FocusedApplication->Focus) &&
-           (AXLibIsWindowOnSpace(FocusedApplication->Focus, FocusedDisplay->Space->ID)))
+           (AXLibIsWindowOnSpace(FocusedApplication->Focus, Display->Space->ID)))
             UpdateBorder("focused");
     }
 }
