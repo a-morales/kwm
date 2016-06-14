@@ -148,6 +148,21 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         ax_window *Window = (ax_window *) Reference;
         if(Window)
         {
+            /* NOTE(koekeishiya): If a window was minimized before AXLib is initialized, the WindowID is
+                                  reported as 0. We check if this window is one of these, update the
+                                  WindowID and place it in our managed window list. */
+            if(Window->ID == 0)
+            {
+                for(int Index = 0; Index < Window->Application->NullWindows.size(); ++Index)
+                {
+                    if(Window->Application->NullWindows[Index] == Window)
+                        Window->Application->NullWindows.erase(Window->Application->NullWindows.begin() + Index);
+                }
+
+                Window->ID = AXLibGetWindowID(Window->Ref);
+                Window->Application->Windows[Window->ID] = Window;
+            }
+
             /* NOTE(koekeishiya): kAXWindowDeminiaturized is sent before didActiveSpaceChange, when a deminimized
                                   window pulls you to the space of that window. If the active space of the display
                                   is not equal to the space of the window, we should ignore this event and schedule
@@ -332,7 +347,11 @@ void AXLibAddApplicationWindow(ax_application *Application, ax_window *Window)
     {
         AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowMiniaturizedNotification, Window);
         AXLibAddObserverNotification(&Application->Observer, Window->Ref, kAXWindowDeminiaturizedNotification, Window);
-        Application->Windows[Window->ID] = Window;
+
+        if(Window->ID == 0)
+            Application->NullWindows.push_back(Window);
+        else
+            Application->Windows[Window->ID] = Window;
     }
 }
 

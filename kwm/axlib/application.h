@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string>
 #include <map>
+#include <vector>
 
 #include "window.h"
 #include "observer.h"
@@ -28,6 +29,7 @@ struct ax_application
 
     ax_window *Focus;
     std::map<uint32_t, ax_window*> Windows;
+    std::vector<ax_window*> NullWindows;
 };
 
 inline bool
