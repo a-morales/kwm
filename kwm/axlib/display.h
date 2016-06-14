@@ -86,8 +86,8 @@ ax_display *AXLibPreviousDisplay(ax_display *Display);
 unsigned int AXLibDisplaySpacesCount(ax_display *Display);
 unsigned int AXLibDesktopIDFromCGSSpaceID(ax_display *Display, CGSSpaceID SpaceID);
 CGSSpaceID AXLibCGSSpaceIDFromDesktopID(ax_display *Display, unsigned int DesktopID);
-void AXLibInstantSpaceTransition(ax_display *Display, CGSSpaceID SpaceID);
-bool AXLibIsWindowOnSpace(ax_window *Window, CGSSpaceID SpaceID);
+void AXLibSpaceTransition(ax_display *Display, CGSSpaceID SpaceID);
+bool AXLibSpaceHasWindow(ax_window *Window, CGSSpaceID SpaceID);
 void AXLibSpaceAddWindow(CGSSpaceID SpaceID, uint32_t WindowID);
 void AXLibSpaceRemoveWindow(CGSSpaceID SpaceID, uint32_t WindowID);
 

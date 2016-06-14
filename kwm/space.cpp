@@ -383,7 +383,7 @@ void ActivateSpaceWithoutTransition(std::string SpaceID)
            DestinationSpaceID > 0 && DestinationSpaceID <= TotalSpaces)
         {
             int CGSSpaceID = AXLibCGSSpaceIDFromDesktopID(Display, DestinationSpaceID);
-            AXLibInstantSpaceTransition(Display, CGSSpaceID);
+            AXLibSpaceTransition(Display, CGSSpaceID);
         }
     }
 }

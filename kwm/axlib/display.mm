@@ -627,7 +627,7 @@ bool AXLibIsSpaceTransitionInProgress()
 }
 
 /* NOTE(koekeishiya): Performs a space transition without the animation. */
-void AXLibInstantSpaceTransition(ax_display *Display, CGSSpaceID SpaceID)
+void AXLibSpaceTransition(ax_display *Display, CGSSpaceID SpaceID)
 {
     NSArray *NSArraySourceSpace = @[ @(Display->Space->ID) ];
     NSArray *NSArrayDestinationSpace = @[ @(SpaceID) ];
@@ -654,7 +654,7 @@ void AXLibSpaceRemoveWindow(CGSSpaceID SpaceID, uint32_t WindowID)
     CGSRemoveWindowsFromSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayWindow, (__bridge CFArrayRef)NSArraySourceSpace);
 }
 
-bool AXLibIsWindowOnSpace(ax_window *Window, CGSSpaceID SpaceID)
+bool AXLibSpaceHasWindow(ax_window *Window, CGSSpaceID SpaceID)
 {
     NSArray *NSArrayWindow = @[ @(Window->ID) ];
     CFArrayRef Spaces = CGSCopySpacesForWindows(CGSDefaultConnection, kCGSSpaceAll, (__bridge CFArrayRef)NSArrayWindow);

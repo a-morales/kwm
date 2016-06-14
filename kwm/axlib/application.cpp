@@ -169,7 +169,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
                                   a new one to happen after the next space changed event. */
 
             ax_display *Display = AXLibWindowDisplay(Window);
-            if(AXLibIsWindowOnSpace(Window, Display->Space->ID))
+            if(AXLibSpaceHasWindow(Window, Display->Space->ID))
             {
                 AXLibConstructEvent(AXEvent_WindowDeminimized, Window);
             }
