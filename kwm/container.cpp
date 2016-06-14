@@ -188,8 +188,6 @@ void CreateNodeContainers(ax_display *Display, tree_node *Node, bool OptimalSpli
     }
 }
 
-void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSplit) { }
-
 void CreateDeserializedNodeContainer(ax_display *Display, tree_node *Node)
 {
     int SplitMode = Node->Parent->SplitMode;

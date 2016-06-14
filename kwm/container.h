@@ -21,7 +21,6 @@ void SetRootNodeContainer(screen_info *Screen, tree_node *Node);
 void SetLinkNodeContainer(screen_info *Screen, link_node *Link);
 void ResizeNodeContainer(screen_info *Screen, tree_node *Node);
 void ResizeLinkNodeContainers(tree_node *Root);
-void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSplit);
 void CreateDeserializedNodeContainer(tree_node *Node);
 
 #endif
