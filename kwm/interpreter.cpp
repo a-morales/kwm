@@ -522,11 +522,7 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
         {
             if(Tokens[3] == "toggle")
             {
-                space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-                tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-
-                if(Node)
-                    ToggleNodeSplitMode(KWMScreen.Current, Node->Parent);
+                ToggleFocusedNodeSplitMode();
             }
         }
         else if(Tokens[2] == "type")
@@ -740,13 +736,7 @@ KwmTreeCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "90" || Tokens[2] == "270" || Tokens[2] == "180")
         {
-            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            if(Space->Settings.Mode == SpaceModeBSP)
-            {
-                RotateTree(Space->RootNode, ConvertStringToInt(Tokens[2]));
-                CreateNodeContainers(KWMScreen.Current, Space->RootNode, false);
-                ApplyTreeNodeContainer(Space->RootNode);
-            }
+            RotateBSPTree(ConvertStringToInt(Tokens[2]));
         }
     }
     else if(Tokens[1] == "save")

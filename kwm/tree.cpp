@@ -6,10 +6,11 @@
 #include "space.h"
 #include "window.h"
 #include "border.h"
+#include "axlib/axlib.h"
 
+#define internal static
 extern std::map<CFStringRef, space_info> WindowTree;
 
-/* NOTE(koekeishiya): AXLIB */
 tree_node *CreateTreeFromWindowIDList(ax_display *Display, std::vector<uint32_t> *Windows)
 {
     tree_node *RootNode = CreateRootNode();
@@ -91,12 +92,6 @@ bool CreateMonocleTree(tree_node *RootNode, ax_display *Display, std::vector<uin
 
     return Result;
 }
-
-tree_node *CreateTreeFromWindowIDList(screen_info *Screen, std::vector<window_info*> *WindowsPtr) { }
-
-bool CreateBSPTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr) { }
-
-bool CreateMonocleTree(tree_node *RootNode, screen_info *Screen, std::vector<window_info*> *WindowsPtr) { }
 
 tree_node *GetNearestLeafNodeNeighbour(tree_node *Node)
 {
@@ -346,7 +341,8 @@ void DestroyNodeTree(tree_node *Node)
     }
 }
 
-void RotateTree(tree_node *Node, int Deg)
+internal void
+RotateTree(tree_node *Node, int Deg)
 {
     if (Node == NULL || IsLeafNode(Node))
         return;
@@ -370,7 +366,17 @@ void RotateTree(tree_node *Node, int Deg)
     RotateTree(Node->RightChild, Deg);
 }
 
-void FillDeserializedTree(tree_node *RootNode) { }
+void RotateBSPTree(int Deg)
+{
+    ax_display *Display = AXLibMainDisplay();
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(SpaceInfo->Settings.Mode == SpaceModeBSP)
+    {
+        RotateTree(SpaceInfo->RootNode, Deg);
+        CreateNodeContainers(Display, SpaceInfo->RootNode, false);
+        ApplyTreeNodeContainer(SpaceInfo->RootNode);
+    }
+}
 
 void FillDeserializedTree(tree_node *RootNode, ax_display *Display, std::vector<uint32_t> *WindowsPtr)
 {
