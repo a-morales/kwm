@@ -57,6 +57,9 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
 {
     FocusedDisplay = AXLibMainDisplay();
     printf("%d: AXEvent_DisplayChanged\n", FocusedDisplay->ArrangementID);
+    if(AXLibIsSpaceTransitionInProgress())
+        return;
+
     AXLibRunningApplications();
     CreateWindowNodeTree(FocusedDisplay);
     RebalanceNodeTree(FocusedDisplay);
@@ -66,13 +69,26 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
     DEBUG("AXEvent_SpaceChanged");
     ClearBorder(&FocusedBorder);
-    ax_display *Display  = AXLibMainDisplay();
-    ax_space *OldSpace = Display->Space;
+
+    /* NOTE(koekeishiya): OSX APIs are horrible, so we need to detect which display
+                          this event was triggered for. */
+    ax_display *MainDisplay = AXLibMainDisplay();
+    ax_display *Display = MainDisplay;
+    do
+    {
+        ax_space *PrevSpace = Display->Space;
+        Display->Space = AXLibGetActiveSpace(Display);
+        Display->PrevSpace = PrevSpace;
+        if(Display->Space != Display->PrevSpace)
+            break;
+
+        Display = AXLibNextDisplay(Display);
+    } while(Display != MainDisplay);
 
     FocusedDisplay = Display;
-    FocusedDisplay->Space = AXLibGetActiveSpace(FocusedDisplay);
+    ax_space *PrevSpace = FocusedDisplay->PrevSpace;
     printf("Display: CGDirectDisplayID %d, Arrangement %d\n", FocusedDisplay->ID, FocusedDisplay->ArrangementID);
-    printf("Space: CGSSpaceID %d\n", FocusedDisplay->Space->ID);
+    printf("OldSpace %d : NewSpace %d\n", PrevSpace->ID, FocusedDisplay->Space->ID);
 
     AXLibRunningApplications();
     CreateWindowNodeTree(FocusedDisplay);
@@ -84,9 +100,9 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
                           all visible windows to locate the window we need. */
 
     /* TODO(koekeishiya): Can we simplify this somehow (?) */
-    if(AXLibHasFlags(OldSpace, AXSpace_DeminimizedTransition))
+    if(AXLibHasFlags(PrevSpace, AXSpace_DeminimizedTransition))
     {
-        AXLibClearFlags(OldSpace, AXSpace_DeminimizedTransition);
+        AXLibClearFlags(PrevSpace, AXSpace_DeminimizedTransition);
         std::vector<ax_window *> Windows = AXLibGetAllVisibleWindows();
         for(std::size_t Index = 0; Index < Windows.size(); ++Index)
         {
