@@ -81,6 +81,7 @@ bool AXLibSetWindowSize(AXUIElementRef WindowRef, int Width, int Height)
     return Result;
 }
 
+/* NOTE(koekeishiya): If a window is minimized when we call this function, the WindowID returned is 0. */
 uint32_t AXLibGetWindowID(AXUIElementRef WindowRef)
 {
     uint32_t WindowID = kCGNullWindowID;
