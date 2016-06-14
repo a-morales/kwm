@@ -285,6 +285,7 @@ std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex)
 
 void UpdateSpaceOfScreen(space_info *Space, screen_info *Screen)
 {
+    /*
     if(Space->RootNode)
     {
         if(Space->Settings.Mode == SpaceModeBSP)
@@ -305,6 +306,7 @@ void UpdateSpaceOfScreen(space_info *Space, screen_info *Screen)
         ApplyTreeNodeContainer(Space->RootNode);
         Space->NeedsUpdate = false;
     }
+    */
 }
 
 void SetDefaultPaddingOfDisplay(container_offset Offset)

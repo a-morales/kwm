@@ -658,6 +658,7 @@ void RebalanceNodeTree(ax_display *Display)
 /* TODO(koekeishiya): Make this work for monocle subtrees. */
 void AddWindowToBSPTree(screen_info *Screen, int WindowID)
 {
+    /*
     if(!DoesSpaceExistInMapOfScreen(Screen))
         return;
 
@@ -725,20 +726,24 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
             }
         }
     }
+    */
 }
 
 /* TODO(koekeishiya): Do we need this (?) */
 void AddWindowToBSPTree()
 {
+    /*
     if(!KWMScreen.Current)
         return;
 
     AddWindowToBSPTree(KWMScreen.Current, KWMFocus.Window->WID);
+    */
 }
 
 /* TODO(koekeishiya): Make monocle subtrees work for ax_window. */
 void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus)
 {
+    /*
     if(!DoesSpaceExistInMapOfScreen(Screen))
         return;
 
@@ -846,20 +851,24 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
         free(Space->RootNode);
         Space->RootNode = NULL;
     }
+    */
 }
 
 /* TODO(koekeishiya): Do we need this (?)  */
 void RemoveWindowFromBSPTree()
 {
+    /*
     if(!KWMScreen.Current)
         return;
 
     RemoveWindowFromBSPTree(KWMScreen.Current, KWMFocus.Window->WID, true, true);
+    */
 }
 
 /* TODO(koekeishiya): Make this work for ax_window. */
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 {
+    /*
     screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
     if(!Screen || !Window || Screen == ScreenOfWindow)
         return;
@@ -917,6 +926,7 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
         SetWindowFocus(Window);
         MoveCursorToCenterOfFocusedWindow();
     }
+    */
 }
 
 void ToggleWindowFloating(uint32_t WindowID, bool Center)
