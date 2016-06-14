@@ -201,12 +201,14 @@ AXLibRefreshDisplay(ax_display *Display, CGDirectDisplayID DisplayID, unsigned i
     Display->ArrangementID = ArrangementID;
     Display->Frame = CGDisplayBounds(DisplayID);
 
+    /* NOTE(koekeishiya): We only want to repopulate list of spaces
+                          when a CGDirectDisplayID was invalidated.
     std::map<CGSSpaceID, ax_space>::iterator It;
     for(It = Display->Spaces.begin(); It != Display->Spaces.end(); ++It)
         CFRelease(It->second.Identifier);
 
     Display->Spaces.clear();
-    AXLibConstructSpacesForDisplay(Display);
+    AXLibConstructSpacesForDisplay(Display); */
     Display->Space = AXLibGetActiveSpace(Display);
     Display->PrevSpace = Display->Space;
 }
