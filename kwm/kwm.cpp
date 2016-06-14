@@ -302,7 +302,7 @@ int main(int argc, char **argv)
 
     FocusedDisplay = MainDisplay;
     FocusedApplication = AXLibGetFocusedApplication();
-    CreateWindowNodeTree(FocusedDisplay);
+    CreateWindowNodeTree(MainDisplay);
     /* ----------------------------------- */
 
     NSApplicationLoad();
