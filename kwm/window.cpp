@@ -227,6 +227,12 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
         if(!Display)
             Display = AXLibWindowDisplay(Application->Focus);
 
+        if((KWMTiling.FloatNonResizable) &&
+           (!AXLibHasFlags(Application->Focus, AXWindow_Resizable)))
+        {
+            AXLibAddFlags(Application->Focus, AXWindow_Floating);
+        }
+
         if((!AXLibHasFlags(Application->Focus, AXWindow_Minimized)) &&
            (AXLibIsWindowStandard(Application->Focus) || AXLibIsWindowCustom(Application->Focus)) &&
            (!AXLibHasFlags(Application->Focus, AXWindow_Floating)))
@@ -265,6 +271,12 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
     ax_display *Display = AXLibWindowDisplay(Window);
     if(Display)
     {
+        if((KWMTiling.FloatNonResizable) &&
+           (!AXLibHasFlags(Window, AXWindow_Resizable)))
+        {
+            AXLibAddFlags(Window, AXWindow_Floating);
+        }
+
         if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
            (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
            (!AXLibHasFlags(Window, AXWindow_Floating)))
