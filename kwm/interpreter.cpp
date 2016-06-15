@@ -19,6 +19,9 @@
 
 #define internal static
 
+extern ax_application *FocusedApplication;
+extern ax_window *MarkedWindow;
+
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
 extern kwm_focus KWMFocus;
@@ -579,23 +582,32 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
         }
         else if(Tokens[2] == "north")
         {
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 0);
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(Window)
+                DetachAndReinsertWindow(Window->ID, 0);
         }
         else if(Tokens[2] == "east")
         {
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 90);
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(Window)
+                DetachAndReinsertWindow(Window->ID, 90);
         }
         else if(Tokens[2] == "south")
         {
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 180);
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(Window)
+                DetachAndReinsertWindow(Window->ID, 180);
         }
         else if(Tokens[2] == "west")
         {
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 270);
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(Window)
+                DetachAndReinsertWindow(Window->ID, 270);
         }
         else if(Tokens[2] == "mark")
         {
-            DetachAndReinsertWindow(KWMScreen.MarkedWindow.WID, 0);
+            if(MarkedWindow)
+                DetachAndReinsertWindow(MarkedWindow->ID, 0);
         }
         else
         {
@@ -612,7 +624,7 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
             return;
         }
 
-        window_info Window = {};
+        ax_window *ClosestWindow = NULL;
         std::string Output = "-1";
         int Degrees = 0;
 
@@ -626,8 +638,9 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
             Degrees = 270;
 
         bool Wrap = Tokens[3] == "wrap" ? true : false;
-        if(FindClosestWindow(Degrees, &Window, Wrap))
-            MarkWindowContainer(&Window);
+        if((FindClosestWindow(Degrees, &ClosestWindow, Wrap)) &&
+           (ClosestWindow))
+            MarkWindowContainer(ClosestWindow);
     }
 }
 

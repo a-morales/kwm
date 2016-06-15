@@ -9,6 +9,7 @@
 #include "axlib/window.h"
 
 extern ax_application *FocusedApplication;
+extern ax_window *MarkedWindow;
 
 extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
 extern int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int SpaceID);
@@ -282,25 +283,25 @@ GetFloatStatusOfFocusedWindow()
 inline std::string
 GetIdOfMarkedWindow()
 {
-    return std::to_string(KWMScreen.MarkedWindow.WID);
+    return MarkedWindow ? std::to_string(MarkedWindow->ID) : "-1";
 }
 
 inline std::string
 GetNameOfMarkedWindow()
 {
-    return KWMScreen.MarkedWindow.Name;
+    return MarkedWindow ? MarkedWindow->Name : "";
 }
 
 inline std::string
 GetSplitModeOfMarkedWindow()
 {
-    return GetSplitModeOfWindow(KWMScreen.MarkedWindow.WID);
+    return MarkedWindow ? GetSplitModeOfWindow(MarkedWindow->ID) : "";
 }
 
 inline std::string
 GetFloatStatusOfMarkedWindow()
 {
-    return IsWindowFloating(KWMScreen.MarkedWindow.WID, NULL) ? "true" : "false";
+    return MarkedWindow ? (AXLibHasFlags(MarkedWindow, AXWindow_Floating) ? "true" : "false") : "";
 }
 
 inline std::string

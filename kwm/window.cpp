@@ -26,6 +26,7 @@ extern std::map<CFStringRef, space_info> WindowTree;
 extern ax_state AXState;
 extern ax_display *FocusedDisplay;
 extern ax_application *FocusedApplication;
+extern ax_window *MarkedWindow;
 
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
@@ -286,6 +287,9 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     if(FocusedApplication == Window->Application)
         UpdateBorder("focused");
 
+    if(MarkedWindow == Window)
+        ClearMarkedWindow();
+
     AXLibDestroyWindow(Window);
 }
 
@@ -299,6 +303,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
     RemoveWindowFromNodeTree(Display, Window->ID);
 
     ClearBorder(&FocusedBorder);
+    if(MarkedWindow == Window)
+        ClearMarkedWindow();
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
@@ -335,24 +341,30 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 
 EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
 {
-    /*
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
 
+    /*
     if(FocusedApplication == Window->Application)
     */
+
     UpdateBorder("focused");
+    if(MarkedWindow == Window)
+        UpdateBorder("marked");
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowResized)
 {
-    /*
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
 
+    /*
     if(FocusedApplication == Window->Application)
     */
+
     UpdateBorder("focused");
+    if(MarkedWindow == Window)
+        UpdateBorder("marked");
 }
 
 internal std::vector<uint32_t>
@@ -506,15 +518,14 @@ AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, uint32_t WindowID
 
         tree_node *CurrentNode = NULL;
         ax_window *Window = FocusedApplication->Focus;
-        if(Window && Window->ID != WindowID)
-        {
+        if(MarkedWindow && MarkedWindow->ID != WindowID)
+            CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, MarkedWindow->ID);
+
+        if(!CurrentNode && Window && Window->ID != WindowID)
             CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, Window->ID);
-        }
 
         if(!CurrentNode)
-        {
             GetFirstLeafNode(RootNode, (void**)&CurrentNode);
-        }
 
         if(CurrentNode)
         {
@@ -1190,58 +1201,58 @@ void LockWindowToContainerSize(window_info *Window)
     }
 }
 
-/* TODO(koekeishiya): Make this work for ax_window. */
+/* NOTE(koekeishiya): Does this work (?) */
 void DetachAndReinsertWindow(unsigned int WindowID, int Degrees)
 {
-    if(WindowID == KWMScreen.MarkedWindow.WID)
+    if(MarkedWindow && MarkedWindow->ID == WindowID)
     {
-        int Marked = KWMScreen.MarkedWindow.WID;
-        if(Marked == 0 || (KWMFocus.Window && Marked == KWMFocus.Window->WID))
+        ax_window *FocusedWindow = FocusedApplication->Focus;
+        if(MarkedWindow == FocusedWindow)
             return;
 
-        ToggleWindowFloating(Marked, false);
+        ToggleWindowFloating(WindowID, false);
         ClearMarkedWindow();
-        ToggleWindowFloating(Marked, false);
+        ToggleWindowFloating(WindowID, false);
         MoveCursorToCenterOfFocusedWindow();
     }
     else
     {
-        if(WindowID == KWMScreen.MarkedWindow.WID ||
-           WindowID == 0)
+        if(WindowID == 0)
+            return;
+
+        if(MarkedWindow && MarkedWindow->ID == WindowID)
             return;
 
         ax_window *ClosestWindow = NULL;
-        window_info InsertWindow = {};
         if(FindClosestWindow(Degrees, &ClosestWindow, false))
         {
             ToggleWindowFloating(WindowID, false);
-            KWMScreen.MarkedWindow = InsertWindow;
+            MarkedWindow = ClosestWindow;
             ToggleWindowFloating(WindowID, false);
             MoveCursorToCenterOfFocusedWindow();
         }
     }
 }
 
-/* TODO(koekeishiya): Make this work for ax_window. */
 void SwapFocusedWindowWithMarked()
 {
-    if(!KWMFocus.Window || KWMScreen.MarkedWindow.WID == KWMFocus.Window->WID ||
-       KWMScreen.MarkedWindow.WID == 0 || KWMScreen.MarkedWindow.WID == 0)
+    ax_window *FocusedWindow = FocusedApplication->Focus;
+    if(!FocusedWindow || !MarkedWindow || (FocusedWindow == MarkedWindow))
         return;
 
-    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-    {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
+    ax_display *Display = AXLibWindowDisplay(FocusedWindow);
+    if(!Display)
+        return;
 
-        if(TreeNode)
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(SpaceInfo->RootNode, FocusedWindow->ID);
+    if(TreeNode)
+    {
+        tree_node *NewFocusNode = GetTreeNodeFromWindowID(SpaceInfo->RootNode, MarkedWindow->ID);
+        if(NewFocusNode)
         {
-            tree_node *NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, KWMScreen.MarkedWindow.WID);
-            if(NewFocusNode)
-            {
-                SwapNodeWindowIDs(TreeNode, NewFocusNode);
-                MoveCursorToCenterOfFocusedWindow();
-            }
+            SwapNodeWindowIDs(TreeNode, NewFocusNode);
+            MoveCursorToCenterOfFocusedWindow();
         }
     }
 
@@ -1622,19 +1633,17 @@ void MoveCursorToCenterOfFocusedWindow()
         MoveCursorToCenterOfWindow(FocusedApplication->Focus);
 }
 
-/* TODO(koekeishiya): Make this work for ax_window. */
 void ClearMarkedWindow()
 {
-    std::memset(&KWMScreen.MarkedWindow, 0, sizeof(window_info));
+    MarkedWindow = NULL;
     ClearBorder(&MarkedBorder);
 }
 
-/* TODO(koekeishiya): Make this work for ax_window. */
-void MarkWindowContainer(window_info *Window)
+void MarkWindowContainer(ax_window *Window)
 {
     if(Window)
     {
-        if(KWMScreen.MarkedWindow.WID == Window->WID)
+        if(MarkedWindow && MarkedWindow->ID == Window->ID)
         {
             DEBUG("MarkWindowContainer() Unmarked " << Window->Name);
             ClearMarkedWindow();
@@ -1642,16 +1651,15 @@ void MarkWindowContainer(window_info *Window)
         else
         {
             DEBUG("MarkWindowContainer() Marked " << Window->Name);
-            KWMScreen.MarkedWindow = *Window;
+            MarkedWindow = Window;
             UpdateBorder("marked");
         }
     }
 }
 
-/* TODO(koekeishiya): Make this work for ax_window. */
 void MarkFocusedWindowContainer()
 {
-    MarkWindowContainer(KWMFocus.Window);
+    MarkWindowContainer(FocusedApplication->Focus);
 }
 
 void SetWindowFocusByNode(tree_node *Node)

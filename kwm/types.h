@@ -395,7 +395,6 @@ struct kwm_screen
     bool Transitioning;
     double SplitRatio;
 
-    window_info MarkedWindow;
     split_type SplitMode;
     int PrevSpace;
 
