@@ -678,7 +678,7 @@ bool AXLibSpaceHasWindow(ax_window *Window, CGSSpaceID SpaceID)
 
     CFRelease(Spaces);
     [NSArrayWindow release];
-    return false;
+    return Result;
 }
 
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays)
