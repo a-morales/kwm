@@ -476,17 +476,20 @@ GetAllWindowIDSOnDisplay(ax_display *Display)
     {
         ax_window *Window = VisibleWindows[Index];
         ax_display *DisplayOfWindow = AXLibWindowDisplay(Window);
-        if(DisplayOfWindow != Display)
+        if(DisplayOfWindow)
         {
-            space_info *SpaceOfWindow = &WindowTree[DisplayOfWindow->Space->Identifier];
-            if(!SpaceOfWindow->Initialized ||
-               SpaceOfWindow->Settings.Mode == SpaceModeFloating ||
-               GetTreeNodeFromWindowID(SpaceOfWindow->RootNode, Window->ID) ||
-               GetLinkNodeFromWindowID(SpaceOfWindow->RootNode, Window->ID))
-                continue;
-        }
+            if(DisplayOfWindow != Display)
+            {
+                space_info *SpaceOfWindow = &WindowTree[DisplayOfWindow->Space->Identifier];
+                if(!SpaceOfWindow->Initialized ||
+                   SpaceOfWindow->Settings.Mode == SpaceModeFloating ||
+                   GetTreeNodeFromWindowID(SpaceOfWindow->RootNode, Window->ID) ||
+                   GetLinkNodeFromWindowID(SpaceOfWindow->RootNode, Window->ID))
+                    continue;
+            }
 
-        Windows.push_back(Window->ID);
+            Windows.push_back(Window->ID);
+        }
     }
 
     return Windows;
@@ -721,6 +724,25 @@ void LoadWindowNodeTree(ax_display *Display, std::string Layout)
             FillDeserializedTree(SpaceInfo->RootNode, Display, &Windows);
             ApplyTreeNodeContainer(SpaceInfo->RootNode);
         }
+    }
+}
+
+void ResetWindowNodeTree(ax_display *Display, space_tiling_option Mode)
+{
+    if(Display)
+    {
+        if(AXLibIsSpaceTransitionInProgress())
+            return;
+
+        space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+        if(SpaceInfo->Settings.Mode == Mode)
+            return;
+
+        DestroyNodeTree(SpaceInfo->RootNode);
+        SpaceInfo->RootNode = NULL;
+        SpaceInfo->Initialized = true;
+        SpaceInfo->Settings.Mode = Mode;
+        CreateWindowNodeTree(Display);
     }
 }
 

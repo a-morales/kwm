@@ -7,6 +7,7 @@
 
 void CreateWindowNodeTree(ax_display *Display);
 void LoadWindowNodeTree(ax_display *Display, std::string Layout);
+void ResetWindowNodeTree(ax_display *Display, space_tiling_option Mode);
 void AddWindowToNodeTree(ax_display *Display, uint32_t WindowID);
 void RemoveWindowFromNodeTree(ax_display *Display, uint32_t WindowID);
 void RebalanceNodeTree(ax_display *Display);

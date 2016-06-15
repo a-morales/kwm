@@ -650,11 +650,11 @@ KwmSpaceCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "-t")
     {
         if(Tokens[2] == "bsp")
-            TileFocusedSpace(SpaceModeBSP);
+            ResetWindowNodeTree(AXLibMainDisplay(), SpaceModeBSP);
         else if(Tokens[2] == "monocle")
-            TileFocusedSpace(SpaceModeMonocle);
+            ResetWindowNodeTree(AXLibMainDisplay(), SpaceModeMonocle);
         else if(Tokens[2] == "float")
-            FloatFocusedSpace();
+            ResetWindowNodeTree(AXLibMainDisplay(), SpaceModeFloating);
     }
     else if(Tokens[1] == "-r")
     {
