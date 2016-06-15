@@ -295,7 +295,6 @@ void ResizeWindowToContainerSize(link_node *Link)
     }
 }
 
-/* NOTE(koekeishiya): Does this work (?) */
 void ResizeWindowToContainerSize(ax_window *Window)
 {
     if(Window)
@@ -322,7 +321,6 @@ void ResizeWindowToContainerSize(ax_window *Window)
     }
 }
 
-/* NOTE(koekeishiya): Does this work (?) */
 void ResizeWindowToContainerSize()
 {
     ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
@@ -332,7 +330,6 @@ void ResizeWindowToContainerSize()
     ResizeWindowToContainerSize(Window);
 }
 
-/* NOTE(koekeishiya): Does this work (?) */
 void ModifyContainerSplitRatio(double Offset)
 {
     ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
@@ -361,7 +358,6 @@ void ModifyContainerSplitRatio(double Offset)
     }
 }
 
-/* NOTE(koekeishiya): Does this work (?) */
 void ModifyContainerSplitRatio(double Offset, int Degrees)
 {
     ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
