@@ -65,7 +65,6 @@ LowerHorizontalContainerSplit(ax_display *Display, tree_node *Node)
     return LowerContainer;
 }
 
-/* NOTE(koekeishiya): AXLIB */
 void SetRootNodeContainer(ax_display *Display, tree_node *Node)
 {
     Assert(Node);
@@ -80,8 +79,6 @@ void SetRootNodeContainer(ax_display *Display, tree_node *Node)
     Node->Container.Type = 0;
 }
 
-void SetRootNodeContainer(screen_info *Screen, tree_node *Node) { }
-
 void SetLinkNodeContainer(ax_display *Display, link_node *Link)
 {
     Assert(Link);
@@ -92,8 +89,6 @@ void SetLinkNodeContainer(ax_display *Display, link_node *Link)
     Link->Container.Width = Display->Frame.size.width - SpaceInfo->Settings.Offset.PaddingLeft - SpaceInfo->Settings.Offset.PaddingRight;
     Link->Container.Height = Display->Frame.size.height - SpaceInfo->Settings.Offset.PaddingTop - SpaceInfo->Settings.Offset.PaddingBottom;
 }
-
-void SetLinkNodeContainer(screen_info *Screen, link_node *Link) { }
 
 void CreateNodeContainer(ax_display *Display, tree_node *Node, int ContainerType)
 {
@@ -125,8 +120,6 @@ void CreateNodeContainer(ax_display *Display, tree_node *Node, int ContainerType
     Node->Container.Type = ContainerType;
 }
 
-void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType) { }
-
 void CreateNodeContainerPair(ax_display *Display, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode)
 {
     if(SplitMode == SPLIT_VERTICAL)
@@ -140,8 +133,6 @@ void CreateNodeContainerPair(ax_display *Display, tree_node *LeftNode, tree_node
         CreateNodeContainer(Display, RightNode, 4);
     }
 }
-
-void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode) {}
 
 void ResizeNodeContainer(ax_display *Display, tree_node *Node)
 {
@@ -162,8 +153,6 @@ void ResizeNodeContainer(ax_display *Display, tree_node *Node)
         }
     }
 }
-
-void ResizeNodeContainer(screen_info *Screen, tree_node *Node) { }
 
 void ResizeLinkNodeContainers(tree_node *Root)
 {
