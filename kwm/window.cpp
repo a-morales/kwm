@@ -140,6 +140,7 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
     DEBUG("AXEvent_SpaceChanged");
     ClearBorder(&FocusedBorder);
+    ClearMarkedWindow();
 
     /* NOTE(koekeishiya): OSX APIs are horrible, so we need to detect which display
                           this event was triggered for. */
@@ -1227,9 +1228,11 @@ void DetachAndReinsertWindow(unsigned int WindowID, int Degrees)
         if(FindClosestWindow(Degrees, &ClosestWindow, false))
         {
             ToggleWindowFloating(WindowID, false);
+            ax_window *PrevMarkedWindow = MarkedWindow;
             MarkedWindow = ClosestWindow;
             ToggleWindowFloating(WindowID, false);
             MoveCursorToCenterOfFocusedWindow();
+            MarkedWindow = PrevMarkedWindow;
         }
     }
 }
