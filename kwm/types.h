@@ -358,9 +358,7 @@ struct kwm_border
 struct kwm_hotkeys
 {
     std::map<std::string, mode> Modes;
-
     mode *ActiveMode;
-    modifiers SpacesKey;
 };
 
 struct kwm_toggles

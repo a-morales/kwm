@@ -363,24 +363,6 @@ void KwmActivateBindingMode(std::string Mode)
         BindingMode->Time = std::chrono::steady_clock::now();
 }
 
-void KwmSetSpacesKey(std::string KeySym)
-{
-    modifiers Mod = {};
-    std::vector<std::string> Modifiers = SplitString(KeySym, '+');
-    for(std::size_t ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
-    {
-        if(Modifiers[ModIndex] == "cmd")
-            Mod.CmdKey = true;
-        else if(Modifiers[ModIndex] == "alt")
-            Mod.AltKey = true;
-        else if(Modifiers[ModIndex] == "ctrl")
-            Mod.CtrlKey = true;
-        else if(Modifiers[ModIndex] == "shift")
-            Mod.ShiftKey = true;
-    }
-    KWMHotkeys.SpacesKey = Mod;
-}
-
 void CheckPrefixTimeout()
 {
     if(KWMHotkeys.ActiveMode->Prefix)

@@ -38,10 +38,6 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         KwmReloadConfig();
     }
-    else if(Tokens[1] == "spaces-key")
-    {
-        KwmSetSpacesKey(Tokens[2]);
-    }
     else if(Tokens[1] == "optimal-ratio")
     {
         KWMTiling.OptimalRatio = ConvertStringToDouble(Tokens[2]);
@@ -647,14 +643,7 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
 internal void
 KwmSpaceCommand(std::vector<std::string> &Tokens)
 {
-    if(Tokens[1] == "-f")
-    {
-        if(Tokens[2] == "previous")
-            GoToPreviousSpace(false);
-        else
-            KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[2]);
-    }
-    else if(Tokens[1] == "-fExperimental")
+    if(Tokens[1] == "-fExperimental")
     {
         ActivateSpaceWithoutTransition(Tokens[2]);
     }
