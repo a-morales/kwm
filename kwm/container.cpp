@@ -143,25 +143,27 @@ void CreateNodeContainerPair(ax_display *Display, tree_node *LeftNode, tree_node
 
 void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode) {}
 
-void ResizeNodeContainer(screen_info *Screen, tree_node *Node)
+void ResizeNodeContainer(ax_display *Display, tree_node *Node)
 {
     if(Node)
     {
         if(Node->LeftChild)
         {
-            CreateNodeContainer(Screen, Node->LeftChild, Node->LeftChild->Container.Type);
-            ResizeNodeContainer(Screen, Node->LeftChild);
+            CreateNodeContainer(Display, Node->LeftChild, Node->LeftChild->Container.Type);
+            ResizeNodeContainer(Display, Node->LeftChild);
             ResizeLinkNodeContainers(Node->LeftChild);
         }
 
         if(Node->RightChild)
         {
-            CreateNodeContainer(Screen, Node->RightChild, Node->RightChild->Container.Type);
-            ResizeNodeContainer(Screen, Node->RightChild);
+            CreateNodeContainer(Display, Node->RightChild, Node->RightChild->Container.Type);
+            ResizeNodeContainer(Display, Node->RightChild);
             ResizeLinkNodeContainers(Node->RightChild);
         }
     }
 }
+
+void ResizeNodeContainer(screen_info *Screen, tree_node *Node) { }
 
 void ResizeLinkNodeContainers(tree_node *Root)
 {

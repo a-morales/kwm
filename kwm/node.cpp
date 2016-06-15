@@ -295,83 +295,103 @@ void ResizeWindowToContainerSize(link_node *Link)
     }
 }
 
-/* TODO(koekeishiya): Update for ax_window. */
-void ResizeWindowToContainerSize(window_info *Window)
+/* NOTE(koekeishiya): Does this work (?) */
+void ResizeWindowToContainerSize(ax_window *Window)
 {
-    Assert(Window);
-    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    if(Window)
     {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
+        ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+        if(!Window)
+            return;
+
+        ax_display *Display = AXLibWindowDisplay(Window);
+        if(!Display)
+            return;
+
+        space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+        tree_node *Node = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
         if(Node)
             ResizeWindowToContainerSize(Node);
 
         if(!Node)
         {
-            link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, Window->WID);
+            link_node *Link = GetLinkNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
             if(Link)
                 ResizeWindowToContainerSize(Link);
         }
     }
 }
 
-/* TODO(koekeishiya): Update for ax_window. */
+/* NOTE(koekeishiya): Does this work (?) */
 void ResizeWindowToContainerSize()
 {
-    if(KWMFocus.Window)
-        ResizeWindowToContainerSize(KWMFocus.Window);
+    ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+    if(!Window)
+        return;
+
+    ResizeWindowToContainerSize(Window);
 }
 
-/* TODO(koekeishiya): Update for ax_window. */
+/* NOTE(koekeishiya): Does this work (?) */
 void ModifyContainerSplitRatio(double Offset)
 {
-    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-    {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *Root = Space->RootNode;
-        if(IsLeafNode(Root) || Root->WindowID != 0)
-            return;
+    ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+    if(!Window)
+        return;
 
-        tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, KWMFocus.Window->WID);
-        if(Node && Node->Parent)
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    tree_node *Root = SpaceInfo->RootNode;
+    if(IsLeafNode(Root) || Root->WindowID != 0)
+        return;
+
+    tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, Window->ID);
+    if(Node && Node->Parent)
+    {
+        if(Node->Parent->SplitRatio + Offset > 0.0 &&
+           Node->Parent->SplitRatio + Offset < 1.0)
         {
-            if(Node->Parent->SplitRatio + Offset > 0.0 &&
-               Node->Parent->SplitRatio + Offset < 1.0)
-            {
-                Node->Parent->SplitRatio += Offset;
-                ResizeNodeContainer(KWMScreen.Current, Node->Parent);
-                ApplyTreeNodeContainer(Node->Parent);
-            }
+            Node->Parent->SplitRatio += Offset;
+            ResizeNodeContainer(Display, Node->Parent);
+            ApplyTreeNodeContainer(Node->Parent);
         }
     }
 }
 
-/* TODO(koekeishiya): Update for ax_window. */
+/* NOTE(koekeishiya): Does this work (?) */
 void ModifyContainerSplitRatio(double Offset, int Degrees)
 {
-    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-    {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *Root = Space->RootNode;
-        if(IsLeafNode(Root) || Root->WindowID != 0)
-            return;
+    ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+    if(!Window)
+        return;
 
-        tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, KWMFocus.Window->WID);
-        if(Node)
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    tree_node *Root = SpaceInfo->RootNode;
+    if(IsLeafNode(Root) || Root->WindowID != 0)
+        return;
+
+    tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, Window->ID);
+    if(Node)
+    {
+        ax_window *ClosestWindow = NULL;
+        if(FindClosestWindow(Degrees, &ClosestWindow, false))
         {
-            window_info WindowInDirection = {};
-            if(FindClosestWindow(Degrees, &WindowInDirection, false))
+            tree_node *Target = GetTreeNodeFromWindowIDOrLinkNode(Root, ClosestWindow->ID);
+            tree_node *Ancestor = FindLowestCommonAncestor(Node, Target);
+            if(Ancestor &&
+               Ancestor->SplitRatio + Offset > 0.0 &&
+               Ancestor->SplitRatio + Offset < 1.0)
             {
-                tree_node *Target = GetTreeNodeFromWindowIDOrLinkNode(Root, WindowInDirection.WID);
-                tree_node *Ancestor = FindLowestCommonAncestor(Node, Target);
-                if(Ancestor &&
-                   Ancestor->SplitRatio + Offset > 0.0 &&
-                   Ancestor->SplitRatio + Offset < 1.0)
-                {
-                    Ancestor->SplitRatio += Offset;
-                    ResizeNodeContainer(KWMScreen.Current, Ancestor);
-                    ApplyTreeNodeContainer(Ancestor);
-                }
+                Ancestor->SplitRatio += Offset;
+                ResizeNodeContainer(Display, Ancestor);
+                ApplyTreeNodeContainer(Ancestor);
             }
         }
     }
