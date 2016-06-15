@@ -745,7 +745,7 @@ KwmTreeCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "restore")
     {
-        LoadBSPTreeFromFile(KWMScreen.Current, Tokens[2]);
+        LoadWindowNodeTree(AXLibMainDisplay(), Tokens[2]);
     }
 }
 

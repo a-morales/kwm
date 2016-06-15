@@ -685,6 +685,21 @@ void CreateWindowNodeTree(ax_display *Display)
     }
 }
 
+void LoadWindowNodeTree(ax_display *Display, std::string Layout)
+{
+    if(Display)
+    {
+        space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+        if(SpaceInfo->Settings.Mode == SpaceModeBSP)
+        {
+            std::vector<uint32_t> Windows = GetAllWindowIDSOnDisplay(Display);
+            LoadBSPTreeFromFile(Display, SpaceInfo, Layout);
+            FillDeserializedTree(SpaceInfo->RootNode, Display, &Windows);
+            ApplyTreeNodeContainer(SpaceInfo->RootNode);
+        }
+    }
+}
+
 void AddWindowToNodeTree(ax_display *Display, uint32_t WindowID)
 {
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];

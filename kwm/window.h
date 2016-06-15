@@ -6,6 +6,7 @@
 #include "axlib/window.h"
 
 void CreateWindowNodeTree(ax_display *Display);
+void LoadWindowNodeTree(ax_display *Display, std::string Layout);
 void AddWindowToNodeTree(ax_display *Display, uint32_t WindowID);
 void RemoveWindowFromNodeTree(ax_display *Display, uint32_t WindowID);
 void RebalanceNodeTree(ax_display *Display);
