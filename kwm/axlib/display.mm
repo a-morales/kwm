@@ -635,6 +635,8 @@ void AXLibSpaceTransition(ax_display *Display, CGSSpaceID SpaceID)
 
     CGSShowSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayDestinationSpace);
     CGSHideSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArraySourceSpace);
+    [NSArraySourceSpace release];
+    [NSArrayDestinationSpace release];
 
     CGSManagedDisplaySetCurrentSpace(CGSDefaultConnection, Display->Identifier, SpaceID);
     CGSManagedDisplaySetIsAnimating(CGSDefaultConnection, Display->Identifier, false);
@@ -645,6 +647,8 @@ void AXLibSpaceAddWindow(CGSSpaceID SpaceID, uint32_t WindowID)
     NSArray *NSArrayWindow = @[ @(WindowID) ];
     NSArray *NSArrayDestinationSpace = @[ @(SpaceID) ];
     CGSAddWindowsToSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayWindow, (__bridge CFArrayRef)NSArrayDestinationSpace);
+    [NSArrayWindow release];
+    [NSArrayDestinationSpace release];
 }
 
 void AXLibSpaceRemoveWindow(CGSSpaceID SpaceID, uint32_t WindowID)
@@ -652,10 +656,13 @@ void AXLibSpaceRemoveWindow(CGSSpaceID SpaceID, uint32_t WindowID)
     NSArray *NSArrayWindow = @[ @(WindowID) ];
     NSArray *NSArraySourceSpace = @[ @(SpaceID) ];
     CGSRemoveWindowsFromSpaces(CGSDefaultConnection, (__bridge CFArrayRef)NSArrayWindow, (__bridge CFArrayRef)NSArraySourceSpace);
+    [NSArrayWindow release];
+    [NSArraySourceSpace release];
 }
 
 bool AXLibSpaceHasWindow(ax_window *Window, CGSSpaceID SpaceID)
 {
+    bool Result = false;
     NSArray *NSArrayWindow = @[ @(Window->ID) ];
     CFArrayRef Spaces = CGSCopySpacesForWindows(CGSDefaultConnection, kCGSSpaceAll, (__bridge CFArrayRef)NSArrayWindow);
     int NumberOfSpaces = CFArrayGetCount(Spaces);
@@ -663,9 +670,14 @@ bool AXLibSpaceHasWindow(ax_window *Window, CGSSpaceID SpaceID)
     {
         NSNumber *ID = (__bridge NSNumber*)CFArrayGetValueAtIndex(Spaces, Index);
         if(SpaceID == [ID intValue])
-            return true;
+        {
+            Result = true;
+            break;
+        }
     }
 
+    CFRelease(Spaces);
+    [NSArrayWindow release];
     return false;
 }
 
