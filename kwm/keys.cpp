@@ -405,7 +405,7 @@ void CreateHotkeyFromCGEvent(CGEventRef Event, hotkey *Hotkey)
     Hotkey->Key = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 }
 
-bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string Mode)
+bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string &Mode)
 {
     hotkey TempHotkey = {};
     TempHotkey.Mod = Mod;
