@@ -4,9 +4,7 @@
 
 #define internal static
 
-/* NOTE(koekeishiya): Pass through functions (?) */
 extern std::map<CFStringRef, space_info> WindowTree;
-
 extern kwm_screen KWMScreen;
 
 internal node_container
@@ -92,7 +90,6 @@ void SetLinkNodeContainer(ax_display *Display, link_node *Link)
 
 void CreateNodeContainer(ax_display *Display, tree_node *Node, int ContainerType)
 {
-    /* TODO(koekeishiya): Is KWMScreen.SplitRatio a thing (?) */
     if(Node->SplitRatio == 0)
         Node->SplitRatio = KWMScreen.SplitRatio;
 
