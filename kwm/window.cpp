@@ -39,31 +39,6 @@ extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
 internal void
-UpdateSpaceOfDisplay(ax_display *Display, space_info *Space)
-{
-    if(Space->RootNode)
-    {
-        if(Space->Settings.Mode == SpaceModeBSP)
-        {
-            SetRootNodeContainer(Display, Space->RootNode);
-            CreateNodeContainers(Display, Space->RootNode, true);
-        }
-        else if(Space->Settings.Mode == SpaceModeMonocle)
-        {
-            link_node *Link = Space->RootNode->List;
-            while(Link)
-            {
-                SetLinkNodeContainer(Display, Link);
-                Link = Link->Next;
-            }
-        }
-
-        ApplyTreeNodeContainer(Space->RootNode);
-        Space->NeedsUpdate = false;
-    }
-}
-
-internal void
 FloatNonResizable(ax_window *Window)
 {
     if(Window)

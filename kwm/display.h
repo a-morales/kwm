@@ -2,8 +2,11 @@
 #define DISPLAY_H
 
 #include "types.h"
+#include "axlib/axlib.h"
 
 extern int GetActiveSpaceOfDisplay(screen_info *Screen);
+
+void UpdateSpaceOfDisplay(ax_display *Display, space_info *Space);
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo);
 void GetActiveDisplays();

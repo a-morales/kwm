@@ -6,6 +6,8 @@
 #include "helpers.h"
 #include "cursor.h"
 
+extern std::map<CFStringRef, space_info> WindowTree;
+
 extern kwm_screen KWMScreen;
 extern kwm_focus KWMFocus;
 extern kwm_tiling KWMTiling;
@@ -34,33 +36,17 @@ screen_info *GetDisplayOfMousePointer() { }
 
 screen_info *GetDisplayOfWindow(window_info *Window) { }
 
+int GetIndexOfNextScreen() { }
+
+int GetIndexOfPrevScreen() { }
+
 std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex) { }
 
-void UpdateSpaceOfScreen(space_info *Space, screen_info *Screen)
-{
-    /*
-    if(Space->RootNode)
-    {
-        if(Space->Settings.Mode == SpaceModeBSP)
-        {
-            SetRootNodeContainer(Screen, Space->RootNode);
-            CreateNodeContainers(Screen, Space->RootNode, true);
-        }
-        else if(Space->Settings.Mode == SpaceModeMonocle)
-        {
-            link_node *Link = Space->RootNode->List;
-            while(Link)
-            {
-                SetLinkNodeContainer(Screen, Link);
-                Link = Link->Next;
-            }
-        }
+void UpdateActiveScreen() { }
 
-        ApplyTreeNodeContainer(Space->RootNode);
-        Space->NeedsUpdate = false;
-    }
-    */
-}
+void UpdateSpaceOfScreen(space_info *Space, screen_info *Screen) { }
+
+void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mouse, bool UpdateFocus) { }
 
 void SetDefaultPaddingOfDisplay(container_offset Offset)
 {
@@ -78,9 +64,11 @@ void SetDefaultGapOfDisplay(container_offset Offset)
 
 void ChangePaddingOfDisplay(const std::string &Side, int Offset)
 {
-    screen_info *Screen = GetDisplayOfMousePointer();
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    ax_display *Display = AXLibCursorDisplay();
+    if(!Display)
+        return;
 
+    space_info *Space = &WindowTree[Display->Space->Identifier];
     if(Side == "all")
     {
         if(Space->Settings.Offset.PaddingLeft + Offset >= 0)
@@ -116,14 +104,16 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset)
             Space->Settings.Offset.PaddingBottom += Offset;
     }
 
-    UpdateSpaceOfScreen(Space, Screen);
+    UpdateSpaceOfDisplay(Display, Space);
 }
 
 void ChangeGapOfDisplay(const std::string &Side, int Offset)
 {
-    screen_info *Screen = GetDisplayOfMousePointer();
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    ax_display *Display = AXLibCursorDisplay();
+    if(!Display)
+        return;
 
+    space_info *Space = &WindowTree[Display->Space->Identifier];
     if(Side == "all")
     {
         if(Space->Settings.Offset.VerticalGap + Offset >= 0)
@@ -143,113 +133,10 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
             Space->Settings.Offset.HorizontalGap += Offset;
     }
 
-    UpdateSpaceOfScreen(Space, Screen);
+    UpdateSpaceOfDisplay(Display, Space);
 }
 
-int GetIndexOfNextScreen()
-{
-    return KWMScreen.Current->ID + 1 >= KWMScreen.ActiveCount ? 0 : KWMScreen.Current->ID + 1;
-}
-
-int GetIndexOfPrevScreen()
-{
-    return KWMScreen.Current->ID == 0 ? KWMScreen.ActiveCount - 1 : KWMScreen.Current->ID - 1;
-}
-
-void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mouse, bool UpdateFocus)
-{
-    /*
-    screen_info *Screen = GetDisplayFromScreenID(ScreenIndex);
-    if(Screen && Screen != KWMScreen.Current)
-    {
-        KWMScreen.PrevSpace = KWMScreen.Current->ActiveSpace;
-        KWMScreen.Current = Screen;
-
-        Screen->ActiveSpace = GetActiveSpaceOfDisplay(Screen);
-        ShouldActiveSpaceBeManaged();
-        space_info *Space = GetActiveSpaceOfScreen(Screen);
-
-        DEBUG("GiveFocusToScreen() " << ScreenIndex << \
-              ": Space transition ended " << KWMScreen.PrevSpace << \
-              " -> " << Screen->ActiveSpace);
-
-        if(UpdateFocus)
-        {
-            if(Space->Initialized && FocusNode)
-            {
-                DEBUG("Populated Screen 'Window -f Focus'");
-
-                UpdateActiveWindowList(Screen);
-                FilterWindowList(Screen);
-                SetWindowFocusByNode(FocusNode);
-                MoveCursorToCenterOfFocusedWindow();
-            }
-            else if(Space->Initialized && Space->RootNode)
-            {
-                DEBUG("Populated Screen Key/Mouse Focus");
-
-                UpdateActiveWindowList(Screen);
-                FilterWindowList(Screen);
-
-                bool WindowBelowCursor = IsAnyWindowBelowCursor();
-                if(Mouse && !WindowBelowCursor)
-                    ClearFocusedWindow();
-                else if(Mouse && WindowBelowCursor)
-                    FocusWindowBelowCursor();
-
-                if(!Mouse)
-                {
-                    if(Space->FocusedWindowID == -1)
-                    {
-                        if(Space->Settings.Mode == SpaceModeBSP)
-                        {
-                            void *FocusNode = NULL;
-                            GetFirstLeafNode(Space->RootNode, (void**)&FocusNode);
-                            Space->FocusedWindowID = ((tree_node*)FocusNode)->WindowID;
-                        }
-                        else if(Space->Settings.Mode == SpaceModeMonocle)
-                        {
-                            if(Space->RootNode->List)
-                                Space->FocusedWindowID = Space->RootNode->List->WindowID;
-                        }
-                    }
-
-                    FocusWindowByID(Space->FocusedWindowID);
-                    MoveCursorToCenterOfFocusedWindow();
-                }
-            }
-            else
-            {
-                if(!Space->Initialized ||
-                   Space->Settings.Mode == SpaceModeFloating ||
-                   !Space->RootNode)
-                {
-                    DEBUG("Uninitialized Screen");
-                    ClearFocusedWindow();
-
-                    if(!Mouse)
-                        CGWarpMouseCursorPosition(CGPointMake(Screen->X + (Screen->Width / 2), Screen->Y + (Screen->Height / 2)));
-
-                    if(Space->Settings.Mode != SpaceModeFloating && !Space->RootNode)
-                    {
-                        CGPoint ClickPos = GetCursorPos();
-                        CGEventRef ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, ClickPos, kCGMouseButtonLeft);
-                        CGEventSetFlags(ClickEvent, 0);
-                        CGEventPost(kCGHIDEventTap, ClickEvent);
-                        CFRelease(ClickEvent);
-
-                        ClickEvent = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, ClickPos, kCGMouseButtonLeft);
-                        CGEventSetFlags(ClickEvent, 0);
-                        CGEventPost(kCGHIDEventTap, ClickEvent);
-                        CFRelease(ClickEvent);
-                    }
-                }
-            }
-        }
-    }
-*/
-}
-
+/* TODO(koekeishiya): Make this work for ax_window */
 void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
 {
     int NewScreenIndex = -1;
@@ -278,18 +165,6 @@ container_offset CreateDefaultScreenOffset()
     return Offset;
 }
 
-void UpdateActiveScreen()
-{
-    screen_info *Screen = GetDisplayOfMousePointer();
-    if(Screen && KWMScreen.Current && KWMScreen.Current != Screen)
-    {
-        DEBUG("UpdateActiveScreen() Active Display Changed");
-
-        ClearMarkedWindow();
-        GiveFocusToScreen(Screen->ID, NULL, true, true);
-    }
-}
-
 space_settings *GetSpaceSettingsForDisplay(unsigned int ScreenID)
 {
     std::map<unsigned int, space_settings>::iterator It = KWMTiling.DisplaySettings.find(ScreenID);
@@ -298,3 +173,28 @@ space_settings *GetSpaceSettingsForDisplay(unsigned int ScreenID)
     else
         return NULL;
 }
+
+void UpdateSpaceOfDisplay(ax_display *Display, space_info *Space)
+{
+    if(Space->RootNode)
+    {
+        if(Space->Settings.Mode == SpaceModeBSP)
+        {
+            SetRootNodeContainer(Display, Space->RootNode);
+            CreateNodeContainers(Display, Space->RootNode, true);
+        }
+        else if(Space->Settings.Mode == SpaceModeMonocle)
+        {
+            link_node *Link = Space->RootNode->List;
+            while(Link)
+            {
+                SetLinkNodeContainer(Display, Link);
+                Link = Link->Next;
+            }
+        }
+
+        ApplyTreeNodeContainer(Space->RootNode);
+        Space->NeedsUpdate = false;
+    }
+}
+
