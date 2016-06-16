@@ -106,28 +106,6 @@ KwmParseConfigOptionGap(tokenizer *Tokenizer)
 }
 
 internal void
-KwmParseConfigOptionSpacesKey(tokenizer *Tokenizer)
-{
-    if(RequireToken(Tokenizer, Token_Dash))
-    {
-        token Token = GetToken(Tokenizer);
-        if(TokenEquals(Token, "key"))
-        {
-            token TokenKey = GetToken(Tokenizer);
-            KwmInterpretCommand("config spaces-key " + std::string(TokenKey.Text, TokenKey.TextLength), 0);
-        }
-        else
-        {
-            ReportInvalidCommand("Expected token 'key' after 'config spaces-'");
-        }
-    }
-    else
-    {
-        ReportInvalidCommand("Expected token '-' after 'config spaces'");
-    }
-}
-
-internal void
 KwmParseConfigOptionFocusFollowsMouse(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
@@ -735,8 +713,6 @@ KwmParseConfigOption(tokenizer *Tokenizer)
                 KwmParseConfigOptionPadding(Tokenizer);
             else if(TokenEquals(Token, "gap"))
                 KwmParseConfigOptionGap(Tokenizer);
-            else if(TokenEquals(Token, "spaces"))
-                KwmParseConfigOptionSpacesKey(Tokenizer);
             else if(TokenEquals(Token, "focus"))
                 KwmParseConfigOptionFocusFollowsMouse(Tokenizer);
             else if(TokenEquals(Token, "mouse"))
