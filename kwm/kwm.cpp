@@ -275,7 +275,7 @@ int main(int argc, char **argv)
     NSApplicationLoad();
 
     if(!AXLibDisplayHasSeparateSpaces())
-        Fatal("Error: Kwm requires 'displays have seperate spaces' enabled!");
+        Fatal("Error: 'Displays have separate spaces' must be enabled!");
 
     /* NOTE(koekeishiya): Initialize AXLIB */
     AXLibInit(&AXState);
