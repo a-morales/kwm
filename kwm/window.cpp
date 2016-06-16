@@ -80,6 +80,7 @@ TileWindow(ax_display *Display, ax_window *Window)
     }
 }
 
+/* TODO(koekeishiya): Event context is a pointer to the new display. */
 EVENT_CALLBACK(Callback_AXEvent_DisplayAdded)
 {
     DEBUG("AXEvent_DisplayAdded");
@@ -90,6 +91,7 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayRemoved)
     DEBUG("AXEvent_DisplayRemoved");
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the resized display. */
 EVENT_CALLBACK(Callback_AXEvent_DisplayResized)
 {
     ax_display *Display = (ax_display *) Event->Context;
@@ -107,6 +109,7 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayResized)
     }
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the moved display. */
 EVENT_CALLBACK(Callback_AXEvent_DisplayMoved)
 {
     ax_display *Display = (ax_display *) Event->Context;
@@ -124,6 +127,7 @@ EVENT_CALLBACK(Callback_AXEvent_DisplayMoved)
     }
 }
 
+/* NOTE(koekeishiya): Event context is NULL. */
 EVENT_CALLBACK(Callback_AXEvent_DisplayChanged)
 {
     FocusedDisplay = AXLibMainDisplay();
@@ -153,26 +157,14 @@ AddMinimizedWindowsToTree(ax_display *Display)
     }
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the display whos space was changed. */
 EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
 {
+    ax_display *Display = (ax_display *) Event->Context;
     DEBUG("AXEvent_SpaceChanged");
+
     ClearBorder(&FocusedBorder);
     ClearMarkedWindow();
-
-    /* NOTE(koekeishiya): OSX APIs are horrible, so we need to detect which display
-                          this event was triggered for. */
-    ax_display *MainDisplay = AXLibMainDisplay();
-    ax_display *Display = MainDisplay;
-    do
-    {
-        ax_space *PrevSpace = Display->Space;
-        Display->Space = AXLibGetActiveSpace(Display);
-        Display->PrevSpace = PrevSpace;
-        if(Display->Space != Display->PrevSpace)
-            break;
-
-        Display = AXLibNextDisplay(Display);
-    } while(Display != MainDisplay);
 
     FocusedDisplay = Display;
     ax_space *PrevSpace = Display->PrevSpace;
@@ -228,6 +220,7 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceCreated)
 }
 */
 
+/* NOTE(koekeishiya): Event context is a pointer to the launched application. */
 EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
 {
     ax_application *Application = (ax_application *) Event->Context;
@@ -245,6 +238,7 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
     }
 }
 
+/* NOTE(koekeishiya): Event context is NULL */
 EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
 {
     DEBUG("AXEvent_ApplicationTerminated");
@@ -256,6 +250,7 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationTerminated)
     RebalanceNodeTree(Display);
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the activated application. */
 EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
 {
     ax_application *Application = (ax_application *) Event->Context;
@@ -267,6 +262,7 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
     StandbyOnFloat(FocusedApplication->Focus);
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the new window. */
 EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
 {
     ax_window *Window = (ax_window *) Event->Context;
@@ -281,6 +277,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
     }
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the closed window. Must call AXLibDestroyWindow() */
 EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
 {
     ax_window *Window = (ax_window *) Event->Context;
@@ -301,6 +298,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     AXLibDestroyWindow(Window);
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the minimized window. */
 EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
 {
     ax_window *Window = (ax_window *) Event->Context;
@@ -315,6 +313,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMinimized)
         ClearMarkedWindow();
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the deminimized window. */
 EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
 {
     ax_window *Window = (ax_window *) Event->Context;
@@ -334,6 +333,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
     AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the focused window. */
 EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 {
     ax_window *Window = (ax_window *) Event->Context;
@@ -351,6 +351,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 }
 
 
+/* NOTE(koekeishiya): Event context is a pointer to the moved window. */
 EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
 {
     ax_window *Window = (ax_window *) Event->Context;
@@ -365,6 +366,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
         UpdateBorder("marked");
 }
 
+/* NOTE(koekeishiya): Event context is a pointer to the resized window. */
 EVENT_CALLBACK(Callback_AXEvent_WindowResized)
 {
     ax_window *Window = (ax_window *) Event->Context;

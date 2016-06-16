@@ -154,7 +154,22 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
 
 - (void)activeSpaceDidChange:(NSNotification *)notification
 {
-    AXLibConstructEvent(AXEvent_SpaceChanged, NULL);
+    /* NOTE(koekeishiya): OSX APIs are horrible, so we need to detect which display
+                          this event was triggered for. */
+    ax_display *MainDisplay = AXLibMainDisplay();
+    ax_display *Display = MainDisplay;
+    do
+    {
+        ax_space *PrevSpace = Display->Space;
+        Display->Space = AXLibGetActiveSpace(Display);
+        Display->PrevSpace = PrevSpace;
+        if(Display->Space != Display->PrevSpace)
+            break;
+
+        Display = AXLibNextDisplay(Display);
+    } while(Display != MainDisplay);
+
+    AXLibConstructEvent(AXEvent_SpaceChanged, Display);
 }
 
 /* NOTE(koekeishiya): This notification is skipped by many applications and so we use the Carbon event system instead.
