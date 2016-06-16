@@ -241,7 +241,7 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "cycle-focus")
     {
-        if(Tokens[2] == "screen")
+        if(Tokens[2] == "on")
             KWMMode.Cycle = CycleModeScreen;
         else if(Tokens[2] == "off")
             KWMMode.Cycle = CycleModeDisabled;;

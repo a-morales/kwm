@@ -294,8 +294,8 @@ KwmParseConfigOptionCycleFocus(tokenizer *Tokenizer)
         if(TokenEquals(Token, "focus"))
         {
             token Token = GetToken(Tokenizer);
-            if(TokenEquals(Token, "screen"))
-                KwmInterpretCommand("config cycle-focus screen", 0);
+            if(TokenEquals(Token, "on"))
+                KwmInterpretCommand("config cycle-focus on", 0);
             else if(TokenEquals(Token, "off"))
                 KwmInterpretCommand("config cycle-focus off", 0);
             else
