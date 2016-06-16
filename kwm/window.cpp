@@ -370,9 +370,11 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
     DEBUG("AXEvent_WindowFocused: " << Window->Application->Name << " - " << Window->Name);
 
     if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)))
+    {
         Window->Application->Focus = Window;
+        StandbyOnFloat(Window);
+    }
 
-    StandbyOnFloat(Window);
     if(FocusedApplication == Window->Application)
         UpdateBorder("focused");
 }
