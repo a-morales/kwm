@@ -25,8 +25,6 @@ KwmParseConfigOptionTiling(tokenizer *Tokenizer)
         KwmInterpretCommand("config tiling monocle", 0);
     else if(TokenEquals(Token, "float"))
         KwmInterpretCommand("config tiling float", 0);
-    else if(TokenEquals(Token, "off"))
-        KwmInterpretCommand("config tiling off", 0);
     else
         ReportInvalidCommand("Unknown command 'config tiling " + std::string(Token.Text, Token.TextLength) + "'");
 }
@@ -143,10 +141,8 @@ KwmParseConfigOptionFocusFollowsMouse(tokenizer *Tokenizer)
                 if(TokenEquals(Token, "mouse"))
                 {
                     token Token = GetToken(Tokenizer);
-                    if(TokenEquals(Token, "autofocus"))
-                        KwmInterpretCommand("config focus-follows-mouse autofocus", 0);
-                    else if(TokenEquals(Token, "autoraise"))
-                        KwmInterpretCommand("config focus-follows-mouse autoraise", 0);
+                    if(TokenEquals(Token, "on"))
+                        KwmInterpretCommand("config focus-follows-mouse on", 0);
                     else if(TokenEquals(Token, "off"))
                         KwmInterpretCommand("config focus-follows-mouse off", 0);
                     else
