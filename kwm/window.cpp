@@ -9,7 +9,7 @@
 #include "rules.h"
 #include "serializer.h"
 #include "cursor.h"
-
+#include "scratchpad.h"
 #include "axlib/axlib.h"
 
 #include <cmath>
@@ -286,6 +286,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     ax_display *Display = AXLibWindowDisplay(Window);
     if(Display)
     {
+        RemoveWindowFromScratchpad(Window);
         RemoveWindowFromNodeTree(Display, Window->ID);
     }
 
