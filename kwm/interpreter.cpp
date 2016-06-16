@@ -25,7 +25,6 @@ extern ax_window *MarkedWindow;
 
 extern kwm_screen KWMScreen;
 extern kwm_toggles KWMToggles;
-extern kwm_focus KWMFocus;
 extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
 extern kwm_border FocusedBorder;
@@ -55,7 +54,6 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
             else if(Tokens[3] == "off")
             {
                 FocusedBorder.Enabled = false;
-                KWMTiling.KwmOverlay[0] = 0;
                 UpdateBorder("focused");
             }
             else if(Tokens[3] == "size")
@@ -83,7 +81,6 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
             else if(Tokens[3] == "off")
             {
                 MarkedBorder.Enabled = false;
-                KWMTiling.KwmOverlay[1] = 0;
                 UpdateBorder("marked");
             }
             else if(Tokens[3] == "size")
@@ -559,12 +556,14 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
         }
         else if(Tokens[2] == "display")
         {
+            /* TODO(koekeishiya) reimplement.
             if(Tokens[3] == "prev")
                 MoveWindowToDisplay(KWMFocus.Window, -1, true);
             else if(Tokens[3] == "next")
                 MoveWindowToDisplay(KWMFocus.Window, 1, true);
             else
                 MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[3]), false);
+            */
         }
         else if(Tokens[2] == "north")
         {
@@ -754,6 +753,7 @@ KwmTreeCommand(std::vector<std::string> &Tokens)
 internal void
 KwmScratchpadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 {
+    /* TODO(koekeishiya) reimplement.
     if(Tokens[1] == "show")
         ShowScratchpadWindow(ConvertStringToInt(Tokens[2]));
     else if(Tokens[1] == "toggle")
@@ -766,6 +766,7 @@ KwmScratchpadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         RemoveWindowFromScratchpad(KWMFocus.Window);
     else if(Tokens[1] == "list")
         KwmWriteToSocket(ClientSockFD, GetWindowsOnScratchpad());
+    */
 }
 
 void KwmInterpretCommand(std::string Message, int ClientSockFD)

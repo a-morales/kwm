@@ -10,12 +10,6 @@
 
 #define internal static
 
-extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
-extern void AddWindowToSpace(int CGSpaceID, int WindowID);
-extern void RemoveWindowFromSpace(int CGSpaceID, int WindowID);
-extern bool IsWindowOnSpace(int WindowID, int CGSpaceID);
-extern int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID);
-
 extern kwm_screen KWMScreen;
 extern kwm_tiling KWMTiling;
 
@@ -203,15 +197,6 @@ KwmParseRule(std::string RuleSym, window_rule *Rule)
 }
 
 internal bool
-HasRuleBeenApplied(window_info *Window)
-{
-    std::map<int, bool>::iterator It = KWMTiling.EnforcedWindows.find(Window->WID);
-    return It != KWMTiling.EnforcedWindows.end();
-}
-
-internal bool MatchWindowRule(window_rule *Rule, window_info *Window) { }
-
-internal bool
 MatchWindowRule(window_rule *Rule, ax_window *Window)
 {
     bool Match = true;
@@ -243,9 +228,9 @@ void KwmAddRule(std::string RuleSym)
         KWMTiling.WindowRules.push_back(Rule);
 }
 
+/*
 void CheckWindowRules(window_info *Window)
 {
-    /*
     if(HasRuleBeenApplied(Window))
         return;
 
@@ -275,8 +260,8 @@ void CheckWindowRules(window_info *Window)
                 AllowRoleForWindow(Window, Rule->Properties.Role);
         }
     }
-    */
 }
+*/
 
 void ApplyWindowRules(ax_window *Window)
 {
@@ -307,9 +292,9 @@ void ApplyWindowRules(ax_window *Window)
     }
 }
 
+/*
 bool EnforceWindowRules(window_info *Window)
 {
-    /*
     if(HasRuleBeenApplied(Window))
         return false;
 
@@ -351,5 +336,5 @@ bool EnforceWindowRules(window_info *Window)
 
     KWMTiling.EnforcedWindows[Window->WID] = true;
     return Result;
-    */
 }
+*/

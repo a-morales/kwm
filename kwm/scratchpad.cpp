@@ -8,23 +8,22 @@ extern kwm_tiling KWMTiling;
 extern kwm_screen KWMScreen;
 extern kwm_mode KWMMode;
 extern kwm_path KWMPath;
-extern kwm_focus KWMFocus;
 extern scratchpad Scratchpad;
 
 bool IsScratchpadSlotValid(int Index)
 {
-    std::map<int, window_info>::iterator It = Scratchpad.Windows.find(Index);
+    std::map<int, ax_window*>::iterator It = Scratchpad.Windows.find(Index);
     return It != Scratchpad.Windows.end();
 }
 
-int GetScratchpadSlotOfWindow(window_info *Window)
+int GetScratchpadSlotOfWindow(ax_window *Window)
 {
     int Slot = -1;
-    std::map<int, window_info>::iterator It;
+    std::map<int, ax_window*>::iterator It;
 
     for(It = Scratchpad.Windows.begin(); It != Scratchpad.Windows.end(); ++It)
     {
-        if(It->second.WID == Window->WID)
+        if(It->second->ID == Window->ID)
         {
             Slot = It->first;
             break;
@@ -35,7 +34,7 @@ int GetScratchpadSlotOfWindow(window_info *Window)
     return Slot;
 }
 
-bool IsWindowOnScratchpad(window_info *Window)
+bool IsWindowOnScratchpad(ax_window *Window)
 {
     return GetScratchpadSlotOfWindow(Window) != -1;
 }
@@ -46,7 +45,7 @@ int GetFirstAvailableScratchpadSlot()
 
     if(!Scratchpad.Windows.empty())
     {
-        std::map<int, window_info>::iterator It = Scratchpad.Windows.find(Slot);
+        std::map<int, ax_window*>::iterator It = Scratchpad.Windows.find(Slot);
         while(It != Scratchpad.Windows.end())
             It = Scratchpad.Windows.find(++Slot);
     }
@@ -54,18 +53,18 @@ int GetFirstAvailableScratchpadSlot()
     return Slot;
 }
 
-void AddWindowToScratchpad(window_info *Window)
+void AddWindowToScratchpad(ax_window *Window)
 {
     if(!AXLibIsSpaceTransitionInProgress() &&
        !IsWindowOnScratchpad(Window))
     {
         int Slot = GetFirstAvailableScratchpadSlot();
-        Scratchpad.Windows[Slot] = *Window;
+        Scratchpad.Windows[Slot] = Window;
         DEBUG("AddWindowToScratchpad() " << Slot);
     }
 }
 
-void RemoveWindowFromScratchpad(window_info *Window)
+void RemoveWindowFromScratchpad(ax_window *Window)
 {
     /*
     if(!IsSpaceTransitionInProgress() &&
@@ -91,7 +90,7 @@ void ToggleScratchpadWindow(int Index)
     if(!IsSpaceTransitionInProgress() &&
        IsScratchpadSlotValid(Index))
     {
-        window_info *Window = &Scratchpad.Windows[Index];
+        ax_window* *Window = &Scratchpad.Windows[Index];
         if(IsWindowOnActiveSpace(Window->WID))
             HideScratchpadWindow(Index);
         else
@@ -106,7 +105,7 @@ void HideScratchpadWindow(int Index)
     if(!IsSpaceTransitionInProgress() &&
        IsScratchpadSlotValid(Index))
     {
-        window_info *Window = &Scratchpad.Windows[Index];
+        ax_window* *Window = &Scratchpad.Windows[Index];
         screen_info *Screen = GetDisplayOfWindow(Window);
         if(Screen)
         {
@@ -134,7 +133,7 @@ void ShowScratchpadWindow(int Index)
         if(KWMFocus.Window)
             Scratchpad.LastFocus = KWMFocus.Window->WID;
 
-        window_info *Window = &Scratchpad.Windows[Index];
+        ax_window* *Window = &Scratchpad.Windows[Index];
         AddWindowToSpace(KWMScreen.Current->ActiveSpace, Window->WID);
         ResizeScratchpadWindow(KWMScreen.Current, Window);
         UpdateActiveWindowList(KWMScreen.Current);
@@ -143,7 +142,7 @@ void ShowScratchpadWindow(int Index)
     */
 }
 
-void ResizeScratchpadWindow(screen_info *Screen, window_info *Window)
+void ResizeScratchpadWindow(ax_display *Screen, ax_window *Window)
 {
     /*
     AXUIElementRef WindowRef;
@@ -160,7 +159,7 @@ void ResizeScratchpadWindow(screen_info *Screen, window_info *Window)
 
 void ShowAllScratchpadWindows()
 {
-    std::map<int, window_info>::iterator It;
+    std::map<int, ax_window*>::iterator It;
     for(It = Scratchpad.Windows.begin(); It != Scratchpad.Windows.end(); ++It)
         ShowScratchpadWindow(It->first);
 }
@@ -170,13 +169,13 @@ std::string GetWindowsOnScratchpad()
     std::string Result;
 
     int Index = 0;
-    std::map<int, window_info>::iterator It;
+    std::map<int, ax_window*>::iterator It;
     for(It = Scratchpad.Windows.begin(); It != Scratchpad.Windows.end(); ++It)
     {
         Result += std::to_string(It->first) + ": " +
-                  std::to_string(It->second.WID) + ", " +
-                  It->second.Owner + ", " +
-                  It->second.Name;
+                  std::to_string(It->second->ID) + ", " +
+                  It->second->Application->Name + ", " +
+                  It->second->Name;
 
         if(Index++ < Scratchpad.Windows.size() - 1)
             Result += "\n";

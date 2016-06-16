@@ -29,7 +29,6 @@ kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
 kwm_screen KWMScreen = {};
 kwm_toggles KWMToggles = {};
-kwm_focus KWMFocus = {};
 kwm_mode KWMMode = {};
 kwm_tiling KWMTiling = {};
 kwm_thread KWMThread = {};
@@ -145,16 +144,10 @@ GetKwmFilePath()
 internal void
 KwmClearSettings()
 {
-    std::map<int, CFTypeRef>::iterator It;
-    for(It = KWMTiling.AllowedWindowRoles.begin(); It != KWMTiling.AllowedWindowRoles.end(); ++It)
-        CFRelease(It->second);
-
-    KWMTiling.AllowedWindowRoles.clear();
     KWMHotkeys.Modes.clear();
     KWMTiling.WindowRules.clear();
     KWMTiling.SpaceSettings.clear();
     KWMTiling.DisplaySettings.clear();
-    KWMTiling.EnforcedWindows.clear();
     KWMHotkeys.ActiveMode = GetBindingMode("default");
 }
 
@@ -224,14 +217,11 @@ KwmInit()
     KWMScreen.SplitMode = SPLIT_OPTIMAL;
     KWMScreen.PrevSpace = -1;
     KWMScreen.DefaultOffset = CreateDefaultScreenOffset();
-    KWMScreen.MaxCount = 5;
-    KWMScreen.ActiveCount = 0;
 
     KWMToggles.UseBuiltinHotkeys = true;
     KWMToggles.UseMouseFollowsFocus = true;
     KWMTiling.OptimalRatio = 1.618;
     KWMTiling.LockToContainer = true;
-    KWMTiling.MonitorWindows = true;
 
     KWMMode.Space = SpaceModeBSP;
     KWMMode.Focus = FocusModeAutoraise;

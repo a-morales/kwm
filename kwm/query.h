@@ -11,15 +11,10 @@
 extern std::map<CFStringRef, space_info> WindowTree;
 extern ax_window *MarkedWindow;
 
-extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
-extern int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int SpaceID);
-extern int GetCGSpaceIDFromSpaceNumber(screen_info *Screen, int SpaceID);
-
 extern kwm_mode KWMMode;
 extern kwm_toggles KWMToggles;
 extern kwm_screen KWMScreen;
 extern kwm_tiling KWMTiling;
-extern kwm_focus KWMFocus;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
 
@@ -223,8 +218,9 @@ inline std::string
 GetIdOfCurrentSpace()
 {
     std::string Output = "-1";
-    if(KWMScreen.Current && KWMScreen.Current->ActiveSpace != -1)
-        Output = std::to_string(GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->ActiveSpace));
+    ax_display *Display = AXLibMainDisplay();
+    if(Display)
+        Output = std::to_string(AXLibDesktopIDFromCGSSpaceID(Display, Display->Space->ID));
 
     return Output;
 }
@@ -233,8 +229,10 @@ inline std::string
 GetIdOfPreviousSpace()
 {
     std::string Output = "-1";
+    /*
     if(KWMScreen.Current && !KWMScreen.Current->History.empty())
         Output = std::to_string(GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->History.top()));
+    */
 
     return Output;
 }

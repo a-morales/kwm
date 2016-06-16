@@ -7,7 +7,6 @@
 #include "axlib/axlib.h"
 
 extern kwm_screen KWMScreen;
-extern kwm_focus KWMFocus;
 extern kwm_path KWMPath;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;

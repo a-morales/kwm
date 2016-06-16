@@ -99,9 +99,9 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
 }
 
 /* TODO(koekeishiya): Make this work for ax_window */
+/*
 void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
 {
-    /*
     int NewScreenIndex = -1;
 
     if(Relative)
@@ -120,8 +120,8 @@ void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
         else
             AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window);
     }
-    */
 }
+*/
 
 container_offset CreateDefaultScreenOffset()
 {

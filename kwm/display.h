@@ -13,6 +13,6 @@ space_settings *GetSpaceSettingsForDisplay(unsigned int ScreenID);
 container_offset CreateDefaultScreenOffset();
 
 /* TODO(koekeishiya): Make this work for ax_window */
-void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative);
+void MoveWindowToDisplay(ax_window *Window, int Shift, bool Relative);
 
 #endif

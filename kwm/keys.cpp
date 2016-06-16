@@ -9,7 +9,7 @@
 
 #define internal static
 
-extern kwm_focus KWMFocus;
+extern ax_application *FocusedApplication;
 extern kwm_hotkeys KWMHotkeys;
 extern kwm_thread KWMThread;
 
@@ -187,21 +187,21 @@ HotkeysAreEqual(hotkey *A, hotkey *B)
 internal bool
 IsHotkeyStateReqFulfilled(hotkey *Hotkey)
 {
-    if(Hotkey->State == HotkeyStateInclude && KWMFocus.Window)
+    if(Hotkey->State == HotkeyStateInclude && FocusedApplication)
     {
         for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
         {
-            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
+            if(FocusedApplication->Name == Hotkey->List[AppIndex])
                 return true;
         }
 
         return false;
     }
-    else if(Hotkey->State == HotkeyStateExclude && KWMFocus.Window)
+    else if(Hotkey->State == HotkeyStateExclude && FocusedApplication)
     {
         for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
         {
-            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
+            if(FocusedApplication->Name == Hotkey->List[AppIndex])
                 return false;
         }
     }

@@ -11,7 +11,6 @@ extern ax_application *FocusedApplication;
 
 extern kwm_screen KWMScreen;
 extern kwm_tiling KWMTiling;
-extern kwm_focus KWMFocus;
 
 tree_node *CreateRootNode()
 {
@@ -287,8 +286,7 @@ void ResizeWindowToContainerSize(tree_node *Node)
     ax_window *Window = GetWindowByID((unsigned int)Node->WindowID);
     if(Window)
     {
-        SetWindowDimensions(Window->Ref, NULL,
-                    Node->Container.X, Node->Container.Y,
+        SetWindowDimensions(Window->Ref, Node->Container.X, Node->Container.Y,
                     Node->Container.Width, Node->Container.Height);
     }
 }
@@ -298,8 +296,7 @@ void ResizeWindowToContainerSize(link_node *Link)
     ax_window *Window = GetWindowByID((unsigned int)Link->WindowID);
     if(Window)
     {
-        SetWindowDimensions(Window->Ref, NULL,
-                    Link->Container.X, Link->Container.Y,
+        SetWindowDimensions(Window->Ref, Link->Container.X, Link->Container.Y,
                     Link->Container.Width, Link->Container.Height);
     }
 }

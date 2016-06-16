@@ -39,9 +39,6 @@ struct container_offset;
 
 struct window_properties;
 struct window_rule;
-struct window_info;
-struct window_role;
-struct screen_info;
 struct space_info;
 struct node_container;
 struct tree_node;
@@ -52,7 +49,6 @@ struct kwm_border;
 struct kwm_hotkeys;
 struct kwm_toggles;
 struct kwm_path;
-struct kwm_focus;
 struct kwm_screen;
 struct kwm_tiling;
 struct kwm_mode;
@@ -73,21 +69,6 @@ struct kwm_thread;
 #endif
 
 typedef std::chrono::time_point<std::chrono::steady_clock> kwm_time_point;
-
-#define CGSSpaceTypeUser 0
-extern "C" int CGSGetActiveSpace(int cid);
-extern "C" int CGSSpaceGetType(int cid, int sid);
-extern "C" bool CGSManagedDisplayIsAnimating(const int cid, CFStringRef display);
-extern "C" CFStringRef CGSCopyManagedDisplayForSpace(const int cid, int space);
-extern "C" CFStringRef CGSCopyBestManagedDisplayForRect(const int cid, CGRect rect);
-extern "C" CFArrayRef CGSCopyManagedDisplaySpaces(const int cid);
-extern "C" CFArrayRef CGSCopySpacesForWindows(int cid, int type, CFArrayRef windows);
-
-
-#define CGSDefaultConnection _CGSDefaultConnection()
-extern "C" int _CGSDefaultConnection(void);
-
-extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, uint32_t *);
 
 enum focus_option
 {
@@ -278,27 +259,10 @@ struct window_rule
     std::string Name;
 };
 
-struct window_info
-{
-    std::string Name;
-    std::string Owner;
-    int PID, WID;
-    int Layer;
-    int X, Y;
-    int Width, Height;
-
-    window_properties Properties;
-};
-
-struct window_role
-{
-    CFTypeRef Role;
-    CFTypeRef SubRole;
-};
-
+struct ax_window;
 struct scratchpad
 {
-    std::map<int, window_info> Windows;
+    std::map<int, ax_window*> Windows;
     int LastFocus;
 };
 
@@ -319,22 +283,6 @@ struct space_info
 
     tree_node *RootNode;
     int FocusedWindowID;
-};
-
-struct screen_info
-{
-    CFStringRef Identifier;
-    unsigned int ID;
-
-    int X, Y;
-    double Width, Height;
-    space_settings Settings;
-
-    int ActiveSpace;
-    bool RestoreFocus;
-    bool TrackSpaceChange;
-    std::stack<int> History;
-    std::map<int, space_info> Space;
 };
 
 struct kwm_mach
@@ -377,52 +325,25 @@ struct kwm_path
     std::string BSPLayouts;
 };
 
-struct kwm_focus
-{
-    ProcessSerialNumber PSN;
-    window_info *Window;
-    window_info Cache;
-    window_info NULLWindowInfo;
-    window_info InsertionPoint;
-};
-
 struct kwm_screen
 {
-    screen_info *Current;
-    bool Transitioning;
-    double SplitRatio;
-
     split_type SplitMode;
+    double SplitRatio;
     int PrevSpace;
 
     container_offset DefaultOffset;
-    CGDirectDisplayID *Displays;
-    unsigned int MaxCount;
-    unsigned int ActiveCount;
 };
 
 struct kwm_tiling
 {
-    bool MonitorWindows;
     double OptimalRatio;
     bool SpawnAsLeftChild;
     bool FloatNonResizable;
     bool LockToContainer;
 
-    std::map<unsigned int, screen_info> DisplayMap;
     std::map<unsigned int, space_settings> DisplaySettings;
     std::map<space_identifier, space_settings> SpaceSettings;
-
-    std::vector<window_info> FocusLst;
-    std::vector<window_info> WindowLst;
-    std::vector<int> FloatingWindowLst;
-
-
-    std::map<int, CFTypeRef> AllowedWindowRoles;
     std::vector<window_rule> WindowRules;
-    std::map<int, bool> EnforcedWindows;
-
-    int KwmOverlay[2];
 };
 
 struct kwm_mode

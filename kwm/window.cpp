@@ -29,7 +29,6 @@ extern ax_application *FocusedApplication;
 extern ax_window *MarkedWindow;
 
 extern kwm_screen KWMScreen;
-extern kwm_focus KWMFocus;
 extern kwm_toggles KWMToggles;
 extern kwm_mode KWMMode;
 extern kwm_tiling KWMTiling;
@@ -811,10 +810,9 @@ void RebalanceNodeTree(ax_display *Display)
         RebalanceMonocleTree(Display);
 }
 
-/* TODO(koekeishiya): Make this work for monocle subtrees. */
+/* TODO(koekeishiya): Make this work for monocle subtrees.
 void AddWindowToBSPTree(screen_info *Screen, int WindowID)
 {
-    /*
     if(!DoesSpaceExistInMapOfScreen(Screen))
         return;
 
@@ -882,13 +880,12 @@ void AddWindowToBSPTree(screen_info *Screen, int WindowID)
             }
         }
     }
-    */
 }
+*/
 
-/* TODO(koekeishiya): Make monocle subtrees work for ax_window. */
+/* TODO(koekeishiya): Make monocle subtrees work for ax_window.
 void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus)
 {
-    /*
     if(!DoesSpaceExistInMapOfScreen(Screen))
         return;
 
@@ -996,13 +993,12 @@ void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, boo
         free(Space->RootNode);
         Space->RootNode = NULL;
     }
-    */
 }
+*/
 
-/* TODO(koekeishiya): Make this work for ax_window. */
+/* TODO(koekeishiya): Make this work for ax_window.
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
 {
-    /*
     screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
     if(!Screen || !Window || Screen == ScreenOfWindow)
         return;
@@ -1060,8 +1056,8 @@ void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
         SetWindowFocus(Window);
         MoveCursorToCenterOfFocusedWindow();
     }
-    */
 }
+*/
 
 void ToggleWindowFloating(uint32_t WindowID, bool Center)
 {
@@ -1732,7 +1728,7 @@ void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Y
     }
 }
 
-void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height)
+void SetWindowDimensions(AXUIElementRef WindowRef, int X, int Y, int Width, int Height)
 {
     AXLibSetWindowPosition(WindowRef, X, Y);
     AXLibSetWindowSize(WindowRef, Width, Height);
