@@ -532,7 +532,8 @@ AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, uint32_t WindowID
         }
 
         tree_node *CurrentNode = NULL;
-        ax_window *Window = FocusedApplication->Focus;
+        ax_application *Application = AXLibGetFocusedApplication();
+        ax_window *Window = Application ? Application->Focus : NULL;
         if(MarkedWindow && MarkedWindow->ID != WindowID)
             CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, MarkedWindow->ID);
 
