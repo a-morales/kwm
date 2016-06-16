@@ -364,7 +364,6 @@ struct kwm_hotkeys
 struct kwm_toggles
 {
     bool UseMouseFollowsFocus;
-    bool EnableTilingMode;
     bool UseBuiltinHotkeys;
     bool StandbyOnFloat;
 };

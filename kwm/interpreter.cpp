@@ -123,23 +123,12 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "tiling")
     {
-        if(Tokens[2] == "off")
-            KWMToggles.EnableTilingMode = false;
-        else if(Tokens[2] == "bsp")
-        {
+        if(Tokens[2] == "bsp")
             KWMMode.Space = SpaceModeBSP;
-            KWMToggles.EnableTilingMode = true;
-        }
         else if(Tokens[2] == "monocle")
-        {
             KWMMode.Space = SpaceModeMonocle;
-            KWMToggles.EnableTilingMode = true;
-        }
         else if(Tokens[2] == "float")
-        {
             KWMMode.Space = SpaceModeFloating;
-            KWMToggles.EnableTilingMode = true;
-        }
     }
     else if(Tokens[1] == "space")
     {

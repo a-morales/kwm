@@ -235,7 +235,6 @@ KwmInit()
     KWMScreen.MaxCount = 5;
     KWMScreen.ActiveCount = 0;
 
-    KWMToggles.EnableTilingMode = true;
     KWMToggles.UseBuiltinHotkeys = true;
     KWMToggles.UseMouseFollowsFocus = true;
     KWMTiling.OptimalRatio = 1.618;
