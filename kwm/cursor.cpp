@@ -5,7 +5,7 @@
 #define internal static
 #define local_persist static
 
-extern ax_application *FocusedApplication;
+extern volatile ax_application *FocusedApplication;
 extern kwm_toggles KWMToggles;
 
 internal CGPoint
@@ -42,15 +42,26 @@ void MoveCursorToCenterOfWindow(ax_window *Window)
 
 void FocusWindowBelowCursor()
 {
+    ax_application *Application = AXLibGetFocusedApplication();
+    if(!Application)
+        return;
+
+    ax_window *FocusedWindow = Application->Focus;
+    if(!FocusedWindow)
+        return;
+
+    if(IsWindowBelowCursor(FocusedWindow))
+        return;
+
     std::vector<ax_window *> Windows = AXLibGetAllVisibleWindowsOrdered();
     for(std::size_t Index = 0; Index < Windows.size(); ++Index)
     {
         ax_window *Window = Windows[Index];
         if(IsWindowBelowCursor(Window))
         {
-           if(FocusedApplication == Window->Application)
+           if(Application == Window->Application)
            {
-               if(FocusedApplication->Focus != Window)
+               if(FocusedWindow != Window)
                    AXLibSetFocusedWindow(Window);
            }
            else
