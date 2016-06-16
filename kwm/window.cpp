@@ -1073,7 +1073,6 @@ void ToggleWindowFloating(uint32_t WindowID, bool Center)
     if(!Display)
         return;
 
-    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     if(AXLibHasFlags(Window, AXWindow_Floating))
     {
         AXLibClearFlags(Window, AXWindow_Floating);
@@ -1180,35 +1179,45 @@ void ToggleFocusedWindowFullscreen()
     }
 }
 
-/* TODO(koekeishiya): Make this work for ax_window. */
-bool IsWindowFullscreen(window_info *Window)
+bool IsWindowFullscreen(ax_window *Window)
 {
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    return Space->RootNode && Space->RootNode->WindowID == Window->WID;
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return false;
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    return SpaceInfo->RootNode && SpaceInfo->RootNode->WindowID == Window->ID;
+}
+
+bool IsWindowParentContainer(ax_window *Window)
+{
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return false;
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    tree_node *Node = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
+    return Node && Node->Parent && Node->Parent->WindowID == Window->ID;
 }
 
 /* TODO(koekeishiya): Make this work for ax_window. */
-bool IsWindowParentContainer(window_info *Window)
-{
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
-    return Node && Node->Parent && Node->Parent->WindowID == Window->WID;
-}
-
-/* TODO(koekeishiya): Make this work for ax_window. */
-void LockWindowToContainerSize(window_info *Window)
+void LockWindowToContainerSize(ax_window *Window)
 {
     if(Window)
     {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, Window->WID);
+        ax_display *Display = AXLibWindowDisplay(Window);
+        if(!Display)
+            return;
+
+        space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+        tree_node *Node = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
 
         if(IsWindowFullscreen(Window))
-            ResizeWindowToContainerSize(Space->RootNode);
+            ResizeWindowToContainerSize(SpaceInfo->RootNode);
         else if(IsWindowParentContainer(Window))
             ResizeWindowToContainerSize(Node->Parent);
         else
-            ResizeWindowToContainerSize();
+            ResizeWindowToContainerSize(Node);
     }
 }
 
@@ -1589,17 +1598,21 @@ void ShiftWindowFocus(int Shift)
     }
 }
 
-/* TODO(koekeishiya): Make this work for ax_window. */
 void ShiftSubTreeWindowFocus(int Shift)
 {
-    if(!KWMFocus.Window || !DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
         return;
 
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    if(Space->Settings.Mode == SpaceModeBSP)
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(SpaceInfo->Settings.Mode == SpaceModeBSP)
     {
-        link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-        tree_node *Root = GetTreeNodeFromLink(Space->RootNode, Link);
+        link_node *Link = GetLinkNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
+        tree_node *Root = GetTreeNodeFromLink(SpaceInfo->RootNode, Link);
         if(Link)
         {
             link_node *FocusNode = NULL;
@@ -1621,7 +1634,7 @@ void ShiftSubTreeWindowFocus(int Shift)
         }
         else if(Shift == 1)
         {
-            tree_node *Root = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
+            tree_node *Root = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
             if(Root)
             {
                 SetWindowFocusByNode(Root->List);

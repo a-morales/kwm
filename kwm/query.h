@@ -129,10 +129,12 @@ GetWindowList()
     return Output;
 }
 
+/* TODO(koekeishiya) .. */
 inline std::string
 GetListOfSpaces()
 {
     std::string Output;
+    /*
     screen_info *Screen = KWMScreen.Current;
 
     if(Screen)
@@ -162,6 +164,7 @@ GetListOfSpaces()
         if(Output[Output.size()-1] == '\n')
             Output.erase(Output.begin() + Output.size()-1);
     }
+    */
 
     return Output;
 }
@@ -181,8 +184,10 @@ inline std::string
 GetNameOfPreviousSpace()
 {
     std::string Output;
+    /*
     if(KWMScreen.Current && !KWMScreen.Current->History.empty())
         Output = GetNameOfSpace(KWMScreen.Current, KWMScreen.Current->History.top());
+    */
 
     return Output;
 }
@@ -326,14 +331,15 @@ inline std::string
 GetStateOfParentNode(int FirstID, int SecondID)
 {
     std::string Output = "false";
-    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-    {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *FirstNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, FirstID);
-        tree_node *SecondNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, SecondID);
-        if(FirstNode && SecondNode)
-            Output = SecondNode->Parent == FirstNode->Parent ? "true" : "false";
-    }
+    ax_display *Display = AXLibMainDisplay();
+    if(!Display)
+        return "false";
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    tree_node *FirstNode = GetTreeNodeFromWindowIDOrLinkNode(SpaceInfo->RootNode, FirstID);
+    tree_node *SecondNode = GetTreeNodeFromWindowIDOrLinkNode(SpaceInfo->RootNode, SecondID);
+    if(FirstNode && SecondNode)
+        Output = SecondNode->Parent == FirstNode->Parent ? "true" : "false";
 
     return Output;
 }
@@ -342,13 +348,14 @@ inline std::string
 GetPositionInNode(int WindowID)
 {
     std::string Output;
-    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
-    {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, WindowID);
-        if(Node)
-            Output = IsLeftChild(Node) ? "left" : "right";
-    }
+    ax_display *Display = AXLibMainDisplay();
+    if(!Display)
+        return "";
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(SpaceInfo->RootNode, WindowID);
+    if(Node)
+        Output = IsLeftChild(Node) ? "left" : "right";
 
     return Output;
 }

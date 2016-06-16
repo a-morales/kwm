@@ -19,6 +19,7 @@
 
 #define internal static
 
+extern std::map<CFStringRef, space_info> WindowTree;
 extern ax_application *FocusedApplication;
 extern ax_window *MarkedWindow;
 
@@ -649,8 +650,12 @@ KwmSpaceCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "focused")
         {
-            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            ApplyTreeNodeContainer(Space->RootNode);
+            ax_display *Display = AXLibMainDisplay();
+            if(Display)
+            {
+                space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+                ApplyTreeNodeContainer(SpaceInfo->RootNode);
+            }
         }
     }
     else if(Tokens[1] == "-p")
@@ -684,9 +689,11 @@ KwmSpaceCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "-n")
     {
-        if(KWMScreen.Current &&
-           KWMScreen.Current->ActiveSpace != -1)
-            SetNameOfActiveSpace(KWMScreen.Current, Tokens[2]);
+        ax_display *Display = AXLibMainDisplay();
+        if(Display)
+        {
+            SetNameOfActiveSpace(Display, Tokens[2]);
+        }
     }
 }
 
@@ -734,7 +741,9 @@ KwmTreeCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "save")
     {
-        SaveBSPTreeToFile(KWMScreen.Current, Tokens[2]);
+        ax_display *Display = AXLibMainDisplay();
+        space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+        SaveBSPTreeToFile(Display, SpaceInfo, Tokens[2]);
     }
     else if(Tokens[1] == "restore")
     {

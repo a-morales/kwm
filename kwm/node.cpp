@@ -210,24 +210,35 @@ void ToggleFocusedNodeSplitMode()
     ApplyTreeNodeContainer(Parent);
 }
 
-/* TODO(koekeishiya): Update for ax_window. */
 void ToggleTypeOfFocusedNode()
 {
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
-    if(TreeNode && TreeNode != Space->RootNode)
+    ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+    if(!Window)
+        return;
+
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(SpaceInfo->RootNode, Window->ID);
+    if(TreeNode && TreeNode != SpaceInfo->RootNode)
         TreeNode->Type = TreeNode->Type == NodeTypeTree ? NodeTypeLink : NodeTypeTree;
 }
 
-/* TODO(koekeishiya): Update for ax_window. */
 void ChangeTypeOfFocusedNode(node_type Type)
 {
-    Assert(KWMScreen.Current);
-    Assert(KWMFocus.Window);
+    ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+    if(!Window)
+        return;
 
-    space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, KWMFocus.Window->WID);
-    if(TreeNode && TreeNode != Space->RootNode)
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return;
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    tree_node *TreeNode = GetTreeNodeFromWindowIDOrLinkNode(SpaceInfo->RootNode, Window->ID);
+    if(TreeNode && TreeNode != SpaceInfo->RootNode)
         TreeNode->Type = Type;
 }
 

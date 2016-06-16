@@ -36,18 +36,16 @@ void SetWindowFocusByNode(tree_node *Node);
 void SetWindowFocusByNode(link_node *Link);
 void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Yptr, int *Wptr, int *Hptr);
 void SetWindowDimensions(AXUIElementRef WindowRef, window_info *Window, int X, int Y, int Width, int Height);
+bool IsWindowFullscreen(ax_window *Window);
+bool IsWindowParentContainer(ax_window *Window);
+void LockWindowToContainerSize(ax_window *Window);
+void ShiftSubTreeWindowFocus(int Shift);
 
 /* TODO(koekeishiya): NOT YET LOOKED AT */
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window);
 
 void AddWindowToBSPTree(screen_info *Screen, int WindowID);
 void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus);
-
-bool IsWindowFullscreen(window_info *Window);
-bool IsWindowParentContainer(window_info *Window);
-void LockWindowToContainerSize(window_info *Window);
-
-void ShiftSubTreeWindowFocus(int Shift);
 
 void MoveFloatingWindow(int X, int Y);
 

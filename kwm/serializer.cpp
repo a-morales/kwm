@@ -133,36 +133,29 @@ DeserializeNodeTree(std::vector<std::string> &Serialized, ax_display *Display)
     return RootNode;
 }
 
-/* NOTE(koekeishiya): This is outdated and does not work with ax_display. */
-void SaveBSPTreeToFile(screen_info *Screen, std::string Name)
+void SaveBSPTreeToFile(ax_display *Display, space_info *SpaceInfo, std::string Name)
 {
-    if(IsSpaceInitializedForScreen(Screen))
-    {
-        space_info *Space = GetActiveSpaceOfScreen(Screen);
-        if(Space->Settings.Mode != SpaceModeBSP || IsLeafNode(Space->RootNode))
-            return;
+    if(SpaceInfo->Settings.Mode != SpaceModeBSP || IsLeafNode(SpaceInfo->RootNode))
+        return;
 
-        struct stat Buffer;
-        std::string TempPath = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + KWMPath.BSPLayouts;
-        if (stat(TempPath.c_str(), &Buffer) == -1)
-            mkdir(TempPath.c_str(), 0700);
+    struct stat Buffer;
+    std::string TempPath = KWMPath.EnvHome + "/" + KWMPath.ConfigFolder + "/" + KWMPath.BSPLayouts;
+    if (stat(TempPath.c_str(), &Buffer) == -1)
+        mkdir(TempPath.c_str(), 0700);
 
-        std::ofstream OutFD(TempPath + "/" + Name);
-        if(OutFD.fail())
-            return;
+    std::ofstream OutFD(TempPath + "/" + Name);
+    if(OutFD.fail())
+        return;
 
-        tree_node *Root = Space->RootNode;
-        std::vector<std::string> SerializedTree;
-        SerializeParentNode(Root, "parent", SerializedTree);
+    tree_node *Root = SpaceInfo->RootNode;
+    std::vector<std::string> SerializedTree;
+    SerializeParentNode(Root, "parent", SerializedTree);
 
-        for(std::size_t LineNumber = 0; LineNumber < SerializedTree.size(); ++LineNumber)
-            OutFD << SerializedTree[LineNumber] << std::endl;
+    for(std::size_t LineNumber = 0; LineNumber < SerializedTree.size(); ++LineNumber)
+        OutFD << SerializedTree[LineNumber] << std::endl;
 
-        OutFD.close();
-    }
+    OutFD.close();
 }
-
-void LoadBSPTreeFromFile(screen_info *Screen, std::string Name) { }
 
 void LoadBSPTreeFromFile(ax_display *Display, space_info *SpaceInfo, std::string Name)
 {

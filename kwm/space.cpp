@@ -10,18 +10,9 @@
 extern std::map<CFStringRef, space_info> WindowTree;
 extern ax_application *FocusedApplication;
 
-extern kwm_mach KWMMach;
 extern kwm_tiling KWMTiling;
 extern kwm_screen KWMScreen;
-extern kwm_focus KWMFocus;
-extern kwm_toggles KWMToggles;
 extern kwm_mode KWMMode;
-extern kwm_thread KWMThread;
-extern kwm_border FocusedBorder;
-extern kwm_border MarkedBorder;
-
-extern void AddWindowToSpace(int CGSpaceID, int WindowID);
-extern void RemoveWindowFromSpace(int CGSpaceID, int WindowID);
 
 void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
 {
@@ -107,32 +98,6 @@ void GoToPreviousSpace(bool MoveFocusedWindow)
     }
     */
 }
-
-bool IsActiveSpaceFloating() { }
-
-bool IsSpaceFloating(int SpaceID) { }
-
-space_info *GetActiveSpaceOfScreen(screen_info *Screen) { }
-
-bool IsSpaceInitializedForScreen(screen_info *Screen) { }
-
-bool DoesSpaceExistInMapOfScreen(screen_info *Screen) { }
-
-bool IsSpaceTransitionInProgress() { }
-
-bool IsActiveSpaceManaged() { }
-
-void ShouldActiveSpaceBeManaged() { }
-
-void FloatFocusedSpace() { }
-
-void UpdateActiveSpace() { }
-
-void SetNameOfActiveSpace(screen_info *Screen, std::string Name) {}
-
-std::string GetNameOfSpace(screen_info *Screen, int CGSpaceID) { }
-
-void TileFocusedSpace(space_tiling_option Mode) { }
 
 space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID)
 {

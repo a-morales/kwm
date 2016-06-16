@@ -56,7 +56,7 @@ int GetFirstAvailableScratchpadSlot()
 
 void AddWindowToScratchpad(window_info *Window)
 {
-    if(!IsSpaceTransitionInProgress() &&
+    if(!AXLibIsSpaceTransitionInProgress() &&
        !IsWindowOnScratchpad(Window))
     {
         int Slot = GetFirstAvailableScratchpadSlot();
