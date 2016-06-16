@@ -225,9 +225,15 @@ void AXLibInitializeApplication(ax_application *Application)
     Application->Focus = AXLibGetFocusedWindow(Application);
 }
 
-/* NOTE(koekeishiya): This function will add the notifications that was not marked
-                      as successful during the creation of the applications observer. */
+/* NOTE(koekeishiya): This function will try to reinitialize the application that failed during creation. */
 void AXLibAddApplicationObserverNotificationFallback(ax_application *Application)
+{
+    AXLibRemoveApplicationObserver(Application);
+    AXLibInitializeApplication(Application);
+    AXLibConstructEvent(AXEvent_ApplicationLaunched, Application);
+}
+
+bool AXLibHasApplicationObserverNotification(ax_application *Application)
 {
     for(int Notification = AXApplication_Notification_WindowCreated;
             Notification < AXApplication_Notification_Count;
@@ -235,12 +241,11 @@ void AXLibAddApplicationObserverNotificationFallback(ax_application *Application
     {
         if(!(Application->Notifications & (1 << Notification)))
         {
-            if(AXLibAddObserverNotification(&Application->Observer, Application->Ref, AXNotificationFromEnum(Notification), Application) == kAXErrorSuccess)
-            {
-                Application->Notifications |= (1 << Notification);
-            }
+            return false;
         }
     }
+
+    return true;
 }
 
 void AXLibAddApplicationObserver(ax_application *Application)
@@ -248,7 +253,6 @@ void AXLibAddApplicationObserver(ax_application *Application)
     AXLibConstructObserver(Application, AXApplicationCallback);
     if(Application->Observer.Valid)
     {
-        printf("AXLIB Create observer: %s\n", Application->Name.c_str());
         for(int Notification = AXApplication_Notification_WindowCreated;
                 Notification < AXApplication_Notification_Count;
                 ++Notification)

@@ -65,6 +65,7 @@ void AXLibRemoveApplicationWindow(ax_application *Application, uint32_t WID);
 void AXLibAddApplicationObserver(ax_application *Application);
 void AXLibRemoveApplicationObserver(ax_application *Application);
 void AXLibAddApplicationObserverNotificationFallback(ax_application *Application);
+bool AXLibHasApplicationObserverNotification(ax_application *Application);
 
 void AXLibActivateApplication(ax_application *Application);
 bool AXLibIsApplicationActive(ax_application *Application);

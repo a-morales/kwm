@@ -259,10 +259,6 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
     ax_application *Application = (ax_application *) Event->Context;
     DEBUG("AXEvent_ApplicationLaunched: " << Application->Name);
 
-    /* NOTE(koekeishiya): Some applications fail to properly create notifications upon launch.
-                          Force applications to register failed notifications. */
-    AXLibAddApplicationObserverNotificationFallback(Application);
-
     if(Application->Focus)
     {
         ApplyWindowRules(Application->Focus);
