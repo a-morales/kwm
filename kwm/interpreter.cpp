@@ -695,12 +695,14 @@ KwmDisplayCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "-f")
     {
+        /* TODO(koekeishiya): Fix this.
         if(Tokens[2] == "prev")
             GiveFocusToScreen(GetIndexOfPrevScreen(), NULL, false, true);
         else if(Tokens[2] == "next")
             GiveFocusToScreen(GetIndexOfNextScreen(), NULL, false, true);
         else
             GiveFocusToScreen(ConvertStringToInt(Tokens[2]), NULL, false, true);
+        */
     }
     else if(Tokens[1] == "-c")
     {

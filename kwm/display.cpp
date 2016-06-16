@@ -7,46 +7,8 @@
 #include "cursor.h"
 
 extern std::map<CFStringRef, space_info> WindowTree;
-
 extern kwm_screen KWMScreen;
-extern kwm_focus KWMFocus;
 extern kwm_tiling KWMTiling;
-extern kwm_thread KWMThread;
-extern kwm_toggles KWMToggles;
-
-unsigned int GetDisplayIDFromIdentifier(CFStringRef Identifier) { }
-
-void UpdateDisplayIDForDisplay(int OldDisplayIndex, int NewDisplayIndex) { }
-
-void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo) { }
-
-screen_info CreateDefaultScreenInfo(int DisplayIndex, int ScreenIndex) { }
-
-void UpdateExistingScreenInfo(screen_info *Screen, int DisplayIndex, int ScreenIndex) { }
-
-CFStringRef GetDisplayIdentifier(int DisplayID) { }
-
-void GetActiveDisplays() { }
-
-void RefreshActiveDisplays(bool ShouldFocusScreen) { }
-
-screen_info *GetDisplayFromScreenID(unsigned int ID) { }
-
-screen_info *GetDisplayOfMousePointer() { }
-
-screen_info *GetDisplayOfWindow(window_info *Window) { }
-
-int GetIndexOfNextScreen() { }
-
-int GetIndexOfPrevScreen() { }
-
-std::vector<window_info*> GetAllWindowsOnDisplay(int ScreenIndex) { }
-
-void UpdateActiveScreen() { }
-
-void UpdateSpaceOfScreen(space_info *Space, screen_info *Screen) { }
-
-void GiveFocusToScreen(unsigned int ScreenIndex, tree_node *FocusNode, bool Mouse, bool UpdateFocus) { }
 
 void SetDefaultPaddingOfDisplay(container_offset Offset)
 {
@@ -139,6 +101,7 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
 /* TODO(koekeishiya): Make this work for ax_window */
 void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
 {
+    /*
     int NewScreenIndex = -1;
 
     if(Relative)
@@ -157,6 +120,7 @@ void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
         else
             AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window);
     }
+    */
 }
 
 container_offset CreateDefaultScreenOffset()
