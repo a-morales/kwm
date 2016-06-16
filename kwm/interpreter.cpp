@@ -753,20 +753,34 @@ KwmTreeCommand(std::vector<std::string> &Tokens)
 internal void
 KwmScratchpadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 {
-    /* TODO(koekeishiya) reimplement.
     if(Tokens[1] == "show")
+    {
         ShowScratchpadWindow(ConvertStringToInt(Tokens[2]));
+    }
     else if(Tokens[1] == "toggle")
+    {
         ToggleScratchpadWindow(ConvertStringToInt(Tokens[2]));
+    }
     else if(Tokens[1] == "hide")
+    {
         HideScratchpadWindow(ConvertStringToInt(Tokens[2]));
-    else if(Tokens[1] == "add" && KWMFocus.Window)
-        AddWindowToScratchpad(KWMFocus.Window);
-    else if(Tokens[1] == "remove" && KWMFocus.Window)
-        RemoveWindowFromScratchpad(KWMFocus.Window);
+    }
+    else if(Tokens[1] == "add")
+    {
+        ax_application *Application = AXLibGetFocusedApplication();
+        if(Application && Application->Focus)
+            AddWindowToScratchpad(Application->Focus);
+    }
+    else if(Tokens[1] == "remove")
+    {
+        ax_application *Application = AXLibGetFocusedApplication();
+        if(Application && Application->Focus)
+            RemoveWindowFromScratchpad(Application->Focus);
+    }
     else if(Tokens[1] == "list")
+    {
         KwmWriteToSocket(ClientSockFD, GetWindowsOnScratchpad());
-    */
+    }
 }
 
 void KwmInterpretCommand(std::string Message, int ClientSockFD)
