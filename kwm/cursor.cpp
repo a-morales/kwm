@@ -5,7 +5,6 @@
 #define internal static
 #define local_persist static
 
-extern volatile ax_application *FocusedApplication;
 extern kwm_toggles KWMToggles;
 
 internal CGPoint
