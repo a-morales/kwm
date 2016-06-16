@@ -8,7 +8,6 @@
 #include "axlib/application.h"
 #include "axlib/window.h"
 
-extern ax_application *FocusedApplication;
 extern ax_window *MarkedWindow;
 
 extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
@@ -198,9 +197,16 @@ GetTagOfCurrentSpace()
     std::string Output;
     GetTagForCurrentSpace(Output);
 
-    if(FocusedApplication && FocusedApplication->Focus)
-        Output += " " + FocusedApplication->Name + (FocusedApplication->Focus->Name.empty() ? "" : " - " + FocusedApplication->Focus->Name);
+    ax_application *Application = AXLibGetFocusedApplication();
+    if(!Application)
+        return Output;
+    Output += " " + Application->Name;
 
+    ax_window *Window = Application->Focus;
+    if(!Window)
+        return Output;
+
+    Output += " - " + Window->Name;
     return Output;
 }
 
@@ -259,19 +265,22 @@ GetSplitModeOfWindow(int WindowID)
 inline std::string
 GetIdOfFocusedWindow()
 {
-    return FocusedApplication && FocusedApplication->Focus ? std::to_string(FocusedApplication->Focus->ID) : "-1";
+    ax_application *Application = AXLibGetFocusedApplication();
+    return Application && Application->Focus ? std::to_string(Application->Focus->ID) : "-1";
 }
 
 inline std::string
 GetNameOfFocusedWindow()
 {
-    return FocusedApplication && FocusedApplication->Focus ? FocusedApplication->Focus->Name : "-1";
+    ax_application *Application = AXLibGetFocusedApplication();
+    return Application && Application->Focus ? Application->Focus->Name : "";
 }
 
 inline std::string
 GetSplitModeOfFocusedWindow()
 {
-    return FocusedApplication && FocusedApplication->Focus ? GetSplitModeOfWindow(FocusedApplication->Focus->ID) : "";
+    ax_application *Application = AXLibGetFocusedApplication();
+    return Application && Application->Focus ? GetSplitModeOfWindow(Application->Focus->ID) : "";
 }
 
 inline std::string
