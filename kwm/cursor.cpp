@@ -81,3 +81,10 @@ void FocusWindowBelowCursor()
         }
     }
 }
+
+EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
+{
+    if(!AXLibIsSpaceTransitionInProgress())
+        FocusWindowBelowCursor();
+}
+

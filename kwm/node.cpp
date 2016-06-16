@@ -65,7 +65,6 @@ void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowI
 {
     Parent->WindowID = 0;
     Parent->SplitMode = SplitMode;
-    /* TODO(koekeishiya): Is KWMScreen.SplitRatio a thing (?) */
     Parent->SplitRatio = KWMScreen.SplitRatio;
 
     node_type ParentType = Parent->Type;
@@ -73,7 +72,6 @@ void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowI
     Parent->Type = NodeTypeTree;
     Parent->List = NULL;
 
-    /* TODO(koekeishiya): Is KWMTiling.SpawnAsLeftChild a thing (?) */
     int LeftWindowID = KWMTiling.SpawnAsLeftChild ? SecondWindowID : FirstWindowID;
     int RightWindowID = KWMTiling.SpawnAsLeftChild ? FirstWindowID : SecondWindowID;
 

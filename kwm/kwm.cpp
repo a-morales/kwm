@@ -38,14 +38,6 @@ kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
 scratchpad Scratchpad = {};
 
-/* TODO(koekeishiya): Should probably be moved to a 'cursor.cpp' or similar in the future,
-                      along with other cursor-related functionality we might want */
-EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
-{
-    if(!AXLibIsSpaceTransitionInProgress())
-        FocusWindowBelowCursor();
-}
-
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
     switch(Type)
