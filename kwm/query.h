@@ -8,6 +8,7 @@
 #include "axlib/application.h"
 #include "axlib/window.h"
 
+extern std::map<CFStringRef, space_info> WindowTree;
 extern ax_window *MarkedWindow;
 
 extern int GetNumberOfSpacesOfDisplay(screen_info *Screen);
@@ -243,20 +244,24 @@ GetStateOfMarkedBorder()
 }
 
 inline std::string
-GetSplitModeOfWindow(int WindowID)
+GetSplitModeOfWindow(ax_window *Window)
 {
     std::string Output;
-    if(DoesSpaceExistInMapOfScreen(KWMScreen.Current))
+    if(!Window)
+        return "";
+
+    ax_display *Display = AXLibWindowDisplay(Window);
+    if(!Display)
+        return "";
+
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(SpaceInfo->RootNode, Window->ID);
+    if(Node)
     {
-        space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-        tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Space->RootNode, WindowID);
-        if(Node)
-        {
-            if(Node->SplitMode == SPLIT_VERTICAL)
-                Output = "Vertical";
-            else if(Node->SplitMode == SPLIT_HORIZONTAL)
-                Output = "Horizontal";
-        }
+        if(Node->SplitMode == SPLIT_VERTICAL)
+            Output = "Vertical";
+        else if(Node->SplitMode == SPLIT_HORIZONTAL)
+            Output = "Horizontal";
     }
 
     return Output;
@@ -280,13 +285,14 @@ inline std::string
 GetSplitModeOfFocusedWindow()
 {
     ax_application *Application = AXLibGetFocusedApplication();
-    return Application && Application->Focus ? GetSplitModeOfWindow(Application->Focus->ID) : "";
+    return Application ? GetSplitModeOfWindow(Application->Focus) : "";
 }
 
 inline std::string
 GetFloatStatusOfFocusedWindow()
 {
-    return IsFocusedWindowFloating() ? "true" : "false";
+    ax_application *Application = AXLibGetFocusedApplication();
+    return Application && Application->Focus ? (AXLibHasFlags(Application->Focus, AXWindow_Floating) ? "true" : "false") : "false";
 }
 
 inline std::string
@@ -304,7 +310,7 @@ GetNameOfMarkedWindow()
 inline std::string
 GetSplitModeOfMarkedWindow()
 {
-    return MarkedWindow ? GetSplitModeOfWindow(MarkedWindow->ID) : "";
+    return GetSplitModeOfWindow(MarkedWindow);
 }
 
 inline std::string
