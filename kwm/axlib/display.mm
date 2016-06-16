@@ -323,7 +323,8 @@ AXLibResizeDisplay(CGDirectDisplayID DisplayID)
     AXLibRefreshDisplays();
 
     ax_display *Display = AXLibDisplay(DisplayIdentifier);
-    AXLibConstructEvent(AXEvent_DisplayResized, Display);
+    if(Display)
+        AXLibConstructEvent(AXEvent_DisplayResized, Display);
 
     if(DisplayIdentifier)
         CFRelease(DisplayIdentifier);
@@ -338,7 +339,8 @@ AXLibMoveDisplay(CGDirectDisplayID DisplayID)
     AXLibRefreshDisplays();
 
     ax_display *Display = AXLibDisplay(DisplayIdentifier);
-    AXLibConstructEvent(AXEvent_DisplayMoved, Display);
+    if(Display)
+        AXLibConstructEvent(AXEvent_DisplayMoved, Display);
 
     if(DisplayIdentifier)
         CFRelease(DisplayIdentifier);
