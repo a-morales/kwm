@@ -532,7 +532,7 @@ AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, uint32_t WindowID
         }
 
         tree_node *CurrentNode = NULL;
-        ax_application *Application = AXLibGetFocusedApplication();
+        ax_application *Application = FocusedApplication ? FocusedApplication : AXLibGetFocusedApplication();
         ax_window *Window = Application ? Application->Focus : NULL;
         if(MarkedWindow && MarkedWindow->ID != WindowID)
             CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, MarkedWindow->ID);
@@ -545,9 +545,36 @@ AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, uint32_t WindowID
 
         if(CurrentNode)
         {
-            split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
-            CreateLeafNodePair(Display, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
-            ApplyTreeNodeContainer(CurrentNode);
+            if(CurrentNode->Type == NodeTypeTree)
+            {
+                split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+                CreateLeafNodePair(Display, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
+                ApplyTreeNodeContainer(CurrentNode);
+            }
+            else if(CurrentNode->Type == NodeTypeLink)
+            {
+                link_node *Link = CurrentNode->List;
+                if(Link)
+                {
+                    while(Link->Next)
+                        Link = Link->Next;
+
+                    link_node *NewLink = CreateLinkNode();
+                    NewLink->Container = CurrentNode->Container;
+
+                    NewLink->WindowID = WindowID;
+                    Link->Next = NewLink;
+                    NewLink->Prev = Link;
+                    ResizeWindowToContainerSize(NewLink);
+                }
+                else
+                {
+                    CurrentNode->List = CreateLinkNode();
+                    CurrentNode->List->Container = CurrentNode->Container;
+                    CurrentNode->List->WindowID = WindowID;
+                    ResizeWindowToContainerSize(CurrentNode->List);
+                }
+            }
         }
     }
 }
@@ -558,39 +585,66 @@ RemoveWindowFromBSPTree(ax_display *Display, uint32_t WindowID)
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     tree_node *WindowNode = GetTreeNodeFromWindowID(SpaceInfo->RootNode, WindowID);
     if(!WindowNode)
-        return;
-
-    tree_node *Parent = WindowNode->Parent;
-    if(Parent && Parent->LeftChild && Parent->RightChild)
     {
-        tree_node *AccessChild = IsRightChild(WindowNode) ? Parent->LeftChild : Parent->RightChild;
-        Parent->LeftChild = NULL;
-        Parent->RightChild = NULL;
-
-        Parent->WindowID = AccessChild->WindowID;
-        Parent->Type = AccessChild->Type;
-        Parent->List = AccessChild->List;
-
-        if(AccessChild->LeftChild && AccessChild->RightChild)
+        link_node *Link = GetLinkNodeFromWindowID(SpaceInfo->RootNode, WindowID);
+        tree_node *Root = GetTreeNodeFromLink(SpaceInfo->RootNode, Link);
+        if(Link)
         {
-            Parent->LeftChild = AccessChild->LeftChild;
-            Parent->LeftChild->Parent = Parent;
+            link_node *Prev = Link->Prev;
+            link_node *Next = Link->Next;
 
-            Parent->RightChild = AccessChild->RightChild;
-            Parent->RightChild->Parent = Parent;
+            Link->Prev = NULL;
+            Link->Next = NULL;
 
-            CreateNodeContainers(Display, Parent, true);
+            if(Prev)
+                Prev->Next = Next;
+
+            if(!Prev)
+                Root->List = Next;
+
+            if(Next)
+                Next->Prev = Prev;
+
+            if(Link == Root->List)
+                Root->List = NULL;
+
+            free(Link);
         }
-
-        ResizeLinkNodeContainers(Parent);
-        ApplyTreeNodeContainer(Parent);
-        free(AccessChild);
-        free(WindowNode);
     }
-    else if(!Parent)
+    else
     {
-        free(SpaceInfo->RootNode);
-        SpaceInfo->RootNode = NULL;
+        tree_node *Parent = WindowNode->Parent;
+        if(Parent && Parent->LeftChild && Parent->RightChild)
+        {
+            tree_node *AccessChild = IsRightChild(WindowNode) ? Parent->LeftChild : Parent->RightChild;
+            Parent->LeftChild = NULL;
+            Parent->RightChild = NULL;
+
+            Parent->WindowID = AccessChild->WindowID;
+            Parent->Type = AccessChild->Type;
+            Parent->List = AccessChild->List;
+
+            if(AccessChild->LeftChild && AccessChild->RightChild)
+            {
+                Parent->LeftChild = AccessChild->LeftChild;
+                Parent->LeftChild->Parent = Parent;
+
+                Parent->RightChild = AccessChild->RightChild;
+                Parent->RightChild->Parent = Parent;
+
+                CreateNodeContainers(Display, Parent, true);
+            }
+
+            ResizeLinkNodeContainers(Parent);
+            ApplyTreeNodeContainer(Parent);
+            free(AccessChild);
+            free(WindowNode);
+        }
+        else if(!Parent)
+        {
+            free(SpaceInfo->RootNode);
+            SpaceInfo->RootNode = NULL;
+        }
     }
 }
 
@@ -811,192 +865,6 @@ void RebalanceNodeTree(ax_display *Display)
     else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
         RebalanceMonocleTree(Display);
 }
-
-/* TODO(koekeishiya): Make this work for monocle subtrees.
-void AddWindowToBSPTree(screen_info *Screen, int WindowID)
-{
-    if(!DoesSpaceExistInMapOfScreen(Screen))
-        return;
-
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-    tree_node *RootNode = Space->RootNode;
-    tree_node *CurrentNode = NULL;
-
-    DEBUG("AddWindowToBSPTree() Create pair of leafs");
-    window_info *InsertionPoint = !WindowsAreEqual(&KWMFocus.InsertionPoint, &KWMFocus.NULLWindowInfo) ? &KWMFocus.InsertionPoint : NULL;
-    bool UseFocusedContainer = InsertionPoint &&
-                               IsWindowOnActiveSpace(InsertionPoint->WID) &&
-                               InsertionPoint->WID != WindowID;
-
-    bool DoNotUseMarkedContainer = IsWindowFloating(KWMScreen.MarkedWindow.WID, NULL) ||
-                                   (KWMScreen.MarkedWindow.WID == WindowID);
-
-    if((KWMScreen.MarkedWindow.WID == 0 ||
-       KWMScreen.MarkedWindow.WID == 0) &&
-       UseFocusedContainer)
-    {
-        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, InsertionPoint->WID);
-    }
-    else if(DoNotUseMarkedContainer ||
-           ((KWMScreen.MarkedWindow.WID == 0 || KWMScreen.MarkedWindow.WID == 0) &&
-           !UseFocusedContainer))
-    {
-        GetFirstLeafNode(RootNode, (void**)&CurrentNode);
-    }
-    else
-    {
-        CurrentNode = GetTreeNodeFromWindowIDOrLinkNode(RootNode, KWMScreen.MarkedWindow.WID);
-        ClearMarkedWindow();
-    }
-
-    if(CurrentNode)
-    {
-        if(CurrentNode->Type == NodeTypeTree)
-        {
-            split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
-            CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
-            ApplyTreeNodeContainer(CurrentNode);
-        }
-        else if(CurrentNode->Type == NodeTypeLink)
-        {
-            link_node *Link = CurrentNode->List;
-            if(Link)
-            {
-                while(Link->Next)
-                    Link = Link->Next;
-
-                link_node *NewLink = CreateLinkNode();
-                NewLink->Container = CurrentNode->Container;
-
-                NewLink->WindowID = WindowID;
-                Link->Next = NewLink;
-                NewLink->Prev = Link;
-                ResizeWindowToContainerSize(NewLink);
-            }
-            else
-            {
-                CurrentNode->List = CreateLinkNode();
-                CurrentNode->List->Container = CurrentNode->Container;
-                CurrentNode->List->WindowID = WindowID;
-                ResizeWindowToContainerSize(CurrentNode->List);
-            }
-        }
-    }
-}
-*/
-
-/* TODO(koekeishiya): Make monocle subtrees work for ax_window.
-void RemoveWindowFromBSPTree(screen_info *Screen, int WindowID, bool Center, bool UpdateFocus)
-{
-    if(!DoesSpaceExistInMapOfScreen(Screen))
-        return;
-
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-    tree_node *WindowNode = GetTreeNodeFromWindowID(Space->RootNode, WindowID);
-    if(!WindowNode)
-    {
-        link_node *Link = GetLinkNodeFromWindowID(Space->RootNode, WindowID);
-        tree_node *Root = GetTreeNodeFromLink(Space->RootNode, Link);
-        if(Link)
-        {
-            link_node *Prev = Link->Prev;
-            link_node *Next = Link->Next;
-            link_node *NewFocusNode = Prev;
-
-            Link->Prev = NULL;
-            Link->Next = NULL;
-
-            if(Prev)
-                Prev->Next = Next;
-
-            if(!Prev)
-                Root->List = Next;
-
-            if(Next)
-                Next->Prev = Prev;
-
-            if(Link == Root->List)
-                Root->List = NULL;
-
-            if(UpdateFocus)
-            {
-                if(NewFocusNode)
-                    SetWindowFocusByNode(NewFocusNode);
-                else
-                    SetWindowFocusByNode(Root);
-
-                MoveCursorToCenterOfFocusedWindow();
-            }
-
-            free(Link);
-        }
-
-        return;
-    }
-
-    tree_node *Parent = WindowNode->Parent;
-    if(Parent && Parent->LeftChild && Parent->RightChild)
-    {
-        tree_node *AccessChild = IsRightChild(WindowNode) ? Parent->LeftChild : Parent->RightChild;
-        tree_node *NewFocusNode = NULL;
-        Parent->LeftChild = NULL;
-        Parent->RightChild = NULL;
-
-        DEBUG("RemoveWindowFromBSPTree() Parent && LeftChild && RightChild");
-        Parent->WindowID = AccessChild->WindowID;
-        Parent->Type = AccessChild->Type;
-        Parent->List = AccessChild->List;
-
-        if(AccessChild->LeftChild && AccessChild->RightChild)
-        {
-            Parent->LeftChild = AccessChild->LeftChild;
-            Parent->LeftChild->Parent = Parent;
-
-            Parent->RightChild = AccessChild->RightChild;
-            Parent->RightChild->Parent = Parent;
-
-            CreateNodeContainers(Screen, Parent, true);
-            NewFocusNode = IsLeafNode(Parent->LeftChild) ? Parent->LeftChild : Parent->RightChild;
-            while(!IsLeafNode(NewFocusNode))
-                NewFocusNode = IsLeafNode(Parent->LeftChild) ? Parent->LeftChild : Parent->RightChild;
-        }
-
-        ResizeLinkNodeContainers(Parent);
-        ApplyTreeNodeContainer(Parent);
-        if(Center)
-        {
-            window_info *WindowInfo = GetWindowByID(WindowID);
-            if(WindowInfo)
-                CenterWindow(Screen, WindowInfo);
-        }
-        else
-        {
-            if(!NewFocusNode)
-                NewFocusNode = Parent;
-
-            if(UpdateFocus)
-                SetWindowFocusByNode(NewFocusNode);
-        }
-
-        free(AccessChild);
-        free(WindowNode);
-    }
-    else if(!Parent)
-    {
-        DEBUG("RemoveWindowFromBSPTree() !Parent");
-
-        if(Center)
-        {
-            window_info *WindowInfo = GetWindowByID((int)WindowNode->WindowID);
-            if(WindowInfo)
-                CenterWindow(Screen, WindowInfo);
-        }
-
-        free(Space->RootNode);
-        Space->RootNode = NULL;
-    }
-}
-*/
 
 /* TODO(koekeishiya): Make this work for ax_window.
 void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
