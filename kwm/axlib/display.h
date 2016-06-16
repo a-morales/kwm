@@ -75,6 +75,7 @@ AXLibClearFlags(ax_space *Space, uint32_t Flag)
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays);
 ax_space *AXLibGetActiveSpace(ax_display *Display);
 bool AXLibIsSpaceTransitionInProgress();
+bool AXLibDisplayHasSeparateSpaces();
 
 ax_display *AXLibMainDisplay();
 ax_display *AXLibCursorDisplay();

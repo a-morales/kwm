@@ -681,6 +681,11 @@ bool AXLibSpaceHasWindow(ax_window *Window, CGSSpaceID SpaceID)
     return Result;
 }
 
+bool AXLibDisplayHasSeparateSpaces()
+{
+    return [NSScreen screensHaveSeparateSpaces];
+}
+
 void AXLibInitializeDisplays(std::map<CGDirectDisplayID, ax_display> *AXDisplays)
 {
     Displays = AXDisplays;

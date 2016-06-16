@@ -272,6 +272,10 @@ int main(int argc, char **argv)
                        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, KWMMach.EventTap, 0),
                        kCFRunLoopCommonModes);
     CGEventTapEnable(KWMMach.EventTap, true);
+    NSApplicationLoad();
+
+    if(!AXLibDisplayHasSeparateSpaces())
+        Fatal("Error: Kwm requires 'displays have seperate spaces' enabled!");
 
     /* NOTE(koekeishiya): Initialize AXLIB */
     AXLibInit(&AXState);
@@ -292,7 +296,6 @@ int main(int argc, char **argv)
     CreateWindowNodeTree(MainDisplay);
     /* ----------------------------------- */
 
-    NSApplicationLoad();
     CFRunLoopRun();
     return 0;
 }
