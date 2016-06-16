@@ -1068,7 +1068,6 @@ bool IsWindowParentContainer(ax_window *Window)
     return Node && Node->Parent && Node->Parent->WindowID == Window->ID;
 }
 
-/* TODO(koekeishiya): Make this work for ax_window. */
 void LockWindowToContainerSize(ax_window *Window)
 {
     if(Window)
@@ -1089,7 +1088,6 @@ void LockWindowToContainerSize(ax_window *Window)
     }
 }
 
-/* NOTE(koekeishiya): Does this work (?) */
 void DetachAndReinsertWindow(unsigned int WindowID, int Degrees)
 {
     if(MarkedWindow && MarkedWindow->ID == WindowID)
