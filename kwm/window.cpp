@@ -63,6 +63,49 @@ UpdateSpaceOfDisplay(ax_display *Display, space_info *Space)
     }
 }
 
+internal void
+FloatNonResizable(ax_window *Window)
+{
+    if(Window)
+    {
+        if((KWMTiling.FloatNonResizable) &&
+           (!AXLibHasFlags(Window, AXWindow_Resizable)))
+        {
+            AXLibAddFlags(Window, AXWindow_Floating);
+        }
+    }
+}
+
+internal void
+StandbyOnFloat(ax_window *Window)
+{
+    if(Window)
+    {
+        if((KWMToggles.StandbyOnFloat) &&
+           (KWMMode.Focus != FocusModeDisabled))
+        {
+            if(AXLibHasFlags(Window, AXWindow_Floating))
+                KWMMode.Focus = FocusModeStandby;
+            else
+                KWMMode.Focus = FocusModeAutoraise;
+        }
+    }
+}
+
+internal void
+TileWindow(ax_display *Display, ax_window *Window)
+{
+    if(Window)
+    {
+        if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
+           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
+           (!AXLibHasFlags(Window, AXWindow_Floating)))
+        {
+            AddWindowToNodeTree(Display, Window->ID);
+        }
+    }
+}
+
 EVENT_CALLBACK(Callback_AXEvent_DisplayAdded)
 {
     DEBUG("AXEvent_DisplayAdded");
@@ -227,18 +270,8 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
         if(!Display)
             Display = AXLibWindowDisplay(Application->Focus);
 
-        if((KWMTiling.FloatNonResizable) &&
-           (!AXLibHasFlags(Application->Focus, AXWindow_Resizable)))
-        {
-            AXLibAddFlags(Application->Focus, AXWindow_Floating);
-        }
-
-        if((!AXLibHasFlags(Application->Focus, AXWindow_Minimized)) &&
-           (AXLibIsWindowStandard(Application->Focus) || AXLibIsWindowCustom(Application->Focus)) &&
-           (!AXLibHasFlags(Application->Focus, AXWindow_Floating)))
-        {
-            AddWindowToNodeTree(Display, Application->Focus->ID);
-        }
+        FloatNonResizable(Application->Focus);
+        TileWindow(Display, Application->Focus);
     }
 }
 
@@ -260,6 +293,8 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
 
     FocusedApplication = Application;
     UpdateBorder("focused");
+
+    StandbyOnFloat(FocusedApplication->Focus);
 }
 
 EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
@@ -271,18 +306,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
     ax_display *Display = AXLibWindowDisplay(Window);
     if(Display)
     {
-        if((KWMTiling.FloatNonResizable) &&
-           (!AXLibHasFlags(Window, AXWindow_Resizable)))
-        {
-            AXLibAddFlags(Window, AXWindow_Floating);
-        }
-
-        if((!AXLibHasFlags(Window, AXWindow_Minimized)) &&
-           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)) &&
-           (!AXLibHasFlags(Window, AXWindow_Floating)))
-        {
-            AddWindowToNodeTree(Display, Window->ID);
-        }
+        FloatNonResizable(Window);
+        TileWindow(Display, Window);
     }
 }
 
@@ -347,6 +372,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
     if((AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)))
         Window->Application->Focus = Window;
 
+    StandbyOnFloat(Window);
     if(FocusedApplication == Window->Application)
         UpdateBorder("focused");
 }
@@ -1096,23 +1122,22 @@ void ToggleWindowFloating(uint32_t WindowID, bool Center)
     if(!Display)
         return;
 
-    /* TODO(koekeishiya): Do we handle standby-on-float here (?)
-    if(KWMMode.Focus != FocusModeDisabled && KWMToggles.StandbyOnFloat)
-        KWMMode.Focus = FocusModeAutoraise;
-    if(KWMMode.Focus != FocusModeDisabled && KWMToggles.StandbyOnFloat)
-        KWMMode.Focus = FocusModeStandby;
-    */
-
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     if(AXLibHasFlags(Window, AXWindow_Floating))
     {
         AXLibClearFlags(Window, AXWindow_Floating);
         AddWindowToNodeTree(Display, Window->ID);
+        if((KWMToggles.StandbyOnFloat) &&
+           (KWMMode.Focus != FocusModeDisabled))
+            KWMMode.Focus = FocusModeAutoraise;
     }
     else
     {
         AXLibAddFlags(Window, AXWindow_Floating);
         RemoveWindowFromNodeTree(Display, Window->ID);
+        if((KWMToggles.StandbyOnFloat) &&
+           (KWMMode.Focus != FocusModeDisabled))
+            KWMMode.Focus = FocusModeStandby;
     }
 }
 
