@@ -110,10 +110,12 @@ GetStateOfStandbyOnFloat()
     return KWMToggles.StandbyOnFloat ? "on" : "off";
 }
 
+/* TODO(koekeishiya): Fix this. */
 inline std::string
 GetWindowList()
 {
     std::string Output;
+    /*
     std::vector<window_info> Windows = FilterWindowListAllDisplays();
 
     for(int Index = 0; Index < Windows.size(); ++Index)
@@ -122,6 +124,7 @@ GetWindowList()
         if(Index < Windows.size() - 1)
             Output += "\n";
     }
+    */
 
     return Output;
 }
@@ -353,7 +356,7 @@ GetPositionInNode(int WindowID)
 inline std::string
 GetWindowIdInDirectionOfFocusedWindow(std::string Direction)
 {
-    window_info Window = {};
+    ax_window *ClosestWindow = NULL;
     std::string Output = "-1";
     int Degrees = 0;
 
@@ -366,8 +369,8 @@ GetWindowIdInDirectionOfFocusedWindow(std::string Direction)
     else if(Direction == "west")
         Degrees = 270;
 
-    if(FindClosestWindow(Degrees, &Window, true))
-        Output = std::to_string(Window.WID);
+    if(FindClosestWindow(Degrees, &ClosestWindow, true))
+        Output = std::to_string(ClosestWindow->ID);
 
     return Output;
 }

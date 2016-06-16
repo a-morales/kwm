@@ -5,6 +5,7 @@
 #define internal static
 #define local_persist static
 
+extern ax_application *FocusedApplication;
 extern kwm_toggles KWMToggles;
 
 internal CGPoint
@@ -38,6 +39,15 @@ void MoveCursorToCenterOfWindow(ax_window *Window)
                                               Window->Position.y + Window->Size.height / 2));
     }
 }
+
+void MoveCursorToCenterOfFocusedWindow()
+{
+    if(KWMToggles.UseMouseFollowsFocus &&
+       FocusedApplication &&
+       FocusedApplication->Focus)
+        MoveCursorToCenterOfWindow(FocusedApplication->Focus);
+}
+
 
 void FocusWindowBelowCursor()
 {

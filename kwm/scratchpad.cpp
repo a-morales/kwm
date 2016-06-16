@@ -87,6 +87,7 @@ void RemoveWindowFromScratchpad(window_info *Window)
 
 void ToggleScratchpadWindow(int Index)
 {
+    /*
     if(!IsSpaceTransitionInProgress() &&
        IsScratchpadSlotValid(Index))
     {
@@ -96,6 +97,7 @@ void ToggleScratchpadWindow(int Index)
         else
             ShowScratchpadWindow(Index);
     }
+    */
 }
 
 void HideScratchpadWindow(int Index)
@@ -143,6 +145,7 @@ void ShowScratchpadWindow(int Index)
 
 void ResizeScratchpadWindow(screen_info *Screen, window_info *Window)
 {
+    /*
     AXUIElementRef WindowRef;
     if(GetWindowRef(Window, &WindowRef))
     {
@@ -152,6 +155,7 @@ void ResizeScratchpadWindow(screen_info *Screen, window_info *Window)
         int NewHeight = Screen->Height * 0.75;
         SetWindowDimensions(WindowRef, Window, NewX, NewY, NewWidth, NewHeight);
     }
+    */
 }
 
 void ShowAllScratchpadWindows()

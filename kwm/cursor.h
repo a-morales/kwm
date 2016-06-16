@@ -6,5 +6,6 @@
 
 void FocusWindowBelowCursor();
 void MoveCursorToCenterOfWindow(ax_window *Window);
+void MoveCursorToCenterOfFocusedWindow();
 
 #endif
