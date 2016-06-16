@@ -229,7 +229,13 @@ KwmExecuteHotkey(hotkey *Hotkey)
                 KwmInterpretCommand(Command, 0);
 
             if(KWMHotkeys.ActiveMode->Prefix)
+            {
                 KWMHotkeys.ActiveMode->Time = std::chrono::steady_clock::now();
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, KWMHotkeys.ActiveMode->Timeout * NSEC_PER_SEC), dispatch_get_main_queue(),
+                ^{
+                    CheckPrefixTimeout();
+                });
+            }
         }
     }
 }
@@ -360,7 +366,13 @@ void KwmActivateBindingMode(std::string Mode)
     KWMHotkeys.ActiveMode = BindingMode;
     UpdateBorder("focused");
     if(BindingMode->Prefix)
+    {
         BindingMode->Time = std::chrono::steady_clock::now();
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, BindingMode->Timeout * NSEC_PER_SEC), dispatch_get_main_queue(),
+        ^{
+            CheckPrefixTimeout();
+        });
+    }
 }
 
 void CheckPrefixTimeout()
