@@ -221,17 +221,19 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
     ax_application *Application = (ax_application *) Event->Context;
     DEBUG("AXEvent_ApplicationLaunched: " << Application->Name);
 
-    if(Application->Focus)
+    std::map<uint32_t, ax_window *>::iterator It;
+    for(It = Application->Windows.begin(); It != Application->Windows.end(); ++It)
     {
-        if(ApplyWindowRules(Application->Focus))
-            return;
+        ax_window *Window = It->second;
+        if(ApplyWindowRules(Window))
+            continue;
 
         ax_display *Display = AXLibCursorDisplay();
         if(!Display)
-            Display = AXLibWindowDisplay(Application->Focus);
+            Display = AXLibWindowDisplay(Window);
 
-        FloatNonResizable(Application->Focus);
-        TileWindow(Display, Application->Focus);
+        FloatNonResizable(Window);
+        TileWindow(Display, Window);
     }
 }
 
