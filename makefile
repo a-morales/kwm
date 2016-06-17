@@ -19,7 +19,7 @@ OBJS_DIR      = ./obj
 SAMPLE_CONFIG = examples/kwmrc
 CONFIG_DIR    = $(HOME)/.kwm
 BUILD_PATH    = ./bin
-BUILD_FLAGS   = -Wall
+BUILD_FLAGS   = -O3 -Wall
 BINS          = $(BUILD_PATH)/kwm $(BUILD_PATH)/kwmc $(BUILD_PATH)/kwm-overlay $(CONFIG_DIR)/kwmrc
 
 all: $(BINS)
