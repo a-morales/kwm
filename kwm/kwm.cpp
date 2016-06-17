@@ -10,73 +10,29 @@
 #include "border.h"
 #include "config.h"
 #include "command.h"
+#include "cursor.h"
 
 #include "axlib/axlib.h"
 
 #define internal static
 
 
-const std::string KwmCurrentVersion = "Kwm Version 2.2.0";
-std::map<pid_t, ax_application> AXApplications;
+const std::string KwmCurrentVersion = "Kwm Version 3.0.0";
+std::map<CFStringRef, space_info> WindowTree;
+
+ax_state AXState = {};
+ax_display *FocusedDisplay;
+ax_application *FocusedApplication;
+ax_window *MarkedWindow;
 
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
-kwm_screen KWMScreen = {};
-kwm_toggles KWMToggles = {};
-kwm_focus KWMFocus = {};
-kwm_mode KWMMode = {};
-kwm_tiling KWMTiling = {};
-kwm_cache KWMCache = {};
+kwm_settings KWMSettings = {};
 kwm_thread KWMThread = {};
 kwm_hotkeys KWMHotkeys = {};
 kwm_border FocusedBorder = {};
 kwm_border MarkedBorder = {};
 scratchpad Scratchpad = {};
-
-/* TODO(koekeishiya): Need to keep track of windows on the currently active space using 'CGCopyWindowList..' to get
-                      z-ordering used for focus-follows-mouse. There are also cases in which applications doesn't seem
-                      to trigger a kAXWindowCreated notification, so we probably have to pick these up from this list. */
-EVENT_CALLBACK(Callback_AXEvent_WindowList)
-{
-    if(KWMTiling.MonitorWindows)
-    {
-        CheckPrefixTimeout();
-        if(!IsSpaceTransitionInProgress() &&
-           IsActiveSpaceManaged())
-        {
-            // DEBUG("AXEvent_WindowList: Refresh window list");
-            pthread_mutex_lock(&KWMThread.Lock);
-
-            if(KWMScreen.Transitioning)
-                KWMScreen.Transitioning = false;
-            else
-                UpdateWindowTree();
-
-            pthread_mutex_unlock(&KWMThread.Lock);
-        }
-    }
-
-}
-
-/* TODO(koekeishiya): Should probably be moved to a 'cursor.cpp' or similar in the future,
-                      along with other cursor-related functionality we might want */
-EVENT_CALLBACK(Callback_AXEvent_MouseMoved)
-{
-    if(!IsSpaceTransitionInProgress())
-    {
-        // DEBUG("AXEvent_MouseMoved: Mouse moved");
-        pthread_mutex_lock(&KWMThread.Lock);
-
-        UpdateActiveScreen();
-
-        if(KWMMode.Focus != FocusModeDisabled &&
-           KWMMode.Focus != FocusModeStandby &&
-           !IsActiveSpaceFloating())
-            FocusWindowBelowCursor();
-
-        pthread_mutex_unlock(&KWMThread.Lock);
-    }
-}
 
 CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef Event, void *Refcon)
 {
@@ -95,7 +51,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             /* TODO(koekeishiya): Is there a better way to decide whether
                                   we should eat the CGEventRef or not (?) */
-            if(KWMToggles.UseBuiltinHotkeys)
+            if(KWMSettings.UseBuiltinHotkeys)
             {
                 hotkey Eventkey = {}, *Hotkey = NULL;
                 Hotkey = (hotkey *) calloc(1, sizeof(hotkey));
@@ -108,49 +64,22 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                         if(!Hotkey->Passthrough)
                             return NULL;
                     }
+                    else
+                    {
+                        free(Hotkey);
+                    }
                 }
-            }
-
-            /* TODO(koekeishiya): Used for autofocus only, consider removing this feature
-                                  if behaviour cannot be improved (?) */
-            if(KWMMode.Focus == FocusModeAutofocus &&
-               !IsActiveSpaceFloating())
-            {
-                CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
-                CGEventPostToPSN(&KWMFocus.PSN, Event);
-                return NULL;
-            }
-        } break;
-        case kCGEventKeyUp:
-        {
-            /* TODO(koekeishiya): Used for autofocus only, consider removing this feature
-                                  if behaviour cannot be improved (?) */
-            if(KWMMode.Focus == FocusModeAutofocus &&
-               !IsActiveSpaceFloating())
-            {
-                CGEventSetIntegerValueField(Event, kCGKeyboardEventAutorepeat, 0);
-                CGEventPostToPSN(&KWMFocus.PSN, Event);
-                return NULL;
             }
         } break;
         case kCGEventMouseMoved:
         {
-            AXLibConstructEvent(AXEvent_MouseMoved, NULL);
+            if(KWMSettings.Focus == FocusModeAutoraise)
+                AXLibConstructEvent(AXEvent_MouseMoved, NULL);
         } break;
         default: {} break;
     }
 
     return Event;
-}
-
-internal void *
-KwmWindowMonitor(void*)
-{
-    while(1)
-    {
-        AXLibConstructEvent(AXEvent_WindowList, NULL);
-        usleep(200000);
-    }
 }
 
 internal bool
@@ -212,16 +141,10 @@ GetKwmFilePath()
 internal void
 KwmClearSettings()
 {
-    std::map<int, CFTypeRef>::iterator It;
-    for(It = KWMTiling.AllowedWindowRoles.begin(); It != KWMTiling.AllowedWindowRoles.end(); ++It)
-        CFRelease(It->second);
-
-    KWMTiling.AllowedWindowRoles.clear();
     KWMHotkeys.Modes.clear();
-    KWMTiling.WindowRules.clear();
-    KWMTiling.SpaceSettings.clear();
-    KWMTiling.DisplaySettings.clear();
-    KWMTiling.EnforcedWindows.clear();
+    KWMSettings.WindowRules.clear();
+    KWMSettings.SpaceSettings.clear();
+    KWMSettings.DisplaySettings.clear();
     KWMHotkeys.ActiveMode = GetBindingMode("default");
 }
 
@@ -271,15 +194,12 @@ internal void
 KwmInit()
 {
     if(!CheckPrivileges())
-        Fatal("Could not access OSX Accessibility!");
-
-    if (pthread_mutex_init(&KWMThread.Lock, NULL) != 0)
-        Fatal("Could not create mutex!");
+        Fatal("Error: Could not access OSX Accessibility!");
 
     if(KwmStartDaemon())
         pthread_create(&KWMThread.Daemon, NULL, &KwmDaemonHandleConnectionBG, NULL);
     else
-        Fatal("Kwm: Could not start daemon..");
+        Fatal("Error: Could not start daemon!");
 
     signal(SIGSEGV, SignalHandler);
     signal(SIGABRT, SignalHandler);
@@ -288,23 +208,18 @@ KwmInit()
     signal(SIGKILL, SignalHandler);
     signal(SIGINT, SignalHandler);
 
-    KWMScreen.SplitRatio = 0.5;
-    KWMScreen.SplitMode = SPLIT_OPTIMAL;
-    KWMScreen.PrevSpace = -1;
-    KWMScreen.DefaultOffset = CreateDefaultScreenOffset();
-    KWMScreen.MaxCount = 5;
-    KWMScreen.ActiveCount = 0;
+    KWMSettings.SplitRatio = 0.5;
+    KWMSettings.SplitMode = SPLIT_OPTIMAL;
+    KWMSettings.DefaultOffset = CreateDefaultScreenOffset();
 
-    KWMToggles.EnableTilingMode = true;
-    KWMToggles.UseBuiltinHotkeys = true;
-    KWMToggles.UseMouseFollowsFocus = true;
-    KWMTiling.OptimalRatio = 1.618;
-    KWMTiling.LockToContainer = true;
-    KWMTiling.MonitorWindows = true;
+    KWMSettings.UseBuiltinHotkeys = true;
+    KWMSettings.UseMouseFollowsFocus = true;
+    KWMSettings.OptimalRatio = 1.618;
+    KWMSettings.LockToContainer = true;
 
-    KWMMode.Space = SpaceModeBSP;
-    KWMMode.Focus = FocusModeAutoraise;
-    KWMMode.Cycle = CycleModeScreen;
+    KWMSettings.Space = SpaceModeBSP;
+    KWMSettings.Focus = FocusModeAutoraise;
+    KWMSettings.Cycle = CycleModeScreen;
 
     FocusedBorder.Radius = -1;
     MarkedBorder.Radius = -1;
@@ -316,11 +231,7 @@ KwmInit()
 
     GetKwmFilePath();
     KwmExecuteConfig();
-    GetActiveDisplays();
     KwmExecuteInitScript();
-
-    pthread_create(&KWMThread.WindowMonitor, NULL, &KwmWindowMonitor, NULL);
-    FocusWindowOfOSX();
 }
 
 void KwmQuit()
@@ -338,7 +249,6 @@ void KwmReloadConfig()
     KwmExecuteConfig();
 }
 
-
 int main(int argc, char **argv)
 {
     if(CheckArguments(argc, argv))
@@ -346,28 +256,40 @@ int main(int argc, char **argv)
 
     KwmInit();
     KWMMach.EventMask = ((1 << kCGEventKeyDown) |
-                         (1 << kCGEventKeyUp) |
                          (1 << kCGEventMouseMoved));
 
     KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, kCGEventTapOptionDefault, KWMMach.EventMask, CGEventCallback, NULL);
     if(!KWMMach.EventTap || !CGEventTapIsEnabled(KWMMach.EventTap))
-        Fatal("ERROR: Could not create event-tap!");
+        Fatal("Error: Could not create event-tap!");
 
     CFRunLoopAddSource(CFRunLoopGetMain(),
                        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, KWMMach.EventTap, 0),
                        kCFRunLoopCommonModes);
-
     CGEventTapEnable(KWMMach.EventTap, true);
-    // CreateWorkspaceWatcher(KWMMach.WorkspaceWatcher);
-
-    // NOTE(koekeishiya): Initialize AXLIB
-    AXLibInit(&AXApplications);
-    AXLibStartEventLoop();
-#if 0
-    AXLibRunningApplications();
-#endif
-
     NSApplicationLoad();
+
+    if(!AXLibDisplayHasSeparateSpaces())
+        Fatal("Error: 'Displays have separate spaces' must be enabled!");
+
+    /* NOTE(koekeishiya): Initialize AXLIB */
+    AXLibInit(&AXState);
+    AXLibStartEventLoop();
+
+    ax_display *MainDisplay = AXLibMainDisplay();
+    ax_display *Display = MainDisplay;
+    do
+    {
+        ax_space *PrevSpace = Display->Space;
+        Display->Space = AXLibGetActiveSpace(Display);
+        Display->PrevSpace = PrevSpace;
+        Display = AXLibNextDisplay(Display);
+    } while(Display != MainDisplay);
+
+    FocusedDisplay = MainDisplay;
+    FocusedApplication = AXLibGetFocusedApplication();
+    CreateWindowNodeTree(MainDisplay);
+    /* ----------------------------------- */
+
     CFRunLoopRun();
     return 0;
 }

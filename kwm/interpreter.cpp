@@ -4,7 +4,6 @@
 #include "daemon.h"
 #include "display.h"
 #include "space.h"
-#include "application.h"
 #include "window.h"
 #include "container.h"
 #include "node.h"
@@ -16,20 +15,18 @@
 #include "rules.h"
 #include "query.h"
 #include "scratchpad.h"
+#include "cursor.h"
 
 #define internal static
 
-extern kwm_screen KWMScreen;
-extern kwm_toggles KWMToggles;
-extern kwm_focus KWMFocus;
-extern kwm_mode KWMMode;
-extern kwm_tiling KWMTiling;
+extern std::map<CFStringRef, space_info> WindowTree;
+extern ax_application *FocusedApplication;
+extern ax_window *MarkedWindow;
+
+extern kwm_settings KWMSettings;;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
 extern kwm_hotkeys KWMHotkeys;
-
-void MoveFocusedWindowToSpace(std::string SpaceID);
-void ActivateSpaceWithoutTransition(std::string SpaceID);
 
 internal void
 KwmConfigCommand(std::vector<std::string> &Tokens)
@@ -38,13 +35,9 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         KwmReloadConfig();
     }
-    else if(Tokens[1] == "spaces-key")
-    {
-        KwmSetSpacesKey(Tokens[2]);
-    }
     else if(Tokens[1] == "optimal-ratio")
     {
-        KWMTiling.OptimalRatio = ConvertStringToDouble(Tokens[2]);
+        KWMSettings.OptimalRatio = ConvertStringToDouble(Tokens[2]);
     }
     else if(Tokens[1] == "border")
     {
@@ -58,7 +51,6 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
             else if(Tokens[3] == "off")
             {
                 FocusedBorder.Enabled = false;
-                KWMTiling.KwmOverlay[0] = 0;
                 UpdateBorder("focused");
             }
             else if(Tokens[3] == "size")
@@ -86,7 +78,6 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
             else if(Tokens[3] == "off")
             {
                 MarkedBorder.Enabled = false;
-                KWMTiling.KwmOverlay[1] = 0;
                 UpdateBorder("marked");
             }
             else if(Tokens[3] == "size")
@@ -107,43 +98,32 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
     else if(Tokens[1] == "float-non-resizable")
     {
         if(Tokens[2] == "off")
-            KWMTiling.FloatNonResizable = false;
+            KWMSettings.FloatNonResizable = false;
         else if(Tokens[2] == "on")
-            KWMTiling.FloatNonResizable = true;
+            KWMSettings.FloatNonResizable = true;
     }
     else if(Tokens[1] == "lock-to-container")
     {
         if(Tokens[2] == "off")
-            KWMTiling.LockToContainer = false;
+            KWMSettings.LockToContainer = false;
         else if(Tokens[2] == "on")
-            KWMTiling.LockToContainer = true;
+            KWMSettings.LockToContainer = true;
     }
     else if(Tokens[1] == "spawn")
     {
         if(Tokens[2] == "left")
-            KWMTiling.SpawnAsLeftChild = true;
+            KWMSettings.SpawnAsLeftChild = true;
         else if(Tokens[2] == "right")
-            KWMTiling.SpawnAsLeftChild = false;
+            KWMSettings.SpawnAsLeftChild = false;
     }
     else if(Tokens[1] == "tiling")
     {
-        if(Tokens[2] == "off")
-            KWMToggles.EnableTilingMode = false;
-        else if(Tokens[2] == "bsp")
-        {
-            KWMMode.Space = SpaceModeBSP;
-            KWMToggles.EnableTilingMode = true;
-        }
+        if(Tokens[2] == "bsp")
+            KWMSettings.Space = SpaceModeBSP;
         else if(Tokens[2] == "monocle")
-        {
-            KWMMode.Space = SpaceModeMonocle;
-            KWMToggles.EnableTilingMode = true;
-        }
+            KWMSettings.Space = SpaceModeMonocle;
         else if(Tokens[2] == "float")
-        {
-            KWMMode.Space = SpaceModeFloating;
-            KWMToggles.EnableTilingMode = true;
-        }
+            KWMSettings.Space = SpaceModeFloating;
     }
     else if(Tokens[1] == "space")
     {
@@ -153,14 +133,14 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
         if(!SpaceSettings)
         {
             space_identifier Lookup = { ScreenID, DesktopID };
-            space_settings NULLSpaceSettings = { KWMScreen.DefaultOffset, SpaceModeDefault, "", ""};
+            space_settings NULLSpaceSettings = { KWMSettings.DefaultOffset, SpaceModeDefault, "", ""};
 
             space_settings *ScreenSettings = GetSpaceSettingsForDisplay(ScreenID);
             if(ScreenSettings)
                 NULLSpaceSettings = *ScreenSettings;
 
-            KWMTiling.SpaceSettings[Lookup] = NULLSpaceSettings;
-            SpaceSettings = &KWMTiling.SpaceSettings[Lookup];
+            KWMSettings.SpaceSettings[Lookup] = NULLSpaceSettings;
+            SpaceSettings = &KWMSettings.SpaceSettings[Lookup];
         }
 
         if(Tokens[4] == "mode")
@@ -199,9 +179,9 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
         space_settings *DisplaySettings = GetSpaceSettingsForDisplay(ScreenID);
         if(!DisplaySettings)
         {
-            space_settings NULLSpaceSettings = { KWMScreen.DefaultOffset, SpaceModeDefault, "", "" };
-            KWMTiling.DisplaySettings[ScreenID] = NULLSpaceSettings;
-            DisplaySettings = &KWMTiling.DisplaySettings[ScreenID];
+            space_settings NULLSpaceSettings = { KWMSettings.DefaultOffset, SpaceModeDefault, "", "" };
+            KWMSettings.DisplaySettings[ScreenID] = NULLSpaceSettings;
+            DisplaySettings = &KWMSettings.DisplaySettings[ScreenID];
         }
 
         if(Tokens[3] == "mode")
@@ -230,47 +210,43 @@ KwmConfigCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "toggle")
         {
-            if(KWMMode.Focus == FocusModeDisabled)
-                KWMMode.Focus = FocusModeAutofocus;
-            else if(KWMMode.Focus == FocusModeAutofocus)
-                KWMMode.Focus = FocusModeAutoraise;
-            else if(KWMMode.Focus == FocusModeAutoraise)
-                KWMMode.Focus = FocusModeDisabled;
+            if(KWMSettings.Focus == FocusModeDisabled)
+                KWMSettings.Focus = FocusModeAutoraise;
+            else if(KWMSettings.Focus == FocusModeAutoraise)
+                KWMSettings.Focus = FocusModeDisabled;
         }
-        else if(Tokens[2] == "autofocus")
-            KWMMode.Focus = FocusModeAutofocus;
-        else if(Tokens[2] == "autoraise")
-            KWMMode.Focus = FocusModeAutoraise;
+        else if(Tokens[2] == "on")
+            KWMSettings.Focus = FocusModeAutoraise;
         else if(Tokens[2] == "off")
-            KWMMode.Focus = FocusModeDisabled;
+            KWMSettings.Focus = FocusModeDisabled;
     }
     else if(Tokens[1] == "mouse-follows-focus")
     {
         if(Tokens[2] == "off")
-            KWMToggles.UseMouseFollowsFocus = false;
+            KWMSettings.UseMouseFollowsFocus = false;
         else if(Tokens[2] == "on")
-            KWMToggles.UseMouseFollowsFocus = true;
+            KWMSettings.UseMouseFollowsFocus = true;
     }
     else if(Tokens[1] == "standby-on-float")
     {
         if(Tokens[2] == "off")
-            KWMToggles.StandbyOnFloat = false;
+            KWMSettings.StandbyOnFloat = false;
         else if(Tokens[2] == "on")
-            KWMToggles.StandbyOnFloat = true;
+            KWMSettings.StandbyOnFloat = true;
     }
     else if(Tokens[1] == "cycle-focus")
     {
-        if(Tokens[2] == "screen")
-            KWMMode.Cycle = CycleModeScreen;
+        if(Tokens[2] == "on")
+            KWMSettings.Cycle = CycleModeScreen;
         else if(Tokens[2] == "off")
-            KWMMode.Cycle = CycleModeDisabled;;
+            KWMSettings.Cycle = CycleModeDisabled;;
     }
     else if(Tokens[1] == "hotkeys")
     {
         if(Tokens[2] == "off")
-            KWMToggles.UseBuiltinHotkeys = false;
+            KWMSettings.UseBuiltinHotkeys = false;
         else if(Tokens[2] == "on")
-            KWMToggles.UseBuiltinHotkeys = true;
+            KWMSettings.UseBuiltinHotkeys = true;
     }
     else if(Tokens[1] == "padding")
     {
@@ -477,7 +453,7 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
         else if(Tokens[2] == "curr")
             FocusWindowBelowCursor();
         else
-            FocusWindowByID(ConvertStringToInt(Tokens[2]));
+            FocusWindowByID(ConvertStringToUint(Tokens[2]));
     }
     else if(Tokens[1] == "-fm")
     {
@@ -526,11 +502,7 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
         {
             if(Tokens[3] == "toggle")
             {
-                space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-                tree_node *Node = GetTreeNodeFromWindowID(Space->RootNode, KWMFocus.Window->WID);
-
-                if(Node)
-                    ToggleNodeSplitMode(KWMScreen.Current, Node->Parent);
+                ToggleFocusedNodeSplitMode();
             }
         }
         else if(Tokens[2] == "type")
@@ -566,9 +538,6 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "-m")
     {
-        if(!KWMFocus.Window)
-            return;
-
         if(Tokens[2] == "space")
         {
             if(Tokens[3] == "previous")
@@ -578,32 +547,45 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
         }
         else if(Tokens[2] == "display")
         {
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(!Window)
+                return;
+
             if(Tokens[3] == "prev")
-                MoveWindowToDisplay(KWMFocus.Window, -1, true);
+                MoveWindowToDisplay(Window, -1, true);
             else if(Tokens[3] == "next")
-                MoveWindowToDisplay(KWMFocus.Window, 1, true);
+                MoveWindowToDisplay(Window, 1, true);
             else
-                MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[3]), false);
+                MoveWindowToDisplay(Window, ConvertStringToInt(Tokens[3]), false);
         }
         else if(Tokens[2] == "north")
         {
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 0);
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(Window)
+                DetachAndReinsertWindow(Window->ID, 0);
         }
         else if(Tokens[2] == "east")
         {
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 90);
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(Window)
+                DetachAndReinsertWindow(Window->ID, 90);
         }
         else if(Tokens[2] == "south")
         {
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 180);
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(Window)
+                DetachAndReinsertWindow(Window->ID, 180);
         }
         else if(Tokens[2] == "west")
         {
-            DetachAndReinsertWindow(KWMFocus.Window->WID, 270);
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(Window)
+                DetachAndReinsertWindow(Window->ID, 270);
         }
         else if(Tokens[2] == "mark")
         {
-            DetachAndReinsertWindow(KWMScreen.MarkedWindow.WID, 0);
+            if(MarkedWindow)
+                DetachAndReinsertWindow(MarkedWindow->ID, 0);
         }
         else
         {
@@ -620,7 +602,7 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
             return;
         }
 
-        window_info Window = {};
+        ax_window *ClosestWindow = NULL;
         std::string Output = "-1";
         int Degrees = 0;
 
@@ -634,40 +616,41 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
             Degrees = 270;
 
         bool Wrap = Tokens[3] == "wrap" ? true : false;
-        if(FindClosestWindow(Degrees, &Window, Wrap))
-            MarkWindowContainer(&Window);
+        if((FindClosestWindow(Degrees, &ClosestWindow, Wrap)) &&
+           (ClosestWindow))
+            MarkWindowContainer(ClosestWindow);
     }
 }
 
 internal void
 KwmSpaceCommand(std::vector<std::string> &Tokens)
 {
-    if(Tokens[1] == "-f")
+    if(Tokens[1] == "-fExperimental")
     {
         if(Tokens[2] == "previous")
             GoToPreviousSpace(false);
         else
-            KwmEmitKeystroke(KWMHotkeys.SpacesKey, Tokens[2]);
-    }
-    else if(Tokens[1] == "-fExperimental")
-    {
-        ActivateSpaceWithoutTransition(Tokens[2]);
+            ActivateSpaceWithoutTransition(Tokens[2]);
     }
     else if(Tokens[1] == "-t")
     {
         if(Tokens[2] == "bsp")
-            TileFocusedSpace(SpaceModeBSP);
+            ResetWindowNodeTree(AXLibMainDisplay(), SpaceModeBSP);
         else if(Tokens[2] == "monocle")
-            TileFocusedSpace(SpaceModeMonocle);
+            ResetWindowNodeTree(AXLibMainDisplay(), SpaceModeMonocle);
         else if(Tokens[2] == "float")
-            FloatFocusedSpace();
+            ResetWindowNodeTree(AXLibMainDisplay(), SpaceModeFloating);
     }
     else if(Tokens[1] == "-r")
     {
         if(Tokens[2] == "focused")
         {
-            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            ApplyTreeNodeContainer(Space->RootNode);
+            ax_display *Display = AXLibMainDisplay();
+            if(Display)
+            {
+                space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+                ApplyTreeNodeContainer(SpaceInfo->RootNode);
+            }
         }
     }
     else if(Tokens[1] == "-p")
@@ -701,9 +684,11 @@ KwmSpaceCommand(std::vector<std::string> &Tokens)
     }
     else if(Tokens[1] == "-n")
     {
-        if(KWMScreen.Current &&
-           KWMScreen.Current->ActiveSpace != -1)
-            SetNameOfActiveSpace(KWMScreen.Current, Tokens[2]);
+        ax_display *Display = AXLibMainDisplay();
+        if(Display)
+        {
+            SetNameOfActiveSpace(Display, Tokens[2]);
+        }
     }
 }
 
@@ -712,21 +697,23 @@ KwmDisplayCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "-f")
     {
+        /* TODO(koekeishiya): Fix this.
         if(Tokens[2] == "prev")
             GiveFocusToScreen(GetIndexOfPrevScreen(), NULL, false, true);
         else if(Tokens[2] == "next")
             GiveFocusToScreen(GetIndexOfNextScreen(), NULL, false, true);
         else
             GiveFocusToScreen(ConvertStringToInt(Tokens[2]), NULL, false, true);
+        */
     }
     else if(Tokens[1] == "-c")
     {
         if(Tokens[2] == "optimal")
-            KWMScreen.SplitMode = SPLIT_OPTIMAL;
+            KWMSettings.SplitMode = SPLIT_OPTIMAL;
         else if(Tokens[2] == "vertical")
-            KWMScreen.SplitMode = SPLIT_VERTICAL;
+            KWMSettings.SplitMode = SPLIT_VERTICAL;
         else if(Tokens[2] == "horizontal")
-            KWMScreen.SplitMode = SPLIT_HORIZONTAL;
+            KWMSettings.SplitMode = SPLIT_HORIZONTAL;
     }
 }
 
@@ -744,22 +731,18 @@ KwmTreeCommand(std::vector<std::string> &Tokens)
     {
         if(Tokens[2] == "90" || Tokens[2] == "270" || Tokens[2] == "180")
         {
-            space_info *Space = GetActiveSpaceOfScreen(KWMScreen.Current);
-            if(Space->Settings.Mode == SpaceModeBSP)
-            {
-                RotateTree(Space->RootNode, ConvertStringToInt(Tokens[2]));
-                CreateNodeContainers(KWMScreen.Current, Space->RootNode, false);
-                ApplyTreeNodeContainer(Space->RootNode);
-            }
+            RotateBSPTree(ConvertStringToInt(Tokens[2]));
         }
     }
     else if(Tokens[1] == "save")
     {
-        SaveBSPTreeToFile(KWMScreen.Current, Tokens[2]);
+        ax_display *Display = AXLibMainDisplay();
+        space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+        SaveBSPTreeToFile(Display, SpaceInfo, Tokens[2]);
     }
     else if(Tokens[1] == "restore")
     {
-        LoadBSPTreeFromFile(KWMScreen.Current, Tokens[2]);
+        LoadWindowNodeTree(AXLibMainDisplay(), Tokens[2]);
     }
 }
 
@@ -767,17 +750,33 @@ internal void
 KwmScratchpadCommand(std::vector<std::string> &Tokens, int ClientSockFD)
 {
     if(Tokens[1] == "show")
+    {
         ShowScratchpadWindow(ConvertStringToInt(Tokens[2]));
+    }
     else if(Tokens[1] == "toggle")
+    {
         ToggleScratchpadWindow(ConvertStringToInt(Tokens[2]));
+    }
     else if(Tokens[1] == "hide")
+    {
         HideScratchpadWindow(ConvertStringToInt(Tokens[2]));
-    else if(Tokens[1] == "add" && KWMFocus.Window)
-        AddWindowToScratchpad(KWMFocus.Window);
-    else if(Tokens[1] == "remove" && KWMFocus.Window)
-        RemoveWindowFromScratchpad(KWMFocus.Window);
+    }
+    else if(Tokens[1] == "add")
+    {
+        ax_application *Application = AXLibGetFocusedApplication();
+        if(Application && Application->Focus)
+            AddWindowToScratchpad(Application->Focus);
+    }
+    else if(Tokens[1] == "remove")
+    {
+        ax_application *Application = AXLibGetFocusedApplication();
+        if(Application && Application->Focus)
+            RemoveWindowFromScratchpad(Application->Focus);
+    }
     else if(Tokens[1] == "list")
+    {
         KwmWriteToSocket(ClientSockFD, GetWindowsOnScratchpad());
+    }
 }
 
 void KwmInterpretCommand(std::string Message, int ClientSockFD)

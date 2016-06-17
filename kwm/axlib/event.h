@@ -17,14 +17,20 @@ extern EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated);
 
 extern EVENT_CALLBACK(Callback_AXEvent_WindowCreated);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed);
+extern EVENT_CALLBACK(Callback_AXEvent_WindowFocused);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowMoved);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowResized);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowMinimized);
 extern EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized);
 
+extern EVENT_CALLBACK(Callback_AXEvent_DisplayAdded);
+extern EVENT_CALLBACK(Callback_AXEvent_DisplayRemoved);
+extern EVENT_CALLBACK(Callback_AXEvent_DisplayMoved);
+extern EVENT_CALLBACK(Callback_AXEvent_DisplayResized);
+
+extern EVENT_CALLBACK(Callback_AXEvent_DisplayChanged);
 extern EVENT_CALLBACK(Callback_AXEvent_SpaceChanged);
 
-extern EVENT_CALLBACK(Callback_AXEvent_WindowList);
 extern EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed);
 extern EVENT_CALLBACK(Callback_AXEvent_MouseMoved);
 
@@ -37,14 +43,20 @@ enum ax_event_type
     AXEvent_WindowCreated,
     AXEvent_WindowDestroyed,
 
+    AXEvent_WindowFocused,
     AXEvent_WindowMoved,
     AXEvent_WindowResized,
     AXEvent_WindowMinimized,
     AXEvent_WindowDeminimized,
 
+    AXEvent_DisplayAdded,
+    AXEvent_DisplayRemoved,
+    AXEvent_DisplayMoved,
+    AXEvent_DisplayResized,
+
+    AXEvent_DisplayChanged,
     AXEvent_SpaceChanged,
 
-    AXEvent_WindowList,
     AXEvent_HotkeyPressed,
     AXEvent_MouseMoved,
 };

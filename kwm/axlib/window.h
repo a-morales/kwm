@@ -1,6 +1,7 @@
 #ifndef AXLIB_WINDOW_H
 #define AXLIB_WINDOW_H
 
+#include "display.h"
 #include <Carbon/Carbon.h>
 #include <string>
 
@@ -9,12 +10,14 @@ enum ax_window_flags
     AXWindow_Movable = (1 << 0),
     AXWindow_Resizable = (1 << 1),
     AXWindow_Floating = (1 << 2),
+    AXWindow_Minimized = (1 << 3),
 };
 
 struct ax_window_role
 {
     CFTypeRef Role;
     CFTypeRef Subrole;
+    CFTypeRef CustomRole;
 };
 
 struct ax_application;
@@ -51,7 +54,9 @@ AXLibClearFlags(ax_window *Window, uint32_t Flag)
     Window->Flags &= ~Flag;
 }
 
-ax_window AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef);
+ax_window *AXLibConstructWindow(ax_application *Application, AXUIElementRef WindowRef);
+bool AXLibIsWindowStandard(ax_window *Window);
+bool AXLibIsWindowCustom(ax_window *Window);
 void AXLibDestroyWindow(ax_window *Window);
 
 #endif

@@ -2,31 +2,25 @@
 #include "display.h"
 #include "space.h"
 #include "window.h"
+#include "axlib/axlib.h"
 
-extern kwm_tiling KWMTiling;
-extern kwm_screen KWMScreen;
-extern kwm_mode KWMMode;
-extern kwm_path KWMPath;
-extern kwm_focus KWMFocus;
+extern kwm_settings KWMSettings;
 extern scratchpad Scratchpad;
-
-extern void AddWindowToSpace(int SpaceID, int WindowID);
-extern void RemoveWindowFromSpace(int SpaceID, int WindowID);
 
 bool IsScratchpadSlotValid(int Index)
 {
-    std::map<int, window_info>::iterator It = Scratchpad.Windows.find(Index);
+    std::map<int, ax_window*>::iterator It = Scratchpad.Windows.find(Index);
     return It != Scratchpad.Windows.end();
 }
 
-int GetScratchpadSlotOfWindow(window_info *Window)
+int GetScratchpadSlotOfWindow(ax_window *Window)
 {
     int Slot = -1;
-    std::map<int, window_info>::iterator It;
+    std::map<int, ax_window*>::iterator It;
 
     for(It = Scratchpad.Windows.begin(); It != Scratchpad.Windows.end(); ++It)
     {
-        if(It->second.WID == Window->WID)
+        if(It->second->ID == Window->ID)
         {
             Slot = It->first;
             break;
@@ -37,7 +31,7 @@ int GetScratchpadSlotOfWindow(window_info *Window)
     return Slot;
 }
 
-bool IsWindowOnScratchpad(window_info *Window)
+bool IsWindowOnScratchpad(ax_window *Window)
 {
     return GetScratchpadSlotOfWindow(Window) != -1;
 }
@@ -48,7 +42,7 @@ int GetFirstAvailableScratchpadSlot()
 
     if(!Scratchpad.Windows.empty())
     {
-        std::map<int, window_info>::iterator It = Scratchpad.Windows.find(Slot);
+        std::map<int, ax_window*>::iterator It = Scratchpad.Windows.find(Slot);
         while(It != Scratchpad.Windows.end())
             It = Scratchpad.Windows.find(++Slot);
     }
@@ -56,28 +50,35 @@ int GetFirstAvailableScratchpadSlot()
     return Slot;
 }
 
-void AddWindowToScratchpad(window_info *Window)
+void AddWindowToScratchpad(ax_window *Window)
 {
-    if(!IsSpaceTransitionInProgress() &&
+    if(!AXLibIsSpaceTransitionInProgress() &&
        !IsWindowOnScratchpad(Window))
     {
         int Slot = GetFirstAvailableScratchpadSlot();
-        Scratchpad.Windows[Slot] = *Window;
+        Scratchpad.Windows[Slot] = Window;
         DEBUG("AddWindowToScratchpad() " << Slot);
     }
 }
 
-void RemoveWindowFromScratchpad(window_info *Window)
+void RemoveWindowFromScratchpad(ax_window *Window)
 {
-    if(!IsSpaceTransitionInProgress() &&
+    if(!AXLibIsSpaceTransitionInProgress() &&
        IsWindowOnScratchpad(Window))
     {
-        int Index = -1;
-        if(IsWindowFloating(Window->WID, &Index))
-             KWMTiling.FloatingWindowLst.erase(KWMTiling.FloatingWindowLst.begin() + Index);
+        if(AXLibHasFlags(Window, AXWindow_Floating))
+            AXLibClearFlags(Window, AXWindow_Floating);
 
-        if(!IsWindowOnActiveSpace(Window->WID))
-            AddWindowToSpace(KWMScreen.Current->ActiveSpace, Window->WID);
+        ax_display *Display = AXLibWindowDisplay(Window);
+        if(Display)
+        {
+            if(!AXLibSpaceHasWindow(Window, Display->Space->ID))
+                AXLibSpaceAddWindow(Display->Space->ID, Window->ID);
+
+            AddWindowToNodeTree(Display, Window->ID);
+            if(KWMSettings.Focus == FocusModeStandby)
+                KWMSettings.Focus = FocusModeAutoraise;
+        }
 
         int Slot = GetScratchpadSlotOfWindow(Window);
         Scratchpad.Windows.erase(Slot);
@@ -87,33 +88,37 @@ void RemoveWindowFromScratchpad(window_info *Window)
 
 void ToggleScratchpadWindow(int Index)
 {
-    if(!IsSpaceTransitionInProgress() &&
+    if(!AXLibIsSpaceTransitionInProgress() &&
        IsScratchpadSlotValid(Index))
     {
-        window_info *Window = &Scratchpad.Windows[Index];
-        if(IsWindowOnActiveSpace(Window->WID))
-            HideScratchpadWindow(Index);
-        else
-            ShowScratchpadWindow(Index);
+        ax_window *Window = Scratchpad.Windows[Index];
+        ax_display *Display = AXLibWindowDisplay(Window);
+        if(Display)
+        {
+            if(AXLibSpaceHasWindow(Window, Display->Space->ID))
+                HideScratchpadWindow(Index);
+            else
+                ShowScratchpadWindow(Index);
+        }
     }
 }
 
 void HideScratchpadWindow(int Index)
 {
-    if(!IsSpaceTransitionInProgress() &&
+    if(!AXLibIsSpaceTransitionInProgress() &&
        IsScratchpadSlotValid(Index))
     {
-        window_info *Window = &Scratchpad.Windows[Index];
-        screen_info *Screen = GetDisplayOfWindow(Window);
-        if(Screen)
+        ax_window *Window = Scratchpad.Windows[Index];
+        ax_display *Display = AXLibWindowDisplay(Window);
+        if(Display)
         {
-            if(!IsWindowFloating(Window->WID, NULL))
-                KWMTiling.FloatingWindowLst.push_back(Window->WID);
+            if(!AXLibHasFlags(Window, AXWindow_Floating))
+                AXLibAddFlags(Window, AXWindow_Floating);
 
-            RemoveWindowFromSpace(Screen->ActiveSpace, Window->WID);
-            ClearFocusedWindow();
-            if(KWMMode.Focus == FocusModeStandby)
-                KWMMode.Focus = FocusModeAutoraise;
+            RemoveWindowFromNodeTree(Display, Window->ID);
+            AXLibSpaceRemoveWindow(Display->Space->ID, Window->ID);
+            if(KWMSettings.Focus == FocusModeStandby)
+                KWMSettings.Focus = FocusModeAutoraise;
 
             if(Scratchpad.LastFocus != -1)
                 FocusWindowByID(Scratchpad.LastFocus);
@@ -123,36 +128,40 @@ void HideScratchpadWindow(int Index)
 
 void ShowScratchpadWindow(int Index)
 {
-    if(!IsSpaceTransitionInProgress() &&
+    if(!AXLibIsSpaceTransitionInProgress() &&
        IsScratchpadSlotValid(Index))
     {
-        if(KWMFocus.Window)
-            Scratchpad.LastFocus = KWMFocus.Window->WID;
+        ax_application *Application = AXLibGetFocusedApplication();
+        if(!Application)
+            return;
 
-        window_info *Window = &Scratchpad.Windows[Index];
-        AddWindowToSpace(KWMScreen.Current->ActiveSpace, Window->WID);
-        ResizeScratchpadWindow(KWMScreen.Current, Window);
-        UpdateActiveWindowList(KWMScreen.Current);
-        FocusWindowByID(Window->WID);
+        ax_window *FocusedWindow = Application->Focus;
+        if(FocusedWindow)
+            Scratchpad.LastFocus = FocusedWindow->ID;
+
+        ax_window *Window = Scratchpad.Windows[Index];
+        ax_display *Display = AXLibWindowDisplay(Window);
+        if(Display)
+        {
+            AXLibSpaceAddWindow(Display->Space->ID, Window->ID);
+            ResizeScratchpadWindow(Display, Window);
+            FocusWindowByID(Window->ID);
+        }
     }
 }
 
-void ResizeScratchpadWindow(screen_info *Screen, window_info *Window)
+void ResizeScratchpadWindow(ax_display *Display, ax_window *Window)
 {
-    AXUIElementRef WindowRef;
-    if(GetWindowRef(Window, &WindowRef))
-    {
-        int NewX = Screen->X + Screen->Width * 0.125;
-        int NewY = Screen->Y + Screen->Height * 0.125;
-        int NewWidth = Screen->Width * 0.75;
-        int NewHeight = Screen->Height * 0.75;
-        SetWindowDimensions(WindowRef, Window, NewX, NewY, NewWidth, NewHeight);
-    }
+    int NewX = Display->Frame.origin.x + Display->Frame.size.width * 0.125;
+    int NewY = Display->Frame.origin.y + Display->Frame.size.height * 0.125;
+    int NewWidth = Display->Frame.size.width * 0.75;
+    int NewHeight = Display->Frame.size.height * 0.75;
+    SetWindowDimensions(Window->Ref, NewX, NewY, NewWidth, NewHeight);
 }
 
 void ShowAllScratchpadWindows()
 {
-    std::map<int, window_info>::iterator It;
+    std::map<int, ax_window*>::iterator It;
     for(It = Scratchpad.Windows.begin(); It != Scratchpad.Windows.end(); ++It)
         ShowScratchpadWindow(It->first);
 }
@@ -162,13 +171,13 @@ std::string GetWindowsOnScratchpad()
     std::string Result;
 
     int Index = 0;
-    std::map<int, window_info>::iterator It;
+    std::map<int, ax_window*>::iterator It;
     for(It = Scratchpad.Windows.begin(); It != Scratchpad.Windows.end(); ++It)
     {
         Result += std::to_string(It->first) + ": " +
-                  std::to_string(It->second.WID) + ", " +
-                  It->second.Owner + ", " +
-                  It->second.Name;
+                  std::to_string(It->second->ID) + ", " +
+                  It->second->Application->Name + ", " +
+                  It->second->Name;
 
         if(Index++ < Scratchpad.Windows.size() - 1)
             Result += "\n";

@@ -1,16 +1,12 @@
 #ifndef BORDER_H
 #define BORDER_H
 
-#include "axlib/element.h"
 #include "types.h"
 #include "window.h"
 
-extern kwm_screen KWMScreen;
-extern kwm_focus KWMFocus;
+#include "axlib/axlib.h"
+
 extern kwm_path KWMPath;
-extern kwm_border FocusedBorder;
-extern kwm_border MarkedBorder;
-extern kwm_hotkeys KWMHotkeys;
 
 inline void
 OpenBorder(kwm_border *Border)
@@ -49,33 +45,18 @@ ClearBorder(kwm_border *Border)
 }
 
 inline void
-RefreshBorder(kwm_border *Border, int WindowID)
+RefreshBorder(kwm_border *Border, ax_window *Window)
 {
-    AXUIElementRef WindowRef;
-    window_info *Window = GetWindowByID(WindowID);
-    if(Window && GetWindowRef(Window, &WindowRef))
-    {
-        CGPoint WindowPos = AXLibGetWindowPosition(WindowRef);
-        CGSize WindowSize = AXLibGetWindowSize(WindowRef);
-        std::string Command = "x:" + std::to_string(WindowPos.x) + \
-                              " y:" + std::to_string(WindowPos.y) + \
-                              " w:" + std::to_string(WindowSize.width) + \
-                              " h:" + std::to_string(WindowSize.height) + \
-                              " " + Border->Color.Format + \
-                              " s:" + std::to_string(Border->Width);
+    std::string Command = "x:" + std::to_string(Window->Position.x) + \
+                          " y:" + std::to_string(Window->Position.y) + \
+                          " w:" + std::to_string(Window->Size.width) + \
+                          " h:" + std::to_string(Window->Size.height) + \
+                          " " + Border->Color.Format + \
+                          " s:" + std::to_string(Border->Width);
 
-        Command += (Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "") + "\n";
-        if(WindowPos.x == KWMScreen.Current->X &&
-           WindowPos.y == KWMScreen.Current->Y &&
-           WindowSize.width == KWMScreen.Current->Width &&
-           WindowSize.height == KWMScreen.Current->Height)
-            Command = "clear\n";
-
-        fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
-        fflush(Border->Handle);
-    }
-    else
-        ClearBorder(Border);
+    Command += (Border->Radius != -1 ? " rad:" + std::to_string(Border->Radius) : "") + "\n";
+    fwrite(Command.c_str(), Command.size(), 1, Border->Handle);
+    fflush(Border->Handle);
 }
 
 void UpdateBorder(std::string BorderType);

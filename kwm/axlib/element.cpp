@@ -3,28 +3,6 @@
 #define internal static
 #define local_persist static
 
-/* TODO(koekeishiya): Required for compatibility with current Kwm code */
-bool AXLibGetFocusedWindow(AXUIElementRef *WindowRef)
-{
-    local_persist AXUIElementRef SystemWideElement = AXUIElementCreateSystemWide();
-    AXUIElementRef Application = (AXUIElementRef) AXLibGetWindowProperty(SystemWideElement, kAXFocusedApplicationAttribute);
-
-    if(Application)
-    {
-        AXUIElementRef AppWindowRef = (AXUIElementRef) AXLibGetWindowProperty(Application, kAXFocusedWindowAttribute);
-        CFRelease(Application);
-
-        if(AppWindowRef)
-        {
-            *WindowRef = AppWindowRef;
-            return true;
-        }
-    }
-
-    return false;
-}
-/* --- END --- */
-
 CFTypeRef AXLibGetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property)
 {
     CFTypeRef TypeRef;
@@ -35,6 +13,20 @@ CFTypeRef AXLibGetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property)
 AXError AXLibSetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property, CFTypeRef Value)
 {
     return AXUIElementSetAttributeValue(WindowRef, Property, Value);
+}
+
+bool AXLibIsWindowMinimized(AXUIElementRef WindowRef)
+{
+    bool Result = true;
+
+    CFBooleanRef Value = (CFBooleanRef) AXLibGetWindowProperty(WindowRef, kAXMinimizedAttribute);
+    if(Value)
+    {
+        Result = CFBooleanGetValue(Value);
+        CFRelease(Value);
+    }
+
+    return Result;
 }
 
 bool AXLibIsWindowMovable(AXUIElementRef WindowRef)
@@ -89,6 +81,7 @@ bool AXLibSetWindowSize(AXUIElementRef WindowRef, int Width, int Height)
     return Result;
 }
 
+/* NOTE(koekeishiya): If a window is minimized when we call this function, the WindowID returned is 0. */
 uint32_t AXLibGetWindowID(AXUIElementRef WindowRef)
 {
     uint32_t WindowID = kCGNullWindowID;
@@ -152,52 +145,6 @@ bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole)
     *Subrole = AXLibGetWindowProperty(WindowRef, kAXSubroleAttribute);
     return *Subrole != NULL;
 }
-
-/*
-void AXLibParseWindowInfo(const void *Key, const void *Value, void *Context)
-{
-    CFStringRef K = (CFStringRef)Key;
-    std::string KeyStr = CFStringGetCStringPtr(K, kCFStringEncodingMacRoman);
-    CFTypeID ID = CFGetTypeID(Value);
-    if(ID == CFStringGetTypeID())
-    {
-        CFStringRef V = (CFStringRef)Value;
-        std::string ValueStr = GetUTF8String(V);
-        if(ValueStr.empty() && CFStringGetCStringPtr(V, kCFStringEncodingMacRoman))
-            ValueStr = CFStringGetCStringPtr(V, kCFStringEncodingMacRoman);
-
-        if(KeyStr == "kCGWindowName")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Name = ValueStr;
-        else if(KeyStr == "kCGWindowOwnerName")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Owner = ValueStr;
-    }
-    else if(ID == CFNumberGetTypeID())
-    {
-        int MyInt;
-        CFNumberRef V = (CFNumberRef)Value;
-        CFNumberGetValue(V, kCFNumberSInt64Type, &MyInt);
-        if(KeyStr == "kCGWindowNumber")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].WID = MyInt;
-        else if(KeyStr == "kCGWindowOwnerPID")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].PID = MyInt;
-        else if(KeyStr == "kCGWindowLayer")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Layer = MyInt;
-        else if(KeyStr == "X")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].X = MyInt;
-        else if(KeyStr == "Y")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Y = MyInt;
-        else if(KeyStr == "Width")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Width = MyInt;
-        else if(KeyStr == "Height")
-            KWMTiling.WindowLst[KWMTiling.WindowLst.size()-1].Height = MyInt;
-    }
-    else if(ID == CFDictionaryGetTypeID())
-    {
-        CFDictionaryRef Elem = (CFDictionaryRef)Value;
-        CFDictionaryApplyFunction(Elem, GetWindowInfo, NULL);
-    }
-}
-*/
 
 std::string
 GetUTF8String(CFStringRef Temp)
