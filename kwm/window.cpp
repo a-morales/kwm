@@ -226,7 +226,9 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationLaunched)
 
     if(Application->Focus)
     {
-        ApplyWindowRules(Application->Focus);
+        if(ApplyWindowRules(Application->Focus))
+            return;
+
         ax_display *Display = AXLibCursorDisplay();
         if(!Display)
             Display = AXLibWindowDisplay(Application->Focus);
@@ -266,7 +268,9 @@ EVENT_CALLBACK(Callback_AXEvent_WindowCreated)
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowCreated: " << Window->Application->Name << " - " << Window->Name);
 
-    ApplyWindowRules(Window);
+    if(ApplyWindowRules(Window))
+        return;
+
     ax_display *Display = AXLibWindowDisplay(Window);
     if(Display)
     {

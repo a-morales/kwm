@@ -199,6 +199,13 @@ KwmParseRule(std::string RuleSym, window_rule *Rule)
 internal bool
 MatchWindowRule(window_rule *Rule, ax_window *Window)
 {
+    if(!Window)
+        return false;
+
+    if(!AXLibIsWindowStandard(Window) &&
+       !AXLibIsWindowCustom(Window))
+        return false;
+
     bool Match = true;
     if(!Rule->Owner.empty())
     {
@@ -228,43 +235,9 @@ void KwmAddRule(std::string RuleSym)
         KWMTiling.WindowRules.push_back(Rule);
 }
 
-/*
-void CheckWindowRules(window_info *Window)
+bool ApplyWindowRules(ax_window *Window)
 {
-    if(HasRuleBeenApplied(Window))
-        return;
-
-    Window->Properties.Scratchpad = -1;
-    Window->Properties.Display = -1;
-    Window->Properties.Space = -1;
-    Window->Properties.Float = 0;
-
-    for(int Index = 0; Index < KWMTiling.WindowRules.size(); ++Index)
-    {
-        window_rule *Rule = &KWMTiling.WindowRules[Index];
-        if(MatchWindowRule(Rule, Window))
-        {
-            if(Rule->Properties.Float != -1)
-                Window->Properties.Float = Rule->Properties.Float;
-
-            if(Rule->Properties.Display != -1)
-                Window->Properties.Display = Rule->Properties.Display;
-
-            if(Rule->Properties.Space != -1)
-                Window->Properties.Space = Rule->Properties.Space;
-
-            if(Rule->Properties.Scratchpad != -1)
-                Window->Properties.Scratchpad = Rule->Properties.Scratchpad;
-
-            if(!Rule->Properties.Role.empty())
-                AllowRoleForWindow(Window, Rule->Properties.Role);
-        }
-    }
-}
-*/
-
-void ApplyWindowRules(ax_window *Window)
-{
+    bool Skip = false;
     for(int Index = 0; Index < KWMTiling.WindowRules.size(); ++Index)
     {
         window_rule *Rule = &KWMTiling.WindowRules[Index];
@@ -273,68 +246,53 @@ void ApplyWindowRules(ax_window *Window)
             if(Rule->Properties.Float == 1)
                 AXLibAddFlags(Window, AXWindow_Floating);
 
-            /*
-            if(Rule->Properties.Display != -1)
-                Window->Properties.Display = Rule->Properties.Display;
-
-            if(Rule->Properties.Space != -1)
-                Window->Properties.Space = Rule->Properties.Space;
-
-            if(Rule->Properties.Scratchpad != -1)
-                Window->Properties.Scratchpad = Rule->Properties.Scratchpad;
-            */
-
             if(!Rule->Properties.Role.empty())
                 Window->Type.CustomRole = CFStringCreateWithCString(NULL,
                                                                     Rule->Properties.Role.c_str(),
                                                                     kCFStringEncodingMacRoman);
-        }
-    }
-}
 
-/*
-bool EnforceWindowRules(window_info *Window)
-{
-    if(HasRuleBeenApplied(Window))
-        return false;
-
-    bool Result  = false;
-    if(Window->Properties.Display != -1)
-    {
-        screen_info *Screen = GetDisplayFromScreenID(Window->Properties.Display);
-        if(Screen && Screen != GetDisplayOfWindow(Window))
-        {
-            MoveWindowToDisplay(Window, Window->Properties.Display, false);
-            Result = true;
-        }
-    }
-
-    if(Window->Properties.Space != -1)
-    {
-        int Display = Window->Properties.Display == -1 ? 0 : Window->Properties.Display;
-        screen_info *SourceScreen = GetDisplayOfWindow(Window);
-        screen_info *DestinationScreen = GetDisplayFromScreenID(Display);
-        int TotalSpaces = GetNumberOfSpacesOfDisplay(DestinationScreen);
-        if(Window->Properties.Space <= TotalSpaces && Window->Properties.Space >= 1)
-        {
-            int SourceCGSpaceID = SourceScreen->ActiveSpace;
-            int DestinationCGSpaceID = GetCGSpaceIDFromSpaceNumber(DestinationScreen, Window->Properties.Space);
-            if(!IsWindowOnSpace(Window->WID, DestinationCGSpaceID))
+            if(Rule->Properties.Scratchpad != -1)
             {
-                AddWindowToSpace(DestinationCGSpaceID, Window->WID);
-                RemoveWindowFromSpace(SourceCGSpaceID, Window->WID);
+                AddWindowToScratchpad(Window);
+                if(Rule->Properties.Scratchpad == 0)
+                {
+                    HideScratchpadWindow(GetScratchpadSlotOfWindow(Window));
+                    Skip = true;
+                }
+            }
+
+            if(Rule->Properties.Display != -1 && Rule->Properties.Space == -1)
+            {
+                ax_display *Display = AXLibArrangementDisplay(Rule->Properties.Display);
+                if(Display && Display != AXLibWindowDisplay(Window))
+                {
+                    MoveWindowToDisplay(Window, Display->ArrangementID, false);
+                    Skip = true;
+                }
+            }
+
+            if(Rule->Properties.Space != -1)
+            {
+                int Display = Rule->Properties.Display == -1 ? 0 : Rule->Properties.Display;
+                ax_display *SourceDisplay = AXLibWindowDisplay(Window);
+                ax_display *DestinationDisplay = AXLibArrangementDisplay(Display);
+                int TotalSpaces = AXLibDisplaySpacesCount(DestinationDisplay);
+                if(Rule->Properties.Space <= TotalSpaces && Rule->Properties.Space >= 1)
+                {
+                    int SourceCGSSpaceID = SourceDisplay->Space->ID;
+                    int DestinationCGSSpaceID = AXLibCGSSpaceIDFromDesktopID(DestinationDisplay, Rule->Properties.Space);
+                    if(!AXLibSpaceHasWindow(Window, DestinationCGSSpaceID))
+                    {
+                        AXLibAddFlags(Window, AXWindow_Minimized);
+                        AXLibAddFlags(&DestinationDisplay->Spaces[DestinationCGSSpaceID], AXSpace_NeedsUpdate);
+                        AXLibSpaceAddWindow(DestinationCGSSpaceID, Window->ID);
+                        AXLibSpaceRemoveWindow(SourceCGSSpaceID, Window->ID);
+                        Skip = true;
+                    }
+                }
             }
         }
     }
 
-    if(Window->Properties.Scratchpad != -1)
-    {
-        AddWindowToScratchpad(Window);
-        if(Window->Properties.Scratchpad == 0)
-            HideScratchpadWindow(GetScratchpadSlotOfWindow(Window));
-    }
-
-    KWMTiling.EnforcedWindows[Window->WID] = true;
-    return Result;
+    return Skip;
 }
-*/
