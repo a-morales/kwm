@@ -36,7 +36,7 @@ kwmc config padding 40 20 20 20
 // Set default values for container gaps
 kwmc config gap 15 15
 
-// Default tiling mode for Kwm (bsp | monocle | float | off)
+// Default tiling mode for Kwm (bsp | monocle | float)
 kwmc config tiling bsp
 
 // Let Kwm listen for hotkeys
@@ -49,7 +49,7 @@ kwmc config float-non-resizable on
 kwmc config lock-to-container on
 
 // Set focus-follows-mouse-mode to autoraise
-kwmc config focus-follows-mouse autoraise
+kwmc config focus-follows-mouse on
 
 /* Focus-follows-mouse is temporarily disabled when
    a floating window has focus */
@@ -60,7 +60,7 @@ kwmc config standby-on-float on
 kwmc config mouse-follows-focus on
 
 // Allow window focus to wrap-around
-kwmc config cycle-focus screen
+kwmc config cycle-focus on
 
 /* Override default settings for space 1 on screen 0
    kwmc config space 0 1 mode monocle
