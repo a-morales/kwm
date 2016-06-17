@@ -169,8 +169,6 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
     FocusedDisplay = Display;
     ax_space *PrevSpace = Display->PrevSpace;
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
-    printf("Display: CGDirectDisplayID %d, Arrangement %d\n", Display->ID, Display->ArrangementID);
-    printf("OldSpace %d : NewSpace %d\n", PrevSpace->ID, Display->Space->ID);
 
     AXLibRunningApplications();
     RebalanceNodeTree(Display);

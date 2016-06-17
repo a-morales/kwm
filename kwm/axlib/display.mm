@@ -423,7 +423,6 @@ AXLibActiveDisplays()
     {
         CGDirectDisplayID ID = CGDirectDisplayList[Index];
         (*Displays)[ID] = AXLibConstructDisplay(ID, Index);
-        printf("CGDirectDisplayID %d, Arrangement: %zd\n", ID, Index);
     }
 
     free(CGDirectDisplayList);
