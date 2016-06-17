@@ -514,6 +514,19 @@ ax_display *AXLibPreviousDisplay(ax_display *Display)
     return NULL;
 }
 
+ax_display *AXLibArrangementDisplay(unsigned int ArrangementID)
+{
+    std::map<CGDirectDisplayID, ax_display>::iterator DisplayIt;
+    for(DisplayIt = Displays->begin(); DisplayIt != Displays->end(); ++DisplayIt)
+    {
+        ax_display *Display = &DisplayIt->second;
+        if(Display->ArrangementID == ArrangementID)
+            return Display;
+    }
+
+    return NULL;
+}
+
 unsigned int AXLibDesktopIDFromCGSSpaceID(ax_display *Display, CGSSpaceID SpaceID)
 {
     unsigned int Result = 0;
