@@ -20,7 +20,6 @@ bool WindowIsInDirection(ax_window *WindowA, ax_window *WindowB, int Degrees);
 bool FindClosestWindow(int Degrees, ax_window **ClosestWindow, bool Wrap);
 void CenterWindow(ax_display *Display, ax_window *Window);
 
-/* TODO(koekeishiya): PARTIALLY LOOKED AT */
 void FocusWindowByID(uint32_t WindowID);
 void ToggleWindowFloating(uint32_t WindowID, bool Center);
 void ToggleFocusedWindowFloating();
@@ -43,8 +42,6 @@ bool IsWindowFullscreen(ax_window *Window);
 bool IsWindowParentContainer(ax_window *Window);
 void LockWindowToContainerSize(ax_window *Window);
 void ShiftSubTreeWindowFocus(int Shift);
-
-/* TODO(koekeishiya): NOT YET LOOKED AT */
 void MoveFloatingWindow(int X, int Y);
 
 #endif

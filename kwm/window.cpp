@@ -1630,7 +1630,17 @@ ax_window *GetWindowByID(uint32_t WindowID)
     return NULL;
 }
 
-/* NOTE(koekeishiya): These functions act as stubs to prevent compilation errors due to functions in other translation units. */
+void MoveFloatingWindow(int X, int Y)
+{
+    ax_window *Window = FocusedApplication->Focus;
+    if(!Window)
+        return;
 
-void MoveFloatingWindow(int X, int Y) { }
+    if(AXLibHasFlags(Window, AXWindow_Floating))
+    {
+        AXLibSetWindowPosition(Window->Ref,
+                               Window->Position.x + X,
+                               Window->Position.y + Y);
+    }
+}
 
