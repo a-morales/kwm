@@ -201,10 +201,6 @@ MatchWindowRule(window_rule *Rule, ax_window *Window)
     if(!Window)
         return false;
 
-    if(!AXLibIsWindowStandard(Window) &&
-       !AXLibIsWindowCustom(Window))
-        return false;
-
     bool Match = true;
     if(!Rule->Owner.empty())
     {
@@ -262,6 +258,10 @@ bool ApplyWindowRules(ax_window *Window)
 
             if(Rule->Properties.Display != -1 && Rule->Properties.Space == -1)
             {
+                if(!AXLibIsWindowStandard(Window) &&
+                   !AXLibIsWindowCustom(Window))
+                    continue;
+
                 ax_display *Display = AXLibArrangementDisplay(Rule->Properties.Display);
                 if(Display && Display != AXLibWindowDisplay(Window))
                 {
@@ -272,6 +272,10 @@ bool ApplyWindowRules(ax_window *Window)
 
             if(Rule->Properties.Space != -1)
             {
+                if(!AXLibIsWindowStandard(Window) &&
+                   !AXLibIsWindowCustom(Window))
+                    continue;
+
                 int Display = Rule->Properties.Display == -1 ? 0 : Rule->Properties.Display;
                 ax_display *SourceDisplay = AXLibWindowDisplay(Window);
                 ax_display *DestinationDisplay = AXLibArrangementDisplay(Display);
