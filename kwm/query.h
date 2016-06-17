@@ -102,26 +102,22 @@ GetStateOfStandbyOnFloat()
     return KWMSettings.StandbyOnFloat ? "on" : "off";
 }
 
-/* TODO(koekeishiya): Fix this. */
 inline std::string
 GetWindowList()
 {
     std::string Output;
-    /*
-    std::vector<window_info> Windows = FilterWindowListAllDisplays();
-
-    for(int Index = 0; Index < Windows.size(); ++Index)
+    std::vector<ax_window *> Windows = AXLibGetAllVisibleWindows();
+    for(std::size_t Index = 0; Index < Windows.size(); ++Index)
     {
-        Output += std::to_string(Windows[Index].WID) + ", " + Windows[Index].Owner + ", " + Windows[Index].Name;
+        ax_window *Window = Windows[Index];
+        Output += std::to_string(Window->ID) + ", " + Window->Application->Name + ", " + Window->Name;
         if(Index < Windows.size() - 1)
             Output += "\n";
     }
-    */
 
     return Output;
 }
 
-/* TODO(koekeishiya) .. */
 inline std::string
 GetListOfSpaces()
 {
