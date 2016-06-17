@@ -18,7 +18,7 @@ For in depth information, sample configurations, and useful scripts to implement
 *Kwmc* commands, check out the [wiki](https://github.com/koekeishiya/kwm/wiki). You can also drop by the channel **##kwm** on [freenode](http://webchat.freenode.net)
 
 *Kwm* requires access to the OSX accessibility API.
-Tested on El Capitan (10.11.1 - 10.11.4).
+Tested on El Capitan (10.11.1 - 10.11.5).
 
 ![img](https://cloud.githubusercontent.com/assets/6175959/14930025/373c206a-0e61-11e6-9408-c26c7f9fd2a7.png)
 For more screenshots, [click here.](https://github.com/koekeishiya/kwm/issues/2)
@@ -32,12 +32,6 @@ independently. This allows the user to choose which functionality to enable depe
 
 *Binary Space Partitioning:*
 *Kwm* tiles windows using a binary-tree structure. For information, check the usage section.
-
-*Focus-Follows-Mouse:*
-Both autofocus and autoraise is available, however autofocus only redirects key input to the window below the cursor,
-the menubar is not accessible. Autoraise gives a window focus and raises it to the front.  By default *Kwm* is set to
-use autoraise as it is meant to be used alongside the tiling functionality, and so windows should not overlap unless
-a window is specifically made floating.
 
 *System-Wide Hotkeys:*
 *Kwm* allows the user to bind and unbind hotkeys to commands through the *Kwmc* tool, using a bind and unbind option.

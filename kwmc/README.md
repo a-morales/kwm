@@ -66,10 +66,6 @@ man kwmc
         Reload config ($HOME/.kwm/kwmrc)
             kwmc config reload
 
-        Set modifier used by OSX space-hotkeys (Used by `kwmc space -f ..`
-            kwmc config spaces-key <opt>
-            <opt>: mod+mod+mod
-
         Override the optimal split-mode (golden ratio -> 1.618)
             kwmc config optimal-ratio <opt>
             <opt>: floating point number
@@ -108,7 +104,7 @@ man kwmc
 
         Set status of focus-follows-mouse
             kwmc config focus-follows-mouse <opt>
-            <opt>: toggle | autofocus | autoraise | off
+            <opt>: toggle | on | off
 
         Disable focus-follows-mouse when a floating window gains focus
             kwmc config standby-on-float <opt>
@@ -116,7 +112,7 @@ man kwmc
 
         Allow focus commands to wrap
             kwmc config cycle-focus <opt>
-            <opt>: screen | off
+            <opt>: on | off
 
         Set state of mouse-follows-focus
             kwmc config mouse-follows-focus <opt>
@@ -124,7 +120,7 @@ man kwmc
 
         Set default tiling mode for Kwm
             kwmc config tiling <opt>
-            <opt>: bsp | monocle | float | off
+            <opt>: bsp | monocle | float
 
         Set default padding
             kwmc config padding <opt>
@@ -260,10 +256,6 @@ man kwmc
         Set name of active space
             kwmc space -n name
 
-        Change focus between spaces
-            kwmc space -f <opt>
-            <opt>: workspace_id | previous | left | right
-
         Change focus between spaces, skipping transitions animation
         (mission control does not update, requires `killall Dock`)
             kwmc space -fExperimental <opt>
@@ -343,7 +335,7 @@ man kwmc
             <opt>: id | name | split | float
 
         Check if two windows have the same parent
-            kwmc query window parent windiw_id1 window_id2
+            kwmc query window parent window_id1 window_id2
 
         Get child position of window (left or right)
             kwmc query window child window_id
