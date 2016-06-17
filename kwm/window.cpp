@@ -684,7 +684,8 @@ CreateAndInitializeSpaceInfoWithWindowTree(ax_display *Display, space_info *Spac
 {
     SpaceInfo->Initialized = true;
     LoadSpaceSettings(Display, SpaceInfo);
-    if(SpaceInfo->Settings.Mode == SpaceModeFloating)
+    if((SpaceInfo->Settings.Mode == SpaceModeFloating) ||
+       (Display->Space->Type != kCGSSpaceUser))
         return;
 
     if(SpaceInfo->Settings.Mode == SpaceModeBSP && !SpaceInfo->Settings.Layout.empty())
@@ -704,7 +705,8 @@ CreateAndInitializeSpaceInfoWithWindowTree(ax_display *Display, space_info *Spac
 internal void
 CreateSpaceInfoWithWindowTree(ax_display *Display, space_info *SpaceInfo, std::vector<uint32_t> *Windows)
 {
-    if(SpaceInfo->Settings.Mode == SpaceModeFloating)
+    if((SpaceInfo->Settings.Mode == SpaceModeFloating) ||
+       (Display->Space->Type != kCGSSpaceUser))
         return;
 
     /* NOTE(koekeishiya): If a space has been initialized, but the node-tree was destroyed. */
