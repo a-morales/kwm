@@ -10,6 +10,7 @@
 
 #define internal static
 extern std::map<CFStringRef, space_info> WindowTree;
+extern kwm_settings KWMSettings;
 
 tree_node *CreateTreeFromWindowIDList(ax_display *Display, std::vector<uint32_t> *Windows)
 {
@@ -419,6 +420,6 @@ void ChangeSplitRatio(double Value)
     if(Value > 0.0 && Value < 1.0)
     {
         DEBUG("ChangeSplitRatio() New Split-Ratio is " << Value);
-        KWMScreen.SplitRatio = Value;
+        KWMSettings.SplitRatio = Value;
     }
 }

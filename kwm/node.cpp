@@ -9,8 +9,7 @@
 extern std::map<CFStringRef, space_info> WindowTree;
 extern ax_application *FocusedApplication;
 
-extern kwm_screen KWMScreen;
-extern kwm_tiling KWMTiling;
+extern kwm_settings KWMSettings;
 
 tree_node *CreateRootNode()
 {
@@ -23,7 +22,7 @@ tree_node *CreateRootNode()
     RootNode->Parent = NULL;
     RootNode->LeftChild = NULL;
     RootNode->RightChild = NULL;
-    RootNode->SplitRatio = KWMScreen.SplitRatio;
+    RootNode->SplitRatio = KWMSettings.SplitRatio;
     RootNode->SplitMode = SPLIT_OPTIMAL;
 
     return RootNode;
@@ -64,22 +63,22 @@ void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowI
 {
     Parent->WindowID = 0;
     Parent->SplitMode = SplitMode;
-    Parent->SplitRatio = KWMScreen.SplitRatio;
+    Parent->SplitRatio = KWMSettings.SplitRatio;
 
     node_type ParentType = Parent->Type;
     link_node *ParentList = Parent->List;
     Parent->Type = NodeTypeTree;
     Parent->List = NULL;
 
-    int LeftWindowID = KWMTiling.SpawnAsLeftChild ? SecondWindowID : FirstWindowID;
-    int RightWindowID = KWMTiling.SpawnAsLeftChild ? FirstWindowID : SecondWindowID;
+    int LeftWindowID = KWMSettings.SpawnAsLeftChild ? SecondWindowID : FirstWindowID;
+    int RightWindowID = KWMSettings.SpawnAsLeftChild ? FirstWindowID : SecondWindowID;
 
     if(SplitMode == SPLIT_VERTICAL)
     {
         Parent->LeftChild = CreateLeafNode(Display, Parent, LeftWindowID, 1);
         Parent->RightChild = CreateLeafNode(Display, Parent, RightWindowID, 2);
 
-        tree_node *Node = KWMTiling.SpawnAsLeftChild ?  Parent->RightChild : Parent->LeftChild;
+        tree_node *Node = KWMSettings.SpawnAsLeftChild ?  Parent->RightChild : Parent->LeftChild;
         Node->Type = ParentType;
         Node->List = ParentList;
         ResizeLinkNodeContainers(Node);
@@ -89,7 +88,7 @@ void CreateLeafNodePair(ax_display *Display, tree_node *Parent, int FirstWindowI
         Parent->LeftChild = CreateLeafNode(Display, Parent, LeftWindowID, 3);
         Parent->RightChild = CreateLeafNode(Display, Parent, RightWindowID, 4);
 
-        tree_node *Node = KWMTiling.SpawnAsLeftChild ?  Parent->RightChild : Parent->LeftChild;
+        tree_node *Node = KWMSettings.SpawnAsLeftChild ?  Parent->RightChild : Parent->LeftChild;
         Node->Type = ParentType;
         Node->List = ParentList;
         ResizeLinkNodeContainers(Node);
@@ -117,7 +116,7 @@ void CreatePseudoNode()
     tree_node *Node = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
     if(Node)
     {
-        split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(Node) : KWMScreen.SplitMode;
+        split_type SplitMode = KWMSettings.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(Node) : KWMSettings.SplitMode;
         CreateLeafNodePair(Display, Node, Node->WindowID, 0, SplitMode);
         ApplyTreeNodeContainer(Node);
     }
@@ -278,7 +277,7 @@ void SwapNodeWindowIDs(link_node *A, link_node *B)
 
 split_type GetOptimalSplitMode(tree_node *Node)
 {
-    return (Node->Container.Width / Node->Container.Height) >= KWMTiling.OptimalRatio ? SPLIT_VERTICAL : SPLIT_HORIZONTAL;
+    return (Node->Container.Width / Node->Container.Height) >= KWMSettings.OptimalRatio ? SPLIT_VERTICAL : SPLIT_HORIZONTAL;
 }
 
 void ResizeWindowToContainerSize(tree_node *Node)

@@ -10,9 +10,7 @@
 extern std::map<CFStringRef, space_info> WindowTree;
 extern ax_application *FocusedApplication;
 
-extern kwm_tiling KWMTiling;
-extern kwm_screen KWMScreen;
-extern kwm_mode KWMMode;
+extern kwm_settings KWMSettings;
 
 void GetTagForMonocleSpace(space_info *Space, std::string &Tag)
 {
@@ -66,11 +64,11 @@ void GetTagForCurrentSpace(std::string &Tag)
     }
     else
     {
-        if(KWMMode.Space == SpaceModeBSP)
+        if(KWMSettings.Space == SpaceModeBSP)
             Tag = "[bsp]";
-        else if(KWMMode.Space == SpaceModeFloating)
+        else if(KWMSettings.Space == SpaceModeFloating)
             Tag = "[float]";
-        else if(KWMMode.Space == SpaceModeMonocle)
+        else if(KWMSettings.Space == SpaceModeMonocle)
             Tag = "[monocle]";
     }
 }
@@ -96,8 +94,8 @@ void GoToPreviousSpace(bool MoveFocusedWindow)
 space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID)
 {
     space_identifier Lookup = { ScreenID, DesktopID };
-    std::map<space_identifier, space_settings>::iterator It = KWMTiling.SpaceSettings.find(Lookup);
-    if(It != KWMTiling.SpaceSettings.end())
+    std::map<space_identifier, space_settings>::iterator It = KWMSettings.SpaceSettings.find(Lookup);
+    if(It != KWMSettings.SpaceSettings.end())
         return &It->second;
     else
         return NULL;

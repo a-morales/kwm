@@ -6,7 +6,7 @@
 #define local_persist static
 
 extern ax_application *FocusedApplication;
-extern kwm_toggles KWMToggles;
+extern kwm_settings KWMSettings;
 
 internal CGPoint
 GetCursorPos()
@@ -33,7 +33,7 @@ IsWindowBelowCursor(ax_window *Window)
 
 void MoveCursorToCenterOfWindow(ax_window *Window)
 {
-    if(KWMToggles.UseMouseFollowsFocus)
+    if(KWMSettings.UseMouseFollowsFocus)
     {
         CGWarpMouseCursorPosition(CGPointMake(Window->Position.x + Window->Size.width / 2,
                                               Window->Position.y + Window->Size.height / 2));
@@ -42,7 +42,7 @@ void MoveCursorToCenterOfWindow(ax_window *Window)
 
 void MoveCursorToCenterOfFocusedWindow()
 {
-    if(KWMToggles.UseMouseFollowsFocus &&
+    if(KWMSettings.UseMouseFollowsFocus &&
        FocusedApplication &&
        FocusedApplication->Focus)
         MoveCursorToCenterOfWindow(FocusedApplication->Focus);

@@ -7,21 +7,20 @@
 #include "cursor.h"
 
 extern std::map<CFStringRef, space_info> WindowTree;
-extern kwm_screen KWMScreen;
-extern kwm_tiling KWMTiling;
+extern kwm_settings KWMSettings;
 
 void SetDefaultPaddingOfDisplay(container_offset Offset)
 {
-    KWMScreen.DefaultOffset.PaddingTop = Offset.PaddingTop;
-    KWMScreen.DefaultOffset.PaddingBottom = Offset.PaddingBottom;
-    KWMScreen.DefaultOffset.PaddingLeft = Offset.PaddingLeft;
-    KWMScreen.DefaultOffset.PaddingRight = Offset.PaddingRight;
+    KWMSettings.DefaultOffset.PaddingTop = Offset.PaddingTop;
+    KWMSettings.DefaultOffset.PaddingBottom = Offset.PaddingBottom;
+    KWMSettings.DefaultOffset.PaddingLeft = Offset.PaddingLeft;
+    KWMSettings.DefaultOffset.PaddingRight = Offset.PaddingRight;
 }
 
 void SetDefaultGapOfDisplay(container_offset Offset)
 {
-    KWMScreen.DefaultOffset.VerticalGap = Offset.VerticalGap;
-    KWMScreen.DefaultOffset.HorizontalGap = Offset.HorizontalGap;
+    KWMSettings.DefaultOffset.VerticalGap = Offset.VerticalGap;
+    KWMSettings.DefaultOffset.HorizontalGap = Offset.HorizontalGap;
 }
 
 void ChangePaddingOfDisplay(const std::string &Side, int Offset)
@@ -129,8 +128,8 @@ container_offset CreateDefaultScreenOffset()
 
 space_settings *GetSpaceSettingsForDisplay(unsigned int ScreenID)
 {
-    std::map<unsigned int, space_settings>::iterator It = KWMTiling.DisplaySettings.find(ScreenID);
-    if(It != KWMTiling.DisplaySettings.end())
+    std::map<unsigned int, space_settings>::iterator It = KWMSettings.DisplaySettings.find(ScreenID);
+    if(It != KWMSettings.DisplaySettings.end())
         return &It->second;
     else
         return NULL;

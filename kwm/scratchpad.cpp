@@ -4,10 +4,7 @@
 #include "window.h"
 #include "axlib/axlib.h"
 
-extern kwm_tiling KWMTiling;
-extern kwm_screen KWMScreen;
-extern kwm_mode KWMMode;
-extern kwm_path KWMPath;
+extern kwm_settings KWMSettings;
 extern scratchpad Scratchpad;
 
 bool IsScratchpadSlotValid(int Index)
@@ -79,8 +76,8 @@ void RemoveWindowFromScratchpad(ax_window *Window)
                 AXLibSpaceAddWindow(Display->Space->ID, Window->ID);
 
             AddWindowToNodeTree(Display, Window->ID);
-            if(KWMMode.Focus == FocusModeStandby)
-                KWMMode.Focus = FocusModeAutoraise;
+            if(KWMSettings.Focus == FocusModeStandby)
+                KWMSettings.Focus = FocusModeAutoraise;
         }
 
         int Slot = GetScratchpadSlotOfWindow(Window);
@@ -120,8 +117,8 @@ void HideScratchpadWindow(int Index)
 
             RemoveWindowFromNodeTree(Display, Window->ID);
             AXLibSpaceRemoveWindow(Display->Space->ID, Window->ID);
-            if(KWMMode.Focus == FocusModeStandby)
-                KWMMode.Focus = FocusModeAutoraise;
+            if(KWMSettings.Focus == FocusModeStandby)
+                KWMSettings.Focus = FocusModeAutoraise;
 
             if(Scratchpad.LastFocus != -1)
                 FocusWindowByID(Scratchpad.LastFocus);

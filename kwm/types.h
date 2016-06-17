@@ -47,11 +47,8 @@ struct scratchpad;
 struct kwm_mach;
 struct kwm_border;
 struct kwm_hotkeys;
-struct kwm_toggles;
 struct kwm_path;
-struct kwm_screen;
-struct kwm_tiling;
-struct kwm_mode;
+struct kwm_settings;
 struct kwm_thread;
 
 #ifdef DEBUG_BUILD
@@ -278,11 +275,9 @@ struct space_info
 {
     space_settings Settings;
     bool Initialized;
-    bool Managed;
     bool NeedsUpdate;
 
     tree_node *RootNode;
-    int FocusedWindowID;
 };
 
 struct kwm_mach
@@ -309,13 +304,6 @@ struct kwm_hotkeys
     mode *ActiveMode;
 };
 
-struct kwm_toggles
-{
-    bool UseMouseFollowsFocus;
-    bool UseBuiltinHotkeys;
-    bool StandbyOnFloat;
-};
-
 struct kwm_path
 {
     std::string EnvHome;
@@ -325,32 +313,28 @@ struct kwm_path
     std::string BSPLayouts;
 };
 
-struct kwm_screen
+struct kwm_settings
 {
-    split_type SplitMode;
-    double SplitRatio;
-    int PrevSpace;
+    space_tiling_option Space;
+    cycle_focus_option Cycle;
+    focus_option Focus;
 
-    container_offset DefaultOffset;
-};
+    bool UseMouseFollowsFocus;
+    bool UseBuiltinHotkeys;
+    bool StandbyOnFloat;
 
-struct kwm_tiling
-{
     double OptimalRatio;
     bool SpawnAsLeftChild;
     bool FloatNonResizable;
     bool LockToContainer;
 
+    split_type SplitMode;
+    double SplitRatio;
+    container_offset DefaultOffset;
+
     std::map<unsigned int, space_settings> DisplaySettings;
     std::map<space_identifier, space_settings> SpaceSettings;
     std::vector<window_rule> WindowRules;
-};
-
-struct kwm_mode
-{
-    space_tiling_option Space;
-    cycle_focus_option Cycle;
-    focus_option Focus;
 };
 
 struct kwm_thread

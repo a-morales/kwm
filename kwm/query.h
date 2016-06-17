@@ -11,10 +11,7 @@
 extern std::map<CFStringRef, space_info> WindowTree;
 extern ax_window *MarkedWindow;
 
-extern kwm_mode KWMMode;
-extern kwm_toggles KWMToggles;
-extern kwm_screen KWMScreen;
-extern kwm_tiling KWMTiling;
+extern kwm_settings KWMSettings;
 extern kwm_border FocusedBorder;
 extern kwm_border MarkedBorder;
 
@@ -23,9 +20,9 @@ GetActiveTilingMode()
 {
     std::string Output;
 
-    if(KWMMode.Space == SpaceModeBSP)
+    if(KWMSettings.Space == SpaceModeBSP)
         Output = "bsp";
-    else if(KWMMode.Space == SpaceModeMonocle)
+    else if(KWMSettings.Space == SpaceModeMonocle)
         Output = "monocle";
     else
         Output = "float";
@@ -38,11 +35,11 @@ GetActiveSplitMode()
 {
     std::string Output;
 
-    if(KWMScreen.SplitMode == SPLIT_OPTIMAL)
+    if(KWMSettings.SplitMode == SPLIT_OPTIMAL)
         Output = "Optimal";
-    else if(KWMScreen.SplitMode == SPLIT_VERTICAL)
+    else if(KWMSettings.SplitMode == SPLIT_VERTICAL)
         Output = "Vertical";
-    else if(KWMScreen.SplitMode == SPLIT_HORIZONTAL)
+    else if(KWMSettings.SplitMode == SPLIT_HORIZONTAL)
         Output = "Horizontal";
 
     return Output;
@@ -51,7 +48,7 @@ GetActiveSplitMode()
 inline std::string
 GetActiveSplitRatio()
 {
-    std::string Output = std::to_string(KWMScreen.SplitRatio);
+    std::string Output = std::to_string(KWMSettings.SplitRatio);
     Output.erase(Output.find_last_not_of('0') + 1, std::string::npos);
     return Output;
 }
@@ -59,7 +56,7 @@ GetActiveSplitRatio()
 inline std::string
 GetActiveSpawnPosition()
 {
-    return KWMTiling.SpawnAsLeftChild ? "left" : "right";
+    return KWMSettings.SpawnAsLeftChild ? "left" : "right";
 }
 
 inline std::string
@@ -67,9 +64,9 @@ GetStateOfFocusFollowsMouse()
 {
     std::string Output;
 
-    if(KWMMode.Focus == FocusModeAutoraise)
+    if(KWMSettings.Focus == FocusModeAutoraise)
         Output = "autoraise";
-    else if(KWMMode.Focus == FocusModeDisabled)
+    else if(KWMSettings.Focus == FocusModeDisabled)
         Output = "off";
 
     return Output;
@@ -78,31 +75,31 @@ GetStateOfFocusFollowsMouse()
 inline std::string
 GetStateOfMouseFollowsFocus()
 {
-    return KWMToggles.UseMouseFollowsFocus ? "on" : "off";
+    return KWMSettings.UseMouseFollowsFocus ? "on" : "off";
 }
 
 inline std::string
 GetStateOfCycleFocus()
 {
-    return KWMMode.Cycle == CycleModeScreen ? "screen" : "off";
+    return KWMSettings.Cycle == CycleModeScreen ? "screen" : "off";
 }
 
 inline std::string
 GetStateOfFloatNonResizable()
 {
-    return KWMTiling.FloatNonResizable ? "on" : "off";
+    return KWMSettings.FloatNonResizable ? "on" : "off";
 }
 
 inline std::string
 GetStateOfLockToContainer()
 {
-    return KWMTiling.LockToContainer ? "on" : "off";
+    return KWMSettings.LockToContainer ? "on" : "off";
 }
 
 inline std::string
 GetStateOfStandbyOnFloat()
 {
-    return KWMToggles.StandbyOnFloat ? "on" : "off";
+    return KWMSettings.StandbyOnFloat ? "on" : "off";
 }
 
 /* TODO(koekeishiya): Fix this. */

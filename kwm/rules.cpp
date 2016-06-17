@@ -10,8 +10,7 @@
 
 #define internal static
 
-extern kwm_screen KWMScreen;
-extern kwm_tiling KWMTiling;
+extern kwm_settings KWMSettings;
 
 /* Current Window Properties:
  *          float = "true" | "false"
@@ -232,15 +231,15 @@ void KwmAddRule(std::string RuleSym)
 {
     window_rule Rule = {};
     if(!RuleSym.empty() && KwmParseRule(RuleSym, &Rule))
-        KWMTiling.WindowRules.push_back(Rule);
+        KWMSettings.WindowRules.push_back(Rule);
 }
 
 bool ApplyWindowRules(ax_window *Window)
 {
     bool Skip = false;
-    for(int Index = 0; Index < KWMTiling.WindowRules.size(); ++Index)
+    for(int Index = 0; Index < KWMSettings.WindowRules.size(); ++Index)
     {
-        window_rule *Rule = &KWMTiling.WindowRules[Index];
+        window_rule *Rule = &KWMSettings.WindowRules[Index];
         if(MatchWindowRule(Rule, Window))
         {
             if(Rule->Properties.Float == 1)

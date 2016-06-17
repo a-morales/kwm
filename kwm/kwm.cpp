@@ -27,10 +27,7 @@ ax_window *MarkedWindow;
 
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
-kwm_screen KWMScreen = {};
-kwm_toggles KWMToggles = {};
-kwm_mode KWMMode = {};
-kwm_tiling KWMTiling = {};
+kwm_settings KWMSettings = {};
 kwm_thread KWMThread = {};
 kwm_hotkeys KWMHotkeys = {};
 kwm_border FocusedBorder = {};
@@ -54,7 +51,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         {
             /* TODO(koekeishiya): Is there a better way to decide whether
                                   we should eat the CGEventRef or not (?) */
-            if(KWMToggles.UseBuiltinHotkeys)
+            if(KWMSettings.UseBuiltinHotkeys)
             {
                 hotkey Eventkey = {}, *Hotkey = NULL;
                 Hotkey = (hotkey *) calloc(1, sizeof(hotkey));
@@ -76,7 +73,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         } break;
         case kCGEventMouseMoved:
         {
-            if(KWMMode.Focus == FocusModeAutoraise)
+            if(KWMSettings.Focus == FocusModeAutoraise)
                 AXLibConstructEvent(AXEvent_MouseMoved, NULL);
         } break;
         default: {} break;
@@ -145,9 +142,9 @@ internal void
 KwmClearSettings()
 {
     KWMHotkeys.Modes.clear();
-    KWMTiling.WindowRules.clear();
-    KWMTiling.SpaceSettings.clear();
-    KWMTiling.DisplaySettings.clear();
+    KWMSettings.WindowRules.clear();
+    KWMSettings.SpaceSettings.clear();
+    KWMSettings.DisplaySettings.clear();
     KWMHotkeys.ActiveMode = GetBindingMode("default");
 }
 
@@ -197,35 +194,32 @@ internal void
 KwmInit()
 {
     if(!CheckPrivileges())
-        Fatal("Could not access OSX Accessibility!");
+        Fatal("Error: Could not access OSX Accessibility!");
 
     if(KwmStartDaemon())
         pthread_create(&KWMThread.Daemon, NULL, &KwmDaemonHandleConnectionBG, NULL);
     else
-        Fatal("Kwm: Could not start daemon..");
+        Fatal("Error: Could not start daemon!");
 
-    /*
     signal(SIGSEGV, SignalHandler);
     signal(SIGABRT, SignalHandler);
     signal(SIGTRAP, SignalHandler);
     signal(SIGTERM, SignalHandler);
     signal(SIGKILL, SignalHandler);
     signal(SIGINT, SignalHandler);
-    */
 
-    KWMScreen.SplitRatio = 0.5;
-    KWMScreen.SplitMode = SPLIT_OPTIMAL;
-    KWMScreen.PrevSpace = -1;
-    KWMScreen.DefaultOffset = CreateDefaultScreenOffset();
+    KWMSettings.SplitRatio = 0.5;
+    KWMSettings.SplitMode = SPLIT_OPTIMAL;
+    KWMSettings.DefaultOffset = CreateDefaultScreenOffset();
 
-    KWMToggles.UseBuiltinHotkeys = true;
-    KWMToggles.UseMouseFollowsFocus = true;
-    KWMTiling.OptimalRatio = 1.618;
-    KWMTiling.LockToContainer = true;
+    KWMSettings.UseBuiltinHotkeys = true;
+    KWMSettings.UseMouseFollowsFocus = true;
+    KWMSettings.OptimalRatio = 1.618;
+    KWMSettings.LockToContainer = true;
 
-    KWMMode.Space = SpaceModeBSP;
-    KWMMode.Focus = FocusModeAutoraise;
-    KWMMode.Cycle = CycleModeScreen;
+    KWMSettings.Space = SpaceModeBSP;
+    KWMSettings.Focus = FocusModeAutoraise;
+    KWMSettings.Cycle = CycleModeScreen;
 
     FocusedBorder.Radius = -1;
     MarkedBorder.Radius = -1;
@@ -266,7 +260,7 @@ int main(int argc, char **argv)
 
     KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, kCGEventTapOptionDefault, KWMMach.EventMask, CGEventCallback, NULL);
     if(!KWMMach.EventTap || !CGEventTapIsEnabled(KWMMach.EventTap))
-        Fatal("ERROR: Could not create event-tap!");
+        Fatal("Error: Could not create event-tap!");
 
     CFRunLoopAddSource(CFRunLoopGetMain(),
                        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, KWMMach.EventTap, 0),

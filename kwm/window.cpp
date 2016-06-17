@@ -28,10 +28,7 @@ extern ax_display *FocusedDisplay;
 extern ax_application *FocusedApplication;
 extern ax_window *MarkedWindow;
 
-extern kwm_screen KWMScreen;
-extern kwm_toggles KWMToggles;
-extern kwm_mode KWMMode;
-extern kwm_tiling KWMTiling;
+extern kwm_settings KWMSettings;
 extern kwm_path KWMPath;
 extern kwm_thread KWMThread;
 extern kwm_border MarkedBorder;
@@ -42,7 +39,7 @@ FloatNonResizable(ax_window *Window)
 {
     if(Window)
     {
-        if((KWMTiling.FloatNonResizable) &&
+        if((KWMSettings.FloatNonResizable) &&
            (!AXLibHasFlags(Window, AXWindow_Resizable)))
         {
             AXLibAddFlags(Window, AXWindow_Floating);
@@ -55,13 +52,13 @@ StandbyOnFloat(ax_window *Window)
 {
     if(Window)
     {
-        if((KWMToggles.StandbyOnFloat) &&
-           (KWMMode.Focus != FocusModeDisabled))
+        if((KWMSettings.StandbyOnFloat) &&
+           (KWMSettings.Focus != FocusModeDisabled))
         {
             if(AXLibHasFlags(Window, AXWindow_Floating))
-                KWMMode.Focus = FocusModeStandby;
+                KWMSettings.Focus = FocusModeStandby;
             else
-                KWMMode.Focus = FocusModeAutoraise;
+                KWMSettings.Focus = FocusModeAutoraise;
         }
     }
 }
@@ -506,7 +503,7 @@ LoadSpaceSettings(ax_display *Display, space_info *SpaceInfo)
     int DesktopID = AXLibDesktopIDFromCGSSpaceID(Display, Display->Space->ID);
 
     /* NOTE(koekeishiya): Load global default display settings. */
-    SpaceInfo->Settings.Offset = KWMScreen.DefaultOffset;
+    SpaceInfo->Settings.Offset = KWMSettings.DefaultOffset;
     SpaceInfo->Settings.Mode = SpaceModeDefault;
     SpaceInfo->Settings.Layout = "";
     SpaceInfo->Settings.Name = "";
@@ -520,7 +517,7 @@ LoadSpaceSettings(ax_display *Display, space_info *SpaceInfo)
 
     /* TODO(koekeishiya): Is SpaceModeDefault necessary (?) */
     if(SpaceInfo->Settings.Mode == SpaceModeDefault)
-        SpaceInfo->Settings.Mode = KWMMode.Space;
+        SpaceInfo->Settings.Mode = KWMSettings.Space;
 }
 
 internal void
@@ -552,7 +549,7 @@ AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, uint32_t WindowID
         {
             if(CurrentNode->Type == NodeTypeTree)
             {
-                split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+                split_type SplitMode = KWMSettings.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMSettings.SplitMode;
                 CreateLeafNodePair(Display, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
                 ApplyTreeNodeContainer(CurrentNode);
             }
@@ -911,7 +908,7 @@ void AddWindowToInactiveNodeTree(ax_display *Display, uint32_t WindowID)
         DEBUG("AddWindowToInactiveNodeTree() BSP Space");
         tree_node *CurrentNode = NULL;
         GetFirstLeafNode(SpaceInfo->RootNode, (void**)&CurrentNode);
-        split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+        split_type SplitMode = KWMSettings.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMSettings.SplitMode;
 
         CreateLeafNodePair(Display, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
         ApplyTreeNodeContainer(CurrentNode);
@@ -947,17 +944,17 @@ void ToggleWindowFloating(uint32_t WindowID, bool Center)
     {
         AXLibClearFlags(Window, AXWindow_Floating);
         AddWindowToNodeTree(Display, Window->ID);
-        if((KWMToggles.StandbyOnFloat) &&
-           (KWMMode.Focus != FocusModeDisabled))
-            KWMMode.Focus = FocusModeAutoraise;
+        if((KWMSettings.StandbyOnFloat) &&
+           (KWMSettings.Focus != FocusModeDisabled))
+            KWMSettings.Focus = FocusModeAutoraise;
     }
     else
     {
         AXLibAddFlags(Window, AXWindow_Floating);
         RemoveWindowFromNodeTree(Display, Window->ID);
-        if((KWMToggles.StandbyOnFloat) &&
-           (KWMMode.Focus != FocusModeDisabled))
-            KWMMode.Focus = FocusModeStandby;
+        if((KWMSettings.StandbyOnFloat) &&
+           (KWMSettings.Focus != FocusModeDisabled))
+            KWMSettings.Focus = FocusModeStandby;
     }
 }
 
@@ -1169,7 +1166,7 @@ void SwapFocusedWindowWithNearest(int Shift)
         if(Link)
         {
             link_node *ShiftNode = Shift == 1 ? Link->Next : Link->Prev;
-            if(KWMMode.Cycle == CycleModeScreen && !ShiftNode)
+            if(KWMSettings.Cycle == CycleModeScreen && !ShiftNode)
             {
                 Space->RootNode->Type = NodeTypeLink;
                 if(Shift == 1)
@@ -1228,7 +1225,7 @@ void SwapFocusedWindowDirected(int Degrees)
         {
             tree_node *NewFocusNode = NULL;
             ax_window *ClosestWindow = NULL;
-            if(FindClosestWindow(Degrees, &ClosestWindow, KWMMode.Cycle == CycleModeScreen))
+            if(FindClosestWindow(Degrees, &ClosestWindow, KWMSettings.Cycle == CycleModeScreen))
                 NewFocusNode = GetTreeNodeFromWindowID(Space->RootNode, ClosestWindow->ID);
 
             if(NewFocusNode)
@@ -1374,9 +1371,9 @@ void ShiftWindowFocusDirected(int Degrees)
     if(SpaceInfo->Settings.Mode == SpaceModeBSP)
     {
         ax_window *ClosestWindow = NULL;
-        if((KWMMode.Cycle == CycleModeDisabled &&
+        if((KWMSettings.Cycle == CycleModeDisabled &&
             FindClosestWindow(Degrees, &ClosestWindow, false)) ||
-           (KWMMode.Cycle == CycleModeScreen &&
+           (KWMSettings.Cycle == CycleModeScreen &&
             FindClosestWindow(Degrees, &ClosestWindow, true)))
         {
             AXLibSetFocusedWindow(ClosestWindow);
@@ -1409,7 +1406,7 @@ void ShiftWindowFocus(int Shift)
         if(Link)
         {
             link_node *FocusNode = Shift == 1 ? Link->Next : Link->Prev;
-            if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
+            if(KWMSettings.Cycle == CycleModeScreen && !FocusNode)
             {
                 SpaceInfo->RootNode->Type = NodeTypeLink;
                 if(Shift == 1)
@@ -1439,7 +1436,7 @@ void ShiftWindowFocus(int Shift)
                 while(IsPseudoNode(FocusNode))
                     FocusNode = GetNearestTreeNodeToTheRight(FocusNode);
 
-                if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
+                if(KWMSettings.Cycle == CycleModeScreen && !FocusNode)
                 {
                     GetFirstLeafNode(SpaceInfo->RootNode, (void**)&FocusNode);
                     while(IsPseudoNode(FocusNode))
@@ -1452,7 +1449,7 @@ void ShiftWindowFocus(int Shift)
                 while(IsPseudoNode(FocusNode))
                     FocusNode = GetNearestTreeNodeToTheLeft(FocusNode);
 
-                if(KWMMode.Cycle == CycleModeScreen && !FocusNode)
+                if(KWMSettings.Cycle == CycleModeScreen && !FocusNode)
                 {
                     GetLastLeafNode(SpaceInfo->RootNode, (void**)&FocusNode);
                     while(IsPseudoNode(FocusNode))

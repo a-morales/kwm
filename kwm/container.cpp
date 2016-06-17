@@ -5,7 +5,7 @@
 #define internal static
 
 extern std::map<CFStringRef, space_info> WindowTree;
-extern kwm_screen KWMScreen;
+extern kwm_settings KWMSettings;
 
 internal node_container
 LeftVerticalContainerSplit(ax_display *Display, tree_node *Node)
@@ -91,7 +91,7 @@ void SetLinkNodeContainer(ax_display *Display, link_node *Link)
 void CreateNodeContainer(ax_display *Display, tree_node *Node, int ContainerType)
 {
     if(Node->SplitRatio == 0)
-        Node->SplitRatio = KWMScreen.SplitRatio;
+        Node->SplitRatio = KWMSettings.SplitRatio;
 
     switch(ContainerType)
     {
