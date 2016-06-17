@@ -129,24 +129,22 @@ inline std::string
 GetListOfSpaces()
 {
     std::string Output;
-    /*
-    screen_info *Screen = KWMScreen.Current;
-
-    if(Screen)
+    ax_display *Display = AXLibMainDisplay();
+    if(Display)
     {
         int SubtractIndex = 0;
-        int TotalSpaces = GetNumberOfSpacesOfDisplay(Screen);
+        int TotalSpaces = AXLibDisplaySpacesCount(Display);
         for(int SpaceID = 1; SpaceID <= TotalSpaces; ++SpaceID)
         {
-            int CGSpaceID = GetCGSpaceIDFromSpaceNumber(Screen, SpaceID);
-            std::map<int, space_info>::iterator It = Screen->Space.find(CGSpaceID);
-            if(It != Screen->Space.end())
+            int CGSSpaceID = AXLibCGSSpaceIDFromDesktopID(Display, SpaceID);
+            std::map<int, ax_space>::iterator It = Display->Spaces.find(CGSSpaceID);
+            if(It != Display->Spaces.end())
             {
-                if(It->second.Managed)
+                if(It->second.Type == kCGSSpaceUser)
                 {
-                    std::string Name = GetNameOfSpace(Screen, CGSpaceID);
+                    std::string Name = GetNameOfSpace(Display, &It->second);
                     Output += std::to_string(SpaceID - SubtractIndex) + ", " + Name;
-                    if(SpaceID < TotalSpaces && SpaceID < Screen->Space.size())
+                    if(SpaceID < TotalSpaces && SpaceID < Display->Spaces.size())
                         Output += "\n";
                 }
                 else
@@ -159,7 +157,6 @@ GetListOfSpaces()
         if(Output[Output.size()-1] == '\n')
             Output.erase(Output.begin() + Output.size()-1);
     }
-    */
 
     return Output;
 }
@@ -170,7 +167,7 @@ GetNameOfCurrentSpace()
     std::string Output;
 
     ax_display *Display = AXLibMainDisplay();
-    Output = GetNameOfSpace(Display);
+    Output = GetNameOfSpace(Display, Display->Space);
 
     return Output;
 }
@@ -179,10 +176,9 @@ inline std::string
 GetNameOfPreviousSpace()
 {
     std::string Output;
-    /*
-    if(KWMScreen.Current && !KWMScreen.Current->History.empty())
-        Output = GetNameOfSpace(KWMScreen.Current, KWMScreen.Current->History.top());
-    */
+    ax_display *Display = AXLibMainDisplay();
+    if(Display)
+        Output = GetNameOfSpace(Display, Display->PrevSpace);
 
     return Output;
 }
@@ -229,10 +225,9 @@ inline std::string
 GetIdOfPreviousSpace()
 {
     std::string Output = "-1";
-    /*
-    if(KWMScreen.Current && !KWMScreen.Current->History.empty())
-        Output = std::to_string(GetSpaceNumberFromCGSpaceID(KWMScreen.Current, KWMScreen.Current->History.top()));
-    */
+    ax_display *Display = AXLibMainDisplay();
+    if(Display)
+        Output = std::to_string(AXLibDesktopIDFromCGSSpaceID(Display, Display->PrevSpace->ID));
 
     return Output;
 }

@@ -129,9 +129,9 @@ void SetNameOfActiveSpace(ax_display *Display, std::string Name)
     if(SpaceInfo) SpaceInfo->Settings.Name = Name;
 }
 
-std::string GetNameOfSpace(ax_display *Display)
+std::string GetNameOfSpace(ax_display *Display, ax_space *Space)
 {
-    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    space_info *SpaceInfo = &WindowTree[Space->Identifier];
     std::string Result = "[no tag]";
 
     if(!SpaceInfo->Settings.Name.empty())

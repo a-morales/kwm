@@ -345,10 +345,8 @@ KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
                 KwmWriteToSocket(ClientSockFD, GetTagOfCurrentSpace());
             else if(Tokens[3] == "name")
                 KwmWriteToSocket(ClientSockFD, GetNameOfCurrentSpace());
-            /*
             else if(Tokens[3] == "id")
                 KwmWriteToSocket(ClientSockFD, GetIdOfCurrentSpace());
-            */
             else if(Tokens[3] == "mode")
                 KwmWriteToSocket(ClientSockFD, GetModeOfCurrentSpace());
         }
@@ -356,15 +354,11 @@ KwmQueryCommand(std::vector<std::string> &Tokens, int ClientSockFD)
         {
             if(Tokens[3] == "name")
                 KwmWriteToSocket(ClientSockFD, GetNameOfPreviousSpace());
-            /*
             else if(Tokens[3] == "id")
                 KwmWriteToSocket(ClientSockFD, GetIdOfPreviousSpace());
-            */
         }
-        /*
         else if(Tokens[2] == "list")
             KwmWriteToSocket(ClientSockFD, GetListOfSpaces());
-        */
     }
     else if(Tokens[1] == "border")
     {
