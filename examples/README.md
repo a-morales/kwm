@@ -1,5 +1,5 @@
 ### Default Binds:
-Note: "Secure Keyboard Entry" must be disabled for binds to work while inside a terminal.
+Note: "Secure Keyboard Entry" must be disabled for binds to work.
 
     - prefix-key: ctrl-s
 
