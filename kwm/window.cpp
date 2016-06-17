@@ -704,68 +704,80 @@ RemoveWindowFromMonocleTree(ax_display *Display, uint32_t WindowID)
     }
 }
 
+internal void
+CreateAndInitializeSpaceInfoWithWindowTree(ax_display *Display, space_info *SpaceInfo, std::vector<uint32_t> *Windows)
+{
+    SpaceInfo->Initialized = true;
+    LoadSpaceSettings(Display, SpaceInfo);
+    if(SpaceInfo->Settings.Mode == SpaceModeFloating)
+        return;
+
+    if(SpaceInfo->Settings.Mode == SpaceModeBSP && !SpaceInfo->Settings.Layout.empty())
+    {
+        LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
+        FillDeserializedTree(SpaceInfo->RootNode, Display, Windows);
+    }
+    else
+    {
+        SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, Windows);
+    }
+
+    if(SpaceInfo->RootNode)
+        ApplyTreeNodeContainer(SpaceInfo->RootNode);
+}
+
+internal void
+CreateSpaceInfoWithWindowTree(ax_display *Display, space_info *SpaceInfo, std::vector<uint32_t> *Windows)
+{
+    if(SpaceInfo->Settings.Mode == SpaceModeFloating)
+        return;
+
+    /* NOTE(koekeishiya): If a space has been initialized, but the node-tree was destroyed. */
+    if(SpaceInfo->Settings.Mode == SpaceModeBSP && !SpaceInfo->Settings.Layout.empty())
+    {
+        LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
+        FillDeserializedTree(SpaceInfo->RootNode, Display, Windows);
+    }
+    else
+    {
+        SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, Windows);
+    }
+
+    /* NOTE(koekeishiya): Is this something that we really need to do (?) */
+    if(SpaceInfo->RootNode)
+    {
+        if(SpaceInfo->Settings.Mode == SpaceModeBSP)
+        {
+            SetRootNodeContainer(Display, SpaceInfo->RootNode);
+            CreateNodeContainers(Display, SpaceInfo->RootNode, true);
+        }
+        else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
+        {
+            SetRootNodeContainer(Display, SpaceInfo->RootNode);
+            link_node *Link = SpaceInfo->RootNode->List;
+            while(Link)
+            {
+                SetLinkNodeContainer(Display, Link);
+                Link = Link->Next;
+            }
+        }
+
+        ApplyTreeNodeContainer(SpaceInfo->RootNode);
+    }
+}
+
 void CreateWindowNodeTree(ax_display *Display)
 {
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     if(!SpaceInfo->Initialized && !SpaceInfo->RootNode)
     {
-        SpaceInfo->Initialized = true;
-        LoadSpaceSettings(Display, SpaceInfo);
-        if(SpaceInfo->Settings.Mode == SpaceModeFloating)
-            return;
-
         std::vector<uint32_t> Windows = GetAllWindowIDSOnDisplay(Display);
-        if(SpaceInfo->Settings.Mode == SpaceModeBSP && !SpaceInfo->Settings.Layout.empty())
-        {
-            LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
-            FillDeserializedTree(SpaceInfo->RootNode, Display, &Windows);
-        }
-        else
-        {
-            SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
-        }
-
-        if(SpaceInfo->RootNode)
-            ApplyTreeNodeContainer(SpaceInfo->RootNode);
+        CreateAndInitializeSpaceInfoWithWindowTree(Display, SpaceInfo, &Windows);
     }
     else if(SpaceInfo->Initialized && !SpaceInfo->RootNode)
     {
-        if(SpaceInfo->Settings.Mode == SpaceModeFloating)
-            return;
-
-        /* NOTE(koekeishiya): If a space has been initialized, but the node-tree was destroyed. */
         std::vector<uint32_t> Windows = GetAllWindowIDSOnDisplay(Display);
-        if(SpaceInfo->Settings.Mode == SpaceModeBSP && !SpaceInfo->Settings.Layout.empty())
-        {
-            LoadBSPTreeFromFile(Display, SpaceInfo, SpaceInfo->Settings.Layout);
-            FillDeserializedTree(SpaceInfo->RootNode, Display, &Windows);
-        }
-        else
-        {
-            SpaceInfo->RootNode = CreateTreeFromWindowIDList(Display, &Windows);
-        }
-
-        /* NOTE(koekeishiya): Is this something that we really need to do (?) */
-        if(SpaceInfo->RootNode)
-        {
-            if(SpaceInfo->Settings.Mode == SpaceModeBSP)
-            {
-                SetRootNodeContainer(Display, SpaceInfo->RootNode);
-                CreateNodeContainers(Display, SpaceInfo->RootNode, true);
-            }
-            else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
-            {
-                SetRootNodeContainer(Display, SpaceInfo->RootNode);
-                link_node *Link = SpaceInfo->RootNode->List;
-                while(Link)
-                {
-                    SetLinkNodeContainer(Display, Link);
-                    Link = Link->Next;
-                }
-            }
-
-            ApplyTreeNodeContainer(SpaceInfo->RootNode);
-        }
+        CreateSpaceInfoWithWindowTree(Display, SpaceInfo, &Windows);
     }
 }
 
@@ -869,68 +881,55 @@ void RebalanceNodeTree(ax_display *Display)
         RebalanceMonocleTree(Display);
 }
 
-/* TODO(koekeishiya): Make this work for ax_window.
-void AddWindowToTreeOfUnfocusedMonitor(screen_info *Screen, window_info *Window)
+
+void CreateInactiveWindowNodeTree(ax_display *Display, std::vector<uint32_t> *Windows)
 {
-    screen_info *ScreenOfWindow = GetDisplayOfWindow(Window);
-    if(!Screen || !Window || Screen == ScreenOfWindow)
-        return;
-
-    space_info *SpaceOfWindow = GetActiveSpaceOfScreen(ScreenOfWindow);
-    if(SpaceOfWindow->Settings.Mode == SpaceModeBSP)
-        RemoveWindowFromBSPTree(ScreenOfWindow, Window->WID, false, false);
-    else if(SpaceOfWindow->Settings.Mode == SpaceModeMonocle)
-        RemoveWindowFromMonocleTree(ScreenOfWindow, Window->WID, false, false);
-
-    if(Window->WID == KWMScreen.MarkedWindow.WID)
-        ClearMarkedWindow();
-
-    bool UpdateFocus = true;
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-    if(Space->RootNode)
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(!SpaceInfo->Initialized && !SpaceInfo->RootNode)
     {
-        if(Space->Settings.Mode == SpaceModeBSP)
-        {
-            DEBUG("AddWindowToTreeOfUnfocusedMonitor() BSP Space");
-            tree_node *CurrentNode = NULL;
-            GetFirstLeafNode(Space->RootNode, (void**)&CurrentNode);
-            split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
-
-            CreateLeafNodePair(Screen, CurrentNode, CurrentNode->WindowID, Window->WID, SplitMode);
-            ApplyTreeNodeContainer(CurrentNode);
-        }
-        else if(Space->Settings.Mode == SpaceModeMonocle)
-        {
-            DEBUG("AddWindowToTreeOfUnfocusedMonitor() Monocle Space");
-            link_node *Link = Space->RootNode->List;
-            while(Link->Next)
-                Link = Link->Next;
-
-            link_node *NewLink = CreateLinkNode();
-            SetLinkNodeContainer(Screen, NewLink);
-
-            NewLink->WindowID = Window->WID;
-            Link->Next = NewLink;
-            NewLink->Prev = Link;
-            ResizeWindowToContainerSize(NewLink);
-        }
+        CreateAndInitializeSpaceInfoWithWindowTree(Display, SpaceInfo, Windows);
     }
-    else
+    else if(SpaceInfo->Initialized && !SpaceInfo->RootNode)
     {
-        std::vector<window_info*> Windows;
-        Windows.push_back(Window);
-        CreateWindowNodeTree(Screen, &Windows);
-        UpdateFocus = false;
-    }
-
-    if(UpdateFocus)
-    {
-        GiveFocusToScreen(Screen->ID, NULL, false, false);
-        SetWindowFocus(Window);
-        MoveCursorToCenterOfFocusedWindow();
+        CreateSpaceInfoWithWindowTree(Display, SpaceInfo, Windows);
     }
 }
-*/
+
+void AddWindowToInactiveNodeTree(ax_display *Display, uint32_t WindowID)
+{
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(!SpaceInfo->RootNode)
+    {
+        std::vector<uint32_t> Windows;
+        Windows.push_back(WindowID);
+        CreateInactiveWindowNodeTree(Display, &Windows);
+    }
+    else if(SpaceInfo->Settings.Mode == SpaceModeBSP)
+    {
+        DEBUG("AddWindowToInactiveNodeTree() BSP Space");
+        tree_node *CurrentNode = NULL;
+        GetFirstLeafNode(SpaceInfo->RootNode, (void**)&CurrentNode);
+        split_type SplitMode = KWMScreen.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMScreen.SplitMode;
+
+        CreateLeafNodePair(Display, CurrentNode, CurrentNode->WindowID, WindowID, SplitMode);
+        ApplyTreeNodeContainer(CurrentNode);
+    }
+    else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
+    {
+        DEBUG("AddWindowToInactiveNodeTree() Monocle Space");
+        link_node *Link = SpaceInfo->RootNode->List;
+        while(Link->Next)
+            Link = Link->Next;
+
+        link_node *NewLink = CreateLinkNode();
+        SetLinkNodeContainer(Display, NewLink);
+
+        NewLink->WindowID = WindowID;
+        Link->Next = NewLink;
+        NewLink->Prev = Link;
+        ResizeWindowToContainerSize(NewLink);
+    }
+}
 
 void ToggleWindowFloating(uint32_t WindowID, bool Center)
 {
@@ -1606,20 +1605,14 @@ void SetWindowDimensions(AXUIElementRef WindowRef, int X, int Y, int Width, int 
     CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
 }
 
-/* TODO(koekeishiya): Make this work for ax_window.
-void CenterWindow(screen_info *Screen, window_info *Window)
+void CenterWindow(ax_display *Display, ax_window *Window)
 {
-    AXUIElementRef WindowRef;
-    if(GetWindowRef(Window, &WindowRef))
-    {
-        int NewX = Screen->X + Screen->Width / 4;
-        int NewY = Screen->Y + Screen->Height / 4;
-        int NewWidth = Screen->Width / 2;
-        int NewHeight = Screen->Height / 2;
-        SetWindowDimensions(WindowRef, Window, NewX, NewY, NewWidth, NewHeight);
-    }
+    int NewX = Display->Frame.origin.x + Display->Frame.size.width / 4;
+    int NewY = Display->Frame.origin.y + Display->Frame.size.height / 4;
+    int NewWidth = Display->Frame.size.width / 2;
+    int NewHeight = Display->Frame.size.height / 2;
+    SetWindowDimensions(Window->Ref, NewX, NewY, NewWidth, NewHeight);
 }
-*/
 
 ax_window *GetWindowByID(uint32_t WindowID)
 {

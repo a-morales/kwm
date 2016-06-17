@@ -6,16 +6,19 @@
 #include "axlib/window.h"
 
 void CreateWindowNodeTree(ax_display *Display);
+void CreateInactiveWindowNodeTree(ax_display *Display, std::vector<uint32_t> *Windows);
 void LoadWindowNodeTree(ax_display *Display, std::string Layout);
 void ResetWindowNodeTree(ax_display *Display, space_tiling_option Mode);
 void AddWindowToNodeTree(ax_display *Display, uint32_t WindowID);
 void RemoveWindowFromNodeTree(ax_display *Display, uint32_t WindowID);
 void RebalanceNodeTree(ax_display *Display);
+void AddWindowToInactiveNodeTree(ax_display *Display, uint32_t WindowID);
 
 ax_window *GetWindowByID(uint32_t WindowID);
 void GetCenterOfWindow(ax_window *Window, int *X, int *Y);
 bool WindowIsInDirection(ax_window *WindowA, ax_window *WindowB, int Degrees);
 bool FindClosestWindow(int Degrees, ax_window **ClosestWindow, bool Wrap);
+void CenterWindow(ax_display *Display, ax_window *Window);
 
 /* TODO(koekeishiya): PARTIALLY LOOKED AT */
 void FocusWindowByID(uint32_t WindowID);

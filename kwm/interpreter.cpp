@@ -550,14 +550,16 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
         }
         else if(Tokens[2] == "display")
         {
-            /* TODO(koekeishiya) reimplement.
+            ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+            if(!Window)
+                return;
+
             if(Tokens[3] == "prev")
-                MoveWindowToDisplay(KWMFocus.Window, -1, true);
+                MoveWindowToDisplay(Window, -1, true);
             else if(Tokens[3] == "next")
-                MoveWindowToDisplay(KWMFocus.Window, 1, true);
+                MoveWindowToDisplay(Window, 1, true);
             else
-                MoveWindowToDisplay(KWMFocus.Window, ConvertStringToInt(Tokens[3]), false);
-            */
+                MoveWindowToDisplay(Window, ConvertStringToInt(Tokens[3]), false);
         }
         else if(Tokens[2] == "north")
         {

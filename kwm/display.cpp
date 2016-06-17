@@ -98,30 +98,28 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset)
     UpdateSpaceOfDisplay(Display, Space);
 }
 
-/* TODO(koekeishiya): Make this work for ax_window */
-/*
-void MoveWindowToDisplay(window_info *Window, int Shift, bool Relative)
+void MoveWindowToDisplay(ax_window *Window, int Shift, bool Relative)
 {
-    int NewScreenIndex = -1;
-
+    ax_display *Display = AXLibWindowDisplay(Window);
+    ax_display *NewDisplay = NULL;
     if(Relative)
-        NewScreenIndex = Shift == 1 ? GetIndexOfNextScreen() : GetIndexOfPrevScreen();
+        NewDisplay = Shift == 1 ? AXLibNextDisplay(Display) : AXLibPreviousDisplay(Display);
     else
-        NewScreenIndex = Shift;
+        NewDisplay = AXLibArrangementDisplay(Shift);
 
-    screen_info *NewScreen = GetDisplayFromScreenID(NewScreenIndex);
-    if(NewScreen && NewScreen != KWMScreen.Current)
+    if(NewDisplay && NewDisplay != Display)
     {
-        space_info *SpaceOfWindow = GetActiveSpaceOfScreen(KWMScreen.Current);
-        SpaceOfWindow->FocusedWindowID = -1;
-
-        if(IsWindowFloating(Window->WID, NULL))
-            CenterWindow(NewScreen, Window);
+        if(AXLibHasFlags(Window, AXWindow_Floating))
+        {
+            CenterWindow(NewDisplay, Window);
+        }
         else
-            AddWindowToTreeOfUnfocusedMonitor(NewScreen, Window);
+        {
+            RemoveWindowFromNodeTree(Display, Window->ID);
+            AddWindowToInactiveNodeTree(NewDisplay, Window->ID);
+        }
     }
 }
-*/
 
 container_offset CreateDefaultScreenOffset()
 {

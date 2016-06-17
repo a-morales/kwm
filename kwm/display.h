@@ -11,8 +11,6 @@ void ChangePaddingOfDisplay(const std::string &Side, int Offset);
 void ChangeGapOfDisplay(const std::string &Side, int Offset);
 space_settings *GetSpaceSettingsForDisplay(unsigned int ScreenID);
 container_offset CreateDefaultScreenOffset();
-
-/* TODO(koekeishiya): Make this work for ax_window */
 void MoveWindowToDisplay(ax_window *Window, int Shift, bool Relative);
 
 #endif
