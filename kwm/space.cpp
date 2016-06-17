@@ -77,26 +77,20 @@ void GetTagForCurrentSpace(std::string &Tag)
 
 void GoToPreviousSpace(bool MoveFocusedWindow)
 {
-    /*
-    if(IsSpaceTransitionInProgress())
+    if(AXLibIsSpaceTransitionInProgress())
         return;
 
-    Assert(KWMScreen.Current);
-    if(!KWMScreen.Current->History.empty())
+    ax_display *Display = AXLibMainDisplay();
+    if(Display && Display->PrevSpace)
     {
-        int CGSpaceID = KWMScreen.Current->History.top();
-        KWMScreen.Current->History.pop();
-
-        int Workspace = GetSpaceNumberFromCGSpaceID(KWMScreen.Current, CGSpaceID);
+        int Workspace = AXLibDesktopIDFromCGSSpaceID(Display, Display->PrevSpace->ID);
         std::string WorkspaceStr = std::to_string(Workspace);
-        KWMScreen.Current->TrackSpaceChange = false;
 
         if(MoveFocusedWindow)
             MoveFocusedWindowToSpace(WorkspaceStr);
         else
-            KwmEmitKeystroke(KWMHotkeys.SpacesKey, WorkspaceStr);
+            ActivateSpaceWithoutTransition(WorkspaceStr);
     }
-    */
 }
 
 space_settings *GetSpaceSettingsForDesktopID(int ScreenID, int DesktopID)

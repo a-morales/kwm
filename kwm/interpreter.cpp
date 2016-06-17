@@ -628,7 +628,10 @@ KwmSpaceCommand(std::vector<std::string> &Tokens)
 {
     if(Tokens[1] == "-fExperimental")
     {
-        ActivateSpaceWithoutTransition(Tokens[2]);
+        if(Tokens[2] == "previous")
+            GoToPreviousSpace(false);
+        else
+            ActivateSpaceWithoutTransition(Tokens[2]);
     }
     else if(Tokens[1] == "-t")
     {
