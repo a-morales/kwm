@@ -204,7 +204,10 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         FocusedApplication->Focus = AXLibGetFocusedWindow(FocusedApplication);
         if((FocusedApplication->Focus) &&
            (AXLibSpaceHasWindow(FocusedApplication->Focus, Display->Space->ID)))
+        {
             UpdateBorder("focused");
+            MoveCursorToCenterOfWindow(FocusedApplication->Focus);
+        }
     }
 }
 
