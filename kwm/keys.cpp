@@ -9,7 +9,7 @@
 
 #define internal static
 
-extern kwm_focus KWMFocus;
+extern ax_application *FocusedApplication;
 extern kwm_hotkeys KWMHotkeys;
 extern kwm_thread KWMThread;
 
@@ -18,6 +18,7 @@ KeycodeToString(CGKeyCode Keycode)
 {
     TISInputSourceRef Keyboard = TISCopyCurrentASCIICapableKeyboardLayoutInputSource();
     CFDataRef Uchr = (CFDataRef)TISGetInputSourceProperty(Keyboard, kTISPropertyUnicodeKeyLayoutData);
+    CFRelease(Keyboard);
     const UCKeyboardLayout *KeyboardLayout = (const UCKeyboardLayout*)CFDataGetBytePtr(Uchr);
 
     if(KeyboardLayout)
@@ -186,21 +187,21 @@ HotkeysAreEqual(hotkey *A, hotkey *B)
 internal bool
 IsHotkeyStateReqFulfilled(hotkey *Hotkey)
 {
-    if(Hotkey->State == HotkeyStateInclude && KWMFocus.Window)
+    if(Hotkey->State == HotkeyStateInclude && FocusedApplication)
     {
         for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
         {
-            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
+            if(FocusedApplication->Name == Hotkey->List[AppIndex])
                 return true;
         }
 
         return false;
     }
-    else if(Hotkey->State == HotkeyStateExclude && KWMFocus.Window)
+    else if(Hotkey->State == HotkeyStateExclude && FocusedApplication)
     {
         for(std::size_t AppIndex = 0; AppIndex < Hotkey->List.size(); ++AppIndex)
         {
-            if(KWMFocus.Window->Owner == Hotkey->List[AppIndex])
+            if(FocusedApplication->Name == Hotkey->List[AppIndex])
                 return false;
         }
     }
@@ -228,7 +229,13 @@ KwmExecuteHotkey(hotkey *Hotkey)
                 KwmInterpretCommand(Command, 0);
 
             if(KWMHotkeys.ActiveMode->Prefix)
+            {
                 KWMHotkeys.ActiveMode->Time = std::chrono::steady_clock::now();
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, KWMHotkeys.ActiveMode->Timeout * NSEC_PER_SEC), dispatch_get_main_queue(),
+                ^{
+                    CheckPrefixTimeout();
+                });
+            }
         }
     }
 }
@@ -359,25 +366,13 @@ void KwmActivateBindingMode(std::string Mode)
     KWMHotkeys.ActiveMode = BindingMode;
     UpdateBorder("focused");
     if(BindingMode->Prefix)
-        BindingMode->Time = std::chrono::steady_clock::now();
-}
-
-void KwmSetSpacesKey(std::string KeySym)
-{
-    modifiers Mod = {};
-    std::vector<std::string> Modifiers = SplitString(KeySym, '+');
-    for(std::size_t ModIndex = 0; ModIndex < Modifiers.size(); ++ModIndex)
     {
-        if(Modifiers[ModIndex] == "cmd")
-            Mod.CmdKey = true;
-        else if(Modifiers[ModIndex] == "alt")
-            Mod.AltKey = true;
-        else if(Modifiers[ModIndex] == "ctrl")
-            Mod.CtrlKey = true;
-        else if(Modifiers[ModIndex] == "shift")
-            Mod.ShiftKey = true;
+        BindingMode->Time = std::chrono::steady_clock::now();
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, BindingMode->Timeout * NSEC_PER_SEC), dispatch_get_main_queue(),
+        ^{
+            CheckPrefixTimeout();
+        });
     }
-    KWMHotkeys.SpacesKey = Mod;
 }
 
 void CheckPrefixTimeout()
@@ -404,7 +399,7 @@ void CreateHotkeyFromCGEvent(CGEventRef Event, hotkey *Hotkey)
     Hotkey->Key = (CGKeyCode)CGEventGetIntegerValueField(Event, kCGKeyboardEventKeycode);
 }
 
-bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string Mode)
+bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string &Mode)
 {
     hotkey TempHotkey = {};
     TempHotkey.Mod = Mod;
@@ -428,23 +423,13 @@ bool HotkeyExists(modifiers Mod, CGKeyCode Keycode, hotkey *Hotkey, std::string 
 
 EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed)
 {
+    hotkey *Hotkey = (hotkey *) Event->Context;
     DEBUG("AXEvent_HotkeyPressed: Hotkey activated");
-    if(Event->Context)
-    {
-        hotkey *Hotkey = (hotkey *) Event->Context;
 
-        pthread_mutex_lock(&KWMThread.Lock);
-        if(IsHotkeyStateReqFulfilled(Hotkey))
-            KwmExecuteHotkey(Hotkey);
-        pthread_mutex_unlock(&KWMThread.Lock);
+    if(IsHotkeyStateReqFulfilled(Hotkey))
+        KwmExecuteHotkey(Hotkey);
 
-        free(Hotkey);
-    }
-    else
-    {
-        DEBUG("AXEvent_HotkeyPressed: Invalid Event Context!");
-    }
-
+    free(Hotkey);
 }
 
 void KwmEmitKeystrokes(std::string Text)

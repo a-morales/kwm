@@ -14,6 +14,7 @@ ConvertStringTo##name(std::string Value) \
     return Result; \
 }
 
+ConvertStringTo_(Uint, uint32_t);
 ConvertStringTo_(Int, int);
 ConvertStringTo_(Double, double);
 
@@ -122,16 +123,6 @@ ConvertRGBAToHex(color *Color)
     Hex += ((int)Color->Green & 0xff) << 8;
     Hex += ((int)Color->Blue & 0xff) << 0;
     return Hex;
-}
-
-inline CGPoint
-GetCursorPos()
-{
-    CGEventRef Event = CGEventCreate(NULL);
-    CGPoint Cursor = CGEventGetLocation(Event);
-    CFRelease(Event);
-
-    return Cursor;
 }
 
 inline char*

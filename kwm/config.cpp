@@ -25,8 +25,6 @@ KwmParseConfigOptionTiling(tokenizer *Tokenizer)
         KwmInterpretCommand("config tiling monocle", 0);
     else if(TokenEquals(Token, "float"))
         KwmInterpretCommand("config tiling float", 0);
-    else if(TokenEquals(Token, "off"))
-        KwmInterpretCommand("config tiling off", 0);
     else
         ReportInvalidCommand("Unknown command 'config tiling " + std::string(Token.Text, Token.TextLength) + "'");
 }
@@ -108,28 +106,6 @@ KwmParseConfigOptionGap(tokenizer *Tokenizer)
 }
 
 internal void
-KwmParseConfigOptionSpacesKey(tokenizer *Tokenizer)
-{
-    if(RequireToken(Tokenizer, Token_Dash))
-    {
-        token Token = GetToken(Tokenizer);
-        if(TokenEquals(Token, "key"))
-        {
-            token TokenKey = GetToken(Tokenizer);
-            KwmInterpretCommand("config spaces-key " + std::string(TokenKey.Text, TokenKey.TextLength), 0);
-        }
-        else
-        {
-            ReportInvalidCommand("Expected token 'key' after 'config spaces-'");
-        }
-    }
-    else
-    {
-        ReportInvalidCommand("Expected token '-' after 'config spaces'");
-    }
-}
-
-internal void
 KwmParseConfigOptionFocusFollowsMouse(tokenizer *Tokenizer)
 {
     if(RequireToken(Tokenizer, Token_Dash))
@@ -143,10 +119,8 @@ KwmParseConfigOptionFocusFollowsMouse(tokenizer *Tokenizer)
                 if(TokenEquals(Token, "mouse"))
                 {
                     token Token = GetToken(Tokenizer);
-                    if(TokenEquals(Token, "autofocus"))
-                        KwmInterpretCommand("config focus-follows-mouse autofocus", 0);
-                    else if(TokenEquals(Token, "autoraise"))
-                        KwmInterpretCommand("config focus-follows-mouse autoraise", 0);
+                    if(TokenEquals(Token, "on"))
+                        KwmInterpretCommand("config focus-follows-mouse on", 0);
                     else if(TokenEquals(Token, "off"))
                         KwmInterpretCommand("config focus-follows-mouse off", 0);
                     else
@@ -320,8 +294,8 @@ KwmParseConfigOptionCycleFocus(tokenizer *Tokenizer)
         if(TokenEquals(Token, "focus"))
         {
             token Token = GetToken(Tokenizer);
-            if(TokenEquals(Token, "screen"))
-                KwmInterpretCommand("config cycle-focus screen", 0);
+            if(TokenEquals(Token, "on"))
+                KwmInterpretCommand("config cycle-focus on", 0);
             else if(TokenEquals(Token, "off"))
                 KwmInterpretCommand("config cycle-focus off", 0);
             else
@@ -739,8 +713,6 @@ KwmParseConfigOption(tokenizer *Tokenizer)
                 KwmParseConfigOptionPadding(Tokenizer);
             else if(TokenEquals(Token, "gap"))
                 KwmParseConfigOptionGap(Tokenizer);
-            else if(TokenEquals(Token, "spaces"))
-                KwmParseConfigOptionSpacesKey(Tokenizer);
             else if(TokenEquals(Token, "focus"))
                 KwmParseConfigOptionFocusFollowsMouse(Tokenizer);
             else if(TokenEquals(Token, "mouse"))

@@ -1,20 +1,27 @@
 #include "border.h"
 #include "window.h"
 #include "keys.h"
+#include "axlib/axlib.h"
+
+extern ax_window *MarkedWindow;
+extern kwm_border FocusedBorder;
+extern kwm_border MarkedBorder;
+extern kwm_hotkeys KWMHotkeys;
 
 void UpdateBorder(std::string BorderType)
 {
     Assert(BorderType == "focused" || BorderType == "marked");
 
     kwm_border *Border = &FocusedBorder;
-    int WindowID = KWMFocus.Window ? KWMFocus.Window->WID : -1;
+    ax_application *Application = AXLibGetFocusedApplication();
+    ax_window *Window = Application ? Application->Focus : NULL;
 
     if(!KWMHotkeys.ActiveMode->Color.Format.empty())
         Border->Color = KWMHotkeys.ActiveMode->Color;
 
     if(BorderType == "marked")
     {
-        WindowID = KWMScreen.MarkedWindow.WID;
+        Window = MarkedWindow;
         Border = &MarkedBorder;
     }
 
@@ -22,8 +29,8 @@ void UpdateBorder(std::string BorderType)
     if(!Border->Enabled)
         CloseBorder(Border);
 
-    if(WindowID == -1)
+    if(!Window)
         ClearBorder(Border);
     else if(Border->Enabled)
-        RefreshBorder(Border, WindowID);
+        RefreshBorder(Border, Window);
 }

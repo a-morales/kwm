@@ -4,119 +4,112 @@
 
 #define internal static
 
-extern kwm_screen KWMScreen;
+extern std::map<CFStringRef, space_info> WindowTree;
+extern kwm_settings KWMSettings;
 
 internal node_container
-LeftVerticalContainerSplit(screen_info *Screen, tree_node *Node)
+LeftVerticalContainerSplit(ax_display *Display, tree_node *Node)
 {
-    Assert(Node);
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     node_container LeftContainer;
 
     LeftContainer.X = Node->Container.X;
     LeftContainer.Y = Node->Container.Y;
-    LeftContainer.Width = (Node->Container.Width * Node->SplitRatio) - (Space->Settings.Offset.VerticalGap / 2);
+    LeftContainer.Width = (Node->Container.Width * Node->SplitRatio) - (SpaceInfo->Settings.Offset.VerticalGap / 2);
     LeftContainer.Height = Node->Container.Height;
 
     return LeftContainer;
 }
 
 internal node_container
-RightVerticalContainerSplit(screen_info *Screen, tree_node *Node)
+RightVerticalContainerSplit(ax_display *Display, tree_node *Node)
 {
-    Assert(Node);
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     node_container RightContainer;
 
-    RightContainer.X = Node->Container.X + (Node->Container.Width * Node->SplitRatio) + (Space->Settings.Offset.VerticalGap / 2);
+    RightContainer.X = Node->Container.X + (Node->Container.Width * Node->SplitRatio) + (SpaceInfo->Settings.Offset.VerticalGap / 2);
     RightContainer.Y = Node->Container.Y;
-    RightContainer.Width = (Node->Container.Width * (1 - Node->SplitRatio)) - (Space->Settings.Offset.VerticalGap / 2);
+    RightContainer.Width = (Node->Container.Width * (1 - Node->SplitRatio)) - (SpaceInfo->Settings.Offset.VerticalGap / 2);
     RightContainer.Height = Node->Container.Height;
 
     return RightContainer;
 }
 
 internal node_container
-UpperHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
+UpperHorizontalContainerSplit(ax_display *Display, tree_node *Node)
 {
-    Assert(Node);
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     node_container UpperContainer;
 
     UpperContainer.X = Node->Container.X;
     UpperContainer.Y = Node->Container.Y;
     UpperContainer.Width = Node->Container.Width;
-    UpperContainer.Height = (Node->Container.Height * Node->SplitRatio) - (Space->Settings.Offset.HorizontalGap / 2);
+    UpperContainer.Height = (Node->Container.Height * Node->SplitRatio) - (SpaceInfo->Settings.Offset.HorizontalGap / 2);
 
     return UpperContainer;
 }
 
 internal node_container
-LowerHorizontalContainerSplit(screen_info *Screen, tree_node *Node)
+LowerHorizontalContainerSplit(ax_display *Display, tree_node *Node)
 {
-    Assert(Node);
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     node_container LowerContainer;
 
     LowerContainer.X = Node->Container.X;
-    LowerContainer.Y = Node->Container.Y + (Node->Container.Height * Node->SplitRatio) + (Space->Settings.Offset.HorizontalGap / 2);
+    LowerContainer.Y = Node->Container.Y + (Node->Container.Height * Node->SplitRatio) + (SpaceInfo->Settings.Offset.HorizontalGap / 2);
     LowerContainer.Width = Node->Container.Width;
-    LowerContainer.Height = (Node->Container.Height * (1 - Node->SplitRatio)) - (Space->Settings.Offset.HorizontalGap / 2);
+    LowerContainer.Height = (Node->Container.Height * (1 - Node->SplitRatio)) - (SpaceInfo->Settings.Offset.HorizontalGap / 2);
 
     return LowerContainer;
 }
 
-void SetRootNodeContainer(screen_info *Screen, tree_node *Node)
+void SetRootNodeContainer(ax_display *Display, tree_node *Node)
 {
     Assert(Node);
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
 
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-
-    Node->Container.X = Screen->X + Space->Settings.Offset.PaddingLeft;
-    Node->Container.Y = Screen->Y + Space->Settings.Offset.PaddingTop;
-    Node->Container.Width = Screen->Width - Space->Settings.Offset.PaddingLeft - Space->Settings.Offset.PaddingRight;
-    Node->Container.Height = Screen->Height - Space->Settings.Offset.PaddingTop - Space->Settings.Offset.PaddingBottom;
+    Node->Container.X = Display->Frame.origin.x + SpaceInfo->Settings.Offset.PaddingLeft;
+    Node->Container.Y = Display->Frame.origin.y + SpaceInfo->Settings.Offset.PaddingTop;
+    Node->Container.Width = Display->Frame.size.width - SpaceInfo->Settings.Offset.PaddingLeft - SpaceInfo->Settings.Offset.PaddingRight;
+    Node->Container.Height = Display->Frame.size.height - SpaceInfo->Settings.Offset.PaddingTop - SpaceInfo->Settings.Offset.PaddingBottom;
     Node->SplitMode = GetOptimalSplitMode(Node);
 
     Node->Container.Type = 0;
 }
 
-void SetLinkNodeContainer(screen_info *Screen, link_node *Link)
+void SetLinkNodeContainer(ax_display *Display, link_node *Link)
 {
     Assert(Link);
+    space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
 
-    space_info *Space = GetActiveSpaceOfScreen(Screen);
-
-    Link->Container.X = Screen->X + Space->Settings.Offset.PaddingLeft;
-    Link->Container.Y = Screen->Y + Space->Settings.Offset.PaddingTop;
-    Link->Container.Width = Screen->Width - Space->Settings.Offset.PaddingLeft - Space->Settings.Offset.PaddingRight;
-    Link->Container.Height = Screen->Height - Space->Settings.Offset.PaddingTop - Space->Settings.Offset.PaddingBottom;
+    Link->Container.X = Display->Frame.origin.x + SpaceInfo->Settings.Offset.PaddingLeft;
+    Link->Container.Y = Display->Frame.origin.y + SpaceInfo->Settings.Offset.PaddingTop;
+    Link->Container.Width = Display->Frame.size.width - SpaceInfo->Settings.Offset.PaddingLeft - SpaceInfo->Settings.Offset.PaddingRight;
+    Link->Container.Height = Display->Frame.size.height - SpaceInfo->Settings.Offset.PaddingTop - SpaceInfo->Settings.Offset.PaddingBottom;
 }
 
-void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType)
+void CreateNodeContainer(ax_display *Display, tree_node *Node, int ContainerType)
 {
-    Assert(Node);
-
     if(Node->SplitRatio == 0)
-        Node->SplitRatio = KWMScreen.SplitRatio;
+        Node->SplitRatio = KWMSettings.SplitRatio;
 
     switch(ContainerType)
     {
         case 1:
         {
-            Node->Container = LeftVerticalContainerSplit(Screen, Node->Parent);
+            Node->Container = LeftVerticalContainerSplit(Display, Node->Parent);
         } break;
         case 2:
         {
-            Node->Container = RightVerticalContainerSplit(Screen, Node->Parent);
+            Node->Container = RightVerticalContainerSplit(Display, Node->Parent);
         } break;
         case 3:
         {
-            Node->Container = UpperHorizontalContainerSplit(Screen, Node->Parent);
+            Node->Container = UpperHorizontalContainerSplit(Display, Node->Parent);
         } break;
         case 4:
         {
-            Node->Container = LowerHorizontalContainerSplit(Screen, Node->Parent);
+            Node->Container = LowerHorizontalContainerSplit(Display, Node->Parent);
         } break;
     }
 
@@ -124,38 +117,35 @@ void CreateNodeContainer(screen_info *Screen, tree_node *Node, int ContainerType
     Node->Container.Type = ContainerType;
 }
 
-void CreateNodeContainerPair(screen_info *Screen, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode)
+void CreateNodeContainerPair(ax_display *Display, tree_node *LeftNode, tree_node *RightNode, split_type SplitMode)
 {
-    Assert(LeftNode);
-    Assert(RightNode);
-
     if(SplitMode == SPLIT_VERTICAL)
     {
-        CreateNodeContainer(Screen, LeftNode, 1);
-        CreateNodeContainer(Screen, RightNode, 2);
+        CreateNodeContainer(Display, LeftNode, 1);
+        CreateNodeContainer(Display, RightNode, 2);
     }
     else
     {
-        CreateNodeContainer(Screen, LeftNode, 3);
-        CreateNodeContainer(Screen, RightNode, 4);
+        CreateNodeContainer(Display, LeftNode, 3);
+        CreateNodeContainer(Display, RightNode, 4);
     }
 }
 
-void ResizeNodeContainer(screen_info *Screen, tree_node *Node)
+void ResizeNodeContainer(ax_display *Display, tree_node *Node)
 {
     if(Node)
     {
         if(Node->LeftChild)
         {
-            CreateNodeContainer(Screen, Node->LeftChild, Node->LeftChild->Container.Type);
-            ResizeNodeContainer(Screen, Node->LeftChild);
+            CreateNodeContainer(Display, Node->LeftChild, Node->LeftChild->Container.Type);
+            ResizeNodeContainer(Display, Node->LeftChild);
             ResizeLinkNodeContainers(Node->LeftChild);
         }
 
         if(Node->RightChild)
         {
-            CreateNodeContainer(Screen, Node->RightChild, Node->RightChild->Container.Type);
-            ResizeNodeContainer(Screen, Node->RightChild);
+            CreateNodeContainer(Display, Node->RightChild, Node->RightChild->Container.Type);
+            ResizeNodeContainer(Display, Node->RightChild);
             ResizeLinkNodeContainers(Node->RightChild);
         }
     }
@@ -174,19 +164,19 @@ void ResizeLinkNodeContainers(tree_node *Root)
     }
 }
 
-void CreateNodeContainers(screen_info *Screen, tree_node *Node, bool OptimalSplit)
+void CreateNodeContainers(ax_display *Display, tree_node *Node, bool OptimalSplit)
 {
     if(Node && Node->LeftChild && Node->RightChild)
     {
         Node->SplitMode = OptimalSplit ? GetOptimalSplitMode(Node) : Node->SplitMode;
-        CreateNodeContainerPair(Screen, Node->LeftChild, Node->RightChild, Node->SplitMode);
+        CreateNodeContainerPair(Display, Node->LeftChild, Node->RightChild, Node->SplitMode);
 
-        CreateNodeContainers(Screen, Node->LeftChild, OptimalSplit);
-        CreateNodeContainers(Screen, Node->RightChild, OptimalSplit);
+        CreateNodeContainers(Display, Node->LeftChild, OptimalSplit);
+        CreateNodeContainers(Display, Node->RightChild, OptimalSplit);
     }
 }
 
-void CreateDeserializedNodeContainer(tree_node *Node)
+void CreateDeserializedNodeContainer(ax_display *Display, tree_node *Node)
 {
     int SplitMode = Node->Parent->SplitMode;
     int ContainerType = 0;
@@ -196,5 +186,5 @@ void CreateDeserializedNodeContainer(tree_node *Node)
     else
         ContainerType = IsLeftChild(Node) ? 3 : 4;
 
-    CreateNodeContainer(KWMScreen.Current, Node, ContainerType);
+    CreateNodeContainer(Display, Node, ContainerType);
 }

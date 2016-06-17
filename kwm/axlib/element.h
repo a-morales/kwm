@@ -6,6 +6,7 @@
 
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, uint32_t *WID);
 
+bool AXLibIsWindowMinimized(AXUIElementRef WindowRef);
 bool AXLibIsWindowResizable(AXUIElementRef WindowRef);
 bool AXLibIsWindowMovable(AXUIElementRef WindowRef);
 
@@ -25,11 +26,5 @@ bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole);
 
 /* TODO(koekeishiya): Used by AXLibGetWindowTitle.  Return CFStringRef instead(?) */
 std::string GetUTF8String(CFStringRef Temp);
-
-/* TODO(koekeishiya): This function should not be a part of AXLIB(?) */
-void AXLibParseWindowInfo(const void *Key, const void *Value, void *Context);
-
-/* TODO(koekeishiya): Required for compatibility with current Kwm code */
-bool AXLibGetFocusedWindow(AXUIElementRef *WindowRef);
 
 #endif
