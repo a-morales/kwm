@@ -419,32 +419,6 @@ GetAllWindowIDsInTree(space_info *Space)
     return Windows;
 }
 
-internal std::vector<ax_window *>
-GetAllAXWindowsNotInTree(ax_display *Display, std::vector<uint32_t> &WindowIDsInTree)
-{
-    std::vector<ax_window *> Windows;
-    std::vector<ax_window *> AXWindows = AXLibGetAllVisibleWindows();
-    for(std::size_t WindowIndex = 0; WindowIndex < AXWindows.size(); ++WindowIndex)
-    {
-        bool Found = false;
-        ax_window *AXWindow = AXWindows[WindowIndex];
-        ax_display *DisplayOfWindow = AXLibWindowDisplay(AXWindow);
-        for(std::size_t IDIndex = 0; IDIndex < WindowIDsInTree.size(); ++IDIndex)
-        {
-            if(AXWindow->ID == WindowIDsInTree[IDIndex])
-            {
-                Found = true;
-                break;
-            }
-        }
-
-        if(!Found && DisplayOfWindow == Display)
-            Windows.push_back(AXWindow);
-    }
-
-    return Windows;
-}
-
 internal std::vector<uint32_t>
 GetAllAXWindowIDsToRemoveFromTree(std::vector<uint32_t> &WindowIDsInTree)
 {
