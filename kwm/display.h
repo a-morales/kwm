@@ -12,5 +12,6 @@ void ChangeGapOfDisplay(const std::string &Side, int Offset);
 space_settings *GetSpaceSettingsForDisplay(unsigned int ScreenID);
 container_offset CreateDefaultScreenOffset();
 void MoveWindowToDisplay(ax_window *Window, int Shift, bool Relative);
+void FocusDisplay(ax_display *Display);
 
 #endif

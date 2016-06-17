@@ -159,3 +159,38 @@ void UpdateSpaceOfDisplay(ax_display *Display, space_info *Space)
     }
 }
 
+void FocusDisplay(ax_display *Display)
+{
+    if(Display)
+    {
+        space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+        if(SpaceInfo->RootNode)
+        {
+            if(SpaceInfo->Settings.Mode == SpaceModeBSP)
+            {
+                tree_node *Node = NULL;
+                GetFirstLeafNode(SpaceInfo->RootNode, (void**)&Node);
+                if(Node)
+                {
+                    FocusWindowByID(Node->WindowID);
+                    int X  = Node->Container.X + (Node->Container.Width / 2);
+                    int Y  = Node->Container.Y + (Node->Container.Height / 2);
+                    CGWarpMouseCursorPosition(CGPointMake(X, Y));
+                }
+            }
+            else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
+            {
+                int X  = Display->Frame.origin.x + (Display->Frame.size.width / 2);
+                int Y  = Display->Frame.origin.y + (Display->Frame.size.height / 2);
+                CGWarpMouseCursorPosition(CGPointMake(X, Y));
+                FocusWindowBelowCursor();
+            }
+        }
+        else
+        {
+            int X  = Display->Frame.origin.x + (Display->Frame.size.width / 2);
+            int Y  = Display->Frame.origin.y + (Display->Frame.size.height / 2);
+            CGWarpMouseCursorPosition(CGPointMake(X, Y));
+        }
+    }
+}
