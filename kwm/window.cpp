@@ -362,7 +362,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
 
-    if(!Event->Intrinsic)
+    if(!Event->Intrinsic && KWMSettings.LockToContainer)
         LockWindowToContainerSize(Window);
 
     /*
@@ -380,7 +380,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowResized)
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
 
-    if(!Event->Intrinsic)
+    if(!Event->Intrinsic && KWMSettings.LockToContainer)
         LockWindowToContainerSize(Window);
 
     /*
