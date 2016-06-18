@@ -1077,15 +1077,23 @@ void LockWindowToContainerSize(ax_window *Window)
 
         space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
         tree_node *Node = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
-        if(!Node)
-            return;
-
-        if(IsWindowFullscreen(Window))
-            ResizeWindowToContainerSize(SpaceInfo->RootNode);
-        else if(IsWindowParentContainer(Window))
-            ResizeWindowToContainerSize(Node->Parent);
+        if(Node)
+        {
+            if(IsWindowFullscreen(Window))
+                ResizeWindowToContainerSize(SpaceInfo->RootNode);
+            else if(IsWindowParentContainer(Window))
+                ResizeWindowToContainerSize(Node->Parent);
+            else
+                ResizeWindowToContainerSize(Node);
+        }
         else
-            ResizeWindowToContainerSize(Node);
+        {
+            link_node *Link = GetLinkNodeFromTree(SpaceInfo->RootNode, Window->ID);
+            if(Link)
+            {
+                ResizeWindowToContainerSize(Link);
+            }
+        }
     }
 }
 
