@@ -156,7 +156,7 @@ void ResizeScratchpadWindow(ax_display *Display, ax_window *Window)
     int NewY = Display->Frame.origin.y + Display->Frame.size.height * 0.125;
     int NewWidth = Display->Frame.size.width * 0.75;
     int NewHeight = Display->Frame.size.height * 0.75;
-    SetWindowDimensions(Window->Ref, NewX, NewY, NewWidth, NewHeight);
+    SetWindowDimensions(Window, NewX, NewY, NewWidth, NewHeight);
 }
 
 void ShowAllScratchpadWindows()

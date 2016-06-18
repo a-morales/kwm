@@ -285,8 +285,8 @@ void ResizeWindowToContainerSize(tree_node *Node)
     ax_window *Window = GetWindowByID((unsigned int)Node->WindowID);
     if(Window)
     {
-        SetWindowDimensions(Window->Ref, Node->Container.X, Node->Container.Y,
-                    Node->Container.Width, Node->Container.Height);
+        SetWindowDimensions(Window, Node->Container.X, Node->Container.Y,
+                            Node->Container.Width, Node->Container.Height);
     }
 }
 
@@ -295,8 +295,8 @@ void ResizeWindowToContainerSize(link_node *Link)
     ax_window *Window = GetWindowByID((unsigned int)Link->WindowID);
     if(Window)
     {
-        SetWindowDimensions(Window->Ref, Link->Container.X, Link->Container.Y,
-                    Link->Container.Width, Link->Container.Height);
+        SetWindowDimensions(Window, Link->Container.X, Link->Container.Y,
+                            Link->Container.Width, Link->Container.Height);
     }
 }
 

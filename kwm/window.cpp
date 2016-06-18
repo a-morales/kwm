@@ -1071,6 +1071,8 @@ void LockWindowToContainerSize(ax_window *Window)
 
         space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
         tree_node *Node = GetTreeNodeFromWindowID(SpaceInfo->RootNode, Window->ID);
+        if(!Node)
+            return;
 
         if(IsWindowFullscreen(Window))
             ResizeWindowToContainerSize(SpaceInfo->RootNode);
@@ -1567,10 +1569,10 @@ void SetWindowFocusByNode(link_node *Link)
     }
 }
 
-void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Yptr, int *Wptr, int *Hptr)
+void CenterWindowInsideNodeContainer(ax_window *Window, int *Xptr, int *Yptr, int *Wptr, int *Hptr)
 {
-    CGPoint WindowOrigin = AXLibGetWindowPosition(WindowRef);
-    CGSize WindowOGSize = AXLibGetWindowSize(WindowRef);
+    CGPoint WindowOrigin = AXLibGetWindowPosition(Window->Ref);
+    CGSize WindowOGSize = AXLibGetWindowSize(Window->Ref);
 
     int &X = *Xptr, &Y = *Yptr, &Width = *Wptr, &Height = *Hptr;
     int XDiff = (X + Width) - (WindowOrigin.x + WindowOGSize.width);
@@ -1586,16 +1588,16 @@ void CenterWindowInsideNodeContainer(AXUIElementRef WindowRef, int *Xptr, int *Y
         Y += YOff > 0 ? YOff : 0;
         Height -= YOff > 0 ? YOff : 0;
 
-        AXLibSetWindowPosition(WindowRef, X, Y);
-        AXLibSetWindowSize(WindowRef, Width, Height);
+        AXLibSetWindowPosition(Window->Ref, X, Y);
+        AXLibSetWindowSize(Window->Ref, Width, Height);
     }
 }
 
-void SetWindowDimensions(AXUIElementRef WindowRef, int X, int Y, int Width, int Height)
+void SetWindowDimensions(ax_window *Window, int X, int Y, int Width, int Height)
 {
-    AXLibSetWindowPosition(WindowRef, X, Y);
-    AXLibSetWindowSize(WindowRef, Width, Height);
-    CenterWindowInsideNodeContainer(WindowRef, &X, &Y, &Width, &Height);
+    AXLibSetWindowPosition(Window->Ref, X, Y);
+    AXLibSetWindowSize(Window->Ref, Width, Height);
+    CenterWindowInsideNodeContainer(Window, &X, &Y, &Width, &Height);
 }
 
 void CenterWindow(ax_display *Display, ax_window *Window)
@@ -1604,7 +1606,7 @@ void CenterWindow(ax_display *Display, ax_window *Window)
     int NewY = Display->Frame.origin.y + Display->Frame.size.height / 4;
     int NewWidth = Display->Frame.size.width / 2;
     int NewHeight = Display->Frame.size.height / 2;
-    SetWindowDimensions(Window->Ref, NewX, NewY, NewWidth, NewHeight);
+    SetWindowDimensions(Window, NewX, NewY, NewWidth, NewHeight);
 }
 
 ax_window *GetWindowByID(uint32_t WindowID)
