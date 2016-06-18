@@ -99,7 +99,7 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
         }
         else
         {
-            AXLibConstructEvent(AXEvent_ApplicationActivated, Application);
+            AXLibConstructEvent(AXEvent_ApplicationActivated, Application, false);
         }
     }
 }
@@ -149,7 +149,7 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
 
 - (void)activeDisplayDidChange:(NSNotification *)notification
 {
-    AXLibConstructEvent(AXEvent_DisplayChanged, NULL);
+    AXLibConstructEvent(AXEvent_DisplayChanged, NULL, false);
 }
 
 - (void)activeSpaceDidChange:(NSNotification *)notification
@@ -169,7 +169,7 @@ SharedWorkspaceDidActivateApplication(pid_t PID)
         Display = AXLibNextDisplay(Display);
     } while(Display != MainDisplay);
 
-    AXLibConstructEvent(AXEvent_SpaceChanged, Display);
+    AXLibConstructEvent(AXEvent_SpaceChanged, Display, false);
 }
 
 /* NOTE(koekeishiya): This notification is skipped by many applications and so we use the Carbon event system instead.

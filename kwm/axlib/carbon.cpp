@@ -66,7 +66,7 @@ CarbonApplicationLaunched(ProcessSerialNumber PSN)
                           Retry after a specific amount of time has passed. */
     if(AXLibHasApplicationObserverNotification(&(*Applications)[PID]))
     {
-        AXLibConstructEvent(AXEvent_ApplicationLaunched, &(*Applications)[PID]);
+        AXLibConstructEvent(AXEvent_ApplicationLaunched, &(*Applications)[PID], false);
     }
     else
     {
@@ -94,7 +94,7 @@ CarbonApplicationTerminated(ProcessSerialNumber PSN)
             Applications->erase(PID);
 
             /* TODO(koekeishiya): We probably want to pass an identifier for this application. */
-            AXLibConstructEvent(AXEvent_ApplicationTerminated, NULL);
+            AXLibConstructEvent(AXEvent_ApplicationTerminated, NULL, false);
         }
     }
 }

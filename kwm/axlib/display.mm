@@ -281,7 +281,7 @@ AXLibAddDisplay(CGDirectDisplayID DisplayID)
     AXLibRefreshDisplays();
 
     /* TODO(koekeishiya): Should probably pass an identifier for the added display. */
-    AXLibConstructEvent(AXEvent_DisplayAdded, NULL);
+    AXLibConstructEvent(AXEvent_DisplayAdded, NULL, false);
 }
 
 internal inline void
@@ -307,7 +307,7 @@ AXLibRemoveDisplay(CGDirectDisplayID DisplayID)
     AXLibRefreshDisplays();
 
     /* TODO(koekeishiya): Should probably pass an identifier for the removed display. */
-    AXLibConstructEvent(AXEvent_DisplayRemoved, NULL);
+    AXLibConstructEvent(AXEvent_DisplayRemoved, NULL, false);
 }
 
 internal inline void
@@ -324,7 +324,7 @@ AXLibResizeDisplay(CGDirectDisplayID DisplayID)
 
     ax_display *Display = AXLibDisplay(DisplayIdentifier);
     if(Display)
-        AXLibConstructEvent(AXEvent_DisplayResized, Display);
+        AXLibConstructEvent(AXEvent_DisplayResized, Display, false);
 
     if(DisplayIdentifier)
         CFRelease(DisplayIdentifier);
@@ -340,7 +340,7 @@ AXLibMoveDisplay(CGDirectDisplayID DisplayID)
 
     ax_display *Display = AXLibDisplay(DisplayIdentifier);
     if(Display)
-        AXLibConstructEvent(AXEvent_DisplayMoved, Display);
+        AXLibConstructEvent(AXEvent_DisplayMoved, Display, false);
 
     if(DisplayIdentifier)
         CFRelease(DisplayIdentifier);

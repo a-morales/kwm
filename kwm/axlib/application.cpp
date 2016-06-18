@@ -83,7 +83,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
             AXLibAddApplicationWindow(Application, Window);
 
             /* NOTE(koekeishiya): Triggers an AXEvent_WindowCreated and passes a pointer to the new ax_window */
-            AXLibConstructEvent(AXEvent_WindowCreated, Window);
+            AXLibConstructEvent(AXEvent_WindowCreated, Window, false);
 
             /* NOTE(koekeishiya): When a new window is created, we incorrectly receive the kAXFocusedWindowChangedNotification
                                   first, for some reason. We discard that notification and restore it when we have the window to work with. */
@@ -105,7 +105,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
             Window->Application->Focus = AXLibGetFocusedWindow(Window->Application);
 
             /* NOTE(koekeishiya): The callback is responsible for calling AXLibDestroyWindow(Window); */
-            AXLibConstructEvent(AXEvent_WindowDestroyed, Window);
+            AXLibConstructEvent(AXEvent_WindowDestroyed, Window, false);
         }
     }
     else if(CFEqual(Notification, kAXFocusedWindowChangedNotification))
@@ -119,7 +119,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
                window is visible. Only notify our callback when we know that we can interact with the window in question. */
             if(!AXLibHasFlags(Window, AXWindow_Minimized))
             {
-                AXLibConstructEvent(AXEvent_WindowFocused, Window);
+                AXLibConstructEvent(AXEvent_WindowFocused, Window, false);
             }
 
             /* NOTE(koekeishiya): If the application corresponding to this window is flagged for activation and
@@ -128,7 +128,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
             {
                 AXLibClearFlags(Window->Application, AXApplication_Activate);
                 if(!AXLibHasFlags(Window, AXWindow_Minimized))
-                    AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
+                    AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application, false);
             }
         }
     }
@@ -139,7 +139,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         if(Window)
         {
             AXLibAddFlags(Window, AXWindow_Minimized);
-            AXLibConstructEvent(AXEvent_WindowMinimized, Window);
+            AXLibConstructEvent(AXEvent_WindowMinimized, Window, false);
         }
     }
     else if(CFEqual(Notification, kAXWindowDeminiaturizedNotification))
@@ -171,7 +171,7 @@ OBSERVER_CALLBACK(AXApplicationCallback)
             ax_display *Display = AXLibWindowDisplay(Window);
             if(AXLibSpaceHasWindow(Window, Display->Space->ID))
             {
-                AXLibConstructEvent(AXEvent_WindowDeminimized, Window);
+                AXLibConstructEvent(AXEvent_WindowDeminimized, Window, false);
             }
             else
             {
@@ -186,7 +186,13 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         if(Window)
         {
             Window->Position = AXLibGetWindowPosition(Window->Ref);
-            AXLibConstructEvent(AXEvent_WindowMoved, Window);
+
+            bool Intrinsic = AXLibHasFlags(Window, AXWindow_MoveIntrinsic);
+            AXLibClearFlags(Window, AXWindow_MoveIntrinsic);
+            if(Intrinsic)
+                AXLibConstructEvent(AXEvent_WindowMoved, Window, true);
+            else
+                AXLibConstructEvent(AXEvent_WindowMoved, Window, false);
         }
     }
     else if(CFEqual(Notification, kAXWindowResizedNotification))
@@ -197,7 +203,13 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         {
             Window->Position = AXLibGetWindowPosition(Window->Ref);
             Window->Size = AXLibGetWindowSize(Window->Ref);
-            AXLibConstructEvent(AXEvent_WindowResized, Window);
+
+            bool Intrinsic = AXLibHasFlags(Window, AXWindow_SizeIntrinsic);
+            AXLibClearFlags(Window, AXWindow_SizeIntrinsic);
+            if(Intrinsic)
+                AXLibConstructEvent(AXEvent_WindowResized, Window, true);
+            else
+                AXLibConstructEvent(AXEvent_WindowResized, Window, false);
         }
     }
     else if(CFEqual(Notification, kAXTitleChangedNotification))
@@ -230,7 +242,7 @@ void AXLibAddApplicationObserverNotificationFallback(ax_application *Application
 {
     AXLibRemoveApplicationObserver(Application);
     AXLibInitializeApplication(Application);
-    AXLibConstructEvent(AXEvent_ApplicationLaunched, Application);
+    AXLibConstructEvent(AXEvent_ApplicationLaunched, Application, false);
 }
 
 bool AXLibHasApplicationObserverNotification(ax_application *Application)

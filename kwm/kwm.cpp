@@ -57,7 +57,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                     CreateHotkeyFromCGEvent(Event, &Eventkey);
                     if(HotkeyExists(Eventkey.Mod, Eventkey.Key, Hotkey, KWMHotkeys.ActiveMode->Name))
                     {
-                        AXLibConstructEvent(AXEvent_HotkeyPressed, Hotkey);
+                        AXLibConstructEvent(AXEvent_HotkeyPressed, Hotkey, false);
                         if(!Hotkey->Passthrough)
                             return NULL;
                     }
@@ -71,7 +71,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
         case kCGEventMouseMoved:
         {
             if(KWMSettings.Focus == FocusModeAutoraise)
-                AXLibConstructEvent(AXEvent_MouseMoved, NULL);
+                AXLibConstructEvent(AXEvent_MouseMoved, NULL, false);
         } break;
         default: {} break;
     }

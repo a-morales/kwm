@@ -65,6 +65,7 @@ struct ax_event
 {
     ax_event_type Type;
     EventCallback *Handle;
+    bool Intrinsic;
     void *Context;
 };
 
@@ -83,10 +84,11 @@ void AXLibStopEventLoop();
 void AXLibAddEvent(ax_event Event);
 
 /* NOTE(koekeishiya): Construct an ax_event with the appropriate callback through macro expansion. */
-#define AXLibConstructEvent(EventType, EventContext) \
+#define AXLibConstructEvent(EventType, EventContext, EventIntrinsic) \
     do { ax_event Event = {}; \
          Event.Type = EventType; \
          Event.Context = EventContext; \
+         Event.Intrinsic = EventIntrinsic; \
          Event.Handle = &Callback_##EventType; \
          AXLibAddEvent(Event); \
        } while(0)
