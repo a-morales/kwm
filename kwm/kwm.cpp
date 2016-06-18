@@ -227,8 +227,6 @@ KwmInit()
     KWMHotkeys.ActiveMode = GetBindingMode("default");
 
     GetKwmFilePath();
-    KwmExecuteConfig();
-    KwmExecuteInitScript();
 }
 
 void KwmQuit()
@@ -284,6 +282,9 @@ int main(int argc, char **argv)
 
     FocusedDisplay = MainDisplay;
     FocusedApplication = AXLibGetFocusedApplication();
+
+    KwmExecuteConfig();
+    KwmExecuteInitScript();
     CreateWindowNodeTree(MainDisplay);
     /* ----------------------------------- */
 
