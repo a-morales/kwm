@@ -335,7 +335,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDeminimized)
 
     Window->Application->Focus = Window;
     AXLibClearFlags(Window, AXWindow_Minimized);
-    AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application);
+    AXLibConstructEvent(AXEvent_ApplicationActivated, Window->Application, false);
 }
 
 /* NOTE(koekeishiya): Event context is a pointer to the focused window. */
@@ -362,6 +362,9 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
 
+    if(!Event->Intrinsic)
+        LockWindowToContainerSize(Window);
+
     /*
     if(FocusedApplication == Window->Application)
     */
@@ -376,6 +379,9 @@ EVENT_CALLBACK(Callback_AXEvent_WindowResized)
 {
     ax_window *Window = (ax_window *) Event->Context;
     DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
+
+    if(!Event->Intrinsic)
+        LockWindowToContainerSize(Window);
 
     /*
     if(FocusedApplication == Window->Application)
@@ -1588,15 +1594,22 @@ void CenterWindowInsideNodeContainer(ax_window *Window, int *Xptr, int *Yptr, in
         Y += YOff > 0 ? YOff : 0;
         Height -= YOff > 0 ? YOff : 0;
 
+        AXLibAddFlags(Window, AXWindow_MoveIntrinsic);
         AXLibSetWindowPosition(Window->Ref, X, Y);
+
+        AXLibAddFlags(Window, AXWindow_SizeIntrinsic);
         AXLibSetWindowSize(Window->Ref, Width, Height);
     }
 }
 
 void SetWindowDimensions(ax_window *Window, int X, int Y, int Width, int Height)
 {
+    AXLibAddFlags(Window, AXWindow_MoveIntrinsic);
     AXLibSetWindowPosition(Window->Ref, X, Y);
+
+    AXLibAddFlags(Window, AXWindow_SizeIntrinsic);
     AXLibSetWindowSize(Window->Ref, Width, Height);
+
     CenterWindowInsideNodeContainer(Window, &X, &Y, &Width, &Height);
 }
 
