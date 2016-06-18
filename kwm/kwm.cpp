@@ -18,9 +18,9 @@ const std::string KwmCurrentVersion = "Kwm Version 3.0.0";
 std::map<CFStringRef, space_info> WindowTree;
 
 ax_state AXState = {};
-ax_display *FocusedDisplay;
-ax_application *FocusedApplication;
-ax_window *MarkedWindow;
+ax_display *FocusedDisplay = NULL;
+ax_application *FocusedApplication = NULL;
+ax_window *MarkedWindow = NULL;
 
 kwm_mach KWMMach = {};
 kwm_path KWMPath = {};
