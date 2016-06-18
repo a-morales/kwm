@@ -187,12 +187,8 @@ OBSERVER_CALLBACK(AXApplicationCallback)
         {
             Window->Position = AXLibGetWindowPosition(Window->Ref);
 
-            bool Intrinsic = AXLibHasFlags(Window, AXWindow_MoveIntrinsic);
+            AXLibConstructEvent(AXEvent_WindowMoved, Window, AXLibHasFlags(Window, AXWindow_MoveIntrinsic));
             AXLibClearFlags(Window, AXWindow_MoveIntrinsic);
-            if(Intrinsic)
-                AXLibConstructEvent(AXEvent_WindowMoved, Window, true);
-            else
-                AXLibConstructEvent(AXEvent_WindowMoved, Window, false);
         }
     }
     else if(CFEqual(Notification, kAXWindowResizedNotification))
@@ -204,12 +200,8 @@ OBSERVER_CALLBACK(AXApplicationCallback)
             Window->Position = AXLibGetWindowPosition(Window->Ref);
             Window->Size = AXLibGetWindowSize(Window->Ref);
 
-            bool Intrinsic = AXLibHasFlags(Window, AXWindow_SizeIntrinsic);
+            AXLibConstructEvent(AXEvent_WindowResized, Window, AXLibHasFlags(Window, AXWindow_SizeIntrinsic));
             AXLibClearFlags(Window, AXWindow_SizeIntrinsic);
-            if(Intrinsic)
-                AXLibConstructEvent(AXEvent_WindowResized, Window, true);
-            else
-                AXLibConstructEvent(AXEvent_WindowResized, Window, false);
         }
     }
     else if(CFEqual(Notification, kAXTitleChangedNotification))
