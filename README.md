@@ -2,7 +2,7 @@
 
 **WARNING:** The master branch is considered bleeding edge and changes may break configurations at any time! Check the latest release for a stable version.
 
-[*Kwm*](https://koekeishiya.github.io/kwm) started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
+[**Kwm**](https://koekeishiya.github.io/kwm) started as a simple project to get true focus-follows-mouse support on OSX through event tapping.
 It is now a tiling window manager that represents windows as the leaves of a binary tree.
 *Kwm* supports binary space partitioned, monocle and floating spaces.
 
@@ -12,9 +12,9 @@ and different types of hotkeys.
 
 *Kwm* runs a local daemon to read messages and trigger functions.
 *Kwmc* is used to write to *Kwm*'s socket, and must be used when interacting with and configuring how *Kwm* works.
-For a list of available commands, [view the Kwmc configuration reference.](https://koekeishiya.github.io/kwm/kwmc.html)
+For a list of available commands, [**view the Kwmc configuration reference.**](https://koekeishiya.github.io/kwm/kwmc.html)
 
-For in depth information, [view the Kwm reference page.](https://koekeishiya.github.io/kwm)
+For in depth information, [**view the Kwm reference page.**](https://koekeishiya.github.io/kwm)
 For sample configurations and other useful scripts, check out the [wiki](https://github.com/koekeishiya/kwm/wiki).
 You can also drop by the channel **##kwm** on [freenode](http://webchat.freenode.net)
 
