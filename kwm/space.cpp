@@ -161,6 +161,8 @@ void ActivateSpaceWithoutTransition(std::string SpaceID)
            DestinationSpaceID > 0 && DestinationSpaceID <= TotalSpaces)
         {
             int CGSSpaceID = AXLibCGSSpaceIDFromDesktopID(Display, DestinationSpaceID);
+            ax_space *Space = &Display->Spaces[CGSSpaceID];
+            AXLibAddFlags(Space, AXSpace_FastTransition);
             AXLibSpaceTransition(Display, CGSSpaceID);
         }
     }

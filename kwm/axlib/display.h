@@ -30,6 +30,7 @@ enum ax_space_flags
 {
     AXSpace_DeminimizedTransition = (1 << 0),
     AXSpace_NeedsUpdate = (1 << 1),
+    AXSpace_FastTransition = (1 << 2),
 };
 
 struct ax_space
@@ -38,6 +39,7 @@ struct ax_space
     CGSSpaceID ID;
     CGSSpaceType Type;
     uint32_t Flags;
+    uint32_t FocusedWindow;
 };
 
 struct ax_display

@@ -192,12 +192,13 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         AddMinimizedWindowsToTree(Display);
     }
 
+    CreateWindowNodeTree(Display);
+
     /* NOTE(koekeishiya): If we trigger a space changed event through cmd+tab, we receive the 'didApplicationActivate'
                           notification before the 'didActiveSpaceChange' notification. If a space has not been visited
                           before, this will cause us to end up on that space with an unsynchronized focused application state.
 
                           Always update state of focused application and its window after a space transition. */
-    CreateWindowNodeTree(Display);
     FocusedApplication = AXLibGetFocusedApplication();
     if(FocusedApplication)
     {
@@ -207,6 +208,21 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         {
             UpdateBorder("focused");
             MoveCursorToCenterOfWindow(FocusedApplication->Focus);
+            Display->Space->FocusedWindow = FocusedApplication->Focus->ID;
+        }
+    }
+
+    /* NOTE(koekeishiya): This space transition was triggered through AXLibSpaceTransition(..) and OSX does not
+                          update our focus in this case. We manually try to activate the appropriate window. */
+    if(AXLibHasFlags(Display->Space, AXSpace_FastTransition))
+    {
+        AXLibClearFlags(Display->Space, AXSpace_FastTransition);
+        ax_window *Window = GetWindowByID(Display->Space->FocusedWindow);
+        if(Window)
+        {
+            AXLibSetFocusedWindow(Window);
+            UpdateBorder("focused");
+            MoveCursorToCenterOfWindow(Window);
         }
     }
 }
@@ -261,7 +277,13 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
     FocusedApplication = Application;
     UpdateBorder("focused");
 
-    StandbyOnFloat(FocusedApplication->Focus);
+    StandbyOnFloat(Application->Focus);
+    if(Application->Focus)
+    {
+        ax_display *Display = AXLibWindowDisplay(Application->Focus);
+        if(AXLibSpaceHasWindow(Application->Focus, Display->Space->ID))
+            Display->Space->FocusedWindow = Application->Focus->ID;
+    }
 }
 
 /* NOTE(koekeishiya): Event context is a pointer to the new window. */
@@ -295,7 +317,13 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     }
 
     if(FocusedApplication == Window->Application)
-        UpdateBorder("focused");
+    {
+        if(FocusedApplication->Focus == Window)
+        {
+            Display->Space->FocusedWindow = 0;
+            UpdateBorder("focused");
+        }
+    }
 
     if(MarkedWindow == Window)
         ClearMarkedWindow();
@@ -351,6 +379,8 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
         {
             StandbyOnFloat(Window);
             UpdateBorder("focused");
+            ax_display *Display = AXLibWindowDisplay(Window);
+            Display->Space->FocusedWindow = Window->ID;
         }
     }
 }
