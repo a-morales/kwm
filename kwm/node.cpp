@@ -337,7 +337,11 @@ void ResizeWindowToContainerSize()
 
 void ModifyContainerSplitRatio(double Offset)
 {
-    ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+    ax_application *Application = AXLibGetFocusedApplication();
+    if(!Application)
+        return;
+
+    ax_window *Window = Application->Focus;
     if(!Window)
         return;
 
@@ -347,7 +351,7 @@ void ModifyContainerSplitRatio(double Offset)
 
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     tree_node *Root = SpaceInfo->RootNode;
-    if(IsLeafNode(Root) || Root->WindowID != 0)
+    if(!Root || IsLeafNode(Root) || Root->WindowID != 0)
         return;
 
     tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, Window->ID);
@@ -365,7 +369,11 @@ void ModifyContainerSplitRatio(double Offset)
 
 void ModifyContainerSplitRatio(double Offset, int Degrees)
 {
-    ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+    ax_application *Application = AXLibGetFocusedApplication();
+    if(!Application)
+        return;
+
+    ax_window *Window = Application->Focus;
     if(!Window)
         return;
 
@@ -375,7 +383,7 @@ void ModifyContainerSplitRatio(double Offset, int Degrees)
 
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
     tree_node *Root = SpaceInfo->RootNode;
-    if(IsLeafNode(Root) || Root->WindowID != 0)
+    if(!Root || IsLeafNode(Root) || Root->WindowID != 0)
         return;
 
     tree_node *Node = GetTreeNodeFromWindowIDOrLinkNode(Root, Window->ID);
