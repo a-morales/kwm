@@ -209,18 +209,19 @@ std::vector<ax_window *> AXLibGetAllVisibleWindowsOrdered()
             std::map<pid_t, ax_application>::iterator It;
             for(It = AXApplications->begin(); It != AXApplications->end(); ++It)
             {
+                /* NOTE(koekeishiya): This function call is incredibly expensive (roughly 70% of the cost of the entire function)
+                                      and doesn't really give us any benefeits, ignore it.
+                if(!AXLibIsApplicationHidden(Application)) */
+
                 ax_application *Application = &It->second;
-                if(!AXLibIsApplicationHidden(Application))
+                ax_window *Window = AXLibFindApplicationWindow(Application, WindowID);
+                if(Window)
                 {
-                    ax_window *Window = AXLibFindApplicationWindow(Application, WindowID);
-                    if(Window)
+                    if((Window->ID == WindowID) &&
+                       (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)))
                     {
-                        if((Window->ID == WindowID) &&
-                           (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)))
-                        {
-                            Windows.push_back(Window);
-                            break;
-                        }
+                        Windows.push_back(Window);
+                        break;
                     }
                 }
             }
