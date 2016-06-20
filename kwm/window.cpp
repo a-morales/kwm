@@ -1411,6 +1411,17 @@ bool FindClosestWindow(int Degrees, ax_window **ClosestWindow, bool Wrap)
 
 void ShiftWindowFocusDirected(int Degrees)
 {
+    ax_application *Application = AXLibGetFocusedApplication();
+    if(!Application)
+    {
+        if(Degrees == 90)
+            FocusLastLeafNode(AXLibCursorDisplay());
+        else if(Degrees == 270)
+            FocusFirstLeafNode(AXLibCursorDisplay());
+
+        return;
+    }
+
     ax_window *Window = FocusedApplication->Focus;
     if(!Window)
         return;
@@ -1443,6 +1454,17 @@ void ShiftWindowFocusDirected(int Degrees)
 
 void ShiftWindowFocus(int Shift)
 {
+    ax_application *Application = AXLibGetFocusedApplication();
+    if(!Application)
+    {
+        if(Shift == 1)
+            FocusLastLeafNode(AXLibCursorDisplay());
+        else if(Shift == -1)
+            FocusFirstLeafNode(AXLibCursorDisplay());
+
+        return;
+    }
+
     ax_window *Window = FocusedApplication->Focus;
     if(!Window)
         return;
@@ -1575,6 +1597,28 @@ void FocusFirstLeafNode(ax_display *Display)
         else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
         {
             link_node *Node = SpaceInfo->RootNode->List;
+            SetWindowFocusByNode(Node);
+        }
+    }
+}
+
+void FocusLastLeafNode(ax_display *Display)
+{
+    if(Display)
+    {
+        space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+        if(SpaceInfo->Settings.Mode == SpaceModeBSP)
+        {
+            tree_node *Node = NULL;
+            GetLastLeafNode(SpaceInfo->RootNode, (void **)&Node);
+            SetWindowFocusByNode(Node);
+        }
+        else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
+        {
+            link_node *Node = SpaceInfo->RootNode->List;
+            while(Node && Node->Next)
+                Node = Node->Next;
+
             SetWindowFocusByNode(Node);
         }
     }

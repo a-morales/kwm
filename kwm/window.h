@@ -22,6 +22,7 @@ void CenterWindow(ax_display *Display, ax_window *Window);
 
 void FocusWindowByID(uint32_t WindowID);
 void FocusFirstLeafNode(ax_display *Display);
+void FocusLastLeafNode(ax_display *Display);
 void ToggleWindowFloating(uint32_t WindowID, bool Center);
 void ToggleFocusedWindowFloating();
 void ToggleFocusedWindowParentContainer();
