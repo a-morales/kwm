@@ -973,7 +973,7 @@ void ToggleWindowFloating(uint32_t WindowID, bool Center)
     if(AXLibHasFlags(Window, AXWindow_Floating))
     {
         AXLibClearFlags(Window, AXWindow_Floating);
-        AddWindowToNodeTree(Display, Window->ID);
+        TileWindow(Display, Window);
         if((KWMSettings.StandbyOnFloat) &&
            (KWMSettings.Focus != FocusModeDisabled))
             KWMSettings.Focus = FocusModeAutoraise;
