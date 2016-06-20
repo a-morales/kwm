@@ -319,10 +319,9 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
     if(FocusedApplication == Window->Application)
     {
         if(FocusedApplication->Focus == Window)
-        {
             Display->Space->FocusedWindow = 0;
-            UpdateBorder("focused");
-        }
+
+        UpdateBorder("focused");
     }
 
     if(MarkedWindow == Window)
