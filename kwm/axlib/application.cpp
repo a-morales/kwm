@@ -232,7 +232,9 @@ void AXLibInitializeApplication(ax_application *Application)
 /* NOTE(koekeishiya): This function will try to reinitialize the application that failed during creation. */
 void AXLibAddApplicationObserverNotificationFallback(ax_application *Application)
 {
+    AXLibRemoveApplicationWindows(Application);
     AXLibRemoveApplicationObserver(Application);
+    Application->Focus = NULL;
     AXLibInitializeApplication(Application);
     AXLibConstructEvent(AXEvent_ApplicationLaunched, Application, false);
 }
