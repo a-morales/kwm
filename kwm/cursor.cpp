@@ -52,15 +52,13 @@ void MoveCursorToCenterOfFocusedWindow()
 void FocusWindowBelowCursor()
 {
     ax_application *Application = AXLibGetFocusedApplication();
-    if(!Application)
-        return;
-
-    ax_window *FocusedWindow = Application->Focus;
-    if(!FocusedWindow)
-        return;
-
-    if(IsWindowBelowCursor(FocusedWindow))
-        return;
+    ax_window *FocusedWindow = NULL;
+    if(Application)
+    {
+        FocusedWindow = Application->Focus;
+        if(FocusedWindow && IsWindowBelowCursor(FocusedWindow))
+            return;
+    }
 
     std::vector<ax_window *> Windows = AXLibGetAllVisibleWindowsOrdered();
     for(std::size_t Index = 0; Index < Windows.size(); ++Index)
@@ -68,15 +66,15 @@ void FocusWindowBelowCursor()
         ax_window *Window = Windows[Index];
         if(IsWindowBelowCursor(Window))
         {
-           if(Application == Window->Application)
-           {
-               if(FocusedWindow != Window)
-                   AXLibSetFocusedWindow(Window);
-           }
-           else
-           {
+            if(Application == Window->Application)
+            {
+                if(FocusedWindow != Window)
+                    AXLibSetFocusedWindow(Window);
+            }
+            else
+            {
                 AXLibSetFocusedWindow(Window);
-           }
+            }
             return;
         }
     }
