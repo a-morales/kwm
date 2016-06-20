@@ -452,6 +452,8 @@ KwmWindowCommand(std::vector<std::string> &Tokens)
             ShiftWindowFocus(1);
         else if(Tokens[2] == "curr")
             FocusWindowBelowCursor();
+        else if(Tokens[2] == "first")
+            FocusFirstLeafNode(AXLibCursorDisplay());
         else
             FocusWindowByID(ConvertStringToUint(Tokens[2]));
     }
