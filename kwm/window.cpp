@@ -35,6 +35,16 @@ extern kwm_border MarkedBorder;
 extern kwm_border FocusedBorder;
 
 internal void
+DrawFocusedBorder(ax_display *Display)
+{
+    if((Display) &&
+       (Display->Space->Type == kCGSSpaceUser))
+    {
+        UpdateBorder("focused");
+    }
+}
+
+internal void
 FloatNonResizable(ax_window *Window)
 {
     if(Window)
@@ -206,7 +216,7 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         if((FocusedApplication->Focus) &&
            (AXLibSpaceHasWindow(FocusedApplication->Focus, Display->Space->ID)))
         {
-            UpdateBorder("focused");
+            DrawFocusedBorder(Display);
             MoveCursorToCenterOfWindow(FocusedApplication->Focus);
             Display->Space->FocusedWindow = FocusedApplication->Focus->ID;
         }
@@ -221,10 +231,13 @@ EVENT_CALLBACK(Callback_AXEvent_SpaceChanged)
         if(Window)
         {
             AXLibSetFocusedWindow(Window);
-            UpdateBorder("focused");
+            DrawFocusedBorder(Display);
             MoveCursorToCenterOfWindow(Window);
         }
     }
+
+    if(Display->Space->Type != kCGSSpaceUser)
+        ClearBorder(&FocusedBorder);
 }
 
 /* TODO(koekeishiya): Is this interesting (?)
@@ -275,14 +288,15 @@ EVENT_CALLBACK(Callback_AXEvent_ApplicationActivated)
     DEBUG("AXEvent_ApplicationActivated: " << Application->Name);
 
     FocusedApplication = Application;
-    UpdateBorder("focused");
-
-    StandbyOnFloat(Application->Focus);
     if(Application->Focus)
     {
         ax_display *Display = AXLibWindowDisplay(Application->Focus);
         if(AXLibSpaceHasWindow(Application->Focus, Display->Space->ID))
+        {
+            StandbyOnFloat(Application->Focus);
             Display->Space->FocusedWindow = Application->Focus->ID;
+            DrawFocusedBorder(Display);
+        }
     }
 }
 
@@ -322,7 +336,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
             Display->Space->FocusedWindow = 0;
 
         StandbyOnFloat(FocusedApplication->Focus);
-        UpdateBorder("focused");
+        DrawFocusedBorder(Display);
     }
 
     if(MarkedWindow == Window)
@@ -377,9 +391,9 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
         Window->Application->Focus = Window;
         if(FocusedApplication == Window->Application)
         {
-            StandbyOnFloat(Window);
-            UpdateBorder("focused");
             ax_display *Display = AXLibWindowDisplay(Window);
+            StandbyOnFloat(Window);
+            DrawFocusedBorder(Display);
             Display->Space->FocusedWindow = Window->ID;
         }
     }
@@ -390,16 +404,15 @@ EVENT_CALLBACK(Callback_AXEvent_WindowFocused)
 EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
 {
     ax_window *Window = (ax_window *) Event->Context;
+    ax_display *Display = AXLibWindowDisplay(Window);
     DEBUG("AXEvent_WindowMoved: " << Window->Application->Name << " - " << Window->Name);
 
     if(!Event->Intrinsic && KWMSettings.LockToContainer)
         LockWindowToContainerSize(Window);
 
-    /*
     if(FocusedApplication == Window->Application)
-    */
+        DrawFocusedBorder(Display);
 
-    UpdateBorder("focused");
     if(MarkedWindow == Window)
         UpdateBorder("marked");
 }
@@ -408,16 +421,15 @@ EVENT_CALLBACK(Callback_AXEvent_WindowMoved)
 EVENT_CALLBACK(Callback_AXEvent_WindowResized)
 {
     ax_window *Window = (ax_window *) Event->Context;
+    ax_display *Display = AXLibWindowDisplay(Window);
     DEBUG("AXEvent_WindowResized: " << Window->Application->Name << " - " << Window->Name);
 
     if(!Event->Intrinsic && KWMSettings.LockToContainer)
         LockWindowToContainerSize(Window);
 
-    /*
     if(FocusedApplication == Window->Application)
-    */
+        DrawFocusedBorder(Display);
 
-    UpdateBorder("focused");
     if(MarkedWindow == Window)
         UpdateBorder("marked");
 }
@@ -1545,6 +1557,25 @@ void ShiftSubTreeWindowFocus(int Shift)
                 SetWindowFocusByNode(Root->List);
                 MoveCursorToCenterOfFocusedWindow();
             }
+        }
+    }
+}
+
+void FocusFirstLeafNode(ax_display *Display)
+{
+    if(Display)
+    {
+        space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+        if(SpaceInfo->Settings.Mode == SpaceModeBSP)
+        {
+            tree_node *Node = NULL;
+            GetFirstLeafNode(SpaceInfo->RootNode, (void**)&Node);
+            SetWindowFocusByNode(Node);
+        }
+        else if(SpaceInfo->Settings.Mode == SpaceModeMonocle)
+        {
+            link_node *Node = SpaceInfo->RootNode->List;
+            SetWindowFocusByNode(Node);
         }
     }
 }
