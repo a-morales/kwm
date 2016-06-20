@@ -429,7 +429,7 @@ EVENT_CALLBACK(Callback_AXEvent_HotkeyPressed)
     if(IsHotkeyStateReqFulfilled(Hotkey))
         KwmExecuteHotkey(Hotkey);
 
-    free(Hotkey);
+    delete Hotkey;
 }
 
 void KwmEmitKeystrokes(std::string Text)

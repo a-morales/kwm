@@ -51,7 +51,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
             if(KWMSettings.UseBuiltinHotkeys)
             {
                 hotkey Eventkey = {}, *Hotkey = NULL;
-                Hotkey = (hotkey *) calloc(1, sizeof(hotkey));
+                Hotkey = new hotkey;
                 if(Hotkey)
                 {
                     CreateHotkeyFromCGEvent(Event, &Eventkey);
@@ -63,7 +63,7 @@ CGEventRef CGEventCallback(CGEventTapProxy Proxy, CGEventType Type, CGEventRef E
                     }
                     else
                     {
-                        free(Hotkey);
+                        delete Hotkey;
                     }
                 }
             }
