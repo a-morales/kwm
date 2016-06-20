@@ -1412,7 +1412,8 @@ bool FindClosestWindow(int Degrees, ax_window **ClosestWindow, bool Wrap)
 void ShiftWindowFocusDirected(int Degrees)
 {
     ax_application *Application = AXLibGetFocusedApplication();
-    if(!Application)
+    ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+    if(!Application || !Window)
     {
         if(Degrees == 90)
             FocusLastLeafNode(AXLibCursorDisplay());
@@ -1421,10 +1422,6 @@ void ShiftWindowFocusDirected(int Degrees)
 
         return;
     }
-
-    ax_window *Window = FocusedApplication->Focus;
-    if(!Window)
-        return;
 
     ax_display *Display = AXLibWindowDisplay(Window);
     if(!Display)
@@ -1455,7 +1452,8 @@ void ShiftWindowFocusDirected(int Degrees)
 void ShiftWindowFocus(int Shift)
 {
     ax_application *Application = AXLibGetFocusedApplication();
-    if(!Application)
+    ax_window *Window = FocusedApplication ? FocusedApplication->Focus : NULL;
+    if(!Application || !Window)
     {
         if(Shift == 1)
             FocusLastLeafNode(AXLibCursorDisplay());
@@ -1464,10 +1462,6 @@ void ShiftWindowFocus(int Shift)
 
         return;
     }
-
-    ax_window *Window = FocusedApplication->Focus;
-    if(!Window)
-        return;
 
     ax_display *Display = AXLibWindowDisplay(Window);
     if(!Display)
