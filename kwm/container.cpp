@@ -113,7 +113,9 @@ void CreateNodeContainer(ax_display *Display, tree_node *Node, int ContainerType
         } break;
     }
 
-    Node->SplitMode = GetOptimalSplitMode(Node);
+    if(Node->SplitMode == 0)
+        Node->SplitMode = GetOptimalSplitMode(Node);
+
     Node->Container.Type = ContainerType;
 }
 

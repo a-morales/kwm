@@ -142,7 +142,7 @@ void UpdateSpaceOfDisplay(ax_display *Display, space_info *Space)
         if(Space->Settings.Mode == SpaceModeBSP)
         {
             SetRootNodeContainer(Display, Space->RootNode);
-            CreateNodeContainers(Display, Space->RootNode, true);
+            CreateNodeContainers(Display, Space->RootNode, false);
         }
         else if(Space->Settings.Mode == SpaceModeMonocle)
         {
