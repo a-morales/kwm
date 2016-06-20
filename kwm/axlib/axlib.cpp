@@ -217,8 +217,8 @@ std::vector<ax_window *> AXLibGetAllVisibleWindowsOrdered()
                 ax_window *Window = AXLibFindApplicationWindow(Application, WindowID);
                 if(Window)
                 {
-                    if((AXLibIsWindowStandard(Window) ||
-                       (AXLibIsWindowCustom(Window))))
+                    if((AXLibIsWindowStandard(Window)) ||
+                       (AXLibIsWindowCustom(Window)))
                     {
                         Windows.push_back(Window);
                     }
