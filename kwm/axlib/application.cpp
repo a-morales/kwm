@@ -60,7 +60,15 @@ AXLibUpdateApplicationWindowTitle(ax_application *Application, AXUIElementRef Wi
 {
     ax_window *Window = AXLibGetWindowByRef(Application, WindowRef);
     if(Window)
+    {
+        if(Window->Name)
+        {
+            free(Window->Name);
+            Window->Name = NULL;
+        }
+
         Window->Name = AXLibGetWindowTitle(WindowRef);
+    }
 }
 
 internal inline void

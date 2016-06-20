@@ -2,7 +2,6 @@
 #define AXLIB_ELEMENT_H
 
 #include <Carbon/Carbon.h>
-#include <string>
 
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, uint32_t *WID);
 
@@ -17,14 +16,11 @@ uint32_t AXLibGetWindowID(AXUIElementRef WindowRef);
 CFTypeRef AXLibGetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property);
 AXError AXLibSetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property, CFTypeRef Value);
 
-std::string AXLibGetWindowTitle(AXUIElementRef WindowRef);
+char *AXLibGetWindowTitle(AXUIElementRef WindowRef);
 CGPoint AXLibGetWindowPosition(AXUIElementRef WindowRef);
 CGSize AXLibGetWindowSize(AXUIElementRef WindowRef);
 
 bool AXLibGetWindowRole(AXUIElementRef WindowRef, CFTypeRef *Role);
 bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole);
-
-/* TODO(koekeishiya): Used by AXLibGetWindowTitle.  Return CFStringRef instead(?) */
-std::string GetUTF8String(CFStringRef Temp);
 
 #endif

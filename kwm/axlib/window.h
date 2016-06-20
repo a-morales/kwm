@@ -35,7 +35,7 @@ struct ax_window
 
     CGSize Size;
     CGPoint Position;
-    std::string Name;
+    char *Name;
 };
 
 inline bool

@@ -3,6 +3,29 @@
 #define internal static
 #define local_persist static
 
+internal char *
+CopyCFStringToC(CFStringRef String, bool UTF8)
+{
+    char *Result = NULL;
+    CFStringEncoding Encoding = UTF8 ? kCFStringEncodingUTF8 : kCFStringEncodingMacRoman;
+
+    CFIndex Length = CFStringGetLength(String);
+    CFIndex Bytes = CFStringGetMaximumSizeForEncoding(Length, Encoding);
+
+    char *CString = (char *) malloc(Bytes + 1);
+    CFStringGetCString(String, CString, Bytes + 1, Encoding);
+    if(CString)
+    {
+        Result = CString;
+    }
+    else
+    {
+        free(CString);
+    }
+
+    return Result;
+}
+
 CFTypeRef AXLibGetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property)
 {
     CFTypeRef TypeRef;
@@ -89,16 +112,16 @@ uint32_t AXLibGetWindowID(AXUIElementRef WindowRef)
     return WindowID;
 }
 
-std::string AXLibGetWindowTitle(AXUIElementRef WindowRef)
+char *AXLibGetWindowTitle(AXUIElementRef WindowRef)
 {
     CFStringRef WindowTitleRef = (CFStringRef) AXLibGetWindowProperty(WindowRef, kAXTitleAttribute);
-    std::string WindowTitle;
+    char *WindowTitle = NULL;
 
     if(WindowTitleRef)
     {
-        WindowTitle = GetUTF8String(WindowTitleRef);
-        if(WindowTitle.empty())
-            WindowTitle = CFStringGetCStringPtr(WindowTitleRef, kCFStringEncodingMacRoman);
+        WindowTitle = CopyCFStringToC(WindowTitleRef, true);
+        if(!WindowTitle)
+            WindowTitle = CopyCFStringToC(WindowTitleRef, false);
 
         CFRelease(WindowTitleRef);
     }
@@ -144,26 +167,4 @@ bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole)
 {
     *Subrole = AXLibGetWindowProperty(WindowRef, kAXSubroleAttribute);
     return *Subrole != NULL;
-}
-
-std::string
-GetUTF8String(CFStringRef Temp)
-{
-    std::string Result;
-
-    if(!CFStringGetCStringPtr(Temp, kCFStringEncodingUTF8))
-    {
-        CFIndex Length = CFStringGetLength(Temp);
-        CFIndex Bytes = 4 * Length + 1;
-        char *TempUTF8StringPtr = (char*) malloc(Bytes);
-
-        CFStringGetCString(Temp, TempUTF8StringPtr, Bytes, kCFStringEncodingUTF8);
-        if(TempUTF8StringPtr)
-        {
-            Result = TempUTF8StringPtr;
-            free(TempUTF8StringPtr);
-        }
-    }
-
-    return Result;
 }

@@ -61,9 +61,14 @@ void AXLibDestroyWindow(ax_window *Window)
     if(Window->Type.CustomRole)
         CFRelease(Window->Type.CustomRole);
 
+    if(Window->Name)
+        free(Window->Name);
+
     Window->Ref = NULL;
     Window->Type.Role = NULL;
     Window->Type.Subrole = NULL;
+    Window->Type.CustomRole = NULL;
     Window->Application = NULL;
+    Window->Name = NULL;
     free(Window);
 }
