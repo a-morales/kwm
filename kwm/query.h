@@ -110,7 +110,9 @@ GetWindowList()
     for(std::size_t Index = 0; Index < Windows.size(); ++Index)
     {
         ax_window *Window = Windows[Index];
-        Output += std::to_string(Window->ID) + ", " + Window->Application->Name + ", " + std::string(Window->Name);
+        Output += std::to_string(Window->ID) + ", " + Window->Application->Name;
+        if(Window->Name)
+            Output +=  ", " + std::string(Window->Name);
         if(Index < Windows.size() - 1)
             Output += "\n";
     }
@@ -199,7 +201,9 @@ GetTagOfCurrentSpace()
     if(!Window)
         return Output;
 
-    Output += " - " + std::string(Window->Name);
+    if(Window->Name)
+        Output += " - " + std::string(Window->Name);
+
     return Output;
 }
 
@@ -298,7 +302,7 @@ GetIdOfMarkedWindow()
 inline std::string
 GetNameOfMarkedWindow()
 {
-    return MarkedWindow ? MarkedWindow->Name : "";
+    return MarkedWindow && MarkedWindow->Name ? MarkedWindow->Name : "";
 }
 
 inline std::string

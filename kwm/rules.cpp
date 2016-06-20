@@ -208,13 +208,13 @@ MatchWindowRule(window_rule *Rule, ax_window *Window)
         Match = std::regex_match(Window->Application->Name, Exp);
     }
 
-    if(!Rule->Name.empty())
+    if(!Rule->Name.empty() && Window->Name)
     {
         std::regex Exp(Rule->Name);
         Match = Match && std::regex_match(Window->Name, Exp);
     }
 
-    if(!Rule->Except.empty())
+    if(!Rule->Except.empty() && Window->Name)
     {
         std::regex Exp(Rule->Except);
         Match = Match && !std::regex_match(Window->Name, Exp);
