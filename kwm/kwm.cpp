@@ -14,7 +14,7 @@
 #include "axlib/axlib.h"
 
 #define internal static
-const std::string KwmCurrentVersion = "Kwm Version 3.0.0";
+const std::string KwmCurrentVersion = "Kwm Version 3.0.1";
 std::map<CFStringRef, space_info> WindowTree;
 
 ax_state AXState = {};
