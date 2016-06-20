@@ -321,6 +321,7 @@ EVENT_CALLBACK(Callback_AXEvent_WindowDestroyed)
         if(FocusedApplication->Focus == Window)
             Display->Space->FocusedWindow = 0;
 
+        StandbyOnFloat(FocusedApplication->Focus);
         UpdateBorder("focused");
     }
 
