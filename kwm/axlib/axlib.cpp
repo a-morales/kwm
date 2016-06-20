@@ -199,7 +199,7 @@ std::vector<ax_window *> AXLibGetAllVisibleWindowsOrdered()
 
             if(((CFOwner && (CFStringCompare(CFOwner, CFSTR("Dock"), 0) == kCFCompareEqualTo)) &&
                 (CFName && (CFStringCompare(CFName, CFSTR("LPSpringboard"), 0) == kCFCompareEqualTo))) ||
-               WindowLayer == CONTEXT_MENU_LAYER)
+                (WindowLayer == CONTEXT_MENU_LAYER))
             {
                 CFRelease(WindowList);
                 Windows.clear();
@@ -217,12 +217,12 @@ std::vector<ax_window *> AXLibGetAllVisibleWindowsOrdered()
                 ax_window *Window = AXLibFindApplicationWindow(Application, WindowID);
                 if(Window)
                 {
-                    if((Window->ID == WindowID) &&
-                       (AXLibIsWindowStandard(Window) || AXLibIsWindowCustom(Window)))
+                    if((AXLibIsWindowStandard(Window) ||
+                       (AXLibIsWindowCustom(Window))))
                     {
                         Windows.push_back(Window);
-                        break;
                     }
+                    break;
                 }
             }
         }
