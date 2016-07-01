@@ -30,7 +30,12 @@ CFTypeRef AXLibGetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property)
 {
     CFTypeRef TypeRef;
     AXError Error = AXUIElementCopyAttributeValue(WindowRef, Property, &TypeRef);
-    return (Error == kAXErrorSuccess) ? TypeRef : NULL;
+    bool Result = (Error == kAXErrorSuccess);
+
+    if(!Result && TypeRef)
+        CFRelease(TypeRef);
+
+    return Result ? TypeRef : NULL;
 }
 
 AXError AXLibSetWindowProperty(AXUIElementRef WindowRef, CFStringRef Property, CFTypeRef Value)
