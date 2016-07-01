@@ -18,14 +18,11 @@
 #define local_persist static
 
 /* TODO(koekeishiya): Every event should pass a valid identifier that can be used to lookup the appropriate
-                      context, rather than passing the context itself. This is necessary to be able to guarantee
-                      that we do not access an invalid context, as it may have been invalidated after even creation
-                      and event processing. */
+                      context, rather than passing a pointer to the context itself. This is necessary to be
+                      able to guarantee that we do not access an invalid context, as it may have been invalidated
+                      between event creation and event processing. */
 
-/* TODO(koekeishiya): std::map cannot properly compare CFStringRefs. Consider writing
-                      our own map type or switch back to CGSSpaceID. Using a CGSSpaceID
-                      would require a remap between old and new CGSSpaceIDs in certain cases.
-                      Is there a better alternative (?) */
+/* TODO(koekeishiya): std::map cannot properly compare CFStringRefs. Write a lookup routine. */
 extern std::map<CFStringRef, space_info> WindowTree;
 
 extern ax_state AXState;
@@ -547,7 +544,6 @@ LoadSpaceSettings(ax_display *Display, space_info *SpaceInfo)
     else if((SpaceSettings = GetSpaceSettingsForDisplay(Display->ArrangementID)))
         SpaceInfo->Settings = *SpaceSettings;
 
-    /* TODO(koekeishiya): Is SpaceModeDefault necessary (?) */
     if(SpaceInfo->Settings.Mode == SpaceModeDefault)
         SpaceInfo->Settings.Mode = KWMSettings.Space;
 }
@@ -1013,7 +1009,7 @@ void ToggleFocusedWindowFloating()
 
 void ToggleFocusedWindowParentContainer()
 {
-    /* TODO(koekeishiya): This function should be able to assume that the focused window is valid. */
+    /* TODO(koekeishiya): Should this function be able to assume that the focused window is valid (?) */
 
     ax_window *Window = FocusedApplication->Focus;
     if(!Window)
@@ -1053,7 +1049,7 @@ void ToggleFocusedWindowFullscreen()
     /* NOTE(koekeishiya): The following code works and was added due to frustration of using a pre-alpha
                           window manager during development.  */
 
-    /* TODO(koekeishiya): This function should be able to assume that the focused window is valid. */
+    /* TODO(koekeishiya): Should this function be able to assume that the focused window is valid (?) */
 
     ax_window *Window = FocusedApplication->Focus;
     if(!Window)
