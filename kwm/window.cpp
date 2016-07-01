@@ -17,6 +17,11 @@
 #define internal static
 #define local_persist static
 
+/* TODO(koekeishiya): Every event should pass a valid identifier that can be used to lookup the appropriate
+                      context, rather than passing the context itself. This is necessary to be able to guarantee
+                      that we do not access an invalid context, as it may have been invalidated after even creation
+                      and event processing. */
+
 /* TODO(koekeishiya): std::map cannot properly compare CFStringRefs. Consider writing
                       our own map type or switch back to CGSSpaceID. Using a CGSSpaceID
                       would require a remap between old and new CGSSpaceIDs in certain cases.
