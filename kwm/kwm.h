@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+extern "C" bool CGSIsSecureEventInputSet(void);
 extern "C" void NSApplicationLoad(void);
 extern void CreateWorkspaceWatcher(void *Watcher);
 

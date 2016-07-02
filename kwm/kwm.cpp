@@ -249,20 +249,7 @@ int main(int argc, char **argv)
     if(CheckArguments(argc, argv))
         return 0;
 
-    KwmInit();
-    KWMMach.EventMask = ((1 << kCGEventKeyDown) |
-                         (1 << kCGEventMouseMoved));
-
-    KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, kCGEventTapOptionDefault, KWMMach.EventMask, CGEventCallback, NULL);
-    if(!KWMMach.EventTap || !CGEventTapIsEnabled(KWMMach.EventTap))
-        Fatal("Error: Could not create event-tap!");
-
-    CFRunLoopAddSource(CFRunLoopGetMain(),
-                       CFMachPortCreateRunLoopSource(kCFAllocatorDefault, KWMMach.EventTap, 0),
-                       kCFRunLoopCommonModes);
-    CGEventTapEnable(KWMMach.EventTap, true);
     NSApplicationLoad();
-
     if(!AXLibDisplayHasSeparateSpaces())
         Fatal("Error: 'Displays have separate spaces' must be enabled!");
 
@@ -282,12 +269,27 @@ int main(int argc, char **argv)
 
     FocusedDisplay = MainDisplay;
     FocusedApplication = AXLibGetFocusedApplication();
+    /* ----------------------------------- */
 
+    KwmInit();
     KwmExecuteConfig();
     KwmExecuteInitScript();
     CreateWindowNodeTree(MainDisplay);
-    /* ----------------------------------- */
 
+    if(CGSIsSecureEventInputSet())
+        fprintf(stderr, "Secure Keyboard Entry is enabled, hotkeys will not work!\n");
+
+    KWMMach.EventMask = ((1 << kCGEventKeyDown) |
+                         (1 << kCGEventMouseMoved));
+
+    KWMMach.EventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, kCGEventTapOptionDefault, KWMMach.EventMask, CGEventCallback, NULL);
+    if(!KWMMach.EventTap || !CGEventTapIsEnabled(KWMMach.EventTap))
+        Fatal("Error: Could not create event-tap!");
+
+    CFRunLoopAddSource(CFRunLoopGetMain(),
+                       CFMachPortCreateRunLoopSource(kCFAllocatorDefault, KWMMach.EventTap, 0),
+                       kCFRunLoopCommonModes);
+    CGEventTapEnable(KWMMach.EventTap, true);
     CFRunLoopRun();
     return 0;
 }
