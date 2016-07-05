@@ -193,7 +193,8 @@ AXLibConstructSpacesForDisplay(ax_display *Display)
 }
 
 /* NOTE(koekeishiya): CGDirectDisplayID of a display can change when swapping GPUs, but the
-                      UUID remain the same. This function performs the CGDirectDisplayID update. */
+                      UUID remain the same. This function performs the CGDirectDisplayID update
+                      and repopulates the list of spaces. */
 internal inline void
 AXLibChangeDisplayID(CGDirectDisplayID OldDisplayID, CGDirectDisplayID NewDisplayID)
 {
@@ -206,7 +207,6 @@ AXLibChangeDisplayID(CGDirectDisplayID OldDisplayID, CGDirectDisplayID NewDispla
     Displays->erase(OldDisplayID);
 
     ax_display *DisplayPtr = &(*Displays)[NewDisplayID];
-    /* NOTE(koekeishiya): We only want to repopulate list of spaces when a CGDirectDisplayID was invalidated. */
     std::map<CGSSpaceID, ax_space>::iterator It;
     for(It = DisplayPtr->Spaces.begin(); It != DisplayPtr->Spaces.end(); ++It)
         free((char *)It->second.Identifier);
@@ -234,7 +234,7 @@ AXLibConstructDisplay(CGDirectDisplayID DisplayID, unsigned int ArrangementID)
     return Display;
 }
 
-/* NOTE(koekeishiya): Updates an ax_display for a given CGDirectDisplayID. Repopulates the list of spaces. */
+/* NOTE(koekeishiya): Updates an ax_display for a given CGDirectDisplayID. */
 internal void
 AXLibRefreshDisplay(ax_display *Display, CGDirectDisplayID DisplayID, unsigned int ArrangementID)
 {
@@ -287,7 +287,7 @@ AXLibAddDisplay(CGDirectDisplayID DisplayID)
                               is still in use by the same display we added earlier (?) */
     }
 
-    /* NOTE(koekeishiya): Refresh all displays and their asssociated spaces for now. */
+    /* NOTE(koekeishiya): Refresh map of connected displays and update exisitng frame bounds. */
     AXLibRefreshDisplays();
 
     /* TODO(koekeishiya): Should probably pass an identifier for the added display. */
@@ -309,6 +309,7 @@ AXLibRemoveDisplay(CGDirectDisplayID DisplayID)
             if((*Displays)[StoredDisplayID].Identifier)
                 CFRelease((*Displays)[StoredDisplayID].Identifier);
 
+            /* TODO(koekeishiya): Properly free memory allocated to space identifiers of the removed display. */
             Displays->erase(StoredDisplayID);
         }
     }
@@ -323,12 +324,8 @@ AXLibRemoveDisplay(CGDirectDisplayID DisplayID)
 internal inline void
 AXLibResizeDisplay(CGDirectDisplayID DisplayID)
 {
-    /* TODO(koekeishiya): How does this affect a multi-monitor setup. If the primary monitor
-                          has origin (0, 0) and size (1440, 900), and a secondary monitor has origin (1440, 0)
-                          and size (1920, 1080). If the primary monitor changes resolution to (1920, 1200), do
-                          we also need to refresh display bounds of the secondary monitor (?) */
-
-    /* NOTE(koekeishiya): Refresh all displays for now. */
+    /* NOTE(koekeishiya): Display frames consists of both an origin and size dimension. When a display
+                          is resized, we need to refresh the boundary information for all other displays. */
     CFStringRef DisplayIdentifier = AXLibGetDisplayIdentifier(DisplayID);
     AXLibRefreshDisplays();
 
@@ -344,7 +341,8 @@ AXLibResizeDisplay(CGDirectDisplayID DisplayID)
 internal inline void
 AXLibMoveDisplay(CGDirectDisplayID DisplayID)
 {
-    /* NOTE(koekeishiya): Refresh all displays for now. */
+    /* NOTE(koekeishiya): Display frames consists of both an origin and size dimension. When a display
+                          is moved, we need to refresh the boundary information for all other displays. */
     CFStringRef DisplayIdentifier = AXLibGetDisplayIdentifier(DisplayID);
     AXLibRefreshDisplays();
 
