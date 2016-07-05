@@ -8,7 +8,7 @@
 #include "axlib/application.h"
 #include "axlib/window.h"
 
-extern std::map<CFStringRef, space_info> WindowTree;
+extern std::map<const char *, space_info> WindowTree;
 extern ax_window *MarkedWindow;
 
 extern kwm_settings KWMSettings;

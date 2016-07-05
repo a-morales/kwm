@@ -23,4 +23,6 @@ CGSize AXLibGetWindowSize(AXUIElementRef WindowRef);
 bool AXLibGetWindowRole(AXUIElementRef WindowRef, CFTypeRef *Role);
 bool AXLibGetWindowSubrole(AXUIElementRef WindowRef, CFTypeRef *Subrole);
 
+char * CopyCFStringToC(CFStringRef String, bool UTF8);
+
 #endif

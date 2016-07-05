@@ -6,7 +6,7 @@
 
 #include "axlib/axlib.h"
 
-extern std::map<CFStringRef, space_info> WindowTree;
+extern std::map<const char *, space_info> WindowTree;
 extern ax_application *FocusedApplication;
 
 extern kwm_settings KWMSettings;

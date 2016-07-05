@@ -1,6 +1,8 @@
 #include "display.h"
 #include "event.h"
 #include "window.h"
+#include "element.h"
+#include <stdlib.h>
 #include <Cocoa/Cocoa.h>
 
 #define internal static
@@ -61,17 +63,6 @@ AXLibDisplay(CFStringRef DisplayIdentifier)
     }
 
     return NULL;
-}
-
-/* NOTE(koekeishiya): CGDirectDisplayID of a display can change when swapping GPUs, but the
-                      UUID remain the same. This function performs the CGDirectDisplayID update. */
-internal inline void
-AXLibChangeDisplayID(CGDirectDisplayID OldDisplayID, CGDirectDisplayID NewDisplayID)
-{
-    ax_display Display = (*Displays)[OldDisplayID];
-    (*Displays)[NewDisplayID] = Display;
-    (*Displays)[NewDisplayID].ID = NewDisplayID;
-    Displays->erase(OldDisplayID);
 }
 
 /* NOTE(koekeishiya): Find the UUID for a given CGDirectDisplayID. */
@@ -145,7 +136,10 @@ AXLibConstructSpace(CFStringRef Identifier, CGSSpaceID SpaceID, CGSSpaceType Spa
 {
     ax_space Space;
 
-    Space.Identifier = Identifier;
+    Space.Identifier = CopyCFStringToC(Identifier, true);
+    if(!Space.Identifier)
+        Space.Identifier = CopyCFStringToC(Identifier, false);
+
     Space.ID = SpaceID;
     Space.Type = SpaceType;
 
@@ -164,6 +158,7 @@ ax_space * AXLibGetActiveSpace(ax_display *Display)
         CFStringRef SpaceUUID = AXLibGetActiveSpaceIdentifier(Display);
         CGSSpaceType SpaceType = CGSSpaceGetType(CGSDefaultConnection, SpaceID);
         Display->Spaces[SpaceID] = AXLibConstructSpace(SpaceUUID, SpaceID, SpaceType);
+        CFRelease(SpaceUUID);
         /* NOTE(koekeishiya): Do we want this (?) AXLibConstructEvent(AXEvent_SpaceCreated, &Display->Spaces[SpaceID]); */
     }
 
@@ -188,12 +183,38 @@ AXLibConstructSpacesForDisplay(ax_display *Display)
                 CGSSpaceType SpaceType = [SpaceDictionary[@"type"] intValue];
                 CFStringRef SpaceUUID = (__bridge CFStringRef) [[NSString alloc] initWithString:SpaceDictionary[@"uuid"]];
                 Display->Spaces[SpaceID] = AXLibConstructSpace(SpaceUUID, SpaceID, SpaceType);
+                CFRelease(SpaceUUID);
             }
             break;
         }
     }
 
     CFRelease(DisplayDictionaries);
+}
+
+/* NOTE(koekeishiya): CGDirectDisplayID of a display can change when swapping GPUs, but the
+                      UUID remain the same. This function performs the CGDirectDisplayID update. */
+internal inline void
+AXLibChangeDisplayID(CGDirectDisplayID OldDisplayID, CGDirectDisplayID NewDisplayID)
+{
+    if(OldDisplayID == NewDisplayID)
+        return;
+
+    ax_display Display = (*Displays)[OldDisplayID];
+    (*Displays)[NewDisplayID] = Display;
+    (*Displays)[NewDisplayID].ID = NewDisplayID;
+    Displays->erase(OldDisplayID);
+
+    ax_display *DisplayPtr = &(*Displays)[NewDisplayID];
+    /* NOTE(koekeishiya): We only want to repopulate list of spaces when a CGDirectDisplayID was invalidated. */
+    std::map<CGSSpaceID, ax_space>::iterator It;
+    for(It = DisplayPtr->Spaces.begin(); It != DisplayPtr->Spaces.end(); ++It)
+        free((char *)It->second.Identifier);
+
+    DisplayPtr->Spaces.clear();
+    AXLibConstructSpacesForDisplay(DisplayPtr);
+    DisplayPtr->Space = AXLibGetActiveSpace(DisplayPtr);
+    DisplayPtr->PrevSpace = DisplayPtr->Space;
 }
 
 /* NOTE(koekeishiya): Initializes an ax_display for a given CGDirectDisplayID. Also populates the list of spaces. */
@@ -219,17 +240,6 @@ AXLibRefreshDisplay(ax_display *Display, CGDirectDisplayID DisplayID, unsigned i
 {
     Display->ArrangementID = ArrangementID;
     Display->Frame = CGDisplayBounds(DisplayID);
-
-    /* NOTE(koekeishiya): We only want to repopulate list of spaces
-                          when a CGDirectDisplayID was invalidated.
-    std::map<CGSSpaceID, ax_space>::iterator It;
-    for(It = Display->Spaces.begin(); It != Display->Spaces.end(); ++It)
-        CFRelease(It->second.Identifier);
-
-    Display->Spaces.clear();
-    AXLibConstructSpacesForDisplay(Display); */
-    Display->Space = AXLibGetActiveSpace(Display);
-    Display->PrevSpace = Display->Space;
 }
 
 /* NOTE(koekeishiya): Repopulate map with information about all connected displays. */

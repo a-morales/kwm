@@ -5,7 +5,6 @@
 #include <string>
 #include <map>
 
-
 /* NOTE(koekeishiya): User controlled spaces */
 #define kCGSSpaceUser 0
 
@@ -35,7 +34,7 @@ enum ax_space_flags
 
 struct ax_space
 {
-    CFStringRef Identifier;
+    const char *Identifier;
     CGSSpaceID ID;
     CGSSpaceType Type;
     uint32_t Flags;

@@ -9,7 +9,7 @@
 #include "axlib/axlib.h"
 
 #define internal static
-extern std::map<CFStringRef, space_info> WindowTree;
+extern std::map<const char *, space_info> WindowTree;
 extern kwm_settings KWMSettings;
 
 tree_node *CreateTreeFromWindowIDList(ax_display *Display, std::vector<uint32_t> *Windows)

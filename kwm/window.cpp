@@ -22,9 +22,7 @@
                       able to guarantee that we do not access an invalid context, as it may have been invalidated
                       between event creation and event processing. */
 
-/* TODO(koekeishiya): std::map cannot properly compare CFStringRefs. Write a lookup routine. */
-extern std::map<CFStringRef, space_info> WindowTree;
-
+extern std::map<const char *, space_info> WindowTree;
 extern ax_state AXState;
 extern ax_display *FocusedDisplay;
 extern ax_application *FocusedApplication;

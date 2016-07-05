@@ -6,7 +6,7 @@
 #include "helpers.h"
 #include "cursor.h"
 
-extern std::map<CFStringRef, space_info> WindowTree;
+extern std::map<const char *, space_info> WindowTree;
 extern kwm_settings KWMSettings;
 
 void SetDefaultPaddingOfDisplay(container_offset Offset)
