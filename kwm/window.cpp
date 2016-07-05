@@ -573,6 +573,9 @@ AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, uint32_t WindowID
 
         if(CurrentNode)
         {
+            uint32_t CurrentNodeWindowID = CurrentNode->WindowID;
+            bool ParentZoom = CurrentNode->Parent && CurrentNode->Parent->WindowID == CurrentNode->WindowID;
+
             if(CurrentNode->Type == NodeTypeTree)
             {
                 split_type SplitMode = KWMSettings.SplitMode == SPLIT_OPTIMAL ? GetOptimalSplitMode(CurrentNode) : KWMSettings.SplitMode;
@@ -603,6 +606,13 @@ AddWindowToBSPTree(ax_display *Display, space_info *SpaceInfo, uint32_t WindowID
                     ResizeWindowToContainerSize(CurrentNode->List);
                 }
             }
+
+            if(ParentZoom)
+            {
+                CurrentNode->Parent->WindowID = 0;
+                CurrentNode->WindowID = CurrentNodeWindowID;
+                ResizeWindowToContainerSize(CurrentNode);
+            }
         }
     }
 }
@@ -611,39 +621,19 @@ internal void
 RemoveWindowFromBSPTree(ax_display *Display, uint32_t WindowID)
 {
     space_info *SpaceInfo = &WindowTree[Display->Space->Identifier];
+    if(SpaceInfo->RootNode->WindowID == WindowID)
+        SpaceInfo->RootNode->WindowID = 0;
+
     tree_node *WindowNode = GetTreeNodeFromWindowID(SpaceInfo->RootNode, WindowID);
-    if(!WindowNode)
-    {
-        link_node *Link = GetLinkNodeFromWindowID(SpaceInfo->RootNode, WindowID);
-        tree_node *Root = GetTreeNodeFromLink(SpaceInfo->RootNode, Link);
-        if(Link)
-        {
-            link_node *Prev = Link->Prev;
-            link_node *Next = Link->Next;
-
-            Link->Prev = NULL;
-            Link->Next = NULL;
-
-            if(Prev)
-                Prev->Next = Next;
-
-            if(!Prev)
-                Root->List = Next;
-
-            if(Next)
-                Next->Prev = Prev;
-
-            if(Link == Root->List)
-                Root->List = NULL;
-
-            free(Link);
-        }
-    }
-    else
+    if(WindowNode)
     {
         tree_node *Parent = WindowNode->Parent;
         if(Parent && Parent->LeftChild && Parent->RightChild)
         {
+           if((SpaceInfo->RootNode->WindowID == Parent->LeftChild->WindowID) ||
+              (SpaceInfo->RootNode->WindowID == Parent->RightChild->WindowID))
+               SpaceInfo->RootNode->WindowID = 0;
+
             tree_node *AccessChild = IsRightChild(WindowNode) ? Parent->LeftChild : Parent->RightChild;
             Parent->LeftChild = NULL;
             Parent->RightChild = NULL;
@@ -672,6 +662,33 @@ RemoveWindowFromBSPTree(ax_display *Display, uint32_t WindowID)
         {
             free(SpaceInfo->RootNode);
             SpaceInfo->RootNode = NULL;
+        }
+    }
+    else
+    {
+        link_node *Link = GetLinkNodeFromWindowID(SpaceInfo->RootNode, WindowID);
+        tree_node *Root = GetTreeNodeFromLink(SpaceInfo->RootNode, Link);
+        if(Link)
+        {
+            link_node *Prev = Link->Prev;
+            link_node *Next = Link->Next;
+
+            Link->Prev = NULL;
+            Link->Next = NULL;
+
+            if(Prev)
+                Prev->Next = Next;
+
+            if(!Prev)
+                Root->List = Next;
+
+            if(Next)
+                Next->Prev = Prev;
+
+            if(Link == Root->List)
+                Root->List = NULL;
+
+            free(Link);
         }
     }
 }
